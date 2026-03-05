@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Missing Numbers Grid Worksheet Generator</title>
+  <title>Telling Time: Draw the Hands Worksheet Generator</title>
   <style>
     * {
       margin: 0;
@@ -81,20 +81,6 @@
       border-color: #cbd5e0;
     }
 
-    .range-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .range-row .sub-label {
-      font-size: 11px;
-      color: #718096;
-      font-weight: 600;
-      margin-bottom: 4px;
-      display: block;
-    }
-
     /* ===== Advanced Options Toggle ===== */
     .advanced-toggle {
       display: flex;
@@ -132,7 +118,7 @@
     }
 
     .advanced-panel.open {
-      max-height: 600px;
+      max-height: 800px;
     }
 
     .advanced-panel-inner {
@@ -186,22 +172,6 @@
       font-weight: 600;
       display: block;
       margin-bottom: 4px;
-    }
-
-    .adv-separator {
-      height: 1px;
-      background: #e2e8f0;
-      margin: 6px 0 10px;
-    }
-
-    .adv-section-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: #4a5568;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
-      display: block;
     }
 
     /* ===== Checkboxes ===== */
@@ -259,11 +229,6 @@
 
     .btn-generate {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-
-    .btn-pdf {
-      background: #38a169;
       color: white;
     }
 
@@ -381,33 +346,23 @@
       }
     }
   </style>
-  <script src="jspdf.umd.min.js"></script>
-  <script src="svg2pdf.js"></script>
 </head>
 <body>
   <div class="main-container">
     <!-- Left sidebar controls -->
     <div class="sidebar">
-	<a href="index.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #667eea; text-decoration: none; margin-bottom: 16px; transition: gap 0.2s;"
+	<a href="../../index.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #667eea; text-decoration: none; margin-bottom: 16px; transition: gap 0.2s;"
    onmouseover="this.style.gap='10px'" onmouseout="this.style.gap='6px'">
   ← All Worksheets
 </a>
-      <h2>Missing Numbers Grid Worksheet Generator</h2>
+      <h2>Telling Time: Draw the Hands Worksheet Generator</h2>
 
       <div class="control-group">
-        <label for="withinSelect">Range</label>
-        <select id="withinSelect">
-          <option value="5">Within 5</option>
-          <option value="10">Within 10</option>
-          <option value="20">Within 20</option>
-          <option value="50">Within 50</option>
-          <option value="100" selected>Within 100</option>
-          <option value="custom">Custom</option>
+        <label for="clockType">Clock Type</label>
+        <select id="clockType">
+          <option value="hours" selected>Hours</option>
+          <option value="minutes">Hours &amp; Minutes</option>
         </select>
-      </div>
-      <div class="control-group" id="customWithinGroup" style="display:none;">
-        <label for="customWithin">Custom value</label>
-        <input type="number" id="customWithin" value="25" min="2" max="200" />
       </div>
 
       <div class="control-group">
@@ -441,17 +396,16 @@
       <div class="advanced-panel" id="advPanel">
         <div class="advanced-panel-inner">
 
-          <!-- Missing number percentage -->
-          <div class="control-group">
-            <label for="missingPercent">Missing number percentage</label>
-            <select id="missingPercent">
-              <option value="15">~15%</option>
-              <option value="20">~20%</option>
-              <option value="30">~30%</option>
-              <option value="40">~40%</option>
-              <option value="50" selected>~50%</option>
-              <option value="60">~60%</option>
-              <option value="75">~75%</option>
+          <!-- Show tick marks -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="showTickMarks" />
+            <label for="showTickMarks">Show tick marks</label>
+          </div>
+          <div class="adv-sub" id="tickStyleOptions" style="display:none;">
+            <label for="tickStyle">Style</label>
+            <select id="tickStyle">
+              <option value="hours" selected>Hours Only</option>
+              <option value="minutes">Hours &amp; Minutes</option>
             </select>
           </div>
 
@@ -462,7 +416,7 @@
           </div>
           <div class="adv-sub" id="customTitleOptions" style="display:none;">
             <label for="worksheetTitle">Title</label>
-            <input type="text" id="worksheetTitle" value="Missing Numbers" style="width:100%;padding:8px 10px;font-size:13px;border:2px solid #e2e8f0;border-radius:8px;" />
+            <input type="text" id="worksheetTitle" value="Telling Time: Draw the Hands" style="width:100%;padding:8px 10px;font-size:13px;border:2px solid #e2e8f0;border-radius:8px;" />
           </div>
 
           <!-- Name / Date -->
@@ -506,14 +460,10 @@
       if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
       return el;
     }
-    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
-    const elWithin = document.getElementById("withinSelect");
-    const elCustomWithinGroup = document.getElementById("customWithinGroup");
-    const elCustomWithin = document.getElementById("customWithin");
-    const elMissingPercent = document.getElementById("missingPercent");
+    const elClockType = document.getElementById("clockType");
     const elNumSheets = document.getElementById("numWorksheets");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
     const elHeaderMode = document.getElementById("headerMode");
@@ -526,152 +476,289 @@
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
     const advArrow = document.getElementById("advArrow");
+    const elShowTickMarks = document.getElementById("showTickMarks");
+    const elTickStyle = document.getElementById("tickStyle");
+    const elTickStyleOptions = document.getElementById("tickStyleOptions");
 
     // ===== Advanced panel toggle =====
     advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
 
-    // ===== Within dropdown =====
-    function getWithinValue() {
-      return elWithin.value === "custom" ? (parseInt(elCustomWithin.value, 10) || 10) : parseInt(elWithin.value, 10);
-    }
-
-    elWithin.addEventListener("change", () => {
-      elCustomWithinGroup.style.display = elWithin.value === "custom" ? "block" : "none";
-      renderWithNewRandomization();
-    });
-    elCustomWithin.addEventListener("input", () => renderWithNewRandomization());
-
     // ===== Auto title =====
     function generateAutoTitle() {
-      const w = getWithinValue();
-      return "Missing Numbers 1\u2013" + w;
+      return elClockType.value === "hours" ? "Telling Time: Draw the Hands - Hours" : "Telling Time: Draw the Hands - Hours & Minutes";
     }
 
     // ===== Gather options =====
     function gatherOptions() {
       let showHeader = "none";
       if (elShowHeaderEnabled.checked) showHeader = elHeaderMode.value;
-      const title = elCustomTitleEnabled.checked ? (elTitle.value || "Missing Numbers") : generateAutoTitle();
-      const within = getWithinValue();
+      const title = elCustomTitleEnabled.checked ? (elTitle.value || "Telling Time: Draw the Hands") : generateAutoTitle();
+
+      const showTicks = elShowTickMarks.checked;
+      const tickStyle = showTicks ? elTickStyle.value : "none"; // "none", "hours", "minutes"
+
       return {
-        within,
-        start: 1,
-        missingPercent: parseInt(elMissingPercent.value, 10),
+        clockType: elClockType.value,
         numWorksheets: parseInt(elNumSheets.value, 10),
         showHeader,
         title,
         branded: elBranded.checked,
         answerKey: elAnswerKey.checked,
+        tickStyle,
+        showArrows: false,
       };
     }
 
     // ===== State =====
     let currentState = { sheets: [] };
 
-    // ===== Grid data generation =====
-    function generateMissingSet(totalNumbers, missingPercent) {
-      const missingCount = Math.max(1, Math.round(totalNumbers * missingPercent / 100));
-      const indices = [];
-      for (let i = 0; i < totalNumbers; i++) indices.push(i);
-      for (let i = indices.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [indices[i], indices[j]] = [indices[j], indices[i]];
-      }
-      return new Set(indices.slice(0, missingCount));
-    }
-
-    // Calculate page layout metrics
-    function getPageMetrics(opts) {
-      const pageW = 612, pageH = 792, margin = 36;
-      const topGridY = (opts.showHeader === "both" || opts.showHeader === "name") ? 100 : 75;
-      const bottomMargin = opts.branded ? 50 : 40;
-      return { pageW, pageH, margin, topGridY, bottomMargin, availH: pageH - bottomMargin - topGridY, availW: pageW - margin * 2 };
-    }
-
-    // How many small grids fit on a page
-    function getSmallGridCount(totalNumbers, opts) {
-      const { availH, availW } = getPageMetrics(opts);
-      const cols = totalNumbers;
-      const rawCellW = availW / cols;
-      const cellSize = Math.min(rawCellW, 65);
-      const gap = Math.max(12, cellSize * 0.35);
-      const blockH = cellSize + gap;
-      let count = Math.max(2, Math.floor((availH + gap) / blockH));
-      // Cap counts for small ranges so grids spread out with more breathing room
-      if (totalNumbers <= 5) count = Math.min(count, 6);
-      if (totalNumbers >= 6 && totalNumbers <= 10) count = Math.min(count, 8);
-      return count;
-    }
-
-    // A "sheet" is an array of grids
-    function generateSheet(opts) {
-      const { within, start, missingPercent } = opts;
-      const totalNumbers = within - start + 1;
-
-      if (totalNumbers <= 10) {
-        const gridCount = getSmallGridCount(totalNumbers, opts);
-        const grids = [];
-        for (let i = 0; i < gridCount; i++) {
-          grids.push({ start, within, totalNumbers, missingSet: generateMissingSet(totalNumbers, missingPercent) });
-        }
-        return grids;
+    // ===== Generate random times =====
+    function generateRandomTime(clockType) {
+      const hour = Math.floor(Math.random() * 12) + 1;
+      let minute;
+      if (clockType === "hours") {
+        minute = 0;
       } else {
-        return [{ start, within, totalNumbers, missingSet: generateMissingSet(totalNumbers, missingPercent) }];
+        minute = Math.floor(Math.random() * 60);
       }
+      return { hour, minute };
     }
 
-    // ===== Grid dimensions for >= 11 numbers =====
-    // Prefer standard educational column counts (5, 10) when numbers
-    // divide evenly — these reinforce place-value and counting by 5s/10s.
-    // Otherwise, find the best-fitting layout for the page.
-    function getSquareGridDimensions(totalNumbers, availW, availH) {
-      // Check if 5 or 10 columns divide evenly, and pick whichever fills
-      // the portrait page better (larger resulting grid area).
-      const candidates = [];
-      if (totalNumbers % 5 === 0) candidates.push({ cols: 5, rows: totalNumbers / 5 });
-      if (totalNumbers % 10 === 0) candidates.push({ cols: 10, rows: totalNumbers / 10 });
+    function generateSheet(opts) {
+      const times = [];
+      for (let i = 0; i < 9; i++) {
+        times.push(generateRandomTime(opts.clockType));
+      }
+      return times;
+    }
 
-      if (candidates.length > 0) {
-        let best = candidates[0];
-        let bestArea = 0;
-        for (const cand of candidates) {
-          const cell = Math.min(availW / cand.cols, availH / cand.rows);
-          const area = cell * cand.cols * cell * cand.rows;
-          if (area > bestArea) { bestArea = area; best = cand; }
+    // ===== Draw a single clock face (no hands version for worksheet) =====
+    function drawClockFace(svg, cx, cy, radius, tickStyle) {
+      const color = "#2d3748";
+      const hasTicks = tickStyle !== "none";
+      const hasMinuteTicks = tickStyle === "minutes";
+
+      // Clock circle
+      svg.appendChild(svgEl("circle", {
+        cx, cy, r: radius,
+        fill: "none", stroke: color, "stroke-width": "2"
+      }));
+
+      // Tick marks and numbers
+      for (let i = 1; i <= 12; i++) {
+        const angle = (i * 30 - 90) * Math.PI / 180;
+
+        // Hour tick marks
+        if (hasTicks) {
+          const tickOuter = radius * 0.93;
+          const tickInner = radius * 0.86;
+          svg.appendChild(svgEl("line", {
+            x1: cx + Math.cos(angle) * tickInner,
+            y1: cy + Math.sin(angle) * tickInner,
+            x2: cx + Math.cos(angle) * tickOuter,
+            y2: cy + Math.sin(angle) * tickOuter,
+            stroke: color, "stroke-width": "1.5"
+          }));
         }
-        return best;
+
+        // Minute tick marks (between hours)
+        if (hasMinuteTicks) {
+          for (let m = 1; m <= 4; m++) {
+            const mAngle = ((i - 1) * 30 + m * 6 - 90) * Math.PI / 180;
+            const mTickOuter = radius * 0.93;
+            const mTickInner = radius * 0.88;
+            svg.appendChild(svgEl("line", {
+              x1: cx + Math.cos(mAngle) * mTickInner,
+              y1: cy + Math.sin(mAngle) * mTickInner,
+              x2: cx + Math.cos(mAngle) * mTickOuter,
+              y2: cy + Math.sin(mAngle) * mTickOuter,
+              stroke: color, "stroke-width": "0.7"
+            }));
+          }
+        }
+
+        // Numbers
+        const numR = hasTicks ? radius * 0.72 : radius * 0.84;
+        const fontSize = radius * 0.22;
+        const numX = cx + Math.cos(angle) * numR;
+        const numY = cy + Math.sin(angle) * numR;
+        const el = svgEl("text", {
+          x: numX, y: numY + fontSize * 0.35,
+          "text-anchor": "middle",
+          "font-family": "Arial, Helvetica, sans-serif",
+          "font-size": String(fontSize),
+          "font-weight": "600",
+          fill: color
+        });
+        el.textContent = String(i);
+        svg.appendChild(el);
       }
 
-      // Otherwise: find the layout that best fills the portrait page
-      const pageAspect = availW / availH;
-      let bestCols = Math.round(Math.sqrt(totalNumbers));
-      let bestRows = Math.ceil(totalNumbers / bestCols);
-      let bestScore = -1;
+      // Center dot only (no hands)
+      svg.appendChild(svgEl("circle", {
+        cx, cy, r: radius * 0.04,
+        fill: color
+      }));
+    }
 
-      for (let c = 2; c <= totalNumbers; c++) {
-        const r = Math.ceil(totalNumbers / c);
-        if (r < 1) continue;
-        const cell = Math.min(availW / c, availH / r);
-        const gridW = cell * c;
-        const gridH = cell * r;
-        const gridAspect = gridW / gridH;
-        const aspectMatch = Math.min(gridAspect / pageAspect, pageAspect / gridAspect);
-        const fill = (gridW / availW) * (gridH / availH);
-        const waste = 1 - (c * r - totalNumbers) / (c * r) * 0.3;
-        const eduBonus = (c === 10 || c === 5) ? 2.5 : 1.0;
-        const score = fill * aspectMatch * waste * eduBonus;
-        if (score > bestScore) {
-          bestScore = score;
-          bestCols = c;
-          bestRows = r;
+    // ===== Draw a clock face WITH hands (for answer key) =====
+    function drawClockWithHands(svg, cx, cy, radius, hour, minute, tickStyle, showArrows) {
+      const color = "#2d3748";
+      const hasTicks = tickStyle !== "none";
+      const hasMinuteTicks = tickStyle === "minutes";
+
+      // Clock circle
+      svg.appendChild(svgEl("circle", {
+        cx, cy, r: radius,
+        fill: "none", stroke: color, "stroke-width": "2"
+      }));
+
+      // Tick marks and numbers
+      for (let i = 1; i <= 12; i++) {
+        const angle = (i * 30 - 90) * Math.PI / 180;
+
+        if (hasTicks) {
+          const tickOuter = radius * 0.93;
+          const tickInner = radius * 0.86;
+          svg.appendChild(svgEl("line", {
+            x1: cx + Math.cos(angle) * tickInner,
+            y1: cy + Math.sin(angle) * tickInner,
+            x2: cx + Math.cos(angle) * tickOuter,
+            y2: cy + Math.sin(angle) * tickOuter,
+            stroke: color, "stroke-width": "1.5"
+          }));
         }
+
+        if (hasMinuteTicks) {
+          for (let m = 1; m <= 4; m++) {
+            const mAngle = ((i - 1) * 30 + m * 6 - 90) * Math.PI / 180;
+            const mTickOuter = radius * 0.93;
+            const mTickInner = radius * 0.88;
+            svg.appendChild(svgEl("line", {
+              x1: cx + Math.cos(mAngle) * mTickInner,
+              y1: cy + Math.sin(mAngle) * mTickInner,
+              x2: cx + Math.cos(mAngle) * mTickOuter,
+              y2: cy + Math.sin(mAngle) * mTickOuter,
+              stroke: color, "stroke-width": "0.7"
+            }));
+          }
+        }
+
+        const numR = hasTicks ? radius * 0.72 : radius * 0.84;
+        const fontSize = radius * 0.22;
+        const numX = cx + Math.cos(angle) * numR;
+        const numY = cy + Math.sin(angle) * numR;
+        const el = svgEl("text", {
+          x: numX, y: numY + fontSize * 0.35,
+          "text-anchor": "middle",
+          "font-family": "Arial, Helvetica, sans-serif",
+          "font-size": String(fontSize),
+          "font-weight": "600",
+          fill: color
+        });
+        el.textContent = String(i);
+        svg.appendChild(el);
       }
-      return { cols: bestCols, rows: bestRows };
+
+      // Hand angles
+      const hourAngle = ((hour % 12) * 30 + minute * 0.5 - 90) * Math.PI / 180;
+      const minuteAngle = (minute * 6 - 90) * Math.PI / 180;
+
+      const minuteLen = hasTicks ? radius * 0.57 : radius * 0.68;
+      const hourLen = hasTicks ? radius * 0.44 : radius * 0.48;
+
+      // Arrowhead helper
+      function drawArrow(x2, y2, angle, size) {
+        const ux = Math.cos(angle), uy = Math.sin(angle);
+        const ax = -ux * size, ay = -uy * size;
+        const px = -uy * size * 0.7, py = ux * size * 0.7;
+        svg.appendChild(svgEl("polygon", {
+          points: [
+            x2 + "," + y2,
+            (x2 + ax + px) + "," + (y2 + ay + py),
+            (x2 + ax - px) + "," + (y2 + ay - py)
+          ].join(" "),
+          fill: color
+        }));
+      }
+
+      // Hour hand
+      const hourArrowPullback = showArrows ? radius * 0.1 : 0;
+      const hx2 = cx + Math.cos(hourAngle) * (hourLen - hourArrowPullback);
+      const hy2 = cy + Math.sin(hourAngle) * (hourLen - hourArrowPullback);
+      svg.appendChild(svgEl("line", {
+        x1: cx, y1: cy, x2: hx2, y2: hy2,
+        stroke: color, "stroke-width": "3.5", "stroke-linecap": "round"
+      }));
+      if (showArrows) {
+        const htx = cx + Math.cos(hourAngle) * hourLen;
+        const hty = cy + Math.sin(hourAngle) * hourLen;
+        drawArrow(htx, hty, hourAngle, radius * 0.12);
+      }
+
+      // Minute hand
+      const minArrowPullback = showArrows ? radius * 0.08 : 0;
+      const mx2 = cx + Math.cos(minuteAngle) * (minuteLen - minArrowPullback);
+      const my2 = cy + Math.sin(minuteAngle) * (minuteLen - minArrowPullback);
+      svg.appendChild(svgEl("line", {
+        x1: cx, y1: cy, x2: mx2, y2: my2,
+        stroke: color, "stroke-width": "2", "stroke-linecap": "round"
+      }));
+      if (showArrows) {
+        const mtx = cx + Math.cos(minuteAngle) * minuteLen;
+        const mty = cy + Math.sin(minuteAngle) * minuteLen;
+        drawArrow(mtx, mty, minuteAngle, radius * 0.1);
+      }
+
+      // Center dot on top
+      svg.appendChild(svgEl("circle", {
+        cx, cy, r: radius * 0.04,
+        fill: color
+      }));
+    }
+
+    // ===== Draw time display box below a clock =====
+    function drawTimeBox(svg, cx, boxTopY, boxH, time) {
+      const color = "#2d3748";
+      const boxW = boxH * 3.2;
+      const startX = cx - boxW / 2;
+
+      svg.appendChild(svgEl("rect", {
+        x: startX, y: boxTopY, width: boxW, height: boxH,
+        fill: "none", stroke: color, "stroke-width": "1.5", rx: 3
+      }));
+
+      // Colon
+      const colonY = boxTopY + boxH / 2;
+      const dotR = boxH * 0.07;
+      svg.appendChild(svgEl("circle", { cx, cy: colonY - boxH * 0.15, r: dotR, fill: color }));
+      svg.appendChild(svgEl("circle", { cx, cy: colonY + boxH * 0.15, r: dotR, fill: color }));
+
+      // Always show the time (this IS the prompt)
+      const fontSize = boxH * 0.75;
+      const hourStr = String(time.hour);
+      const minStr = String(time.minute).padStart(2, "0");
+
+      const hEl = svgEl("text", {
+        x: cx - boxW * 0.16, y: boxTopY + boxH / 2 + fontSize * 0.35,
+        "text-anchor": "middle", "font-family": "Arial, Helvetica, sans-serif",
+        "font-size": String(fontSize), "font-weight": "700", fill: color
+      });
+      hEl.textContent = hourStr;
+      svg.appendChild(hEl);
+
+      const mEl = svgEl("text", {
+        x: cx + boxW * 0.16, y: boxTopY + boxH / 2 + fontSize * 0.35,
+        "text-anchor": "middle", "font-family": "Arial, Helvetica, sans-serif",
+        "font-size": String(fontSize), "font-weight": "700", fill: color
+      });
+      mEl.textContent = minStr;
+      svg.appendChild(mEl);
     }
 
     // ===== SVG Rendering =====
-    function renderWorksheetSVG(sheetGrids, options) {
-      const { showHeader, title, branded, showAnswers } = options;
+    function renderWorksheetSVG(sheetTimes, options) {
+      const { showHeader, title, branded, isAnswerKey, tickStyle, showArrows } = options;
       const color = "#2d3748";
       const pageW = 612, pageH = 792, margin = 36;
 
@@ -688,18 +775,18 @@
         svg.appendChild(svgEl("line", { x1: margin + 50, y1: 32, x2: margin + 240, y2: 32, stroke: "#000", "stroke-width": 1 }));
         const dl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); dl.textContent = "Date:"; svg.appendChild(dl);
         svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
-        const tl = svgEl("text", { x: pageW / 2, y: 78, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
-        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
+        const tl = svgEl("text", { x: pageW / 2, y: 78, class: "txt", "font-size": isAnswerKey ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = isAnswerKey ? title + " - Answer Key" : title; svg.appendChild(tl);
         topGridY = 100;
       } else if (showHeader === "name") {
         const nl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
         svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
-        const tl = svgEl("text", { x: pageW / 2, y: 78, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
-        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
+        const tl = svgEl("text", { x: pageW / 2, y: 78, class: "txt", "font-size": isAnswerKey ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = isAnswerKey ? title + " - Answer Key" : title; svg.appendChild(tl);
         topGridY = 100;
       } else {
-        const tl = svgEl("text", { x: pageW / 2, y: 45, class: "txt", "font-size": showAnswers ? 20 : 22, "font-weight": 700, "text-anchor": "middle" });
-        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
+        const tl = svgEl("text", { x: pageW / 2, y: 45, class: "txt", "font-size": isAnswerKey ? 20 : 22, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = isAnswerKey ? title + " - Answer Key" : title; svg.appendChild(tl);
         topGridY = 75;
       }
 
@@ -711,149 +798,53 @@
       const bottomMargin = branded ? 50 : 40;
       const availH = pageH - bottomMargin - topGridY;
       const availW = pageW - margin * 2;
-      const firstGrid = sheetGrids[0];
-      const totalNumbers = firstGrid.totalNumbers;
 
-      if (totalNumbers <= 10) {
-        // ===== SMALL RANGE: multiple single-row grids =====
-        const gridCount = sheetGrids.length;
-        const cols = totalNumbers;
+      const cols = 3, rows = 3;
+      const cellW = availW / cols;
+      const cellH = availH / rows;
 
-        const rawCellW = availW / cols;
-        const cellSize = Math.min(rawCellW, 65);
+      const boxH = Math.min(cellH * 0.17, 36);
+      const boxGap = cellH * 0.04;
+      const clockAreaH = cellH - boxH - boxGap;
+      const radius = Math.min(cellW * 0.38, clockAreaH * 0.46);
 
-        const gridW = cellSize * cols;
-        // Distribute remaining vertical space evenly as gaps
-        const totalGridH = gridCount * cellSize;
-        const gap = gridCount > 1 ? (availH - totalGridH) / (gridCount + 1) : 0;
+      for (let i = 0; i < 9; i++) {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const cellX = margin + col * cellW;
+        const cellY = topGridY + row * cellH;
+        const ccx = cellX + cellW / 2;
+        const ccy = cellY + clockAreaH / 2;
+        const time = sheetTimes[i];
 
-        const totalH = totalGridH + (gridCount - 1) * gap;
-        const startY = topGridY + gap;
-        const startX = margin + (availW - gridW) / 2;
-
-        const maxDigits = String(firstGrid.within).length;
-        const fontSize = Math.min(cellSize * 0.5, cellSize * 0.75 / Math.max(1, maxDigits * 0.55));
-
-        for (let g = 0; g < gridCount; g++) {
-          const gridData = sheetGrids[g];
-          const gridY = startY + g * (cellSize + gap);
-          const gridX = startX;
-
-          // Outer border
-          svg.appendChild(svgEl("rect", {
-            x: gridX, y: gridY, width: gridW, height: cellSize,
-            fill: "none", stroke: color, "stroke-width": "2", rx: 0, ry: 0
-          }));
-
-          // Vertical lines
-          for (let c = 1; c < cols; c++) {
-            svg.appendChild(svgEl("line", {
-              x1: gridX + c * cellSize, y1: gridY,
-              x2: gridX + c * cellSize, y2: gridY + cellSize,
-              stroke: color, "stroke-width": "1"
-            }));
-          }
-
-          // Numbers
-          for (let i = 0; i < gridData.totalNumbers; i++) {
-            const num = gridData.start + i;
-            const cx = gridX + i * cellSize + cellSize / 2;
-            const cy = gridY + cellSize / 2 + fontSize * 0.35;
-            const isMissing = gridData.missingSet.has(i);
-            if (isMissing && !showAnswers) continue;
-
-            const textColor = (isMissing && showAnswers) ? "#3182ce" : "#1a202c";
-            const fontWeight = (isMissing && showAnswers) ? "700" : "600";
-
-            const el = svgEl("text", {
-              x: cx, y: cy, "text-anchor": "middle",
-              "font-family": "Arial, Helvetica, sans-serif",
-              "font-size": String(fontSize), "font-weight": fontWeight, fill: textColor
-            });
-            el.textContent = String(num);
-            svg.appendChild(el);
-          }
+        if (isAnswerKey) {
+          // Answer key: draw clock WITH hands
+          drawClockWithHands(svg, ccx, ccy, radius, time.hour, time.minute, tickStyle, showArrows);
+        } else {
+          // Worksheet: draw clock WITHOUT hands
+          drawClockFace(svg, ccx, ccy, radius, tickStyle);
         }
 
-      } else {
-        // ===== LARGE RANGE: single square-ish grid =====
-        const gridData = sheetGrids[0];
-        const { cols, rows } = getSquareGridDimensions(totalNumbers, availW, availH);
-
-        const maxCellW = availW / cols;
-        const maxCellH = availH / rows;
-        const cellSize = Math.floor(Math.min(maxCellW, maxCellH));
-
-        const gridW = cellSize * cols;
-        const gridH = cellSize * rows;
-        const gridX = margin + (availW - gridW) / 2;
-        const gridY = topGridY + (availH - gridH) / 2;
-
-        const maxDigits = String(gridData.within).length;
-        const fontSize = Math.min(cellSize * 0.5, cellSize * 0.75 / Math.max(1, maxDigits * 0.55));
-
-        // Outer border
-        svg.appendChild(svgEl("rect", {
-          x: gridX, y: gridY, width: gridW, height: gridH,
-          fill: "none", stroke: color, "stroke-width": "2.5", rx: 0, ry: 0
-        }));
-
-        // Vertical lines
-        for (let c = 1; c < cols; c++) {
-          svg.appendChild(svgEl("line", {
-            x1: gridX + c * cellSize, y1: gridY,
-            x2: gridX + c * cellSize, y2: gridY + gridH,
-            stroke: color, "stroke-width": "1.2"
-          }));
-        }
-        // Horizontal lines
-        for (let r = 1; r < rows; r++) {
-          svg.appendChild(svgEl("line", {
-            x1: gridX, y1: gridY + r * cellSize,
-            x2: gridX + gridW, y2: gridY + r * cellSize,
-            stroke: color, "stroke-width": "1.2"
-          }));
-        }
-
-        // Numbers
-        for (let i = 0; i < totalNumbers; i++) {
-          const num = gridData.start + i;
-          const col = i % cols;
-          const row = Math.floor(i / cols);
-          const cx = gridX + col * cellSize + cellSize / 2;
-          const cy = gridY + row * cellSize + cellSize / 2 + fontSize * 0.35;
-          const isMissing = gridData.missingSet.has(i);
-          if (isMissing && !showAnswers) continue;
-
-          const textColor = (isMissing && showAnswers) ? "#3182ce" : "#1a202c";
-          const fontWeight = (isMissing && showAnswers) ? "700" : "600";
-
-          const el = svgEl("text", {
-            x: cx, y: cy, "text-anchor": "middle",
-            "font-family": "Arial, Helvetica, sans-serif",
-            "font-size": String(fontSize), "font-weight": fontWeight, fill: textColor
-          });
-          el.textContent = String(num);
-          svg.appendChild(el);
-        }
-
-        // Gray out trailing empty cells
-        const totalCells = cols * rows;
-        for (let i = totalNumbers; i < totalCells; i++) {
-          const col = i % cols;
-          const row = Math.floor(i / cols);
-          svg.appendChild(svgEl("rect", {
-            x: gridX + col * cellSize, y: gridY + row * cellSize,
-            width: cellSize, height: cellSize,
-            fill: "#f0f0f0", stroke: color, "stroke-width": "1.2"
-          }));
-        }
+        // Time box always shows the time (it's the prompt)
+        const boxTopY = cellY + clockAreaH + boxGap;
+        drawTimeBox(svg, ccx, boxTopY, boxH, time);
       }
 
       return svg;
     }
 
-    // ===== Render logic =====
+    // ===== Render helpers =====
+    function buildRenderOptions(opts, isAnswerKey) {
+      return {
+        showHeader: isAnswerKey ? "none" : opts.showHeader,
+        title: opts.title,
+        branded: opts.branded,
+        isAnswerKey: !!isAnswerKey,
+        tickStyle: opts.tickStyle,
+        showArrows: opts.showArrows,
+      };
+    }
+
     function renderWithNewRandomization() {
       const opts = gatherOptions();
       currentState.sheets = [];
@@ -876,6 +867,7 @@
 
     function renderWorksheet() {
       const opts = gatherOptions();
+      const ro = buildRenderOptions(opts, false);
       const numSheets = currentState.sheets.length;
       sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
       const sheetWidth = 612, sheetHeight = 792;
@@ -883,8 +875,8 @@
       if (isMobile()) {
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false });
-          p.appendChild(v); sheetWrap.appendChild(p);
+          p.appendChild(renderWorksheetSVG(currentState.sheets[s], ro));
+          sheetWrap.appendChild(p);
         }
         return;
       }
@@ -893,48 +885,68 @@
         sheetWrap.classList.add("grid-view");
         const ep = numSheets >= 3 ? 12 : 0;
         const aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
-        let cols;
-        if (numSheets <= 3) { cols = numSheets; if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        else { cols = Math.min(3, numSheets); if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        const msw = (aw - (cols - 1) * gap) / cols, msh = numSheets <= 3 ? ah : ah * 0.8;
+        let cs;
+        if (numSheets <= 3) { cs = numSheets; if ((aw - (cs - 1) * gap) / cs < mrw) cs = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        else { cs = Math.min(3, numSheets); if ((aw - (cs - 1) * gap) / cs < mrw) cs = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        const msw = (aw - (cs - 1) * gap) / cs, msh = numSheets <= 3 ? ah : ah * 0.8;
         const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
         const sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
-        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
+        sheetWrap.style.gridTemplateColumns = "repeat(" + cs + ", " + (sw + 24) + "px)";
         sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false });
+          const v = renderWorksheetSVG(currentState.sheets[s], ro);
           v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
         }
       } else {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false });
-        p.appendChild(v); sheetWrap.appendChild(p);
+        p.appendChild(renderWorksheetSVG(currentState.sheets[0], ro));
+        sheetWrap.appendChild(p);
       }
     }
 
     function handlePrint() {
       if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
       const opts = gatherOptions();
+      const ro = buildRenderOptions(opts, false);
       const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
       sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false }));
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], ro));
         sheetWrap.appendChild(p);
       }
       if (opts.answerKey) {
+        const roAns = buildRenderOptions(opts, true);
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, branded: opts.branded, showAnswers: true }));
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], roAns));
           sheetWrap.appendChild(p);
         }
       }
       setTimeout(() => { window.print(); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 50);
     }
 
+    // ===== Sync tick marks UI =====
+    function syncTickMarksUI() {
+      elTickStyleOptions.style.display = elShowTickMarks.checked ? "block" : "none";
+    }
+
     // ===== Event Listeners =====
-    elMissingPercent.addEventListener("change", () => renderWithNewRandomization());
+    elClockType.addEventListener("change", () => {
+      if (elClockType.value === "minutes") {
+        elShowTickMarks.checked = true;
+        elTickStyle.value = "minutes";
+      } else {
+        elShowTickMarks.checked = false;
+        elTickStyle.value = "hours";
+      }
+      syncTickMarksUI();
+      renderWithNewRandomization();
+    });
+
+    elShowTickMarks.addEventListener("change", () => { syncTickMarksUI(); renderWithoutRandomization(); });
+    elTickStyle.addEventListener("change", () => renderWithoutRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elShowHeaderEnabled.addEventListener("change", () => {
       elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
@@ -954,6 +966,7 @@
     window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150); });
 
     // Init
+    syncTickMarksUI();
     renderWithNewRandomization();
   </script>
 </body>

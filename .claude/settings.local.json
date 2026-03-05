@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n \"src=\" \"C:/Users/blake/Dropbox/Eggroll/Prototypes/Animal Math Website/Worksheets Website\"/*.html)",
+      "Bash(grep -c \"img src\" \"C:/Users/blake/Dropbox/Eggroll/Prototypes/Animal Math Website/Worksheets Website\"/*.html)",
+      "Bash(git mv worksheet-generator-counting-objects.html generators/counting-objects/index.html)",
+      "Bash(git mv horizontal-math-worksheet-generator.html generators/horizontal-math/index.html)",
+      "Bash(git mv column-math-worksheet-generator.html generators/column-math/index.html)",
+      "Bash(git mv fill-in-the-blank-math-worksheet-generator.html generators/fill-in-the-blank/index.html)",
+      "Bash(git mv missing-numbers-grid-worksheet-generator.html generators/missing-numbers-grid/index.html)",
+      "Bash(git mv telling-time-worksheet-generator.html generators/telling-time/index.html)",
+      "Bash(git mv telling-time-draw-the-hands-worksheet-generator.html generators/telling-time-draw-hands/index.html)",
+      "Bash(git mv images/count-and-write.png generators/counting-objects/)",
+      "Bash(git mv images/horizontal-math.png generators/horizontal-math/)",
+      "Bash(git mv images/vertical-math.png generators/column-math/)",
+      "Bash(git mv images/horizontal-fill-in-the-blank.png generators/fill-in-the-blank/)",
+      "Bash(git mv images/missing-numbers-grid.png generators/missing-numbers-grid/)",
+      "Bash(git mv images/telling-time.png generators/telling-time/)",
+      "Bash(git mv images/telling-time-hands.png generators/telling-time-draw-hands/)"
+    ]
+  }
+}
