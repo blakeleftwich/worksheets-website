@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2D Shapes Worksheet Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      background: white;
+      padding: 32px 24px;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-group > label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 6px;
+    }
+
+    .control-group input[type="number"],
+    .control-group input[type="text"],
+    .control-group select {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .control-group input:focus,
+    .control-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .control-group input:hover,
+    .control-group select:hover {
+      border-color: #cbd5e0;
+    }
+
+    /* ===== Advanced Options Toggle ===== */
+    .advanced-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 10px 0;
+      margin-bottom: 4px;
+      user-select: none;
+    }
+
+    .advanced-toggle .toggle-arrow {
+      font-size: 12px;
+      transition: transform 0.2s;
+      color: #667eea;
+    }
+
+    .advanced-toggle .toggle-arrow.open {
+      transform: rotate(90deg);
+    }
+
+    .advanced-toggle span:last-child {
+      font-size: 13px;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .advanced-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background: #f7fafc;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .advanced-panel.open {
+      max-height: 500px;
+    }
+
+    .advanced-panel-inner {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .advanced-panel-inner .control-group {
+      margin-bottom: 0;
+    }
+
+    .adv-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .adv-checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .adv-checkbox-row label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      cursor: pointer;
+    }
+
+    .adv-sub {
+      padding-left: 26px;
+    }
+
+    .adv-sub select {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 13px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+    }
+
+    .adv-sub label {
+      font-size: 12px;
+      color: #718096;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* ===== Checkboxes ===== */
+    .checkbox-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .checkbox-row label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .checkbox-row span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    /* ===== Buttons ===== */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .button-group button {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .button-group button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-generate {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-pdf {
+      background: #38a169;
+      color: white;
+    }
+
+    .btn-print {
+      background: #ed8936;
+      color: white;
+    }
+
+    /* ===== Preview ===== */
+    .preview-area {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px;
+      overflow: auto;
+    }
+
+    #sheetWrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    #sheetWrap.grid-view {
+      display: grid;
+      justify-items: center;
+    }
+
+    .worksheet-page {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      padding: 12px;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 900px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: relative;
+        height: auto;
+      }
+      .preview-area {
+        padding: 12px;
+      }
+      #sheetWrap {
+        gap: 16px;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        padding: 0 !important;
+      }
+      #sheetWrap.grid-view {
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: none !important;
+        padding: 0 !important;
+      }
+      .worksheet-page {
+        padding: 8px;
+        width: 100%;
+        max-width: 100%;
+      }
+      .worksheet-page svg {
+        width: 100% !important;
+        height: auto !important;
+      }
+    }
+
+    /* ===== Print ===== */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+      .main-container {
+        display: block;
+      }
+      .sidebar {
+        display: none !important;
+      }
+      .preview-area {
+        padding: 0;
+        margin: 0;
+      }
+      #sheetWrap {
+        gap: 0;
+        display: block !important;
+        padding: 0 !important;
+        flex-direction: unset !important;
+      }
+      .worksheet-page {
+        box-shadow: none;
+        border-radius: 0;
+        page-break-after: always;
+        break-after: page;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+      }
+      .worksheet-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+      .worksheet-page svg {
+        width: 100% !important;
+        height: 100% !important;
+      }
+    }
+  </style>
+  <script src="../../jspdf.umd.min.js"></script>
+  <script src="../../svg2pdf.js"></script>
+</head>
+<body>
+  <div class="main-container">
+    <!-- Left sidebar controls -->
+    <div class="sidebar">
+      <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #667eea; text-decoration: none; margin-bottom: 16px; transition: gap 0.2s;"
+         onmouseover="this.style.gap='10px'" onmouseout="this.style.gap='6px'">
+        ← All Worksheets
+      </a>
+      <h2>2D Shapes Worksheet Generator</h2>
+
+      <div class="control-group">
+        <label for="shapeSet">Shapes to Include</label>
+        <select id="shapeSet">
+          <option value="basic" selected>Basic (Circle, Square, Triangle, Rectangle)</option>
+          <option value="advanced">Advanced (+ Hexagon, Pentagon, Oval, Diamond, Trapezoid)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="activityType">Activity Type</label>
+        <select id="activityType">
+          <option value="name" selected>Name the Shape</option>
+          <option value="sides">Count Sides</option>
+          <option value="corners">Count Corners</option>
+          <option value="identify">Identify / Circle Matching Shapes</option>
+          <option value="mixed">Mixed Activities</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="problemsPerSheet">Problems per Page</label>
+        <select id="problemsPerSheet">
+          <option value="4">4</option>
+          <option value="6" selected>6</option>
+          <option value="8">8</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="numWorksheets">Number of Worksheets</label>
+        <select id="numWorksheets">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+
+      <div class="checkbox-row" style="margin-bottom:12px;">
+        <label>
+          <input type="checkbox" id="answerKey">
+          <span>Include Answer Key Sheets</span>
+        </label>
+      </div>
+
+      <!-- Advanced Options -->
+      <div class="advanced-toggle" id="advToggle">
+        <span class="toggle-arrow" id="advArrow">&#9654;</span>
+        <span>Advanced Options</span>
+      </div>
+      <div class="advanced-panel" id="advPanel">
+        <div class="advanced-panel-inner">
+
+          <!-- Header style -->
+          <div class="control-group" style="margin-bottom:0;">
+            <label for="headerMode">Header Style</label>
+            <select id="headerMode">
+              <option value="both" selected>Name &amp; Date</option>
+              <option value="name">Name Only</option>
+              <option value="none">Title Only</option>
+            </select>
+          </div>
+
+          <!-- Branding -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="branded" checked />
+            <label for="branded">Branding</label>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-generate" id="btnGenerate">&#x1f504; Generate New</button>
+        <button class="btn-print" id="btnPrint">&#x1f5a8;&#xfe0f; Print</button>
+        <button class="btn-pdf" id="btnPdf">&#x1f4e5; Download PDF</button>
+      </div>
+
+      <div style="margin-top: 24px; text-align: center;">
+        <a href="../../about.html" style="font-size: 12px; color: #a0aec0; text-decoration: none;">About</a>
+      </div>
+    </div>
+
+    <!-- Preview area -->
+    <div class="preview-area">
+      <div id="sheetWrap"></div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Helpers =====
+    function svgEl(tag, attrs) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      return el;
+    }
+
+    // ===== Shape definitions =====
+    const SHAPE_DATA = {
+      circle:    { name: "Circle",    sides: 0, corners: 0, fill: "#dbeafe", stroke: "#3b82f6" },
+      square:    { name: "Square",    sides: 4, corners: 4, fill: "#fce7f3", stroke: "#ec4899" },
+      triangle:  { name: "Triangle",  sides: 3, corners: 3, fill: "#d1fae5", stroke: "#10b981" },
+      rectangle: { name: "Rectangle", sides: 4, corners: 4, fill: "#fef3c7", stroke: "#f59e0b" },
+      hexagon:   { name: "Hexagon",   sides: 6, corners: 6, fill: "#ede9fe", stroke: "#8b5cf6" },
+      pentagon:  { name: "Pentagon",   sides: 5, corners: 5, fill: "#ffedd5", stroke: "#f97316" },
+      oval:      { name: "Oval",      sides: 0, corners: 0, fill: "#cffafe", stroke: "#06b6d4" },
+      diamond:   { name: "Diamond",   sides: 4, corners: 4, fill: "#fecdd3", stroke: "#e11d48" },
+      trapezoid: { name: "Trapezoid", sides: 4, corners: 4, fill: "#d9f99d", stroke: "#65a30d" }
+    };
+
+    const BASIC_SHAPES = ["circle", "square", "triangle", "rectangle"];
+    const ADVANCED_SHAPES = ["circle", "square", "triangle", "rectangle", "hexagon", "pentagon", "oval", "diamond", "trapezoid"];
+
+    // Draw a shape centered at (cx, cy) with given size
+    function drawShape(svg, shapeKey, cx, cy, size) {
+      const info = SHAPE_DATA[shapeKey];
+      const r = size / 2;
+      let el;
+      switch (shapeKey) {
+        case "circle":
+          el = svgEl("circle", { cx: cx, cy: cy, r: r, fill: info.fill, stroke: info.stroke, "stroke-width": "2.5" });
+          svg.appendChild(el);
+          break;
+        case "oval":
+          el = svgEl("ellipse", { cx: cx, cy: cy, rx: r, ry: r * 0.62, fill: info.fill, stroke: info.stroke, "stroke-width": "2.5" });
+          svg.appendChild(el);
+          break;
+        case "square":
+          el = svgEl("rect", { x: cx - r, y: cy - r, width: size, height: size, fill: info.fill, stroke: info.stroke, "stroke-width": "2.5", rx: "2" });
+          svg.appendChild(el);
+          break;
+        case "rectangle":
+          el = svgEl("rect", { x: cx - r, y: cy - r * 0.65, width: size, height: size * 0.65, fill: info.fill, stroke: info.stroke, "stroke-width": "2.5", rx: "2" });
+          svg.appendChild(el);
+          break;
+        case "triangle": {
+          const pts = [
+            [cx, cy - r],
+            [cx - r, cy + r * 0.75],
+            [cx + r, cy + r * 0.75]
+          ].map(p => p.join(",")).join(" ");
+          el = svgEl("polygon", { points: pts, fill: info.fill, stroke: info.stroke, "stroke-width": "2.5", "stroke-linejoin": "round" });
+          svg.appendChild(el);
+          break;
+        }
+        case "diamond": {
+          const pts = [
+            [cx, cy - r],
+            [cx + r * 0.7, cy],
+            [cx, cy + r],
+            [cx - r * 0.7, cy]
+          ].map(p => p.join(",")).join(" ");
+          el = svgEl("polygon", { points: pts, fill: info.fill, stroke: info.stroke, "stroke-width": "2.5", "stroke-linejoin": "round" });
+          svg.appendChild(el);
+          break;
+        }
+        case "pentagon": {
+          const pts = [];
+          for (let i = 0; i < 5; i++) {
+            const angle = (i * 2 * Math.PI / 5) - Math.PI / 2;
+            pts.push([cx + r * Math.cos(angle), cy + r * Math.sin(angle)]);
+          }
+          el = svgEl("polygon", { points: pts.map(p => p.join(",")).join(" "), fill: info.fill, stroke: info.stroke, "stroke-width": "2.5", "stroke-linejoin": "round" });
+          svg.appendChild(el);
+          break;
+        }
+        case "hexagon": {
+          const pts = [];
+          for (let i = 0; i < 6; i++) {
+            const angle = (i * 2 * Math.PI / 6) - Math.PI / 6;
+            pts.push([cx + r * Math.cos(angle), cy + r * Math.sin(angle)]);
+          }
+          el = svgEl("polygon", { points: pts.map(p => p.join(",")).join(" "), fill: info.fill, stroke: info.stroke, "stroke-width": "2.5", "stroke-linejoin": "round" });
+          svg.appendChild(el);
+          break;
+        }
+        case "trapezoid": {
+          const pts = [
+            [cx - r * 0.5, cy - r * 0.65],
+            [cx + r * 0.5, cy - r * 0.65],
+            [cx + r, cy + r * 0.65],
+            [cx - r, cy + r * 0.65]
+          ].map(p => p.join(",")).join(" ");
+          el = svgEl("polygon", { points: pts, fill: info.fill, stroke: info.stroke, "stroke-width": "2.5", "stroke-linejoin": "round" });
+          svg.appendChild(el);
+          break;
+        }
+      }
+    }
+
+    // Draw a small shape (for identify activity groups)
+    function drawShapeSmall(svg, shapeKey, cx, cy, size) {
+      drawShape(svg, shapeKey, cx, cy, size);
+    }
+
+    // ===== Element refs =====
+    const sheetWrap = document.getElementById("sheetWrap");
+    const elShapeSet = document.getElementById("shapeSet");
+    const elActivityType = document.getElementById("activityType");
+    const elProblems = document.getElementById("problemsPerSheet");
+    const elNumSheets = document.getElementById("numWorksheets");
+    const elAnswerKey = document.getElementById("answerKey");
+    const elHeaderMode = document.getElementById("headerMode");
+    const elBranded = document.getElementById("branded");
+    const advToggle = document.getElementById("advToggle");
+    const advPanel = document.getElementById("advPanel");
+    const advArrow = document.getElementById("advArrow");
+
+    // ===== Advanced panel toggle =====
+    advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
+
+    // ===== State =====
+    let currentState = { sheets: [] };
+
+    // ===== Get available shapes =====
+    function getShapeList() {
+      return elShapeSet.value === "advanced" ? ADVANCED_SHAPES.slice() : BASIC_SHAPES.slice();
+    }
+
+    // ===== Shuffle =====
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+      return a;
+    }
+
+    // ===== Pick random item =====
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    // ===== Generate worksheet data =====
+    function generateSheetData(count, opts) {
+      const shapes = getShapeList();
+      const activity = opts.activityType;
+      const problems = [];
+
+      if (activity === "identify") {
+        // For identify: each problem has a target shape and a group of shapes, circle matching ones
+        for (let i = 0; i < count; i++) {
+          const target = pick(shapes);
+          // Create group of 5-6 shapes, some matching
+          const groupSize = 6;
+          const group = [];
+          const matchCount = 2 + Math.floor(Math.random() * 2); // 2-3 matches
+          for (let m = 0; m < matchCount; m++) group.push(target);
+          while (group.length < groupSize) {
+            let other = pick(shapes);
+            if (other !== target) group.push(other);
+            else {
+              // pick something different
+              const others = shapes.filter(s => s !== target);
+              if (others.length > 0) group.push(pick(others));
+              else group.push(target); // fallback if only one shape
+            }
+          }
+          problems.push({ type: "identify", target: target, group: shuffle(group) });
+        }
+      } else if (activity === "mixed") {
+        const types = ["name", "sides", "corners"];
+        for (let i = 0; i < count; i++) {
+          const t = types[i % types.length];
+          const shape = shapes[i % shapes.length];
+          // Pick from shuffled shapes for variety
+          const shuffled = shuffle(shapes);
+          const chosenShape = shuffled[i % shuffled.length];
+          problems.push({ type: t, shape: chosenShape });
+        }
+        // Shuffle the problems
+        for (let i = problems.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [problems[i], problems[j]] = [problems[j], problems[i]];
+        }
+      } else {
+        // name, sides, corners
+        const shuffled = shuffle(shapes);
+        for (let i = 0; i < count; i++) {
+          problems.push({ type: activity, shape: shuffled[i % shuffled.length] });
+        }
+        // Shuffle again for randomness
+        for (let i = problems.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [problems[i], problems[j]] = [problems[j], problems[i]];
+        }
+      }
+
+      return problems;
+    }
+
+    // ===== Generate title =====
+    function generateAutoTitle() {
+      const activity = elActivityType.value;
+      const titles = {
+        name: "Name the Shape",
+        sides: "Count the Sides",
+        corners: "Count the Corners",
+        identify: "Find the Matching Shapes",
+        mixed: "2D Shapes Practice"
+      };
+      return titles[activity] || "2D Shapes";
+    }
+
+    // ===== Gather options =====
+    function gatherOptions() {
+      return {
+        activityType: elActivityType.value,
+        numWorksheets: parseInt(elNumSheets.value, 10),
+        problemsPerSheet: parseInt(elProblems.value, 10),
+        showHeader: elHeaderMode.value,
+        title: generateAutoTitle(),
+        branded: elBranded.checked,
+        answerKey: elAnswerKey.checked
+      };
+    }
+
+    // ===== SVG Rendering =====
+    function renderWorksheetSVG(problems, options) {
+      const { showHeader, title, branded, showAnswers } = options;
+      const pageW = 612, pageH = 792, margin = 36;
+      const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
+      const st = document.createElementNS("http://www.w3.org/2000/svg", "style");
+      st.textContent = ".txt { font-family: Arial, Helvetica, sans-serif; }";
+      svg.appendChild(st);
+      svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
+
+      let topGridY;
+      if (showHeader === "both") {
+        const nl = svgEl("text", { x: margin, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
+        svg.appendChild(svgEl("line", { x1: margin + 50, y1: 32, x2: margin + 240, y2: 32, stroke: "#000", "stroke-width": 1 }));
+        const dl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); dl.textContent = "Date:"; svg.appendChild(dl);
+        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
+        const tl = svgEl("text", { x: pageW / 2, y: 72, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
+        topGridY = 90;
+      } else if (showHeader === "name") {
+        const nl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
+        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
+        const tl = svgEl("text", { x: pageW / 2, y: 72, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
+        topGridY = 90;
+      } else {
+        const tl = svgEl("text", { x: pageW / 2, y: 45, class: "txt", "font-size": showAnswers ? 20 : 22, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
+        topGridY = 65;
+      }
+
+      if (branded) {
+        const br = svgEl("text", { x: pageW / 2, y: pageH - 20, class: "txt", "font-size": 12, "text-anchor": "middle", fill: "#a0aec0" });
+        br.textContent = "animalmath.com"; svg.appendChild(br);
+      }
+
+      const count = problems.length;
+      const bottomMargin = branded ? 50 : 40;
+      const availH = pageH - bottomMargin - topGridY;
+      const availW = pageW - margin * 2;
+
+      // Determine if this is identify mode
+      const isIdentify = problems.length > 0 && problems[0].type === "identify";
+
+      if (isIdentify) {
+        renderIdentifyProblems(svg, problems, topGridY, availH, availW, margin, pageW, showAnswers);
+      } else {
+        renderStandardProblems(svg, problems, topGridY, availH, availW, margin, pageW, showAnswers);
+      }
+
+      return svg;
+    }
+
+    function renderStandardProblems(svg, problems, topGridY, availH, availW, margin, pageW, showAnswers) {
+      const count = problems.length;
+      // Layout: 2 columns
+      const cols = 2;
+      const rows = Math.ceil(count / cols);
+      const colW = availW / cols;
+      const rowH = availH / rows;
+
+      // Shape size relative to available space
+      const shapeSize = Math.min(rowH * 0.52, colW * 0.32, 80);
+
+      for (let i = 0; i < count; i++) {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const cellLeft = margin + col * colW;
+        const cellTop = topGridY + row * rowH;
+        const cellCenterX = cellLeft + colW / 2;
+        const cellCenterY = cellTop + rowH / 2;
+        const prob = problems[i];
+        const info = SHAPE_DATA[prob.shape];
+
+        // Problem number
+        const numEl = svgEl("text", { x: cellLeft + 8, y: cellTop + 20, class: "txt", "font-size": "11", "font-weight": "600", fill: "#a0aec0" });
+        numEl.textContent = (i + 1) + "."; svg.appendChild(numEl);
+
+        // Draw the shape
+        const shapeCX = cellCenterX;
+        const shapeCY = cellCenterY - rowH * 0.12;
+        drawShape(svg, prob.shape, shapeCX, shapeCY, shapeSize);
+
+        // Question text and answer line
+        const questionY = shapeCY + shapeSize / 2 + 28;
+        let questionText = "";
+        let answerText = "";
+
+        if (prob.type === "name") {
+          questionText = "What shape is this?";
+          answerText = info.name;
+        } else if (prob.type === "sides") {
+          questionText = "How many sides?";
+          answerText = String(info.sides);
+        } else if (prob.type === "corners") {
+          questionText = "How many corners?";
+          answerText = String(info.corners);
+        }
+
+        // Question
+        const qEl = svgEl("text", { x: shapeCX, y: questionY, class: "txt", "font-size": "13", "font-weight": "600", "text-anchor": "middle", fill: "#2d3748" });
+        qEl.textContent = questionText; svg.appendChild(qEl);
+
+        // Answer line
+        const lineY = questionY + 18;
+        const lineW = prob.type === "name" ? 100 : 50;
+        svg.appendChild(svgEl("line", { x1: shapeCX - lineW / 2, y1: lineY, x2: shapeCX + lineW / 2, y2: lineY, stroke: "#a0aec0", "stroke-width": "1.5" }));
+
+        // Answer (if showing)
+        if (showAnswers) {
+          const aEl = svgEl("text", { x: shapeCX, y: lineY - 4, class: "txt", "font-size": "14", "font-weight": "700", "text-anchor": "middle", fill: "#3b82f6" });
+          aEl.textContent = answerText; svg.appendChild(aEl);
+        }
+      }
+    }
+
+    function renderIdentifyProblems(svg, problems, topGridY, availH, availW, margin, pageW, showAnswers) {
+      const count = problems.length;
+      const rowH = availH / count;
+
+      for (let i = 0; i < count; i++) {
+        const prob = problems[i];
+        const info = SHAPE_DATA[prob.target];
+        const cellTop = topGridY + i * rowH;
+        const cellCenterY = cellTop + rowH / 2;
+
+        // Problem number
+        const numEl = svgEl("text", { x: margin + 4, y: cellTop + 18, class: "txt", "font-size": "11", "font-weight": "600", fill: "#a0aec0" });
+        numEl.textContent = (i + 1) + "."; svg.appendChild(numEl);
+
+        // Instruction
+        const instrY = cellTop + 18;
+        const instrEl = svgEl("text", { x: margin + 24, y: instrY, class: "txt", "font-size": "12", "font-weight": "600", fill: "#2d3748" });
+        instrEl.textContent = "Circle all the " + info.name.toLowerCase() + "s:"; svg.appendChild(instrEl);
+
+        // Draw group of shapes in a row
+        const groupTop = instrY + 10;
+        const groupAvailH = rowH - 38;
+        const shapeSize = Math.min(groupAvailH * 0.72, 52, (availW - 20) / prob.group.length * 0.7);
+        const spacing = availW / prob.group.length;
+        const shapeCenterY = groupTop + groupAvailH / 2;
+
+        for (let g = 0; g < prob.group.length; g++) {
+          const sx = margin + spacing * g + spacing / 2;
+          drawShapeSmall(svg, prob.group[g], sx, shapeCenterY, shapeSize);
+
+          // If showing answers, circle matching shapes
+          if (showAnswers && prob.group[g] === prob.target) {
+            svg.appendChild(svgEl("circle", { cx: sx, cy: shapeCenterY, r: shapeSize / 2 + 8, fill: "none", stroke: "#3b82f6", "stroke-width": "2.5", "stroke-dasharray": "5,3" }));
+          }
+        }
+
+        // Separator line between problems (except last)
+        if (i < count - 1) {
+          svg.appendChild(svgEl("line", { x1: margin, y1: cellTop + rowH - 2, x2: pageW - margin, y2: cellTop + rowH - 2, stroke: "#e2e8f0", "stroke-width": "1" }));
+        }
+      }
+    }
+
+    // ===== Render logic =====
+    function renderWithNewRandomization() {
+      const opts = gatherOptions();
+      currentState.sheets = [];
+      for (let s = 0; s < opts.numWorksheets; s++) {
+        currentState.sheets.push(generateSheetData(opts.problemsPerSheet, opts));
+      }
+      renderWorksheet();
+    }
+
+    function renderWithoutRandomization() {
+      const opts = gatherOptions();
+      while (currentState.sheets.length < opts.numWorksheets) {
+        currentState.sheets.push(generateSheetData(opts.problemsPerSheet, opts));
+      }
+      if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
+      renderWorksheet();
+    }
+
+    function isMobile() { return window.innerWidth <= 900; }
+
+    function renderWorksheet() {
+      const opts = gatherOptions();
+      const numSheets = currentState.sheets.length;
+      sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
+      const sheetWidth = 612, sheetHeight = 792;
+
+      if (isMobile()) {
+        for (let s = 0; s < numSheets; s++) {
+          const p = document.createElement("div"); p.className = "worksheet-page";
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false });
+          p.appendChild(v); sheetWrap.appendChild(p);
+        }
+        return;
+      }
+
+      if (numSheets > 1) {
+        sheetWrap.classList.add("grid-view");
+        const ep = numSheets >= 3 ? 12 : 0;
+        const aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
+        let cols;
+        if (numSheets <= 3) { cols = numSheets; if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        else { cols = Math.min(3, numSheets); if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        const msw = (aw - (cols - 1) * gap) / cols, msh = numSheets <= 3 ? ah : ah * 0.8;
+        const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
+        const sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
+        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
+        sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
+        for (let s = 0; s < numSheets; s++) {
+          const p = document.createElement("div"); p.className = "worksheet-page";
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false });
+          v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
+        }
+      } else {
+        const p = document.createElement("div"); p.className = "worksheet-page";
+        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false });
+        p.appendChild(v); sheetWrap.appendChild(p);
+      }
+    }
+
+    // ===== Print =====
+    function handlePrint() {
+      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
+      const opts = gatherOptions();
+      const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
+      sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
+      for (let i = 0; i < currentState.sheets.length; i++) {
+        const p = document.createElement("div"); p.className = "worksheet-page";
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false }));
+        sheetWrap.appendChild(p);
+      }
+      if (opts.answerKey) {
+        for (let i = 0; i < currentState.sheets.length; i++) {
+          const p = document.createElement("div"); p.className = "worksheet-page";
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, branded: opts.branded, showAnswers: true }));
+          sheetWrap.appendChild(p);
+        }
+      }
+      setTimeout(() => { window.print(); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 50);
+    }
+
+    // ===== PDF Download =====
+    async function handlePdf() {
+      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
+      const opts = gatherOptions();
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: [612, 792] });
+
+      for (let i = 0; i < currentState.sheets.length; i++) {
+        if (i > 0) doc.addPage([612, 792]);
+        const svgNode = renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false });
+        document.body.appendChild(svgNode);
+        await doc.svg(svgNode, { x: 0, y: 0, width: 612, height: 792 });
+        document.body.removeChild(svgNode);
+      }
+
+      if (opts.answerKey) {
+        for (let i = 0; i < currentState.sheets.length; i++) {
+          doc.addPage([612, 792]);
+          const svgNode = renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, branded: opts.branded, showAnswers: true });
+          document.body.appendChild(svgNode);
+          await doc.svg(svgNode, { x: 0, y: 0, width: 612, height: 792 });
+          document.body.removeChild(svgNode);
+        }
+      }
+
+      doc.save("shapes-worksheet.pdf");
+    }
+
+    // ===== Event Listeners =====
+    elShapeSet.addEventListener("change", () => renderWithNewRandomization());
+    elActivityType.addEventListener("change", () => renderWithNewRandomization());
+    elProblems.addEventListener("change", () => renderWithNewRandomization());
+    elNumSheets.addEventListener("change", () => renderWithNewRandomization());
+    elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
+    elBranded.addEventListener("change", () => renderWithoutRandomization());
+    elAnswerKey.addEventListener("change", () => {});
+    document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
+    document.getElementById("btnPrint").addEventListener("click", handlePrint);
+    document.getElementById("btnPdf").addEventListener("click", handlePdf);
+    let resizeTimeout;
+    window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150); });
+
+    // Init
+    renderWithNewRandomization();
+  </script>
+</body>
+</html>

@@ -16,7 +16,10 @@
       "Bash(git mv images/horizontal-fill-in-the-blank.png generators/fill-in-the-blank/)",
       "Bash(git mv images/missing-numbers-grid.png generators/missing-numbers-grid/)",
       "Bash(git mv images/telling-time.png generators/telling-time/)",
-      "Bash(git mv images/telling-time-hands.png generators/telling-time-draw-hands/)"
+      "Bash(git mv images/telling-time-hands.png generators/telling-time-draw-hands/)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where python)",
+      "Bash(where python3)"
     ]
   }
 }

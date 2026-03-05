@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparing Numbers Worksheet Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      background: white;
+      padding: 32px 24px;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-group > label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 6px;
+    }
+
+    .control-group input[type="number"],
+    .control-group input[type="text"],
+    .control-group select {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .control-group input:focus,
+    .control-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .control-group input:hover,
+    .control-group select:hover {
+      border-color: #cbd5e0;
+    }
+
+    /* ===== Advanced Options Toggle ===== */
+    .advanced-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 10px 0;
+      margin-bottom: 4px;
+      user-select: none;
+    }
+
+    .advanced-toggle .toggle-arrow {
+      font-size: 12px;
+      transition: transform 0.2s;
+      color: #667eea;
+    }
+
+    .advanced-toggle .toggle-arrow.open {
+      transform: rotate(90deg);
+    }
+
+    .advanced-toggle span:last-child {
+      font-size: 13px;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .advanced-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background: #f7fafc;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .advanced-panel.open {
+      max-height: 500px;
+    }
+
+    .advanced-panel-inner {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .advanced-panel-inner .control-group {
+      margin-bottom: 0;
+    }
+
+    .adv-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .adv-checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .adv-checkbox-row label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      cursor: pointer;
+    }
+
+    .adv-sub {
+      padding-left: 26px;
+    }
+
+    .adv-sub select {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 13px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+    }
+
+    .adv-sub label {
+      font-size: 12px;
+      color: #718096;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .adv-sub input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 13px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+    }
+
+    /* ===== Checkboxes ===== */
+    .checkbox-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .checkbox-row label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .checkbox-row span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    /* ===== Buttons ===== */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .button-group button {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .button-group button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-generate {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-pdf {
+      background: #38a169;
+      color: white;
+    }
+
+    .btn-print {
+      background: #ed8936;
+      color: white;
+    }
+
+    /* ===== Preview ===== */
+    .preview-area {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px;
+      overflow: auto;
+    }
+
+    #sheetWrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    #sheetWrap.grid-view {
+      display: grid;
+      justify-items: center;
+    }
+
+    .worksheet-page {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      padding: 12px;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 900px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: relative;
+        height: auto;
+      }
+      .preview-area {
+        padding: 12px;
+      }
+      #sheetWrap {
+        gap: 16px;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        padding: 0 !important;
+      }
+      #sheetWrap.grid-view {
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: none !important;
+        padding: 0 !important;
+      }
+      .worksheet-page {
+        padding: 8px;
+        width: 100%;
+        max-width: 100%;
+      }
+      .worksheet-page svg {
+        width: 100% !important;
+        height: auto !important;
+      }
+    }
+
+    /* ===== Print ===== */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+      .main-container {
+        display: block;
+      }
+      .sidebar {
+        display: none !important;
+      }
+      .preview-area {
+        padding: 0;
+        margin: 0;
+      }
+      #sheetWrap {
+        gap: 0;
+        display: block !important;
+        padding: 0 !important;
+        flex-direction: unset !important;
+      }
+      .worksheet-page {
+        box-shadow: none;
+        border-radius: 0;
+        page-break-after: always;
+        break-after: page;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+      }
+      .worksheet-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+      .worksheet-page svg {
+        width: 100% !important;
+        height: 100% !important;
+      }
+    }
+  </style>
+  <script src="../../jspdf.umd.min.js"></script>
+  <script src="../../svg2pdf.js"></script>
+</head>
+<body>
+  <div class="main-container">
+    <!-- Left sidebar controls -->
+    <div class="sidebar">
+      <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #667eea; text-decoration: none; margin-bottom: 16px; transition: gap 0.2s;"
+         onmouseover="this.style.gap='10px'" onmouseout="this.style.gap='6px'">
+        ← All Worksheets
+      </a>
+      <h2>Comparing Numbers Worksheet Generator</h2>
+
+      <div class="control-group">
+        <label for="numberRange">Number Range</label>
+        <select id="numberRange">
+          <option value="5">Within 5</option>
+          <option value="10" selected>Within 10</option>
+          <option value="20">Within 20</option>
+          <option value="50">Within 50</option>
+          <option value="100">Within 100</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+      <div class="control-group" id="customRangeGroup" style="display:none;">
+        <label for="customRange">Custom value</label>
+        <input type="number" id="customRange" value="25" min="2" max="9999" />
+      </div>
+
+      <div class="control-group">
+        <label for="visualAids">Visual Aids</label>
+        <select id="visualAids">
+          <option value="none" selected>Numbers only</option>
+          <option value="dots">With dot groups</option>
+          <option value="numberline">With number line</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="problemsPerSheet">Problems per Sheet</label>
+        <select id="problemsPerSheet">
+          <option value="8">8</option>
+          <option value="10">10</option>
+          <option value="12" selected>12</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="numWorksheets">Number of Worksheets</label>
+        <select id="numWorksheets">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+
+      <div class="checkbox-row" style="margin-bottom:12px;">
+        <label>
+          <input type="checkbox" id="includeEqual" checked>
+          <span>Include equal comparisons</span>
+        </label>
+        <label>
+          <input type="checkbox" id="answerKey">
+          <span>Include Answer Key Sheets</span>
+        </label>
+      </div>
+
+      <!-- Advanced Options -->
+      <div class="advanced-toggle" id="advToggle">
+        <span class="toggle-arrow" id="advArrow">&#9654;</span>
+        <span>Advanced Options</span>
+      </div>
+      <div class="advanced-panel" id="advPanel">
+        <div class="advanced-panel-inner">
+
+          <!-- Show header -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="showHeaderEnabled" checked />
+            <label for="showHeaderEnabled">Name / Date</label>
+          </div>
+          <div class="adv-sub" id="headerModeOptions">
+            <label for="headerMode">Show</label>
+            <select id="headerMode">
+              <option value="both" selected>Name &amp; Date</option>
+              <option value="name">Name Only</option>
+            </select>
+          </div>
+
+          <!-- Custom title -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="customTitleEnabled" />
+            <label for="customTitleEnabled">Customize worksheet title</label>
+          </div>
+          <div class="adv-sub" id="customTitleOptions" style="display:none;">
+            <label for="worksheetTitle">Title</label>
+            <input type="text" id="worksheetTitle" value="Comparing Numbers" style="width:100%;padding:8px 10px;font-size:13px;border:2px solid #e2e8f0;border-radius:8px;" />
+          </div>
+
+          <!-- Branding -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="branded" checked />
+            <label for="branded">Branding</label>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
+        <button class="btn-print" id="btnPrint">&#128424; Print</button>
+        <button class="btn-pdf" id="btnPDF">&#128196; Download PDF</button>
+      </div>
+    </div>
+
+    <!-- Preview area -->
+    <div class="preview-area">
+      <div id="sheetWrap"></div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Helpers =====
+    function svgEl(tag, attrs) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      return el;
+    }
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+    // ===== Element refs =====
+    const sheetWrap = document.getElementById("sheetWrap");
+    const elNumberRange = document.getElementById("numberRange");
+    const elCustomRangeGroup = document.getElementById("customRangeGroup");
+    const elCustomRange = document.getElementById("customRange");
+    const elVisualAids = document.getElementById("visualAids");
+    const elProblems = document.getElementById("problemsPerSheet");
+    const elNumSheets = document.getElementById("numWorksheets");
+    const elIncludeEqual = document.getElementById("includeEqual");
+    const elAnswerKey = document.getElementById("answerKey");
+    const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
+    const elHeaderMode = document.getElementById("headerMode");
+    const elHeaderModeOptions = document.getElementById("headerModeOptions");
+    const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
+    const elCustomTitleOptions = document.getElementById("customTitleOptions");
+    const elTitle = document.getElementById("worksheetTitle");
+    const elBranded = document.getElementById("branded");
+    const advToggle = document.getElementById("advToggle");
+    const advPanel = document.getElementById("advPanel");
+    const advArrow = document.getElementById("advArrow");
+
+    // ===== Advanced panel toggle =====
+    advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
+
+    // ===== Range dropdown =====
+    function getRangeValue() {
+      return elNumberRange.value === "custom" ? (parseInt(elCustomRange.value, 10) || 10) : parseInt(elNumberRange.value, 10);
+    }
+
+    elNumberRange.addEventListener("change", () => {
+      elCustomRangeGroup.style.display = elNumberRange.value === "custom" ? "block" : "none";
+      renderWithNewRandomization();
+    });
+    elCustomRange.addEventListener("input", () => renderWithNewRandomization());
+
+    // ===== State =====
+    let currentState = { sheets: [] };
+
+    // ===== Problem generation =====
+    function generateProblems(count, opts) {
+      const { maxNum, includeEqual } = opts;
+      const problems = [];
+      const seen = new Set();
+
+      // Decide how many of each type: greater, less, equal
+      let numEqual = 0;
+      if (includeEqual) {
+        numEqual = Math.max(1, Math.round(count * 0.2)); // ~20% equal
+        if (numEqual > Math.floor(count / 3)) numEqual = Math.floor(count / 3);
+      }
+      const numGT = Math.ceil((count - numEqual) / 2);
+      const numLT = count - numEqual - numGT;
+
+      // Track quotas
+      let gtLeft = numGT, ltLeft = numLT, eqLeft = numEqual;
+
+      let attempts = 0;
+      while (problems.length < count && attempts < count * 500) {
+        attempts++;
+
+        // Pick which type we still need
+        const available = [];
+        if (gtLeft > 0) available.push("gt");
+        if (ltLeft > 0) available.push("lt");
+        if (eqLeft > 0) available.push("eq");
+        if (available.length === 0) break;
+        const type = available[Math.floor(Math.random() * available.length)];
+
+        let left, right;
+        if (type === "eq") {
+          left = 1 + Math.floor(Math.random() * maxNum);
+          right = left;
+        } else if (type === "gt") {
+          // left > right, avoid trivially obvious (too far apart)
+          left = 2 + Math.floor(Math.random() * (maxNum - 1));
+          right = 1 + Math.floor(Math.random() * (left - 1));
+          // For ranges > 20, avoid differences larger than half the range
+          if (maxNum > 20 && (left - right) > Math.ceil(maxNum * 0.6)) continue;
+        } else {
+          // left < right
+          right = 2 + Math.floor(Math.random() * (maxNum - 1));
+          left = 1 + Math.floor(Math.random() * (right - 1));
+          // Avoid trivially obvious
+          if (maxNum > 20 && (right - left) > Math.ceil(maxNum * 0.6)) continue;
+        }
+
+        // Clamp values
+        left = clamp(left, 0, maxNum);
+        right = clamp(right, 0, maxNum);
+
+        // Deduplicate
+        const key = left + "," + right;
+        if (seen.has(key)) continue;
+        seen.add(key);
+
+        // Determine correct answer
+        let answer;
+        if (left > right) answer = ">";
+        else if (left < right) answer = "<";
+        else answer = "=";
+
+        problems.push({ left, right, answer });
+
+        if (type === "gt") gtLeft--;
+        else if (type === "lt") ltLeft--;
+        else eqLeft--;
+      }
+
+      // Fill any remaining (fallback)
+      let fa = 0;
+      while (problems.length < count && fa < count * 500) {
+        fa++;
+        const left = 1 + Math.floor(Math.random() * maxNum);
+        const right = 1 + Math.floor(Math.random() * maxNum);
+        if (!includeEqual && left === right) continue;
+        const key = left + "," + right;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        let answer;
+        if (left > right) answer = ">";
+        else if (left < right) answer = "<";
+        else answer = "=";
+        problems.push({ left, right, answer });
+      }
+
+      // Final fallback
+      while (problems.length < count) {
+        const l = 1 + Math.floor(Math.random() * maxNum);
+        const r = 1 + Math.floor(Math.random() * (maxNum - 1));
+        const answer = l > r ? ">" : l < r ? "<" : "=";
+        problems.push({ left: l, right: r, answer });
+      }
+
+      // Shuffle
+      for (let i = problems.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [problems[i], problems[j]] = [problems[j], problems[i]];
+      }
+      return problems;
+    }
+
+    // ===== Dot pattern positions (like dice faces) =====
+    function getDotPositions(n, cx, cy, size) {
+      // Returns array of {x, y} for dots arranged in familiar patterns
+      // size is the bounding box side length
+      const r = size * 0.12; // dot radius
+      const s = size * 0.3; // spread from center
+      const positions = [];
+
+      if (n === 0) return { dots: positions, radius: r };
+
+      if (n <= 9) {
+        // Use grid-based layout for clarity
+        const layouts = {
+          1: [[0, 0]],
+          2: [[-1, -1], [1, 1]],
+          3: [[-1, -1], [0, 0], [1, 1]],
+          4: [[-1, -1], [1, -1], [-1, 1], [1, 1]],
+          5: [[-1, -1], [1, -1], [0, 0], [-1, 1], [1, 1]],
+          6: [[-1, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]],
+          7: [[-1, -1], [0, -1], [1, -1], [0, 0], [-1, 1], [0, 1], [1, 1]],
+          8: [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]],
+          9: [[-1, -1], [0, -1], [1, -1], [-1, 0], [0, 0], [1, 0], [-1, 1], [0, 1], [1, 1]],
+        };
+        const layout = layouts[n];
+        for (const [dx, dy] of layout) {
+          positions.push({ x: cx + dx * s, y: cy + dy * s });
+        }
+      } else {
+        // For n > 9, use rows of dots
+        const cols = Math.ceil(Math.sqrt(n));
+        const rows = Math.ceil(n / cols);
+        const spacing = size / (Math.max(cols, rows) + 1);
+        const startX = cx - (cols - 1) * spacing / 2;
+        const startY = cy - (rows - 1) * spacing / 2;
+        let count = 0;
+        for (let row = 0; row < rows && count < n; row++) {
+          for (let col = 0; col < cols && count < n; col++) {
+            positions.push({ x: startX + col * spacing, y: startY + row * spacing });
+            count++;
+          }
+        }
+      }
+
+      return { dots: positions, radius: r };
+    }
+
+    // ===== SVG Rendering =====
+    function renderWorksheetSVG(problems, options) {
+      const { showHeader, title, branded, showAnswers, visualAids } = options;
+      const pageW = 612, pageH = 792, margin = 36;
+      const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
+      const st = document.createElementNS("http://www.w3.org/2000/svg", "style");
+      st.textContent = ".txt { font-family: Arial, Helvetica, sans-serif; }";
+      svg.appendChild(st);
+      svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
+
+      let topGridY;
+      if (showHeader === "both") {
+        const nl = svgEl("text", { x: margin, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
+        svg.appendChild(svgEl("line", { x1: margin + 50, y1: 32, x2: margin + 240, y2: 32, stroke: "#000", "stroke-width": 1 }));
+        const dl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); dl.textContent = "Date:"; svg.appendChild(dl);
+        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
+        const tl = svgEl("text", { x: pageW / 2, y: 78, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
+        topGridY = 90;
+      } else if (showHeader === "name") {
+        const nl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
+        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
+        const tl = svgEl("text", { x: pageW / 2, y: 78, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
+        topGridY = 90;
+      } else {
+        const tl = svgEl("text", { x: pageW / 2, y: 45, class: "txt", "font-size": showAnswers ? 20 : 22, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
+        topGridY = 65;
+      }
+
+      if (branded) {
+        const br = svgEl("text", { x: pageW / 2, y: pageH - 20, class: "txt", "font-size": 12, "text-anchor": "middle", fill: "#a0aec0" });
+        br.textContent = "animalmath.com"; svg.appendChild(br);
+      }
+
+      const count = problems.length;
+      const bottomMargin = branded ? 50 : 40;
+      const gridTop = topGridY;
+      const availH = pageH - bottomMargin - gridTop;
+      const availW = pageW - margin * 2;
+
+      // Single column layout, each problem on its own row
+      const rowH = availH / count;
+
+      // Scale font to fit rows comfortably
+      const fontSize = Math.min(32, Math.max(16, Math.floor(rowH * 0.45)));
+      const charW = fontSize * 0.65;
+      const circleR = fontSize * 0.6; // radius of comparison circle
+
+      // Determine max digits for alignment
+      let maxDigits = 1;
+      for (const p of problems) {
+        maxDigits = Math.max(maxDigits, String(p.left).length, String(p.right).length);
+      }
+
+      // Fixed problem number size
+      const probNumSize = 10;
+      const probNumW = probNumSize * (count >= 10 ? 2.0 : 1.6);
+
+      // Layout dimensions
+      const numberW = maxDigits * charW; // width reserved for each number
+      const circleSpace = circleR * 2 + charW * 1.2; // space for circle + padding
+      const gapBetween = charW * 0.8; // gap between number and circle
+
+      // Calculate visual aid space
+      let dotBoxSize = 0;
+      let numberLineW = 0;
+      if (visualAids === "dots") {
+        dotBoxSize = Math.min(rowH * 0.7, fontSize * 1.8);
+      } else if (visualAids === "numberline") {
+        numberLineW = Math.min(availW * 0.7, 360);
+      }
+
+      for (let i = 0; i < problems.length; i++) {
+        const cellTop = gridTop + i * rowH;
+        const { left: pLeft, right: pRight, answer: pAnswer } = problems[i];
+        const leftStr = String(pLeft), rightStr = String(pRight);
+
+        // Vertical center
+        const cy = cellTop + rowH / 2 + fontSize * 0.35;
+        const centerY = cellTop + rowH / 2;
+
+        if (visualAids === "numberline") {
+          // Number line mode: show comparison above, number line below
+          const nlY = centerY + fontSize * 0.6;
+          const textY = centerY - fontSize * 0.15;
+
+          // Center the problem text
+          const totalTextW = probNumW + numberW + gapBetween + circleSpace + gapBetween + numberW;
+          const textStartX = pageW / 2 - totalTextW / 2;
+
+          let x = textStartX;
+
+          // Problem number
+          const probNumY = textY - 0.72 * (fontSize - probNumSize);
+          const numEl = svgEl("text", { x: x, y: probNumY, class: "txt", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
+          numEl.textContent = (i + 1) + "."; svg.appendChild(numEl);
+          x += probNumW;
+
+          // Left number (right-aligned within its space)
+          const leftNumX = x + numberW - leftStr.length * charW;
+          const leftEl = svgEl("text", { x: leftNumX, y: textY, "font-family": "Arial, Helvetica, sans-serif", "font-size": String(fontSize * 0.85), "font-weight": "700", fill: "#1a202c" });
+          leftEl.textContent = leftStr; svg.appendChild(leftEl);
+          x += numberW + gapBetween;
+
+          // Circle
+          const circleCX = x + circleR;
+          const circleCY = textY - fontSize * 0.25;
+          svg.appendChild(svgEl("circle", { cx: circleCX, cy: circleCY, r: circleR, fill: "none", stroke: "#cbd5e0", "stroke-width": "1.5" }));
+          if (showAnswers) {
+            const ansEl = svgEl("text", { x: circleCX, y: circleCY + fontSize * 0.3, "text-anchor": "middle", "font-family": "Arial, Helvetica, sans-serif", "font-size": String(fontSize * 0.7), "font-weight": "700", fill: "#3182ce" });
+            ansEl.textContent = pAnswer; svg.appendChild(ansEl);
+          }
+          x += circleSpace + gapBetween;
+
+          // Right number
+          const rightEl = svgEl("text", { x: x, y: textY, "font-family": "Arial, Helvetica, sans-serif", "font-size": String(fontSize * 0.85), "font-weight": "700", fill: "#1a202c" });
+          rightEl.textContent = rightStr; svg.appendChild(rightEl);
+
+          // Draw number line
+          const maxNum = getRangeValue();
+          const nlWidth = numberLineW;
+          const nlStartX = pageW / 2 - nlWidth / 2;
+          const nlEndX = nlStartX + nlWidth;
+          const tickH = 4;
+
+          // Main line
+          svg.appendChild(svgEl("line", { x1: nlStartX, y1: nlY, x2: nlEndX, y2: nlY, stroke: "#a0aec0", "stroke-width": "1" }));
+
+          // Determine tick interval
+          let tickInterval = 1;
+          if (maxNum > 50) tickInterval = 10;
+          else if (maxNum > 20) tickInterval = 5;
+          else if (maxNum > 10) tickInterval = 2;
+
+          // Draw ticks and labels
+          const tickFontSize = Math.min(8, fontSize * 0.3);
+          for (let t = 0; t <= maxNum; t += tickInterval) {
+            const tx = nlStartX + (t / maxNum) * nlWidth;
+            svg.appendChild(svgEl("line", { x1: tx, y1: nlY - tickH, x2: tx, y2: nlY + tickH, stroke: "#a0aec0", "stroke-width": "1" }));
+            const tLabel = svgEl("text", { x: tx, y: nlY + tickH + tickFontSize + 1, "text-anchor": "middle", "font-family": "Arial, Helvetica, sans-serif", "font-size": String(tickFontSize), fill: "#718096" });
+            tLabel.textContent = String(t); svg.appendChild(tLabel);
+          }
+
+          // Highlight left number on number line
+          const leftX = nlStartX + (pLeft / maxNum) * nlWidth;
+          svg.appendChild(svgEl("circle", { cx: leftX, cy: nlY, r: 3.5, fill: "#e53e3e" }));
+
+          // Highlight right number on number line
+          const rightX = nlStartX + (pRight / maxNum) * nlWidth;
+          // If same position, offset slightly
+          if (pLeft !== pRight) {
+            svg.appendChild(svgEl("circle", { cx: rightX, cy: nlY, r: 3.5, fill: "#3182ce" }));
+          } else {
+            svg.appendChild(svgEl("circle", { cx: rightX, cy: nlY, r: 3.5, fill: "#805ad5" }));
+          }
+
+        } else {
+          // Numbers only or dot groups mode
+
+          // Calculate total width for centering
+          let totalW = probNumW + numberW + gapBetween + circleSpace + gapBetween + numberW;
+          if (visualAids === "dots") {
+            totalW += dotBoxSize * 2 + gapBetween * 2; // dot boxes on each side
+          }
+          const startX = pageW / 2 - totalW / 2;
+
+          let x = startX;
+
+          // Problem number
+          const probNumY = cy - 0.72 * (fontSize - probNumSize);
+          const numEl = svgEl("text", { x: x, y: probNumY, class: "txt", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
+          numEl.textContent = (i + 1) + "."; svg.appendChild(numEl);
+          x += probNumW;
+
+          // Left dot group (if enabled)
+          if (visualAids === "dots") {
+            const dotCX = x + dotBoxSize / 2;
+            const dotCY = centerY;
+            // Draw dot box border
+            svg.appendChild(svgEl("rect", {
+              x: x, y: dotCY - dotBoxSize / 2,
+              width: dotBoxSize, height: dotBoxSize,
+              rx: 4, ry: 4, fill: "#f7fafc", stroke: "#e2e8f0", "stroke-width": "0.75"
+            }));
+            // Draw dots
+            const dotData = getDotPositions(pLeft, dotCX, dotCY, dotBoxSize);
+            for (const dot of dotData.dots) {
+              svg.appendChild(svgEl("circle", { cx: dot.x, cy: dot.y, r: dotData.radius, fill: "#4a5568" }));
+            }
+            x += dotBoxSize + gapBetween;
+          }
+
+          // Left number (right-aligned within its space)
+          const leftNumX = x + numberW - leftStr.length * charW;
+          const leftEl = svgEl("text", { x: leftNumX, y: cy, "font-family": "Arial, Helvetica, sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
+          leftEl.textContent = leftStr; svg.appendChild(leftEl);
+          x += numberW + gapBetween;
+
+          // Comparison circle
+          const circleCX = x + circleR;
+          const circleCY = cy - fontSize * 0.25;
+          svg.appendChild(svgEl("circle", { cx: circleCX, cy: circleCY, r: circleR, fill: "none", stroke: "#cbd5e0", "stroke-width": "1.5" }));
+
+          if (showAnswers) {
+            const ansEl = svgEl("text", { x: circleCX, y: circleCY + fontSize * 0.3, "text-anchor": "middle", "font-family": "Arial, Helvetica, sans-serif", "font-size": String(fontSize * 0.7), "font-weight": "700", fill: "#3182ce" });
+            ansEl.textContent = pAnswer; svg.appendChild(ansEl);
+          }
+          x += circleSpace + gapBetween;
+
+          // Right number
+          const rightEl = svgEl("text", { x: x, y: cy, "font-family": "Arial, Helvetica, sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
+          rightEl.textContent = rightStr; svg.appendChild(rightEl);
+          x += rightStr.length * charW;
+
+          // Right dot group (if enabled)
+          if (visualAids === "dots") {
+            x += gapBetween;
+            const dotCX = x + dotBoxSize / 2;
+            const dotCY = centerY;
+            svg.appendChild(svgEl("rect", {
+              x: x, y: dotCY - dotBoxSize / 2,
+              width: dotBoxSize, height: dotBoxSize,
+              rx: 4, ry: 4, fill: "#f7fafc", stroke: "#e2e8f0", "stroke-width": "0.75"
+            }));
+            const dotData = getDotPositions(pRight, dotCX, dotCY, dotBoxSize);
+            for (const dot of dotData.dots) {
+              svg.appendChild(svgEl("circle", { cx: dot.x, cy: dot.y, r: dotData.radius, fill: "#4a5568" }));
+            }
+          }
+        }
+      }
+
+      return svg;
+    }
+
+    // ===== Auto title =====
+    function generateAutoTitle() {
+      const w = getRangeValue();
+      return "Comparing Numbers Within " + w;
+    }
+
+    // ===== Gather options =====
+    function gatherOptions() {
+      let showHeader = "none";
+      if (elShowHeaderEnabled.checked) showHeader = elHeaderMode.value;
+      const title = elCustomTitleEnabled.checked ? (elTitle.value || "Comparing Numbers") : generateAutoTitle();
+      return {
+        maxNum: getRangeValue(),
+        includeEqual: elIncludeEqual.checked,
+        visualAids: elVisualAids.value,
+        numWorksheets: parseInt(elNumSheets.value, 10),
+        problemsPerSheet: parseInt(elProblems.value, 10),
+        showHeader: showHeader,
+        title: title,
+        branded: elBranded.checked,
+        answerKey: elAnswerKey.checked,
+      };
+    }
+
+    function renderWithNewRandomization() {
+      const opts = gatherOptions();
+      currentState.sheets = [];
+      for (let s = 0; s < opts.numWorksheets; s++) {
+        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts));
+      }
+      renderWorksheet();
+    }
+
+    function renderWithoutRandomization() {
+      const opts = gatherOptions();
+      while (currentState.sheets.length < opts.numWorksheets) {
+        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts));
+      }
+      if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
+      renderWorksheet();
+    }
+
+    function isMobile() { return window.innerWidth <= 900; }
+
+    function renderWorksheet() {
+      const opts = gatherOptions();
+      const numSheets = currentState.sheets.length;
+      sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
+      const sheetWidth = 612, sheetHeight = 792;
+
+      if (isMobile()) {
+        for (let s = 0; s < numSheets; s++) {
+          const p = document.createElement("div"); p.className = "worksheet-page";
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false, visualAids: opts.visualAids });
+          p.appendChild(v); sheetWrap.appendChild(p);
+        }
+        return;
+      }
+
+      // Desktop: grid layout with calculated sizing
+      if (numSheets > 1) {
+        sheetWrap.classList.add("grid-view");
+        const ep = numSheets >= 3 ? 12 : 0;
+        const aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
+        let cols;
+        if (numSheets <= 3) { cols = numSheets; if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        else { cols = Math.min(3, numSheets); if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        const msw = (aw - (cols - 1) * gap) / cols, msh = numSheets <= 3 ? ah : ah * 0.8;
+        const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
+        const sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
+        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
+        sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
+        for (let s = 0; s < numSheets; s++) {
+          const p = document.createElement("div"); p.className = "worksheet-page";
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false, visualAids: opts.visualAids });
+          v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
+        }
+      } else {
+        const p = document.createElement("div"); p.className = "worksheet-page";
+        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false, visualAids: opts.visualAids });
+        p.appendChild(v); sheetWrap.appendChild(p);
+      }
+    }
+
+    // ===== Print =====
+    function handlePrint() {
+      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
+      const opts = gatherOptions();
+      const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
+      sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
+      for (let i = 0; i < currentState.sheets.length; i++) {
+        const p = document.createElement("div"); p.className = "worksheet-page";
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false, visualAids: opts.visualAids }));
+        sheetWrap.appendChild(p);
+      }
+      if (opts.answerKey) {
+        for (let i = 0; i < currentState.sheets.length; i++) {
+          const p = document.createElement("div"); p.className = "worksheet-page";
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, branded: opts.branded, showAnswers: true, visualAids: opts.visualAids }));
+          sheetWrap.appendChild(p);
+        }
+      }
+      setTimeout(() => { window.print(); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 50);
+    }
+
+    // ===== PDF =====
+    async function handlePDF() {
+      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
+      const opts = gatherOptions();
+      const { jsPDF } = window.jspdf;
+
+      // Collect all pages
+      const pages = [];
+      for (let i = 0; i < currentState.sheets.length; i++) {
+        pages.push(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false, visualAids: opts.visualAids }));
+      }
+      if (opts.answerKey) {
+        for (let i = 0; i < currentState.sheets.length; i++) {
+          pages.push(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, branded: opts.branded, showAnswers: true, visualAids: opts.visualAids }));
+        }
+      }
+
+      const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "letter" });
+      for (let i = 0; i < pages.length; i++) {
+        if (i > 0) doc.addPage("letter", "portrait");
+        // Temporarily add SVG to DOM for svg2pdf
+        const container = document.createElement("div");
+        container.style.position = "absolute";
+        container.style.left = "-9999px";
+        container.appendChild(pages[i]);
+        document.body.appendChild(container);
+        await doc.svg(pages[i], { x: 0, y: 0, width: 612, height: 792 });
+        document.body.removeChild(container);
+      }
+      doc.save("comparing-numbers-worksheet.pdf");
+    }
+
+    // ===== Event Listeners =====
+    elProblems.addEventListener("change", () => renderWithNewRandomization());
+    elNumSheets.addEventListener("change", () => renderWithNewRandomization());
+    elIncludeEqual.addEventListener("change", () => renderWithNewRandomization());
+    elVisualAids.addEventListener("change", () => renderWithNewRandomization());
+    elShowHeaderEnabled.addEventListener("change", () => {
+      elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
+      renderWithoutRandomization();
+    });
+    elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
+    elBranded.addEventListener("change", () => renderWithoutRandomization());
+    elCustomTitleEnabled.addEventListener("change", () => {
+      elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "block" : "none";
+      renderWithoutRandomization();
+    });
+    elTitle.addEventListener("input", () => renderWithoutRandomization());
+    elAnswerKey.addEventListener("change", () => {});
+    document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
+    document.getElementById("btnPrint").addEventListener("click", handlePrint);
+    document.getElementById("btnPDF").addEventListener("click", handlePDF);
+    let resizeTimeout;
+    window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150); });
+
+    // Init
+    renderWithNewRandomization();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color by Number Math Worksheet Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      background: white;
+      padding: 32px 24px;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-group > label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 6px;
+    }
+
+    .control-group input[type="number"],
+    .control-group input[type="text"],
+    .control-group select {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .control-group input:focus,
+    .control-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .control-group input:hover,
+    .control-group select:hover {
+      border-color: #cbd5e0;
+    }
+
+    /* ===== Advanced Options Toggle ===== */
+    .advanced-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 10px 0;
+      margin-bottom: 4px;
+      user-select: none;
+    }
+
+    .advanced-toggle .toggle-arrow {
+      font-size: 12px;
+      transition: transform 0.2s;
+      color: #667eea;
+    }
+
+    .advanced-toggle .toggle-arrow.open {
+      transform: rotate(90deg);
+    }
+
+    .advanced-toggle span:last-child {
+      font-size: 13px;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .advanced-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background: #f7fafc;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .advanced-panel.open {
+      max-height: 500px;
+    }
+
+    .advanced-panel-inner {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .advanced-panel-inner .control-group {
+      margin-bottom: 0;
+    }
+
+    .adv-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .adv-checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .adv-checkbox-row label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      cursor: pointer;
+    }
+
+    .adv-sub {
+      padding-left: 26px;
+    }
+
+    .adv-sub select {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 13px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+    }
+
+    .adv-sub label {
+      font-size: 12px;
+      color: #718096;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* ===== Checkboxes ===== */
+    .checkbox-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .checkbox-row label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .checkbox-row span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    /* ===== Buttons ===== */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .button-group button {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .button-group button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-generate {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-pdf {
+      background: #38a169;
+      color: white;
+    }
+
+    .btn-print {
+      background: #ed8936;
+      color: white;
+    }
+
+    /* ===== Preview ===== */
+    .preview-area {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px;
+      overflow: auto;
+    }
+
+    #sheetWrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    #sheetWrap.grid-view {
+      display: grid;
+      justify-items: center;
+    }
+
+    .worksheet-page {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      padding: 12px;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 900px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: relative;
+        height: auto;
+      }
+      .preview-area {
+        padding: 12px;
+      }
+      #sheetWrap {
+        gap: 16px;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        padding: 0 !important;
+      }
+      #sheetWrap.grid-view {
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: none !important;
+        padding: 0 !important;
+      }
+      .worksheet-page {
+        padding: 8px;
+        width: 100%;
+        max-width: 100%;
+      }
+      .worksheet-page svg {
+        width: 100% !important;
+        height: auto !important;
+      }
+    }
+
+    /* ===== Print ===== */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+      .main-container {
+        display: block;
+      }
+      .sidebar {
+        display: none !important;
+      }
+      .preview-area {
+        padding: 0;
+        margin: 0;
+      }
+      #sheetWrap {
+        gap: 0;
+        display: block !important;
+        padding: 0 !important;
+        flex-direction: unset !important;
+      }
+      .worksheet-page {
+        box-shadow: none;
+        border-radius: 0;
+        page-break-after: always;
+        break-after: page;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+      }
+      .worksheet-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+      .worksheet-page svg {
+        width: 100% !important;
+        height: 100% !important;
+      }
+    }
+  </style>
+  <script src="../../jspdf.umd.min.js"></script>
+  <script src="../../svg2pdf.js"></script>
+</head>
+<body>
+  <div class="main-container">
+    <!-- Left sidebar controls -->
+    <div class="sidebar">
+      <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #667eea; text-decoration: none; margin-bottom: 16px; transition: gap 0.2s;"
+         onmouseover="this.style.gap='10px'" onmouseout="this.style.gap='6px'">
+        &larr; All Worksheets
+      </a>
+      <h2>Color by Number Worksheet Generator</h2>
+
+      <div class="control-group">
+        <label for="operationSelect">Operation</label>
+        <select id="operationSelect">
+          <option value="addition" selected>Addition</option>
+          <option value="subtraction">Subtraction</option>
+          <option value="mixed">Mixed (Add &amp; Sub)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="rangeSelect">Number Range</label>
+        <select id="rangeSelect">
+          <option value="5">Sums to 5</option>
+          <option value="10" selected>Sums to 10</option>
+          <option value="20">Sums to 20</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="pictureSelect">Picture Theme</label>
+        <select id="pictureSelect">
+          <option value="butterfly" selected>Butterfly</option>
+          <option value="fish">Fish</option>
+          <option value="rocket">Rocket</option>
+          <option value="star">Star</option>
+          <option value="flower">Flower</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="numColorsSelect">Number of Colors</label>
+        <select id="numColorsSelect">
+          <option value="4">4</option>
+          <option value="5" selected>5</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="numWorksheets">Number of Worksheets</label>
+        <select id="numWorksheets">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+
+      <div class="checkbox-row" style="margin-bottom:12px;">
+        <label>
+          <input type="checkbox" id="answerKey">
+          <span>Include Answer Key</span>
+        </label>
+      </div>
+
+      <!-- Advanced Options -->
+      <div class="advanced-toggle" id="advToggle">
+        <span class="toggle-arrow" id="advArrow">&#9654;</span>
+        <span>Advanced Options</span>
+      </div>
+      <div class="advanced-panel" id="advPanel">
+        <div class="advanced-panel-inner">
+
+          <!-- Header style -->
+          <div class="control-group">
+            <label for="headerMode">Header Style</label>
+            <select id="headerMode">
+              <option value="both" selected>Name &amp; Date</option>
+              <option value="name">Name Only</option>
+              <option value="none">Title Only</option>
+            </select>
+          </div>
+
+          <!-- Branding -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="branded" checked />
+            <label for="branded">Branding</label>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
+        <button class="btn-pdf" id="btnPDF">&#128196; Download PDF</button>
+        <button class="btn-print" id="btnPrint">&#128424; Print</button>
+      </div>
+
+      <div style="margin-top: 24px; text-align: center;">
+        <a href="../../about.html" style="font-size: 12px; color: #a0aec0; text-decoration: none;">About</a>
+      </div>
+    </div>
+
+    <!-- Preview area -->
+    <div class="preview-area">
+      <div id="sheetWrap"></div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Helpers =====
+    function svgEl(tag, attrs) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      return el;
+    }
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+    // ===== Element refs =====
+    const sheetWrap = document.getElementById("sheetWrap");
+    const elOperation = document.getElementById("operationSelect");
+    const elRange = document.getElementById("rangeSelect");
+    const elPicture = document.getElementById("pictureSelect");
+    const elNumColors = document.getElementById("numColorsSelect");
+    const elNumSheets = document.getElementById("numWorksheets");
+    const elAnswerKey = document.getElementById("answerKey");
+    const elHeaderMode = document.getElementById("headerMode");
+    const elBranded = document.getElementById("branded");
+    const advToggle = document.getElementById("advToggle");
+    const advPanel = document.getElementById("advPanel");
+    const advArrow = document.getElementById("advArrow");
+
+    // ===== Advanced panel toggle =====
+    advToggle.addEventListener("click", () => {
+      advPanel.classList.toggle("open");
+      advArrow.classList.toggle("open");
+    });
+
+    // ===== Color Palettes =====
+    const COLOR_PALETTE = [
+      { name: "Red",    hex: "#e53e3e" },
+      { name: "Blue",   hex: "#3182ce" },
+      { name: "Green",  hex: "#38a169" },
+      { name: "Yellow", hex: "#ecc94b" },
+      { name: "Orange", hex: "#ed8936" },
+      { name: "Purple", hex: "#805ad5" },
+    ];
+
+    // ===== Picture Designs =====
+    // Each design returns an array of polygon regions.
+    // Coordinates are relative (centered around 0,0), scaled later.
+
+    function getPictureRegions(theme) {
+      switch (theme) {
+        case "butterfly": return getButterflyRegions();
+        case "fish":      return getFishRegions();
+        case "rocket":    return getRocketRegions();
+        case "star":      return getStarRegions();
+        case "flower":    return getFlowerRegions();
+        default:          return getButterflyRegions();
+      }
+    }
+
+    function getButterflyRegions() {
+      // All regions are non-overlapping. Wings split into upper/lower halves.
+      return [
+        // Body
+        { points: "-10,-72 10,-72 12,0 10,72 -10,72 -12,0" },
+        // Left upper wing top half
+        { points: "-12,-52 -55,-90 -110,-60 -65,-35 -12,-30" },
+        // Left upper wing bottom half
+        { points: "-12,-30 -65,-35 -110,-60 -95,-18 -55,-5 -12,-5" },
+        // Right upper wing top half
+        { points: "12,-52 55,-90 110,-60 65,-35 12,-30" },
+        // Right upper wing bottom half
+        { points: "12,-30 65,-35 110,-60 95,-18 55,-5 12,-5" },
+        // Left lower wing top half
+        { points: "-12,8 -60,2 -100,28 -65,40 -12,30" },
+        // Left lower wing bottom half
+        { points: "-12,30 -65,40 -100,28 -88,65 -42,72 -12,55" },
+        // Right lower wing top half
+        { points: "12,8 60,2 100,28 65,40 12,30" },
+        // Right lower wing bottom half
+        { points: "12,30 65,40 100,28 88,65 42,72 12,55" },
+        // Left antenna
+        { points: "-10,-70 -30,-108 -24,-112 -8,-78" },
+        // Right antenna
+        { points: "10,-70 30,-108 24,-112 8,-78" },
+      ];
+    }
+
+    function getFishRegions() {
+      return [
+        // Head upper (above eye)
+        { points: "-75,-18 -48,-32 -25,-28 -25,-8 -48,-8 -75,-8" },
+        // Head lower (below eye)
+        { points: "-75,-8 -82,0 -75,22 -48,32 -25,28 -25,8 -48,8 -75,8" },
+        // Eye area
+        { points: "-75,-8 -48,-8 -48,8 -75,8" },
+        // Upper body front
+        { points: "-25,-28 15,-38 45,-28 45,-8 15,-8 -25,-8" },
+        // Lower body front
+        { points: "-25,8 15,8 45,8 45,28 15,38 -25,28" },
+        // Belly stripe
+        { points: "-25,-8 15,-8 45,-8 45,8 15,8 -25,8" },
+        // Upper body rear
+        { points: "45,-28 75,-20 88,-8 45,-8" },
+        // Lower body rear
+        { points: "45,8 88,8 75,20 45,28" },
+        // Tail upper
+        { points: "88,-8 115,-45 135,-30 108,-8" },
+        // Tail lower
+        { points: "88,8 108,8 135,30 115,45" },
+        // Top fin
+        { points: "5,-38 25,-68 55,-54 35,-30" },
+      ];
+    }
+
+    function getRocketRegions() {
+      return [
+        // Nose cone
+        { points: "0,-110 25,-65 -25,-65" },
+        // Upper body left (around window)
+        { points: "-25,-65 -12,-65 -15,-45 -15,-28 -28,-20 -25,-40" },
+        // Upper body right (around window)
+        { points: "12,-65 25,-65 25,-40 28,-20 15,-28 15,-45" },
+        // Window area
+        { points: "-12,-65 12,-65 15,-45 15,-28 12,-20 -12,-20 -15,-28 -15,-45" },
+        // Middle body
+        { points: "-28,-20 28,-20 32,25 -32,25" },
+        // Lower body
+        { points: "-32,25 32,25 35,65 -35,65" },
+        // Left fin
+        { points: "-32,20 -65,68 -52,75 -35,65 -32,40" },
+        // Right fin
+        { points: "32,20 65,68 52,75 35,65 32,40" },
+        // Exhaust center
+        { points: "-18,65 18,65 12,95 -12,95" },
+        // Exhaust left flame
+        { points: "-18,65 -12,95 -30,100 -25,70" },
+        // Exhaust right flame
+        { points: "18,65 12,95 30,100 25,70" },
+      ];
+    }
+
+    function getStarRegions() {
+      // 5 outer tips and 5 inner valley points, top point up
+      const oR = 95, iR = 40;
+      const outer = [], inner = [];
+      for (let k = 0; k < 5; k++) {
+        const oa = (k * 72 - 90) * Math.PI / 180;
+        outer.push({ x: Math.round(oR * Math.cos(oa)), y: Math.round(oR * Math.sin(oa)) });
+        const ia = ((k * 72 + 36) - 90) * Math.PI / 180;
+        inner.push({ x: Math.round(iR * Math.cos(ia)), y: Math.round(iR * Math.sin(ia)) });
+      }
+      function pt(v) { return v.x + "," + v.y; }
+
+      // Split each spike into left half and right half using the midpoint of the spike
+      const regions = [];
+      for (let i = 0; i < 5; i++) {
+        const tip = outer[i];
+        const prevI = inner[(i + 4) % 5];
+        const nextI = inner[i];
+        // Midpoint of the base of the spike
+        const midBase = { x: Math.round((prevI.x + nextI.x) / 2), y: Math.round((prevI.y + nextI.y) / 2) };
+        // Left half (tip, prevInner, midBase)
+        regions.push({ points: pt(tip) + " " + pt(prevI) + " " + pt(midBase) });
+        // Right half (tip, midBase, nextInner)
+        regions.push({ points: pt(tip) + " " + pt(midBase) + " " + pt(nextI) });
+      }
+      // Inner pentagon
+      let pentPts = "";
+      for (let i = 0; i < 5; i++) {
+        pentPts += (i > 0 ? " " : "") + pt(inner[i]);
+      }
+      regions.push({ points: pentPts });
+      return regions;
+    }
+
+    function getFlowerRegions() {
+      const regions = [];
+      const petalR = 60, centerR = 22;
+      // 6 petals
+      for (let i = 0; i < 6; i++) {
+        const a = (i * 60 - 90) * Math.PI / 180;
+        const aL = ((i * 60 - 28) - 90) * Math.PI / 180;
+        const aR = ((i * 60 + 28) - 90) * Math.PI / 180;
+        const px = Math.round(petalR * Math.cos(a));
+        const py = Math.round(petalR * Math.sin(a));
+        const lx = Math.round(centerR * Math.cos(aL));
+        const ly = Math.round(centerR * Math.sin(aL));
+        const rx = Math.round(centerR * Math.cos(aR));
+        const ry = Math.round(centerR * Math.sin(aR));
+        const mlx = Math.round(42 * Math.cos(aL));
+        const mly = Math.round(42 * Math.sin(aL));
+        const mrx = Math.round(42 * Math.cos(aR));
+        const mry = Math.round(42 * Math.sin(aR));
+        regions.push({ points: lx+","+ly+" "+mlx+","+mly+" "+px+","+py+" "+mrx+","+mry+" "+rx+","+ry });
+      }
+      // Center (octagon)
+      let cPts = [];
+      for (let i = 0; i < 8; i++) {
+        const a = (i * 45) * Math.PI / 180;
+        cPts.push(Math.round(centerR * Math.cos(a)) + "," + Math.round(centerR * Math.sin(a)));
+      }
+      regions.push({ points: cPts.join(" ") });
+      // Stem
+      regions.push({ points: "-6,60 6,60 6,120 -6,120" });
+      // Left leaf
+      regions.push({ points: "-6,78 -40,62 -45,74 -22,90 -6,90" });
+      // Right leaf
+      regions.push({ points: "6,90 25,78 45,84 38,98 6,102" });
+      return regions;
+    }
+
+    // ===== Problem Generation =====
+    function generateProblemForAnswer(targetAnswer, operation, maxSum) {
+      let attempts = 0;
+      while (attempts < 200) {
+        attempts++;
+        let op = operation;
+        if (op === "mixed") op = Math.random() < 0.5 ? "addition" : "subtraction";
+
+        if (op === "addition") {
+          if (targetAnswer > maxSum) {
+            return { a: targetAnswer, b: 0, op: "+", answer: targetAnswer };
+          }
+          const a = Math.floor(Math.random() * (targetAnswer + 1));
+          const b = targetAnswer - a;
+          return { a, b, op: "+", answer: targetAnswer };
+        } else {
+          // a - b = targetAnswer => a = targetAnswer + b
+          const maxB = maxSum - targetAnswer;
+          if (maxB < 0) {
+            return { a: targetAnswer, b: 0, op: "+", answer: targetAnswer };
+          }
+          const b = Math.floor(Math.random() * (maxB + 1));
+          const a = targetAnswer + b;
+          if (a <= maxSum) {
+            return { a, b, op: "\u2212", answer: targetAnswer };
+          }
+        }
+      }
+      return { a: targetAnswer, b: 0, op: "+", answer: targetAnswer };
+    }
+
+    function generateProblemsForRegions(regionCount, numColors, operation, maxSum) {
+      // Each region gets a target answer from 1..numColors
+      // Ensure each color appears at least once, then distribute remaining randomly
+      const targetAnswers = [];
+      // First, one of each color
+      for (let c = 1; c <= numColors; c++) {
+        targetAnswers.push(c);
+      }
+      // Fill remaining with random picks
+      for (let i = numColors; i < regionCount; i++) {
+        targetAnswers.push(Math.floor(Math.random() * numColors) + 1);
+      }
+      // Shuffle
+      for (let i = targetAnswers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [targetAnswers[i], targetAnswers[j]] = [targetAnswers[j], targetAnswers[i]];
+      }
+
+      const problems = [];
+      const seen = new Set();
+      for (let i = 0; i < regionCount; i++) {
+        const target = targetAnswers[i];
+        // Try to avoid duplicate problems
+        let prob;
+        let tries = 0;
+        do {
+          prob = generateProblemForAnswer(target, operation, maxSum);
+          tries++;
+        } while (seen.has(prob.a + prob.op + prob.b) && tries < 20);
+        seen.add(prob.a + prob.op + prob.b);
+        problems.push(prob);
+      }
+      return problems;
+    }
+
+    // ===== State =====
+    let currentState = { sheets: [] };
+
+    // ===== Gather Options =====
+    function gatherOptions() {
+      const maxSum = parseInt(elRange.value, 10);
+      // Clamp colors so answers (1..numColors) don't exceed maxSum
+      const requestedColors = parseInt(elNumColors.value, 10);
+      const numColors = Math.min(requestedColors, maxSum);
+      return {
+        operation: elOperation.value,
+        maxSum: maxSum,
+        picture: elPicture.value,
+        numColors: numColors,
+        numWorksheets: parseInt(elNumSheets.value, 10),
+        answerKey: elAnswerKey.checked,
+        headerMode: elHeaderMode.value,
+        branded: elBranded.checked,
+      };
+    }
+
+    function generateTitle(opts) {
+      const opNames = { addition: "Addition", subtraction: "Subtraction", mixed: "Mixed Math" };
+      return "Color by Number \u2014 " + (opNames[opts.operation] || "Math");
+    }
+
+    // ===== SVG Rendering =====
+    function renderWorksheetSVG(sheetData, options) {
+      const { headerMode, branded, showAnswers, title, numColors } = options;
+      const colors = COLOR_PALETTE.slice(0, numColors);
+      const pageW = 612, pageH = 792, margin = 36;
+      const svg = svgEl("svg", {
+        width: pageW, height: pageH,
+        viewBox: "0 0 " + pageW + " " + pageH,
+        xmlns: "http://www.w3.org/2000/svg"
+      });
+      const st = document.createElementNS("http://www.w3.org/2000/svg", "style");
+      st.textContent = ".txt { font-family: Arial, Helvetica, sans-serif; }";
+      svg.appendChild(st);
+      svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
+
+      // Header
+      let contentTopY;
+      if (headerMode === "both") {
+        const nl = svgEl("text", { x: margin, y: 30, class: "txt", "font-size": 14, "font-weight": 400 });
+        nl.textContent = "Name:"; svg.appendChild(nl);
+        svg.appendChild(svgEl("line", { x1: margin + 50, y1: 32, x2: margin + 240, y2: 32, stroke: "#000", "stroke-width": 1 }));
+        const dl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 });
+        dl.textContent = "Date:"; svg.appendChild(dl);
+        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
+        const tl = svgEl("text", { x: pageW / 2, y: 68, class: "txt", "font-size": showAnswers ? 16 : 18, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title;
+        svg.appendChild(tl);
+        contentTopY = 82;
+      } else if (headerMode === "name") {
+        const nl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 });
+        nl.textContent = "Name:"; svg.appendChild(nl);
+        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
+        const tl = svgEl("text", { x: pageW / 2, y: 68, class: "txt", "font-size": showAnswers ? 16 : 18, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title;
+        svg.appendChild(tl);
+        contentTopY = 82;
+      } else {
+        const tl = svgEl("text", { x: pageW / 2, y: 45, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title;
+        svg.appendChild(tl);
+        contentTopY = 60;
+      }
+
+      // Branding
+      if (branded) {
+        const br = svgEl("text", { x: pageW / 2, y: pageH - 14, class: "txt", "font-size": 12, "text-anchor": "middle", fill: "#a0aec0" });
+        br.textContent = "animalmath.com"; svg.appendChild(br);
+      }
+
+      // Color Key
+      const keyY = contentTopY + 4;
+      const keyBoxSize = 14;
+      const keySpacing = numColors <= 4 ? 95 : (numColors <= 5 ? 88 : 80);
+      const totalKeyWidth = numColors * keySpacing - 15;
+      const keyStartX = (pageW - totalKeyWidth) / 2;
+
+      const keyLabel = svgEl("text", { x: pageW / 2, y: keyY, class: "txt", "font-size": 11, "font-weight": 700, "text-anchor": "middle", fill: "#4a5568" });
+      keyLabel.textContent = "Color Key";
+      svg.appendChild(keyLabel);
+
+      const keyRowY = keyY + 16;
+      for (let c = 0; c < numColors; c++) {
+        const kx = keyStartX + c * keySpacing;
+        svg.appendChild(svgEl("rect", {
+          x: kx, y: keyRowY - keyBoxSize + 2, width: keyBoxSize, height: keyBoxSize,
+          rx: 2, ry: 2, fill: colors[c].hex, stroke: "#2d3748", "stroke-width": 0.5
+        }));
+        const kt = svgEl("text", {
+          x: kx + keyBoxSize + 4, y: keyRowY,
+          class: "txt", "font-size": 10, fill: "#2d3748"
+        });
+        kt.textContent = (c + 1) + " = " + colors[c].name;
+        svg.appendChild(kt);
+      }
+
+      // Draw picture
+      const pictureTopY = keyRowY + 24;
+      const bottomSpace = branded ? 40 : 24;
+      const pictureAvailH = pageH - pictureTopY - bottomSpace;
+      const pictureAvailW = pageW - margin * 2;
+      const pictureCX = pageW / 2;
+      const pictureCY = pictureTopY + pictureAvailH / 2;
+
+      const regions = sheetData.regions;
+      const problems = sheetData.problems;
+
+      // Bounding box of all regions
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for (const r of regions) {
+        const pts = parsePoints(r.points);
+        for (const p of pts) {
+          minX = Math.min(minX, p.x);
+          minY = Math.min(minY, p.y);
+          maxX = Math.max(maxX, p.x);
+          maxY = Math.max(maxY, p.y);
+        }
+      }
+      const rawW = maxX - minX, rawH = maxY - minY;
+      const scale = Math.min(pictureAvailW / rawW, pictureAvailH / rawH) * 0.85;
+      const offsetX = pictureCX - ((minX + maxX) / 2) * scale;
+      const offsetY = pictureCY - ((minY + maxY) / 2) * scale;
+
+      // Draw each region
+      for (let i = 0; i < regions.length; i++) {
+        const pts = parsePoints(regions[i].points);
+        const scaledPts = pts.map(p => ({
+          x: p.x * scale + offsetX,
+          y: p.y * scale + offsetY
+        }));
+        const pointStr = scaledPts.map(p => p.x.toFixed(1) + "," + p.y.toFixed(1)).join(" ");
+
+        // Determine fill
+        let fill = "#fff";
+        if (showAnswers && i < problems.length) {
+          const colorIdx = problems[i].answer - 1;
+          if (colorIdx >= 0 && colorIdx < colors.length) {
+            fill = colors[colorIdx].hex;
+          }
+        }
+
+        svg.appendChild(svgEl("polygon", {
+          points: pointStr,
+          fill: fill,
+          stroke: "#2d3748",
+          "stroke-width": 1.5,
+          "stroke-linejoin": "round"
+        }));
+
+        // Text inside region
+        if (i < problems.length) {
+          const centroid = getPolygonCentroid(scaledPts);
+          const prob = problems[i];
+          const area = getPolygonArea(scaledPts);
+          const regionSize = Math.sqrt(area);
+
+          if (!showAnswers) {
+            const fontSize = clamp(Math.floor(regionSize * 0.16), 7, 15);
+            const problemText = prob.a + " " + prob.op + " " + prob.b;
+            const txt = svgEl("text", {
+              x: centroid.x, y: centroid.y + fontSize * 0.35,
+              class: "txt", "font-size": fontSize,
+              "font-weight": 600, "text-anchor": "middle",
+              fill: "#1a202c"
+            });
+            txt.textContent = problemText;
+            svg.appendChild(txt);
+          } else {
+            const fontSize = clamp(Math.floor(regionSize * 0.22), 9, 20);
+            const colorIdx = prob.answer - 1;
+            // Use dark text on yellow/light fills, white on dark fills
+            const lightColors = [3, 4]; // yellow, orange
+            const textFill = lightColors.includes(colorIdx) ? "#1a202c" : "#fff";
+            const txt = svgEl("text", {
+              x: centroid.x, y: centroid.y + fontSize * 0.35,
+              class: "txt", "font-size": fontSize,
+              "font-weight": 700, "text-anchor": "middle",
+              fill: textFill
+            });
+            txt.textContent = String(prob.answer);
+            svg.appendChild(txt);
+          }
+        }
+      }
+
+      return svg;
+    }
+
+    function parsePoints(pointStr) {
+      return pointStr.trim().split(/\s+/).map(pair => {
+        const [x, y] = pair.split(",").map(Number);
+        return { x, y };
+      });
+    }
+
+    function getPolygonCentroid(pts) {
+      // Use the signed-area-weighted centroid for better accuracy
+      let cx = 0, cy = 0, signedArea = 0;
+      const n = pts.length;
+      for (let i = 0; i < n; i++) {
+        const j = (i + 1) % n;
+        const cross = pts[i].x * pts[j].y - pts[j].x * pts[i].y;
+        signedArea += cross;
+        cx += (pts[i].x + pts[j].x) * cross;
+        cy += (pts[i].y + pts[j].y) * cross;
+      }
+      signedArea /= 2;
+      if (Math.abs(signedArea) < 0.001) {
+        // Degenerate polygon, use simple average
+        let sx = 0, sy = 0;
+        for (const p of pts) { sx += p.x; sy += p.y; }
+        return { x: sx / n, y: sy / n };
+      }
+      cx /= (6 * signedArea);
+      cy /= (6 * signedArea);
+      return { x: cx, y: cy };
+    }
+
+    function getPolygonArea(pts) {
+      let area = 0;
+      const n = pts.length;
+      for (let i = 0; i < n; i++) {
+        const j = (i + 1) % n;
+        area += pts[i].x * pts[j].y;
+        area -= pts[j].x * pts[i].y;
+      }
+      return Math.abs(area) / 2;
+    }
+
+    // ===== Rendering pipeline =====
+    function generateSheetData(opts) {
+      const regions = getPictureRegions(opts.picture);
+      const problems = generateProblemsForRegions(regions.length, opts.numColors, opts.operation, opts.maxSum);
+      return { regions, problems };
+    }
+
+    function renderWithNewRandomization() {
+      const opts = gatherOptions();
+      currentState.sheets = [];
+      for (let s = 0; s < opts.numWorksheets; s++) {
+        currentState.sheets.push(generateSheetData(opts));
+      }
+      renderWorksheet();
+    }
+
+    function renderWithoutRandomization() {
+      const opts = gatherOptions();
+      while (currentState.sheets.length < opts.numWorksheets) {
+        currentState.sheets.push(generateSheetData(opts));
+      }
+      if (currentState.sheets.length > opts.numWorksheets) {
+        currentState.sheets.length = opts.numWorksheets;
+      }
+      renderWorksheet();
+    }
+
+    function isMobile() { return window.innerWidth <= 900; }
+
+    function renderWorksheet() {
+      const opts = gatherOptions();
+      const title = generateTitle(opts);
+      const numSheets = currentState.sheets.length;
+      sheetWrap.innerHTML = "";
+      sheetWrap.className = "";
+      sheetWrap.style.cssText = "";
+      const sheetWidth = 612, sheetHeight = 792;
+
+      if (isMobile()) {
+        for (let s = 0; s < numSheets; s++) {
+          const p = document.createElement("div");
+          p.className = "worksheet-page";
+          const v = renderWorksheetSVG(currentState.sheets[s], {
+            headerMode: opts.headerMode, title: title, branded: opts.branded,
+            showAnswers: false, numColors: opts.numColors
+          });
+          p.appendChild(v);
+          sheetWrap.appendChild(p);
+        }
+        return;
+      }
+
+      if (numSheets > 1) {
+        sheetWrap.classList.add("grid-view");
+        const ep = numSheets >= 3 ? 12 : 0;
+        const aw = window.innerWidth - 340 - 80 - ep * 2;
+        const ah = window.innerHeight - 80;
+        const gap = 24, mrw = 180;
+        let cols;
+        if (numSheets <= 3) {
+          cols = numSheets;
+          if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap)));
+        } else {
+          cols = Math.min(3, numSheets);
+          if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap)));
+        }
+        const msw = (aw - (cols - 1) * gap) / cols;
+        const msh = numSheets <= 3 ? ah : ah * 0.8;
+        const scl = Math.min(msw / sheetWidth, msh / sheetHeight);
+        const sw = Math.floor(sheetWidth * scl);
+        const sh = Math.floor(sheetHeight * scl);
+        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
+        sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
+        for (let s = 0; s < numSheets; s++) {
+          const p = document.createElement("div");
+          p.className = "worksheet-page";
+          const v = renderWorksheetSVG(currentState.sheets[s], {
+            headerMode: opts.headerMode, title: title, branded: opts.branded,
+            showAnswers: false, numColors: opts.numColors
+          });
+          v.setAttribute("width", sw);
+          v.setAttribute("height", sh);
+          p.appendChild(v);
+          sheetWrap.appendChild(p);
+        }
+      } else {
+        const p = document.createElement("div");
+        p.className = "worksheet-page";
+        const v = renderWorksheetSVG(currentState.sheets[0], {
+          headerMode: opts.headerMode, title: title, branded: opts.branded,
+          showAnswers: false, numColors: opts.numColors
+        });
+        p.appendChild(v);
+        sheetWrap.appendChild(p);
+      }
+    }
+
+    // ===== Print =====
+    function handlePrint() {
+      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
+      const opts = gatherOptions();
+      const title = generateTitle(opts);
+      const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
+      sheetWrap.innerHTML = "";
+      sheetWrap.className = "";
+      sheetWrap.style.cssText = "";
+
+      for (let i = 0; i < currentState.sheets.length; i++) {
+        const p = document.createElement("div");
+        p.className = "worksheet-page";
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
+          headerMode: opts.headerMode, title: title, branded: opts.branded,
+          showAnswers: false, numColors: opts.numColors
+        }));
+        sheetWrap.appendChild(p);
+      }
+      if (opts.answerKey) {
+        for (let i = 0; i < currentState.sheets.length; i++) {
+          const p = document.createElement("div");
+          p.className = "worksheet-page";
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
+            headerMode: "none", title: title, branded: opts.branded,
+            showAnswers: true, numColors: opts.numColors
+          }));
+          sheetWrap.appendChild(p);
+        }
+      }
+      setTimeout(() => {
+        window.print();
+        sheetWrap.innerHTML = sH;
+        sheetWrap.className = sC;
+        sheetWrap.style.cssText = sS;
+      }, 50);
+    }
+
+    // ===== PDF =====
+    async function handlePDF() {
+      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
+      const opts = gatherOptions();
+      const title = generateTitle(opts);
+      const pageW = 612, pageH = 792;
+
+      const allSVGs = [];
+      for (let i = 0; i < currentState.sheets.length; i++) {
+        allSVGs.push(renderWorksheetSVG(currentState.sheets[i], {
+          headerMode: opts.headerMode, title: title, branded: opts.branded,
+          showAnswers: false, numColors: opts.numColors
+        }));
+      }
+      if (opts.answerKey) {
+        for (let i = 0; i < currentState.sheets.length; i++) {
+          allSVGs.push(renderWorksheetSVG(currentState.sheets[i], {
+            headerMode: "none", title: title, branded: opts.branded,
+            showAnswers: true, numColors: opts.numColors
+          }));
+        }
+      }
+
+      const pdf = new jspdf.jsPDF({ unit: "pt", format: [pageW, pageH] });
+      for (let i = 0; i < allSVGs.length; i++) {
+        if (i > 0) pdf.addPage([pageW, pageH]);
+        const container = document.createElement("div");
+        container.appendChild(allSVGs[i]);
+        document.body.appendChild(container);
+        await svg2pdf(allSVGs[i], pdf, { x: 0, y: 0, width: pageW, height: pageH });
+        document.body.removeChild(container);
+      }
+      pdf.save("color-by-number.pdf");
+    }
+
+    // ===== Event Listeners =====
+    elOperation.addEventListener("change", () => renderWithNewRandomization());
+    elRange.addEventListener("change", () => renderWithNewRandomization());
+    elPicture.addEventListener("change", () => renderWithNewRandomization());
+    elNumColors.addEventListener("change", () => renderWithNewRandomization());
+    elNumSheets.addEventListener("change", () => renderWithNewRandomization());
+    elAnswerKey.addEventListener("change", () => {});
+    elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
+    elBranded.addEventListener("change", () => renderWithoutRandomization());
+    document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
+    document.getElementById("btnPrint").addEventListener("click", handlePrint);
+    document.getElementById("btnPDF").addEventListener("click", handlePDF);
+
+    let resizeTimeout;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (currentState.sheets.length > 1) renderWorksheet();
+      }, 150);
+    });
+
+    // ===== Init =====
+    renderWithNewRandomization();
+  </script>
+</body>
+</html>

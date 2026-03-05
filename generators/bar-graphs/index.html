@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bar Graph Worksheet Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      background: white;
+      padding: 32px 24px;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-group > label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 6px;
+    }
+
+    .control-group input[type="number"],
+    .control-group input[type="text"],
+    .control-group select {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .control-group input:focus,
+    .control-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .control-group input:hover,
+    .control-group select:hover {
+      border-color: #cbd5e0;
+    }
+
+    /* ===== Advanced Options Toggle ===== */
+    .advanced-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 10px 0;
+      margin-bottom: 4px;
+      user-select: none;
+    }
+
+    .advanced-toggle .toggle-arrow {
+      font-size: 12px;
+      transition: transform 0.2s;
+      color: #667eea;
+    }
+
+    .advanced-toggle .toggle-arrow.open {
+      transform: rotate(90deg);
+    }
+
+    .advanced-toggle span:last-child {
+      font-size: 13px;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .advanced-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background: #f7fafc;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .advanced-panel.open {
+      max-height: 500px;
+    }
+
+    .advanced-panel-inner {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .advanced-panel-inner .control-group {
+      margin-bottom: 0;
+    }
+
+    .adv-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .adv-checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .adv-checkbox-row label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      cursor: pointer;
+    }
+
+    .adv-sub {
+      padding-left: 26px;
+    }
+
+    .adv-sub select {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 13px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+    }
+
+    .adv-sub label {
+      font-size: 12px;
+      color: #718096;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* ===== Checkboxes ===== */
+    .checkbox-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .checkbox-row label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .checkbox-row span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    /* ===== Buttons ===== */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .button-group button {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .button-group button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-generate {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-pdf {
+      background: #38a169;
+      color: white;
+    }
+
+    .btn-print {
+      background: #ed8936;
+      color: white;
+    }
+
+    /* ===== Preview ===== */
+    .preview-area {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px;
+      overflow: auto;
+    }
+
+    #sheetWrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    #sheetWrap.grid-view {
+      display: grid;
+      justify-items: center;
+    }
+
+    .worksheet-page {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      padding: 12px;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 900px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: relative;
+        height: auto;
+      }
+      .preview-area {
+        padding: 12px;
+      }
+      #sheetWrap {
+        gap: 16px;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        padding: 0 !important;
+      }
+      #sheetWrap.grid-view {
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: none !important;
+        padding: 0 !important;
+      }
+      .worksheet-page {
+        padding: 8px;
+        width: 100%;
+        max-width: 100%;
+      }
+      .worksheet-page svg {
+        width: 100% !important;
+        height: auto !important;
+      }
+    }
+
+    /* ===== Print ===== */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+      .main-container {
+        display: block;
+      }
+      .sidebar {
+        display: none !important;
+      }
+      .preview-area {
+        padding: 0;
+        margin: 0;
+      }
+      #sheetWrap {
+        gap: 0;
+        display: block !important;
+        padding: 0 !important;
+        flex-direction: unset !important;
+      }
+      .worksheet-page {
+        box-shadow: none;
+        border-radius: 0;
+        page-break-after: always;
+        break-after: page;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+      }
+      .worksheet-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+      .worksheet-page svg {
+        width: 100% !important;
+        height: 100% !important;
+      }
+    }
+  </style>
+  <script src="../../jspdf.umd.min.js"></script>
+  <script src="../../svg2pdf.js"></script>
+</head>
+<body>
+  <div class="main-container">
+    <!-- Left sidebar controls -->
+    <div class="sidebar">
+      <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #667eea; text-decoration: none; margin-bottom: 16px; transition: gap 0.2s;"
+         onmouseover="this.style.gap='10px'" onmouseout="this.style.gap='6px'">
+        ← All Worksheets
+      </a>
+      <h2>Bar Graph Worksheet Generator</h2>
+
+      <div class="control-group">
+        <label for="dataTheme">Data Theme</label>
+        <select id="dataTheme">
+          <option value="animals" selected>Favorite Animals</option>
+          <option value="fruits">Favorite Fruits</option>
+          <option value="colors">Favorite Colors</option>
+          <option value="sports">Favorite Sports</option>
+          <option value="random">Random</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="numCategories">Number of Categories</label>
+        <select id="numCategories">
+          <option value="3">3</option>
+          <option value="4" selected>4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="maxValue">Max Value on Axis</label>
+        <select id="maxValue">
+          <option value="5" selected>5</option>
+          <option value="10">10</option>
+          <option value="15">15</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="numQuestions">Questions per Graph</label>
+        <select id="numQuestions">
+          <option value="3">3</option>
+          <option value="4" selected>4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="graphOrientation">Graph Orientation</label>
+        <select id="graphOrientation">
+          <option value="vertical" selected>Vertical Bars</option>
+          <option value="horizontal">Horizontal Bars</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="numWorksheets">Number of Worksheets</label>
+        <select id="numWorksheets">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+
+      <div class="checkbox-row" style="margin-bottom:12px;">
+        <label>
+          <input type="checkbox" id="answerKey">
+          <span>Include Answer Key Sheets</span>
+        </label>
+      </div>
+
+      <!-- Advanced Options -->
+      <div class="advanced-toggle" id="advToggle">
+        <span class="toggle-arrow" id="advArrow">&#9654;</span>
+        <span>Advanced Options</span>
+      </div>
+      <div class="advanced-panel" id="advPanel">
+        <div class="advanced-panel-inner">
+
+          <!-- Name / Date -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="showHeaderEnabled" checked />
+            <label for="showHeaderEnabled">Name / Date</label>
+          </div>
+          <div class="adv-sub" id="headerModeOptions">
+            <label for="headerMode">Show</label>
+            <select id="headerMode">
+              <option value="both" selected>Name &amp; Date</option>
+              <option value="name">Name Only</option>
+            </select>
+          </div>
+
+          <!-- Branding -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="branded" checked />
+            <label for="branded">Branding</label>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
+        <button class="btn-pdf" id="btnPdf">&#128196; Download PDF</button>
+        <button class="btn-print" id="btnPrint">&#128424; Print</button>
+      </div>
+    </div>
+
+    <!-- Preview area -->
+    <div class="preview-area">
+      <div id="sheetWrap"></div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Helpers =====
+    function svgEl(tag, attrs) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      return el;
+    }
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+    // ===== Element refs =====
+    const sheetWrap = document.getElementById("sheetWrap");
+    const elDataTheme = document.getElementById("dataTheme");
+    const elNumCategories = document.getElementById("numCategories");
+    const elMaxValue = document.getElementById("maxValue");
+    const elNumQuestions = document.getElementById("numQuestions");
+    const elGraphOrientation = document.getElementById("graphOrientation");
+    const elNumSheets = document.getElementById("numWorksheets");
+    const elAnswerKey = document.getElementById("answerKey");
+    const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
+    const elHeaderMode = document.getElementById("headerMode");
+    const elHeaderModeOptions = document.getElementById("headerModeOptions");
+    const elBranded = document.getElementById("branded");
+    const advToggle = document.getElementById("advToggle");
+    const advPanel = document.getElementById("advPanel");
+    const advArrow = document.getElementById("advArrow");
+
+    // ===== Advanced panel toggle =====
+    advToggle.addEventListener("click", () => {
+      advPanel.classList.toggle("open");
+      advArrow.classList.toggle("open");
+    });
+
+    // ===== Theme data =====
+    const themes = {
+      animals: {
+        title: "Favorite Animals",
+        items: ["Cats", "Dogs", "Fish", "Birds", "Rabbits", "Hamsters", "Turtles", "Horses", "Frogs", "Ducks"]
+      },
+      fruits: {
+        title: "Favorite Fruits",
+        items: ["Apples", "Bananas", "Grapes", "Oranges", "Strawberries", "Watermelons", "Peaches", "Cherries", "Pears", "Mangoes"]
+      },
+      colors: {
+        title: "Favorite Colors",
+        items: ["Red", "Blue", "Green", "Yellow", "Purple", "Orange", "Pink", "Black", "White", "Brown"]
+      },
+      sports: {
+        title: "Favorite Sports",
+        items: ["Soccer", "Baseball", "Basketball", "Swimming", "Tennis", "Running", "Gymnastics", "Hockey", "Football", "Volleyball"]
+      }
+    };
+
+    const barColors = [
+      "#4299E1", // blue
+      "#F56565", // red
+      "#48BB78", // green
+      "#ED8936", // orange
+      "#9F7AEA", // purple
+      "#38B2AC", // teal
+      "#ED64A6", // pink
+      "#ECC94B", // yellow
+      "#667EEA", // indigo
+      "#FC8181"  // light red
+    ];
+
+    // ===== State =====
+    let currentState = { sheets: [] };
+
+    // ===== Data generation =====
+    function pickCategories(theme, count) {
+      let pool;
+      if (theme === "random") {
+        const allThemes = Object.keys(themes);
+        const chosen = allThemes[Math.floor(Math.random() * allThemes.length)];
+        pool = [...themes[chosen].items];
+      } else {
+        pool = [...themes[theme].items];
+      }
+      // Shuffle pool
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      return pool.slice(0, count);
+    }
+
+    function getThemeTitle(theme) {
+      if (theme === "random") return "Favorites Survey";
+      return themes[theme].title;
+    }
+
+    function generateGraphData(opts) {
+      const categories = pickCategories(opts.dataTheme, opts.numCategories);
+      const values = [];
+      for (let i = 0; i < categories.length; i++) {
+        // Generate values from 1 to maxValue (ensure at least 1 so bars are visible)
+        values.push(1 + Math.floor(Math.random() * opts.maxValue));
+      }
+
+      // Ensure we have at least two different values for interesting questions
+      if (values.every(v => v === values[0]) && values.length > 1) {
+        values[Math.floor(Math.random() * values.length)] = clamp(values[0] + 1, 1, opts.maxValue);
+      }
+
+      const questions = generateQuestions(categories, values, opts.numQuestions);
+      return { categories, values, questions };
+    }
+
+    function generateQuestions(categories, values, count) {
+      const questions = [];
+      const used = new Set();
+
+      // Find max and min indices
+      let maxVal = -1, minVal = Infinity;
+      let maxIdx = 0, minIdx = 0;
+      for (let i = 0; i < values.length; i++) {
+        if (values[i] > maxVal) { maxVal = values[i]; maxIdx = i; }
+        if (values[i] < minVal) { minVal = values[i]; minIdx = i; }
+      }
+
+      // Question types pool
+      const qTypes = [];
+
+      // Type 1: How many chose X? (counting)
+      for (let i = 0; i < categories.length; i++) {
+        qTypes.push({
+          type: "count",
+          text: "How many chose " + categories[i] + "?",
+          answer: values[i],
+          key: "count-" + i
+        });
+      }
+
+      // Type 2: Which has the most / least?
+      qTypes.push({
+        type: "most",
+        text: "Which has the most?",
+        answer: categories[maxIdx],
+        key: "most"
+      });
+      qTypes.push({
+        type: "least",
+        text: "Which has the least?",
+        answer: categories[minIdx],
+        key: "least"
+      });
+
+      // Type 3: How many more/fewer X than Y?
+      for (let i = 0; i < categories.length; i++) {
+        for (let j = i + 1; j < categories.length; j++) {
+          if (values[i] !== values[j]) {
+            const bigger = values[i] > values[j] ? i : j;
+            const smaller = values[i] > values[j] ? j : i;
+            qTypes.push({
+              type: "difference",
+              text: "How many more " + categories[bigger] + " than " + categories[smaller] + "?",
+              answer: Math.abs(values[i] - values[j]),
+              key: "diff-" + i + "-" + j
+            });
+          }
+        }
+      }
+
+      // Type 4: How many in total?
+      qTypes.push({
+        type: "total",
+        text: "How many in all?",
+        answer: values.reduce((a, b) => a + b, 0),
+        key: "total"
+      });
+
+      // Ensure variety: try to include at least one counting, one comparison, one difference
+      const picks = [];
+      const countQs = qTypes.filter(q => q.type === "count");
+      const compQs = qTypes.filter(q => q.type === "most" || q.type === "least");
+      const diffQs = qTypes.filter(q => q.type === "difference");
+      const totalQs = qTypes.filter(q => q.type === "total");
+
+      // Pick one of each type first
+      if (countQs.length > 0) {
+        const q = countQs[Math.floor(Math.random() * countQs.length)];
+        picks.push(q);
+        used.add(q.key);
+      }
+      if (compQs.length > 0 && picks.length < count) {
+        const q = compQs[Math.floor(Math.random() * compQs.length)];
+        picks.push(q);
+        used.add(q.key);
+      }
+      if (diffQs.length > 0 && picks.length < count) {
+        const q = diffQs[Math.floor(Math.random() * diffQs.length)];
+        picks.push(q);
+        used.add(q.key);
+      }
+
+      // Fill remaining with random unused questions
+      const remaining = qTypes.filter(q => !used.has(q.key));
+      for (let i = remaining.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+      }
+      for (const q of remaining) {
+        if (picks.length >= count) break;
+        picks.push(q);
+        used.add(q.key);
+      }
+
+      // Shuffle final selection
+      for (let i = picks.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [picks[i], picks[j]] = [picks[j], picks[i]];
+      }
+
+      return picks.slice(0, count);
+    }
+
+    // ===== SVG Rendering =====
+    function renderWorksheetSVG(sheetData, options) {
+      const { showHeader, branded, showAnswers, orientation } = options;
+      const { categories, values, questions } = sheetData;
+      const pageW = 612, pageH = 792, margin = 36;
+      const maxValue = parseInt(elMaxValue.value, 10);
+
+      const svg = svgEl("svg", {
+        width: pageW, height: pageH,
+        viewBox: "0 0 " + pageW + " " + pageH,
+        xmlns: "http://www.w3.org/2000/svg"
+      });
+      const st = document.createElementNS("http://www.w3.org/2000/svg", "style");
+      st.textContent = ".txt { font-family: Arial, Helvetica, sans-serif; }";
+      svg.appendChild(st);
+      svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
+
+      // ===== Header =====
+      let topY;
+      const themeTitle = getThemeTitle(elDataTheme.value);
+
+      if (showHeader === "both") {
+        const nl = svgEl("text", { x: margin, y: 30, class: "txt", "font-size": 14, "font-weight": 400 });
+        nl.textContent = "Name:"; svg.appendChild(nl);
+        svg.appendChild(svgEl("line", { x1: margin + 50, y1: 32, x2: margin + 240, y2: 32, stroke: "#000", "stroke-width": 1 }));
+        const dl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 });
+        dl.textContent = "Date:"; svg.appendChild(dl);
+        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
+
+        const titleText = showAnswers ? themeTitle + " \u2014 Answer Key" : themeTitle;
+        const tl = svgEl("text", { x: pageW / 2, y: 68, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = titleText; svg.appendChild(tl);
+        topY = 86;
+      } else if (showHeader === "name") {
+        const nl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 });
+        nl.textContent = "Name:"; svg.appendChild(nl);
+        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
+
+        const titleText = showAnswers ? themeTitle + " \u2014 Answer Key" : themeTitle;
+        const tl = svgEl("text", { x: pageW / 2, y: 68, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = titleText; svg.appendChild(tl);
+        topY = 86;
+      } else {
+        const titleText = showAnswers ? themeTitle + " \u2014 Answer Key" : themeTitle;
+        const tl = svgEl("text", { x: pageW / 2, y: 45, class: "txt", "font-size": showAnswers ? 20 : 22, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = titleText; svg.appendChild(tl);
+        topY = 62;
+      }
+
+      // ===== Branding =====
+      if (branded) {
+        const br = svgEl("text", { x: pageW / 2, y: pageH - 20, class: "txt", "font-size": 12, "text-anchor": "middle", fill: "#a0aec0" });
+        br.textContent = "animalmath.com"; svg.appendChild(br);
+      }
+
+      // ===== Layout calculations =====
+      const bottomMargin = branded ? 50 : 40;
+      const availH = pageH - bottomMargin - topY;
+      const graphAreaH = availH * 0.52;
+      const questionsAreaH = availH * 0.48;
+      const graphTop = topY + 10;
+      const questionsTop = graphTop + graphAreaH + 10;
+
+      // ===== Draw graph =====
+      if (orientation === "vertical") {
+        drawVerticalBarGraph(svg, categories, values, maxValue, margin, graphTop, pageW - margin * 2, graphAreaH - 20);
+      } else {
+        drawHorizontalBarGraph(svg, categories, values, maxValue, margin, graphTop, pageW - margin * 2, graphAreaH - 20);
+      }
+
+      // ===== Draw questions =====
+      drawQuestions(svg, questions, margin, questionsTop, pageW - margin * 2, questionsAreaH - 10, showAnswers);
+
+      return svg;
+    }
+
+    // ===== Draw Vertical Bar Graph =====
+    function drawVerticalBarGraph(svg, categories, values, maxValue, left, top, width, height) {
+      const numCats = categories.length;
+      const labelAreaH = 40;
+      const titleAreaH = 24;
+      const yAxisLabelW = 36;
+      const chartLeft = left + yAxisLabelW;
+      const chartTop = top + titleAreaH;
+      const chartW = width - yAxisLabelW - 10;
+      const chartH = height - labelAreaH - titleAreaH;
+
+      // Y-axis title
+      const yTitle = svgEl("text", {
+        x: left + 6, y: chartTop + chartH / 2,
+        class: "txt", "font-size": 11, "font-weight": 600,
+        fill: "#4a5568", "text-anchor": "middle",
+        transform: "rotate(-90," + (left + 6) + "," + (chartTop + chartH / 2) + ")"
+      });
+      yTitle.textContent = "Number of Votes";
+      svg.appendChild(yTitle);
+
+      // Draw axes
+      svg.appendChild(svgEl("line", {
+        x1: chartLeft, y1: chartTop, x2: chartLeft, y2: chartTop + chartH,
+        stroke: "#2d3748", "stroke-width": 1.5
+      }));
+      svg.appendChild(svgEl("line", {
+        x1: chartLeft, y1: chartTop + chartH, x2: chartLeft + chartW, y2: chartTop + chartH,
+        stroke: "#2d3748", "stroke-width": 1.5
+      }));
+
+      // Y-axis gridlines and labels
+      const yStep = maxValue <= 5 ? 1 : (maxValue <= 10 ? 2 : 3);
+      for (let v = 0; v <= maxValue; v += yStep) {
+        const y = chartTop + chartH - (v / maxValue) * chartH;
+        // Gridline
+        svg.appendChild(svgEl("line", {
+          x1: chartLeft, y1: y, x2: chartLeft + chartW, y2: y,
+          stroke: "#e2e8f0", "stroke-width": 0.75, "stroke-dasharray": v === 0 ? "none" : "4,3"
+        }));
+        // Tick
+        svg.appendChild(svgEl("line", {
+          x1: chartLeft - 4, y1: y, x2: chartLeft, y2: y,
+          stroke: "#2d3748", "stroke-width": 1
+        }));
+        // Label
+        const lbl = svgEl("text", {
+          x: chartLeft - 8, y: y + 4,
+          class: "txt", "font-size": 11, "font-weight": 500,
+          fill: "#4a5568", "text-anchor": "end"
+        });
+        lbl.textContent = String(v);
+        svg.appendChild(lbl);
+      }
+
+      // Bars
+      const barGroupW = chartW / numCats;
+      const barW = Math.min(barGroupW * 0.6, 60);
+      const barPad = (barGroupW - barW) / 2;
+
+      for (let i = 0; i < numCats; i++) {
+        const bx = chartLeft + i * barGroupW + barPad;
+        const barH = (values[i] / maxValue) * chartH;
+        const by = chartTop + chartH - barH;
+
+        // Bar
+        svg.appendChild(svgEl("rect", {
+          x: bx, y: by, width: barW, height: barH,
+          fill: barColors[i % barColors.length],
+          rx: 3, ry: 3
+        }));
+
+        // Value on top of bar
+        const valLabel = svgEl("text", {
+          x: bx + barW / 2, y: by - 5,
+          class: "txt", "font-size": 11, "font-weight": 700,
+          fill: "#2d3748", "text-anchor": "middle"
+        });
+        valLabel.textContent = String(values[i]);
+        svg.appendChild(valLabel);
+
+        // Category label below x-axis
+        const catLabel = svgEl("text", {
+          x: bx + barW / 2, y: chartTop + chartH + 16,
+          class: "txt", "font-size": 10, "font-weight": 600,
+          fill: "#2d3748", "text-anchor": "middle"
+        });
+        catLabel.textContent = categories[i];
+        svg.appendChild(catLabel);
+      }
+    }
+
+    // ===== Draw Horizontal Bar Graph =====
+    function drawHorizontalBarGraph(svg, categories, values, maxValue, left, top, width, height) {
+      const numCats = categories.length;
+      const titleAreaH = 24;
+      const labelAreaW = 80;
+      const xAxisLabelH = 30;
+      const chartLeft = left + labelAreaW;
+      const chartTop = top + titleAreaH;
+      const chartW = width - labelAreaW - 10;
+      const chartH = height - xAxisLabelH - titleAreaH;
+
+      // X-axis title
+      const xTitle = svgEl("text", {
+        x: chartLeft + chartW / 2, y: chartTop + chartH + xAxisLabelH - 4,
+        class: "txt", "font-size": 11, "font-weight": 600,
+        fill: "#4a5568", "text-anchor": "middle"
+      });
+      xTitle.textContent = "Number of Votes";
+      svg.appendChild(xTitle);
+
+      // Draw axes
+      svg.appendChild(svgEl("line", {
+        x1: chartLeft, y1: chartTop, x2: chartLeft, y2: chartTop + chartH,
+        stroke: "#2d3748", "stroke-width": 1.5
+      }));
+      svg.appendChild(svgEl("line", {
+        x1: chartLeft, y1: chartTop + chartH, x2: chartLeft + chartW, y2: chartTop + chartH,
+        stroke: "#2d3748", "stroke-width": 1.5
+      }));
+
+      // X-axis gridlines and labels
+      const xStep = maxValue <= 5 ? 1 : (maxValue <= 10 ? 2 : 3);
+      for (let v = 0; v <= maxValue; v += xStep) {
+        const x = chartLeft + (v / maxValue) * chartW;
+        // Gridline
+        svg.appendChild(svgEl("line", {
+          x1: x, y1: chartTop, x2: x, y2: chartTop + chartH,
+          stroke: "#e2e8f0", "stroke-width": 0.75, "stroke-dasharray": v === 0 ? "none" : "4,3"
+        }));
+        // Tick
+        svg.appendChild(svgEl("line", {
+          x1: x, y1: chartTop + chartH, x2: x, y2: chartTop + chartH + 4,
+          stroke: "#2d3748", "stroke-width": 1
+        }));
+        // Label
+        const lbl = svgEl("text", {
+          x: x, y: chartTop + chartH + 16,
+          class: "txt", "font-size": 11, "font-weight": 500,
+          fill: "#4a5568", "text-anchor": "middle"
+        });
+        lbl.textContent = String(v);
+        svg.appendChild(lbl);
+      }
+
+      // Bars
+      const barGroupH = chartH / numCats;
+      const barH = Math.min(barGroupH * 0.6, 40);
+      const barPad = (barGroupH - barH) / 2;
+
+      for (let i = 0; i < numCats; i++) {
+        const by = chartTop + i * barGroupH + barPad;
+        const barW = (values[i] / maxValue) * chartW;
+
+        // Bar
+        svg.appendChild(svgEl("rect", {
+          x: chartLeft, y: by, width: barW, height: barH,
+          fill: barColors[i % barColors.length],
+          rx: 3, ry: 3
+        }));
+
+        // Value at end of bar
+        const valLabel = svgEl("text", {
+          x: chartLeft + barW + 6, y: by + barH / 2 + 4,
+          class: "txt", "font-size": 11, "font-weight": 700,
+          fill: "#2d3748", "text-anchor": "start"
+        });
+        valLabel.textContent = String(values[i]);
+        svg.appendChild(valLabel);
+
+        // Category label to the left
+        const catLabel = svgEl("text", {
+          x: chartLeft - 8, y: by + barH / 2 + 4,
+          class: "txt", "font-size": 10, "font-weight": 600,
+          fill: "#2d3748", "text-anchor": "end"
+        });
+        catLabel.textContent = categories[i];
+        svg.appendChild(catLabel);
+      }
+    }
+
+    // ===== Draw Questions =====
+    function drawQuestions(svg, questions, left, top, width, height, showAnswers) {
+      const numQ = questions.length;
+
+      // Section label
+      const sectionLabel = svgEl("text", {
+        x: left, y: top + 4,
+        class: "txt", "font-size": 13, "font-weight": 700,
+        fill: "#2d3748"
+      });
+      sectionLabel.textContent = "Questions:";
+      svg.appendChild(sectionLabel);
+
+      // Underline for section
+      svg.appendChild(svgEl("line", {
+        x1: left, y1: top + 8, x2: left + 76, y2: top + 8,
+        stroke: "#667eea", "stroke-width": 2
+      }));
+
+      const qStartY = top + 28;
+      const qSpacing = Math.min((height - 28) / numQ, 52);
+      const lineLen = 80;
+
+      for (let i = 0; i < numQ; i++) {
+        const q = questions[i];
+        const y = qStartY + i * qSpacing;
+
+        // Question number and text
+        const qText = svgEl("text", {
+          x: left + 4, y: y + 14,
+          class: "txt", "font-size": 13, "font-weight": 500,
+          fill: "#1a202c"
+        });
+        qText.textContent = (i + 1) + ". " + q.text;
+        svg.appendChild(qText);
+
+        // Answer line
+        const lineX = left + width - lineLen - 4;
+        svg.appendChild(svgEl("line", {
+          x1: lineX, y1: y + 16, x2: lineX + lineLen, y2: y + 16,
+          stroke: "#2d3748", "stroke-width": 1
+        }));
+
+        // Answer (if showing)
+        if (showAnswers) {
+          const ansEl = svgEl("text", {
+            x: lineX + lineLen / 2, y: y + 12,
+            class: "txt", "font-size": 14, "font-weight": 700,
+            fill: "#3182ce", "text-anchor": "middle"
+          });
+          ansEl.textContent = String(q.answer);
+          svg.appendChild(ansEl);
+        }
+      }
+    }
+
+    // ===== Gather options =====
+    function gatherOptions() {
+      let showHeader = "none";
+      if (elShowHeaderEnabled.checked) showHeader = elHeaderMode.value;
+      return {
+        dataTheme: elDataTheme.value,
+        numCategories: parseInt(elNumCategories.value, 10),
+        maxValue: parseInt(elMaxValue.value, 10),
+        numQuestions: parseInt(elNumQuestions.value, 10),
+        orientation: elGraphOrientation.value,
+        numWorksheets: parseInt(elNumSheets.value, 10),
+        showHeader: showHeader,
+        branded: elBranded.checked,
+        answerKey: elAnswerKey.checked
+      };
+    }
+
+    // ===== Render functions =====
+    function renderWithNewRandomization() {
+      const opts = gatherOptions();
+      currentState.sheets = [];
+      for (let s = 0; s < opts.numWorksheets; s++) {
+        currentState.sheets.push(generateGraphData(opts));
+      }
+      renderWorksheet();
+    }
+
+    function renderWithoutRandomization() {
+      const opts = gatherOptions();
+      while (currentState.sheets.length < opts.numWorksheets) {
+        currentState.sheets.push(generateGraphData(opts));
+      }
+      if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
+      renderWorksheet();
+    }
+
+    function isMobile() { return window.innerWidth <= 900; }
+
+    function renderWorksheet() {
+      const opts = gatherOptions();
+      const numSheets = currentState.sheets.length;
+      sheetWrap.innerHTML = "";
+      sheetWrap.className = "";
+      sheetWrap.style.cssText = "";
+      const sheetWidth = 612, sheetHeight = 792;
+
+      if (isMobile()) {
+        for (let s = 0; s < numSheets; s++) {
+          const p = document.createElement("div");
+          p.className = "worksheet-page";
+          const v = renderWorksheetSVG(currentState.sheets[s], {
+            showHeader: opts.showHeader, branded: opts.branded,
+            showAnswers: false, orientation: opts.orientation
+          });
+          p.appendChild(v);
+          sheetWrap.appendChild(p);
+        }
+        return;
+      }
+
+      // Desktop: grid layout with calculated sizing
+      if (numSheets > 1) {
+        sheetWrap.classList.add("grid-view");
+        const ep = numSheets >= 3 ? 12 : 0;
+        const aw = window.innerWidth - 340 - 80 - ep * 2;
+        const ah = window.innerHeight - 80;
+        const gap = 24;
+        const mrw = 180;
+        let cols;
+        if (numSheets <= 3) {
+          cols = numSheets;
+          if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap)));
+        } else {
+          cols = Math.min(3, numSheets);
+          if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap)));
+        }
+        const msw = (aw - (cols - 1) * gap) / cols;
+        const msh = numSheets <= 3 ? ah : ah * 0.8;
+        const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
+        const sw = Math.floor(sheetWidth * scale);
+        const sh = Math.floor(sheetHeight * scale);
+        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
+        sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
+        for (let s = 0; s < numSheets; s++) {
+          const p = document.createElement("div");
+          p.className = "worksheet-page";
+          const v = renderWorksheetSVG(currentState.sheets[s], {
+            showHeader: opts.showHeader, branded: opts.branded,
+            showAnswers: false, orientation: opts.orientation
+          });
+          v.setAttribute("width", sw);
+          v.setAttribute("height", sh);
+          p.appendChild(v);
+          sheetWrap.appendChild(p);
+        }
+      } else {
+        const p = document.createElement("div");
+        p.className = "worksheet-page";
+        const v = renderWorksheetSVG(currentState.sheets[0], {
+          showHeader: opts.showHeader, branded: opts.branded,
+          showAnswers: false, orientation: opts.orientation
+        });
+        p.appendChild(v);
+        sheetWrap.appendChild(p);
+      }
+    }
+
+    // ===== Print =====
+    function handlePrint() {
+      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
+      const opts = gatherOptions();
+      const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
+      sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
+      for (let i = 0; i < currentState.sheets.length; i++) {
+        const p = document.createElement("div"); p.className = "worksheet-page";
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
+          showHeader: opts.showHeader, branded: opts.branded,
+          showAnswers: false, orientation: opts.orientation
+        }));
+        sheetWrap.appendChild(p);
+      }
+      if (opts.answerKey) {
+        for (let i = 0; i < currentState.sheets.length; i++) {
+          const p = document.createElement("div"); p.className = "worksheet-page";
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
+            showHeader: "none", branded: opts.branded,
+            showAnswers: true, orientation: opts.orientation
+          }));
+          sheetWrap.appendChild(p);
+        }
+      }
+      setTimeout(() => {
+        window.print();
+        sheetWrap.innerHTML = sH;
+        sheetWrap.className = sC;
+        sheetWrap.style.cssText = sS;
+      }, 50);
+    }
+
+    // ===== PDF Download =====
+    async function handlePdf() {
+      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
+      const opts = gatherOptions();
+      const pageW = 612, pageH = 792;
+      const pdf = new jspdf.jsPDF({ unit: "pt", format: [pageW, pageH] });
+
+      const allSheets = [];
+      for (let i = 0; i < currentState.sheets.length; i++) {
+        allSheets.push({ data: currentState.sheets[i], showAnswers: false });
+      }
+      if (opts.answerKey) {
+        for (let i = 0; i < currentState.sheets.length; i++) {
+          allSheets.push({ data: currentState.sheets[i], showAnswers: true });
+        }
+      }
+
+      for (let i = 0; i < allSheets.length; i++) {
+        if (i > 0) pdf.addPage([pageW, pageH]);
+        const svgNode = renderWorksheetSVG(allSheets[i].data, {
+          showHeader: allSheets[i].showAnswers ? "none" : opts.showHeader,
+          branded: opts.branded,
+          showAnswers: allSheets[i].showAnswers,
+          orientation: opts.orientation
+        });
+        document.body.appendChild(svgNode);
+        await pdf.svg(svgNode, { x: 0, y: 0, width: pageW, height: pageH });
+        document.body.removeChild(svgNode);
+      }
+
+      pdf.save("bar-graph-worksheet.pdf");
+    }
+
+    // ===== Event Listeners =====
+    elDataTheme.addEventListener("change", () => renderWithNewRandomization());
+    elNumCategories.addEventListener("change", () => renderWithNewRandomization());
+    elMaxValue.addEventListener("change", () => renderWithNewRandomization());
+    elNumQuestions.addEventListener("change", () => renderWithNewRandomization());
+    elGraphOrientation.addEventListener("change", () => renderWithoutRandomization());
+    elNumSheets.addEventListener("change", () => renderWithNewRandomization());
+
+    elShowHeaderEnabled.addEventListener("change", () => {
+      elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
+      renderWithoutRandomization();
+    });
+    elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
+    elBranded.addEventListener("change", () => renderWithoutRandomization());
+    elAnswerKey.addEventListener("change", () => {});
+
+    document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
+    document.getElementById("btnPrint").addEventListener("click", handlePrint);
+    document.getElementById("btnPdf").addEventListener("click", handlePdf);
+
+    let resizeTimeout;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150);
+    });
+
+    // ===== Init =====
+    renderWithNewRandomization();
+  </script>
+</body>
+</html>

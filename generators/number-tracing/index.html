@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Number Tracing Worksheet Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      background: white;
+      padding: 32px 24px;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-group > label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 6px;
+    }
+
+    .control-group input[type="number"],
+    .control-group input[type="text"],
+    .control-group select {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .control-group input:focus,
+    .control-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .control-group input:hover,
+    .control-group select:hover {
+      border-color: #cbd5e0;
+    }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .range-row .sub-label {
+      font-size: 11px;
+      color: #718096;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    /* ===== Advanced Options Toggle ===== */
+    .advanced-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 10px 0;
+      margin-bottom: 4px;
+      user-select: none;
+    }
+
+    .advanced-toggle .toggle-arrow {
+      font-size: 12px;
+      transition: transform 0.2s;
+      color: #667eea;
+    }
+
+    .advanced-toggle .toggle-arrow.open {
+      transform: rotate(90deg);
+    }
+
+    .advanced-toggle span:last-child {
+      font-size: 13px;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .advanced-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background: #f7fafc;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .advanced-panel.open {
+      max-height: 500px;
+    }
+
+    .advanced-panel-inner {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .advanced-panel-inner .control-group {
+      margin-bottom: 0;
+    }
+
+    .adv-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .adv-checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .adv-checkbox-row label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      cursor: pointer;
+    }
+
+    .adv-sub {
+      padding-left: 26px;
+    }
+
+    .adv-sub select {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 13px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+    }
+
+    .adv-sub label {
+      font-size: 12px;
+      color: #718096;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* ===== Checkboxes ===== */
+    .checkbox-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .checkbox-row label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .checkbox-row span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    /* ===== Buttons ===== */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .button-group button {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .button-group button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-generate {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-pdf {
+      background: #38a169;
+      color: white;
+    }
+
+    .btn-print {
+      background: #ed8936;
+      color: white;
+    }
+
+    /* ===== Preview ===== */
+    .preview-area {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px;
+      overflow: auto;
+    }
+
+    #sheetWrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    #sheetWrap.grid-view {
+      display: grid;
+      justify-items: center;
+    }
+
+    .worksheet-page {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      padding: 12px;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 900px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: relative;
+        height: auto;
+      }
+      .preview-area {
+        padding: 12px;
+      }
+      #sheetWrap {
+        gap: 16px;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        padding: 0 !important;
+      }
+      #sheetWrap.grid-view {
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: none !important;
+        padding: 0 !important;
+      }
+      .worksheet-page {
+        padding: 8px;
+        width: 100%;
+        max-width: 100%;
+      }
+      .worksheet-page svg {
+        width: 100% !important;
+        height: auto !important;
+      }
+    }
+
+    /* ===== Print ===== */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+      .main-container {
+        display: block;
+      }
+      .sidebar {
+        display: none !important;
+      }
+      .preview-area {
+        padding: 0;
+        margin: 0;
+      }
+      #sheetWrap {
+        gap: 0;
+        display: block !important;
+        padding: 0 !important;
+        flex-direction: unset !important;
+      }
+      .worksheet-page {
+        box-shadow: none;
+        border-radius: 0;
+        page-break-after: always;
+        break-after: page;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+      }
+      .worksheet-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+      .worksheet-page svg {
+        width: 100% !important;
+        height: 100% !important;
+      }
+    }
+  </style>
+  <script src="../../jspdf.umd.min.js"></script>
+  <script src="../../svg2pdf.js"></script>
+</head>
+<body>
+  <div class="main-container">
+    <!-- Left sidebar controls -->
+    <div class="sidebar">
+      <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #667eea; text-decoration: none; margin-bottom: 16px; transition: gap 0.2s;"
+         onmouseover="this.style.gap='10px'" onmouseout="this.style.gap='6px'">
+        &larr; All Worksheets
+      </a>
+      <h2>Number Tracing Worksheet Generator</h2>
+
+      <div class="control-group">
+        <label>Number Range</label>
+        <div class="range-row">
+          <div>
+            <span class="sub-label">Start</span>
+            <input type="number" id="startNumber" value="1" min="0" max="20" />
+          </div>
+          <div>
+            <span class="sub-label">End</span>
+            <input type="number" id="endNumber" value="10" min="0" max="20" />
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label for="repetitions">Repetitions per Number</label>
+        <select id="repetitions">
+          <option value="3">3</option>
+          <option value="4" selected>4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="traceStyle">Style</label>
+        <select id="traceStyle">
+          <option value="dotted" selected>Dotted outline</option>
+          <option value="dashed">Dashed outline</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="fontSize">Font Size</label>
+        <select id="fontSize">
+          <option value="small">Small</option>
+          <option value="medium" selected>Medium</option>
+          <option value="large">Large</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="numWorksheets">Number of Worksheets</label>
+        <select id="numWorksheets">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+
+      <div class="checkbox-row" style="margin-bottom:12px;">
+        <label>
+          <input type="checkbox" id="includePracticeLine" checked>
+          <span>Include practice line</span>
+        </label>
+        <label>
+          <input type="checkbox" id="answerKey">
+          <span>Include Answer Key</span>
+        </label>
+      </div>
+
+      <!-- Advanced Options -->
+      <div class="advanced-toggle" id="advToggle">
+        <span class="toggle-arrow" id="advArrow">&#9654;</span>
+        <span>Advanced Options</span>
+      </div>
+      <div class="advanced-panel" id="advPanel">
+        <div class="advanced-panel-inner">
+
+          <!-- Name / Date -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="showHeaderEnabled" checked />
+            <label for="showHeaderEnabled">Name / Date</label>
+          </div>
+          <div class="adv-sub" id="headerModeOptions">
+            <label for="headerMode">Show</label>
+            <select id="headerMode">
+              <option value="both" selected>Name &amp; Date</option>
+              <option value="name">Name Only</option>
+            </select>
+          </div>
+
+          <!-- Worksheet Title -->
+          <div class="control-group" style="margin-bottom:0;">
+            <label for="worksheetTitle">Worksheet Title</label>
+            <input type="text" id="worksheetTitle" value="Number Tracing Practice" style="width:100%;padding:8px 10px;font-size:13px;border:2px solid #e2e8f0;border-radius:8px;" />
+          </div>
+
+          <!-- Branding -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="branded" checked />
+            <label for="branded">Show branding</label>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
+        <button class="btn-print" id="btnPrint">&#128424; Print</button>
+        <button class="btn-pdf" id="btnPdf">&#128196; Download PDF</button>
+      </div>
+    </div>
+
+    <!-- Preview area -->
+    <div class="preview-area">
+      <div id="sheetWrap"></div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Helpers =====
+    function svgEl(tag, attrs) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      return el;
+    }
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+    // ===== Element refs =====
+    const sheetWrap = document.getElementById("sheetWrap");
+    const elStartNumber = document.getElementById("startNumber");
+    const elEndNumber = document.getElementById("endNumber");
+    const elRepetitions = document.getElementById("repetitions");
+    const elTraceStyle = document.getElementById("traceStyle");
+    const elFontSize = document.getElementById("fontSize");
+    const elNumSheets = document.getElementById("numWorksheets");
+    const elIncludePracticeLine = document.getElementById("includePracticeLine");
+    const elAnswerKey = document.getElementById("answerKey");
+    const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
+    const elHeaderMode = document.getElementById("headerMode");
+    const elHeaderModeOptions = document.getElementById("headerModeOptions");
+    const elTitle = document.getElementById("worksheetTitle");
+    const elBranded = document.getElementById("branded");
+    const advToggle = document.getElementById("advToggle");
+    const advPanel = document.getElementById("advPanel");
+    const advArrow = document.getElementById("advArrow");
+
+    // ===== Advanced panel toggle =====
+    advToggle.addEventListener("click", () => {
+      advPanel.classList.toggle("open");
+      advArrow.classList.toggle("open");
+    });
+
+    // ===== Gather options =====
+    function gatherOptions() {
+      let showHeader = "none";
+      if (elShowHeaderEnabled.checked) showHeader = elHeaderMode.value;
+      return {
+        startNumber: clamp(parseInt(elStartNumber.value, 10) || 0, 0, 20),
+        endNumber: clamp(parseInt(elEndNumber.value, 10) || 10, 0, 20),
+        repetitions: parseInt(elRepetitions.value, 10),
+        traceStyle: elTraceStyle.value,
+        fontSize: elFontSize.value,
+        numWorksheets: parseInt(elNumSheets.value, 10),
+        includePracticeLine: elIncludePracticeLine.checked,
+        answerKey: elAnswerKey.checked,
+        showHeader: showHeader,
+        title: elTitle.value || "Number Tracing Practice",
+        branded: elBranded.checked,
+      };
+    }
+
+    // ===== SVG Rendering =====
+    function renderWorksheetSVG(numbers, options) {
+      const { showHeader, title, branded, traceStyle, repetitions, includePracticeLine, fontSize, showAnswers } = options;
+      const pageW = 612, pageH = 792, margin = 36;
+      const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
+      const st = document.createElementNS("http://www.w3.org/2000/svg", "style");
+      st.textContent = ".txt { font-family: Arial, Helvetica, sans-serif; }";
+      svg.appendChild(st);
+      svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
+
+      // Font size mapping
+      let numFontSize;
+      if (fontSize === "small") numFontSize = 48;
+      else if (fontSize === "large") numFontSize = 72;
+      else numFontSize = 60; // medium
+
+      // Header
+      let topContentY;
+      if (showHeader === "both") {
+        const nl = svgEl("text", { x: margin, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
+        svg.appendChild(svgEl("line", { x1: margin + 50, y1: 32, x2: margin + 240, y2: 32, stroke: "#000", "stroke-width": 1 }));
+        const dl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); dl.textContent = "Date:"; svg.appendChild(dl);
+        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
+        const tl = svgEl("text", { x: pageW / 2, y: 78, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
+        topContentY = 96;
+      } else if (showHeader === "name") {
+        const nl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
+        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
+        const tl = svgEl("text", { x: pageW / 2, y: 78, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
+        topContentY = 96;
+      } else {
+        const tl = svgEl("text", { x: pageW / 2, y: 45, class: "txt", "font-size": showAnswers ? 20 : 22, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
+        topContentY = 65;
+      }
+
+      // Branding footer
+      if (branded) {
+        const br = svgEl("text", { x: pageW / 2, y: pageH - 20, class: "txt", "font-size": 12, "text-anchor": "middle", fill: "#a0aec0" });
+        br.textContent = "animalmath.com"; svg.appendChild(br);
+      }
+
+      const bottomMargin = branded ? 50 : 40;
+      const availH = pageH - bottomMargin - topContentY;
+      const contentW = pageW - margin * 2;
+
+      // Determine dash array for tracing style
+      const dashArray = traceStyle === "dashed" ? "6,4" : "2,3";
+
+      // Calculate row layout
+      // Each number gets a "row block": the tracing row plus optional practice line
+      const totalNumbers = numbers.length;
+      const rowBlockCount = totalNumbers;
+      const rowBlockH = availH / rowBlockCount;
+
+      // Within each row block: tracing area + optional practice line
+      const practiceFraction = includePracticeLine ? 0.35 : 0;
+      const traceRowH = rowBlockH * (1 - practiceFraction);
+      const practiceRowH = rowBlockH * practiceFraction;
+
+      // Calculate spacing for numbers across the row
+      // Layout: [reference number] [gap] [traced copies evenly spaced]
+      const refNumberWidth = numFontSize * 1.2; // space for the reference number on the left
+      const traceAreaLeft = margin + refNumberWidth;
+      const traceAreaWidth = contentW - refNumberWidth;
+
+      for (let i = 0; i < totalNumbers; i++) {
+        const num = numbers[i];
+        const numStr = String(num);
+        const blockTop = topContentY + i * rowBlockH;
+        const traceCenterY = blockTop + traceRowH * 0.5;
+
+        // Draw a light baseline for the tracing row
+        const baselineY = blockTop + traceRowH * 0.78;
+        svg.appendChild(svgEl("line", {
+          x1: margin, y1: baselineY, x2: pageW - margin, y2: baselineY,
+          stroke: "#e2e8f0", "stroke-width": 1
+        }));
+
+        // Reference number (solid, bold, dark)
+        const refY = baselineY - numFontSize * 0.08;
+        const refEl = svgEl("text", {
+          x: margin + 4,
+          y: refY,
+          "font-family": "Arial, Helvetica, sans-serif",
+          "font-size": String(numFontSize),
+          "font-weight": "700",
+          fill: "#1a202c"
+        });
+        refEl.textContent = numStr;
+        svg.appendChild(refEl);
+
+        // Traced copies (dotted/dashed outline)
+        const traceSpacing = traceAreaWidth / repetitions;
+        for (let r = 0; r < repetitions; r++) {
+          const traceX = traceAreaLeft + r * traceSpacing + traceSpacing * 0.1;
+
+          if (showAnswers) {
+            // Answer key: show solid numbers in blue
+            const ansEl = svgEl("text", {
+              x: traceX,
+              y: refY,
+              "font-family": "Arial, Helvetica, sans-serif",
+              "font-size": String(numFontSize),
+              "font-weight": "700",
+              fill: "#3182ce"
+            });
+            ansEl.textContent = numStr;
+            svg.appendChild(ansEl);
+          } else {
+            // Traced number with stroke dash
+            const traceEl = svgEl("text", {
+              x: traceX,
+              y: refY,
+              "font-family": "Arial, Helvetica, sans-serif",
+              "font-size": String(numFontSize),
+              "font-weight": "700",
+              fill: "none",
+              stroke: "#c0c0c0",
+              "stroke-width": "1.5",
+              "stroke-dasharray": dashArray,
+              "paint-order": "stroke"
+            });
+            traceEl.textContent = numStr;
+            svg.appendChild(traceEl);
+          }
+        }
+
+        // Optional practice line (ruled line for freehand writing)
+        if (includePracticeLine) {
+          const practiceBaseY = blockTop + traceRowH + practiceRowH * 0.78;
+          // Main writing line
+          svg.appendChild(svgEl("line", {
+            x1: margin, y1: practiceBaseY, x2: pageW - margin, y2: practiceBaseY,
+            stroke: "#cbd5e0", "stroke-width": 0.75
+          }));
+          // Midline (dashed, lighter) for letter height guidance
+          const midY = practiceBaseY - practiceRowH * 0.4;
+          svg.appendChild(svgEl("line", {
+            x1: margin, y1: midY, x2: pageW - margin, y2: midY,
+            stroke: "#e2e8f0", "stroke-width": 0.5, "stroke-dasharray": "4,4"
+          }));
+        }
+      }
+
+      return svg;
+    }
+
+    // ===== Pagination =====
+    // Split numbers across pages based on how many fit per page
+    function getNumbersPerPage(options) {
+      const { fontSize, includePracticeLine } = options;
+
+      // Estimate available height for content
+      let headerH;
+      if (options.showHeader === "both" || options.showHeader === "name") headerH = 96;
+      else headerH = 65;
+      const bottomMargin = options.branded ? 50 : 40;
+      const availH = 792 - bottomMargin - headerH;
+
+      // Each number row block needs enough vertical space
+      let numFontSize;
+      if (fontSize === "small") numFontSize = 48;
+      else if (fontSize === "large") numFontSize = 72;
+      else numFontSize = 60;
+
+      // Minimum row height: font size + padding + optional practice line
+      const minTraceH = numFontSize * 1.4;
+      const practiceExtra = includePracticeLine ? minTraceH * 0.55 : 0;
+      const minRowBlockH = minTraceH + practiceExtra;
+
+      return Math.max(1, Math.floor(availH / minRowBlockH));
+    }
+
+    function generateNumberList(opts) {
+      const start = opts.startNumber;
+      const end = opts.endNumber;
+      const numbers = [];
+      if (start <= end) {
+        for (let n = start; n <= end; n++) numbers.push(n);
+      } else {
+        for (let n = start; n >= end; n--) numbers.push(n);
+      }
+      return numbers;
+    }
+
+    // ===== State =====
+    let currentState = { pages: [] };
+
+    function buildPages() {
+      const opts = gatherOptions();
+      const allNumbers = generateNumberList(opts);
+      const perPage = getNumbersPerPage(opts);
+      const pages = [];
+      for (let i = 0; i < allNumbers.length; i += perPage) {
+        pages.push(allNumbers.slice(i, i + perPage));
+      }
+      // Repeat pages based on numWorksheets
+      const basePages = pages.slice();
+      const totalSheetSets = opts.numWorksheets;
+      const result = [];
+      for (let s = 0; s < totalSheetSets; s++) {
+        for (const p of basePages) {
+          result.push(p);
+        }
+      }
+      currentState.pages = result;
+    }
+
+    function isMobile() { return window.innerWidth <= 900; }
+
+    function renderWorksheets() {
+      const opts = gatherOptions();
+      const numPages = currentState.pages.length;
+      sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
+      const sheetWidth = 612, sheetHeight = 792;
+
+      if (isMobile()) {
+        for (let s = 0; s < numPages; s++) {
+          const p = document.createElement("div"); p.className = "worksheet-page";
+          const v = renderWorksheetSVG(currentState.pages[s], {
+            showHeader: opts.showHeader, title: opts.title, branded: opts.branded,
+            traceStyle: opts.traceStyle, repetitions: opts.repetitions,
+            includePracticeLine: opts.includePracticeLine, fontSize: opts.fontSize,
+            showAnswers: false
+          });
+          p.appendChild(v); sheetWrap.appendChild(p);
+        }
+        return;
+      }
+
+      // Desktop: grid layout with calculated sizing
+      if (numPages > 1) {
+        sheetWrap.classList.add("grid-view");
+        const ep = numPages >= 3 ? 12 : 0;
+        const aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
+        let cols;
+        if (numPages <= 3) { cols = numPages; if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        else { cols = Math.min(3, numPages); if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        const msw = (aw - (cols - 1) * gap) / cols, msh = numPages <= 3 ? ah : ah * 0.8;
+        const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
+        const sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
+        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
+        sheetWrap.style.padding = numPages >= 3 ? "0 " + ep + "px" : "0";
+        for (let s = 0; s < numPages; s++) {
+          const p = document.createElement("div"); p.className = "worksheet-page";
+          const v = renderWorksheetSVG(currentState.pages[s], {
+            showHeader: opts.showHeader, title: opts.title, branded: opts.branded,
+            traceStyle: opts.traceStyle, repetitions: opts.repetitions,
+            includePracticeLine: opts.includePracticeLine, fontSize: opts.fontSize,
+            showAnswers: false
+          });
+          v.setAttribute("width", sw); v.setAttribute("height", sh);
+          p.appendChild(v); sheetWrap.appendChild(p);
+        }
+      } else {
+        const p = document.createElement("div"); p.className = "worksheet-page";
+        const v = renderWorksheetSVG(currentState.pages[0], {
+          showHeader: opts.showHeader, title: opts.title, branded: opts.branded,
+          traceStyle: opts.traceStyle, repetitions: opts.repetitions,
+          includePracticeLine: opts.includePracticeLine, fontSize: opts.fontSize,
+          showAnswers: false
+        });
+        p.appendChild(v); sheetWrap.appendChild(p);
+      }
+    }
+
+    function regenerate() {
+      buildPages();
+      renderWorksheets();
+    }
+
+    // ===== Print =====
+    function handlePrint() {
+      if (!currentState.pages.length) { alert("Generate a worksheet first!"); return; }
+      const opts = gatherOptions();
+      const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
+      sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
+      for (let i = 0; i < currentState.pages.length; i++) {
+        const p = document.createElement("div"); p.className = "worksheet-page";
+        p.appendChild(renderWorksheetSVG(currentState.pages[i], {
+          showHeader: opts.showHeader, title: opts.title, branded: opts.branded,
+          traceStyle: opts.traceStyle, repetitions: opts.repetitions,
+          includePracticeLine: opts.includePracticeLine, fontSize: opts.fontSize,
+          showAnswers: false
+        }));
+        sheetWrap.appendChild(p);
+      }
+      if (opts.answerKey) {
+        for (let i = 0; i < currentState.pages.length; i++) {
+          const p = document.createElement("div"); p.className = "worksheet-page";
+          p.appendChild(renderWorksheetSVG(currentState.pages[i], {
+            showHeader: "none", title: opts.title, branded: opts.branded,
+            traceStyle: opts.traceStyle, repetitions: opts.repetitions,
+            includePracticeLine: false, fontSize: opts.fontSize,
+            showAnswers: true
+          }));
+          sheetWrap.appendChild(p);
+        }
+      }
+      setTimeout(() => { window.print(); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 50);
+    }
+
+    // ===== PDF Download =====
+    async function handlePdf() {
+      if (!currentState.pages.length) { alert("Generate a worksheet first!"); return; }
+      const opts = gatherOptions();
+      const pageW = 612, pageH = 792;
+
+      // Collect all SVGs to render
+      const svgs = [];
+      for (let i = 0; i < currentState.pages.length; i++) {
+        svgs.push(renderWorksheetSVG(currentState.pages[i], {
+          showHeader: opts.showHeader, title: opts.title, branded: opts.branded,
+          traceStyle: opts.traceStyle, repetitions: opts.repetitions,
+          includePracticeLine: opts.includePracticeLine, fontSize: opts.fontSize,
+          showAnswers: false
+        }));
+      }
+      if (opts.answerKey) {
+        for (let i = 0; i < currentState.pages.length; i++) {
+          svgs.push(renderWorksheetSVG(currentState.pages[i], {
+            showHeader: "none", title: opts.title, branded: opts.branded,
+            traceStyle: opts.traceStyle, repetitions: opts.repetitions,
+            includePracticeLine: false, fontSize: opts.fontSize,
+            showAnswers: true
+          }));
+        }
+      }
+
+      const pdf = new jspdf.jsPDF({ orientation: "portrait", unit: "pt", format: [pageW, pageH] });
+
+      for (let i = 0; i < svgs.length; i++) {
+        if (i > 0) pdf.addPage([pageW, pageH]);
+        // Temporarily add SVG to DOM for svg2pdf
+        const temp = document.createElement("div");
+        temp.style.position = "absolute";
+        temp.style.left = "-9999px";
+        temp.appendChild(svgs[i]);
+        document.body.appendChild(temp);
+        await svg2pdf(svgs[i], pdf, { x: 0, y: 0, width: pageW, height: pageH });
+        document.body.removeChild(temp);
+      }
+
+      pdf.save("number-tracing-worksheet.pdf");
+    }
+
+    // ===== Event Listeners =====
+    elStartNumber.addEventListener("input", () => regenerate());
+    elEndNumber.addEventListener("input", () => regenerate());
+    elRepetitions.addEventListener("change", () => regenerate());
+    elTraceStyle.addEventListener("change", () => regenerate());
+    elFontSize.addEventListener("change", () => regenerate());
+    elNumSheets.addEventListener("change", () => regenerate());
+    elIncludePracticeLine.addEventListener("change", () => regenerate());
+    elShowHeaderEnabled.addEventListener("change", () => {
+      elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
+      regenerate();
+    });
+    elHeaderMode.addEventListener("change", () => regenerate());
+    elBranded.addEventListener("change", () => regenerate());
+    elTitle.addEventListener("input", () => regenerate());
+    elAnswerKey.addEventListener("change", () => {});
+    document.getElementById("btnGenerate").addEventListener("click", () => regenerate());
+    document.getElementById("btnPrint").addEventListener("click", handlePrint);
+    document.getElementById("btnPdf").addEventListener("click", handlePdf);
+    let resizeTimeout;
+    window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.pages.length > 1) renderWorksheets(); }, 150); });
+
+    // ===== Init =====
+    regenerate();
+  </script>
+</body>
+</html>
