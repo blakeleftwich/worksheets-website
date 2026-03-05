@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — AnimalMath.com</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #2d3748;
+    }
+
+    /* ===== Header / Nav ===== */
+    .site-header {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .site-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.3px;
+    }
+
+    .logo-text span {
+      font-weight: 400;
+      opacity: 0.85;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-links a {
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      background: rgba(255, 255, 255, 0.18);
+      color: white;
+    }
+
+    /* ===== Content ===== */
+    .content-wrapper {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 48px 32px 64px;
+    }
+
+    .content-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+      padding: 48px;
+      margin-bottom: 32px;
+    }
+
+    .content-card h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #1a202c;
+      margin-bottom: 16px;
+      letter-spacing: -0.3px;
+    }
+
+    .content-card h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a202c;
+      margin: 36px 0 12px;
+      padding-top: 24px;
+      border-top: 1px solid #edf0f7;
+    }
+
+    .content-card h2:first-of-type {
+      margin-top: 24px;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .content-card h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: #2d3748;
+      margin: 20px 0 8px;
+    }
+
+    .content-card p {
+      font-size: 15px;
+      color: #4a5568;
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    .content-card ul {
+      margin: 8px 0 16px 24px;
+      color: #4a5568;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .content-card ul li {
+      margin-bottom: 4px;
+    }
+
+    .content-card a {
+      color: #667eea;
+      text-decoration: none;
+    }
+
+    .content-card a:hover {
+      text-decoration: underline;
+    }
+
+    .last-updated {
+      font-size: 13px;
+      color: #a0aec0;
+      margin-bottom: 24px;
+    }
+
+    .section-anchor {
+      scroll-margin-top: 80px;
+    }
+
+    /* ===== Table of Contents ===== */
+    .toc {
+      background: #f7f8fc;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 32px;
+    }
+
+    .toc-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .toc a {
+      display: block;
+      color: #667eea;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 6px 0;
+      transition: color 0.2s;
+    }
+
+    .toc a:hover {
+      color: #764ba2;
+    }
+
+    /* ===== Footer ===== */
+    .site-footer {
+      background: rgba(0, 0, 0, 0.15);
+      padding: 32px;
+      text-align: center;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-inner p {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 13px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 12px;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.5);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 640px) {
+      .content-wrapper {
+        padding: 24px 16px 48px;
+      }
+      .content-card {
+        padding: 28px 24px;
+      }
+      .content-card h1 {
+        font-size: 26px;
+      }
+      .site-header {
+        padding: 0 16px;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Header ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="site-logo">
+        <div class="logo-text">AnimalMath<span>.com</span></div>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html">Worksheets</a>
+        <a href="https://eggrollgames.com" target="_blank">App</a>
+        <a href="about.html" class="active">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== Content ===== -->
+  <div class="content-wrapper">
+    <div class="content-card">
+
+      <h1>About AnimalMath.com</h1>
+      <p class="last-updated">Last updated: February 20, 2026</p>
+
+      <div class="toc">
+        <div class="toc-title">On This Page</div>
+        <a href="#about">About</a>
+        <a href="#privacy">Privacy Policy</a>
+        <a href="#terms">Terms of Use</a>
+        <a href="#cookies">Cookie Policy</a>
+        <a href="#contact">Contact</a>
+      </div>
+
+      <!-- ===== ABOUT ===== -->
+      <h2 id="about" class="section-anchor">About</h2>
+      <p>AnimalMath.com provides free, customizable math worksheet generators for children in Pre-K through 2nd grade. Our tools are designed for teachers, parents, and homeschool educators who want high-quality, printable math practice materials without cost or sign-up barriers.</p>
+      <p>Every worksheet generator lets you customize number ranges, problem types, and layout settings, then instantly preview and download professional PDFs with answer keys included.</p>
+
+      <!-- ===== PRIVACY POLICY ===== -->
+      <h2 id="privacy" class="section-anchor">Privacy Policy</h2>
+      <p>This Privacy Policy explains how AnimalMath.com ("we," "us," or "our") collects, uses, and protects information when you visit our website. We are committed to protecting your privacy and complying with applicable data protection laws including the General Data Protection Regulation (GDPR), the California Consumer Privacy Act (CCPA), the California Privacy Rights Act (CPRA), and the Children's Online Privacy Protection Act (COPPA).</p>
+
+      <h3>Information We Collect</h3>
+      <p><strong>Information we do NOT collect:</strong> We do not require user accounts, logins, or registration. We do not collect names, email addresses, or other personally identifiable information directly. We do not knowingly collect personal information from children under 13.</p>
+      <p><strong>Automatically collected information:</strong> When you visit our site, certain technical information may be collected automatically through cookies and similar technologies, including IP address (which may be anonymized), browser type and version, device type and screen resolution, pages visited and time spent, referring website, and approximate geographic location (country/region level).</p>
+      <p><strong>Third-party advertising:</strong> We use third-party advertising services (such as Google AdSense) that may collect information through cookies and similar tracking technologies to serve relevant ads. These third parties may collect device identifiers, browsing history across websites, and information used to infer interests for ad targeting.</p>
+
+      <h3>How We Use Information</h3>
+      <p>We use automatically collected information to understand how our site is used so we can improve it, to serve relevant advertising that supports our ability to offer free tools, and to monitor site performance and prevent abuse.</p>
+
+      <h3>Legal Basis for Processing (GDPR)</h3>
+      <p>If you are located in the European Economic Area (EEA), the United Kingdom, or Switzerland, we process your data under the following legal bases:</p>
+      <ul>
+        <li><strong>Consent:</strong> For non-essential cookies and ad personalization, which you can manage through our cookie consent mechanism.</li>
+        <li><strong>Legitimate interest:</strong> For essential site functionality, security, and analytics that help us improve our free educational tools.</li>
+      </ul>
+
+      <h3>Your Rights</h3>
+      <p><strong>Under GDPR</strong> (EEA, UK, Switzerland residents): You have the right to access, correct, delete, restrict processing, and port your personal data. You may also object to processing and withdraw consent at any time.</p>
+      <p><strong>Under CCPA/CPRA</strong> (California residents): You have the right to know what personal information is collected, to delete your personal information, to opt out of the sale or sharing of personal information, and to non-discrimination for exercising your rights. We do not sell personal information. To the extent that personalized advertising constitutes "sharing" under the CCPA, you may opt out via our cookie settings or by enabling the Global Privacy Control (GPC) signal in your browser.</p>
+      <p>To exercise any of these rights, please contact us using the information in the Contact section below.</p>
+
+      <h3>Children's Privacy (COPPA)</h3>
+      <p>AnimalMath.com is designed as a tool for educators and parents. We do not knowingly collect personal information from children under the age of 13. Our worksheet generators operate entirely in the browser without requiring any personal data input. If you believe a child has provided personal information to us, please contact us immediately and we will take steps to delete such information.</p>
+
+      <h3>Data Retention</h3>
+      <p>We do not store personal data on our servers. Any data collected through third-party advertising or analytics services is subject to those services' respective retention policies.</p>
+
+      <h3>International Data Transfers</h3>
+      <p>If you access our site from outside the United States, please be aware that your information may be transferred to and processed in the United States or other countries where our service providers operate. We ensure appropriate safeguards are in place for such transfers as required by applicable law.</p>
+
+      <h3>Data Security</h3>
+      <p>We implement reasonable technical and organizational measures to protect data from unauthorized access, loss, or misuse. However, no method of transmission over the Internet is 100% secure.</p>
+
+      <!-- ===== TERMS OF USE ===== -->
+      <h2 id="terms" class="section-anchor">Terms of Use</h2>
+
+      <h3>Acceptance of Terms</h3>
+      <p>By accessing and using AnimalMath.com, you agree to be bound by these Terms of Use. If you do not agree, please do not use our site.</p>
+
+      <h3>Use of Materials</h3>
+      <p>Worksheets generated by our tools are free for personal, educational, and classroom use. You may print, copy, and distribute generated worksheets to students. You may not sell worksheets generated by our tools as standalone products, claim ownership of or remove branding from generated worksheets for commercial redistribution, or use our tools or generated content in any way that is unlawful or harmful.</p>
+
+      <h3>Intellectual Property</h3>
+      <p>The website design, code, generator tools, and AnimalMath.com branding are the intellectual property of AnimalMath.com. You may not copy, modify, or redistribute our website code or tools without written permission.</p>
+
+      <h3>Disclaimer of Warranties</h3>
+      <p>Our tools are provided "as is" and "as available" without warranties of any kind, either express or implied. We do not guarantee that our tools will be error-free, uninterrupted, or that generated content will be suitable for any specific educational purpose. Educators and parents should review all materials before use with students.</p>
+
+      <h3>Limitation of Liability</h3>
+      <p>To the fullest extent permitted by law, AnimalMath.com shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of or inability to use our site or tools.</p>
+
+      <h3>Changes to Terms</h3>
+      <p>We reserve the right to modify these Terms of Use at any time. Changes will be posted on this page with an updated revision date. Continued use of the site constitutes acceptance of modified terms.</p>
+
+      <!-- ===== COOKIE POLICY ===== -->
+      <h2 id="cookies" class="section-anchor">Cookie Policy</h2>
+      <p>Cookies are small text files stored on your device when you visit a website. We use the following types of cookies:</p>
+
+      <h3>Essential Cookies</h3>
+      <p>These are necessary for the website to function properly, such as remembering your cookie consent preferences. These cannot be disabled.</p>
+
+      <h3>Analytics Cookies</h3>
+      <p>We may use analytics services (such as Google Analytics) to understand how visitors interact with our site. These cookies collect anonymized data about page visits, traffic sources, and user behavior. You can opt out of analytics cookies through our cookie consent mechanism or by using browser privacy settings.</p>
+
+      <h3>Advertising Cookies</h3>
+      <p>Our third-party advertising partners may use cookies to serve ads relevant to your interests. These cookies track browsing activity across websites. You can manage your ad personalization preferences through our cookie consent mechanism, through your Google Ad Settings at <a href="https://adssettings.google.com" target="_blank" rel="noopener">adssettings.google.com</a>, through the Digital Advertising Alliance opt-out at <a href="https://optout.aboutads.info" target="_blank" rel="noopener">optout.aboutads.info</a>, or by enabling the Global Privacy Control (GPC) signal in your browser.</p>
+
+      <h3>Managing Cookies</h3>
+      <p>Most browsers allow you to refuse or delete cookies through their settings. Please note that disabling certain cookies may affect site functionality. For more information about cookies and how to manage them, visit <a href="https://www.allaboutcookies.org" target="_blank" rel="noopener">allaboutcookies.org</a>.</p>
+
+      <!-- ===== CONTACT ===== -->
+      <h2 id="contact" class="section-anchor">Contact</h2>
+      <p>If you have questions about this policy, wish to exercise your data rights, or need to report a concern, please contact us at:</p>
+      <p><strong>Email:</strong> support@eggrollgames.com</p>
+      <p>We aim to respond to all inquiries within 30 days. For GDPR-related requests, we will respond within the legally required timeframe.</p>
+
+    </div>
+  </div>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; 2026 AnimalMath.com — Free printable math worksheets for teachers and parents.</p>
+      <div class="footer-links">
+        <a href="about.html">About</a>
+        <a href="about.html#privacy">Privacy Policy</a>
+        <a href="about.html#terms">Terms of Use</a>
+        <a href="about.html#contact">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
