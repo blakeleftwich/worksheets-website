@@ -4,7 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Count & Write Worksheet Generator</title>
-  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
     * {
       margin: 0;
@@ -84,6 +87,100 @@
     .control-group input[type="number"]:hover,
     .control-group select:hover {
       border-color: #cbd5e0;
+    }
+
+    /* ===== Advanced Options Toggle ===== */
+    .advanced-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 10px 0;
+      margin-bottom: 4px;
+      user-select: none;
+    }
+
+    .advanced-toggle .toggle-arrow {
+      font-size: 12px;
+      transition: transform 0.2s;
+      color: #667eea;
+    }
+
+    .advanced-toggle .toggle-arrow.open {
+      transform: rotate(90deg);
+    }
+
+    .advanced-toggle span:last-child {
+      font-size: 13px;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .advanced-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background: #f7fafc;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .advanced-panel.open {
+      max-height: 800px;
+    }
+
+    .advanced-panel-inner {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .advanced-panel-inner .control-group {
+      margin-bottom: 0;
+    }
+
+    .adv-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .adv-checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .adv-checkbox-row label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      cursor: pointer;
+    }
+
+    .adv-sub {
+      padding-left: 26px;
+    }
+
+    .adv-sub select,
+    .adv-sub input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 13px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+    }
+
+    .adv-sub label {
+      font-size: 12px;
+      color: #718096;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
     }
 
     .button-group {
@@ -260,7 +357,7 @@
     
     @page {
       size: letter;
-      margin: 0.25in;
+      margin: 0.5in 0.4in -0.2in 0.4in;
     }
 
     @media (max-width: 1024px) {
@@ -290,13 +387,21 @@
       <div class="subtitle">Generate custom worksheets</div>
 
       <div class="control-group">
-        <label for="minCount">Min Count</label>
-        <input id="minCount" type="number" value="1" min="1" max="20" />
+        <label for="countRange">Count Range</label>
+        <select id="countRange">
+          <option value="1-5">1 to 5</option>
+          <option value="1-10" selected>1 to 10</option>
+          <option value="1-20">1 to 20</option>
+        </select>
       </div>
 
       <div class="control-group">
-        <label for="maxCount">Max Count</label>
-        <input id="maxCount" type="number" value="10" min="1" max="30" />
+        <label for="problems">Problems per Sheet</label>
+        <select id="problems">
+          <option value="6">6</option>
+          <option value="8" selected>8</option>
+          <option value="10">10</option>
+        </select>
       </div>
 
       <div class="control-group">
@@ -313,47 +418,74 @@
         </select>
       </div>
 
-      <div class="control-group">
-        <label for="problems">Problems per Sheet</label>
-        <select id="problems">
-          <option value="6">6</option>
-          <option value="8" selected>8</option>
-          <option value="10">10</option>
-          <option value="12">12</option>
-        </select>
-      </div>
-
-      <div class="control-group">
-        <label for="style">Style</label>
-        <select id="style">
-          <option value="1" selected>2 Columns (Grid)</option>
-          <option value="2">1 Column (Rows)</option>
-        </select>
-      </div>
-
-      <div class="control-group">
-        <label for="showHeader">Name/Date</label>
-        <select id="showHeader">
-          <option value="both" selected>Name & Date</option>
-          <option value="name">Name Only</option>
-          <option value="none">None</option>
-        </select>
-      </div>
-
-      <div class="control-group">
-        <label for="headerText">Worksheet Title</label>
-        <input id="headerText" type="text" value="Count the objects and write the number." style="width: 100%; padding: 10px 12px; font-size: 14px; border: 2px solid #e2e8f0; border-radius: 8px;" />
-      </div>
-
       <div class="control-group" style="flex-direction: column; align-items: flex-start;">
-        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0 0 12px 0;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
           <input type="checkbox" id="answerKey" style="width: 18px; height: 18px; cursor: pointer; accent-color: #667eea;">
           <span style="font-size: 13px; font-weight: 600;">Answer Key</span>
         </label>
-        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
-          <input type="checkbox" id="branded" style="width: 18px; height: 18px; cursor: pointer; accent-color: #667eea;">
-          <span style="font-size: 13px; font-weight: 600;">Branding</span>
-        </label>
+      </div>
+
+      <!-- Advanced Options -->
+      <div class="advanced-toggle" id="advToggle">
+        <span class="toggle-arrow" id="advArrow">▶</span>
+        <span>Advanced Options</span>
+      </div>
+      <div class="advanced-panel" id="advPanel">
+        <div class="advanced-panel-inner">
+
+          <!-- Style -->
+          <div class="control-group">
+            <label for="style">Style</label>
+            <select id="style">
+              <option value="1" selected>2 Columns (Grid)</option>
+              <option value="2">1 Column (Rows)</option>
+            </select>
+          </div>
+
+          <!-- Name / Date -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="showHeaderEnabled" checked />
+            <label for="showHeaderEnabled">Name / Date</label>
+          </div>
+          <div class="adv-sub" id="headerModeOptions">
+            <label for="showHeader">Show</label>
+            <select id="showHeader">
+              <option value="both" selected>Name & Date</option>
+              <option value="name">Name Only</option>
+            </select>
+          </div>
+
+          <!-- Customize worksheet titles -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="customTitleEnabled" />
+            <label for="customTitleEnabled">Customize worksheet titles</label>
+          </div>
+          <div class="adv-sub" id="customTitleOptions" style="display:none;">
+            <div class="adv-checkbox-row" style="margin-bottom:8px;">
+              <input type="checkbox" id="showTitle" checked />
+              <label for="showTitle">Show title</label>
+            </div>
+            <div id="titleInputWrap">
+              <label for="headerText">Title</label>
+              <input type="text" id="headerText" value="Counting Fun" />
+            </div>
+            <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
+              <input type="checkbox" id="showSubtitle" checked />
+              <label for="showSubtitle">Show subtitle</label>
+            </div>
+            <div id="subtitleInputWrap">
+              <label for="subtitleText">Subtitle</label>
+              <input type="text" id="subtitleText" value="Count the objects and write the number." />
+            </div>
+          </div>
+
+          <!-- Branding -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="branded" checked />
+            <label for="branded">Branding</label>
+          </div>
+
+        </div>
       </div>
 
       <div class="button-group">
@@ -377,19 +509,53 @@ const statusEl = document.getElementById("status");
 
 const elNumSheets = document.getElementById("numSheets");
 const elProblems = document.getElementById("problems");
-const elMin = document.getElementById("minCount");
-const elMax = document.getElementById("maxCount");
+const elCountRange = document.getElementById("countRange");
 const elStyle = document.getElementById("style");
 const elShowHeader = document.getElementById("showHeader");
+const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
+const elHeaderModeOptions = document.getElementById("headerModeOptions");
 const elBranded = document.getElementById("branded");
 const elAnswerKey = document.getElementById("answerKey");
 const elHeaderText = document.getElementById("headerText");
+const elSubtitleText = document.getElementById("subtitleText");
+const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
+const elCustomTitleOptions = document.getElementById("customTitleOptions");
+const elShowTitle = document.getElementById("showTitle");
+const elShowSubtitle = document.getElementById("showSubtitle");
+const elTitleInputWrap = document.getElementById("titleInputWrap");
+const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
+const advToggle = document.getElementById("advToggle");
+const advPanel = document.getElementById("advPanel");
+const advArrow = document.getElementById("advArrow");
 
 // Track current worksheet state - now an array of sheets
 let currentState = {
   sheets: [], // Each sheet has its own problems array
   randomSeed: Date.now()
 };
+
+function getCountRange() {
+  const parts = elCountRange.value.split("-");
+  return { min: parseInt(parts[0], 10), max: parseInt(parts[1], 10) };
+}
+
+function getHeaderMode() {
+  return elShowHeaderEnabled.checked ? elShowHeader.value : "none";
+}
+
+function getTitle() {
+  if (elCustomTitleEnabled.checked) {
+    return elShowTitle.checked ? elHeaderText.value : "";
+  }
+  return "Counting Fun";
+}
+
+function getSubtitle() {
+  if (elCustomTitleEnabled.checked) {
+    return elShowSubtitle.checked ? elSubtitleText.value : "";
+  }
+  return "Count the objects and write the number.";
+}
 
 function showStatus(msg) {
   statusEl.textContent = msg;
@@ -399,15 +565,38 @@ function showStatus(msg) {
   }, 3000);
 }
 
+// ===== Advanced panel toggle =====
+advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
+
+// ===== Name/Date toggle =====
+elShowHeaderEnabled.addEventListener("change", () => {
+  elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "" : "none";
+  renderWithoutRandomization();
+});
+
+// ===== Custom title toggle =====
+elCustomTitleEnabled.addEventListener("change", () => {
+  elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
+  renderWithoutRandomization();
+});
+elShowTitle.addEventListener("change", () => {
+  elTitleInputWrap.style.display = elShowTitle.checked ? "" : "none";
+  renderWithoutRandomization();
+});
+elShowSubtitle.addEventListener("change", () => {
+  elSubtitleInputWrap.style.display = elShowSubtitle.checked ? "" : "none";
+  renderWithoutRandomization();
+});
+
 // Add event listeners for real-time updates
 elNumSheets.addEventListener("change", () => renderWithNewRandomization());
 elProblems.addEventListener("change", () => renderWithNewRandomization());
-elMin.addEventListener("input", () => renderWithNewRandomization());
-elMax.addEventListener("input", () => renderWithNewRandomization());
+elCountRange.addEventListener("change", () => renderWithNewRandomization());
 elStyle.addEventListener("change", () => renderWithoutRandomization());
 elShowHeader.addEventListener("change", () => renderWithoutRandomization());
 elBranded.addEventListener("change", () => renderWithoutRandomization());
 elHeaderText.addEventListener("input", () => renderWithoutRandomization());
+elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
 
 document.getElementById("btnGenerate").addEventListener("click", () => {
   renderWithNewRandomization();
@@ -424,7 +613,7 @@ document.getElementById("btnPrint").addEventListener("click", () => {
     alert('Please generate a worksheet first!');
     return;
   }
-  
+
   // Store original dimensions and remove inline width/height for print
   const originalDimensions = [];
   svgs.forEach(svg => {
@@ -435,12 +624,29 @@ document.getElementById("btnPrint").addEventListener("click", () => {
     svg.removeAttribute('width');
     svg.removeAttribute('height');
   });
-  
+
+  // If answer key is checked, temporarily add answer key pages
+  const answerKeyPages = [];
+  if (elAnswerKey.checked) {
+    const style = parseInt(elStyle.value, 10);
+    const headerMode = getHeaderMode();
+    const branded = elBranded.checked;
+    for (let s = 0; s < currentState.sheets.length; s++) {
+      const akSvg = generateAnswerKeySvg(currentState.sheets[s], style, headerMode, branded);
+      const page = document.createElement("div");
+      page.className = "worksheet-page";
+      page.appendChild(akSvg);
+      sheetWrap.appendChild(page);
+      answerKeyPages.push(page);
+    }
+  }
+
   // Print
   window.print();
-  
-  // Restore original dimensions after print dialog
+
+  // Remove answer key pages and restore original dimensions after print dialog
   setTimeout(() => {
+    answerKeyPages.forEach(page => page.remove());
     svgs.forEach((svg, i) => {
       if (originalDimensions[i].width) {
         svg.setAttribute('width', originalDimensions[i].width);
@@ -452,91 +658,13 @@ document.getElementById("btnPrint").addEventListener("click", () => {
   }, 100);
 });
 
-document.getElementById("btnPdf").addEventListener("click", async () => {
-  const svgs = sheetWrap.querySelectorAll("svg");
-  if (svgs.length === 0) {
-    alert('Please generate a worksheet first!');
-    return;
-  }
-  
-  // Check if svg2pdf is available
-  if (typeof svg2pdf === 'undefined') {
-    alert('PDF library not loaded. Please use Print button and select "Save as PDF".');
-    return;
-  }
-  
-  try {
-    // Get jsPDF from the loaded library
-    const { jsPDF } = window.jspdf;
-    
-    // Create PDF with exact print dimensions
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'pt',
-      format: 'letter',
-      compress: false
-    });
-    
-    const pageWidth = 612;
-    const pageHeight = 792;
-    
-    // Match browser print margins
-    const margin = 33;
-    const topOffset = 8; // Move content down a little
-    const contentWidth = pageWidth - (margin * 2);
-    const contentHeight = pageHeight - (margin * 2) - topOffset;
-    
-    // Add each worksheet SVG page to the PDF
-    for (let i = 0; i < svgs.length; i++) {
-      if (i > 0) {
-        pdf.addPage();
-      }
-      
-      const svgClone = svgs[i].cloneNode(true);
-      
-      await pdf.svg(svgClone, {
-        x: margin,
-        y: margin + topOffset,
-        width: contentWidth,
-        height: contentHeight
-      });
-    }
-    
-    // Generate and add answer keys if checkbox is checked
-    if (elAnswerKey.checked) {
-      const style = parseInt(elStyle.value, 10);
-      const headerMode = elShowHeader.value;
-      const branded = elBranded.checked;
-      
-      for (let sheetIndex = 0; sheetIndex < currentState.sheets.length; sheetIndex++) {
-        pdf.addPage();
-        
-        const answerSvg = generateAnswerKeySvg(currentState.sheets[sheetIndex], style, headerMode, branded);
-        
-        await pdf.svg(answerSvg, {
-          x: margin,
-          y: margin + topOffset,
-          width: contentWidth,
-          height: contentHeight
-        });
-      }
-    }
-    
-    pdf.save('count-and-write-worksheet.pdf');
-    showStatus('✓ Vector PDF downloaded!');
-    
-  } catch (error) {
-    console.error('PDF generation error:', error);
-    alert('PDF generation failed. Please use Print button and select "Save as PDF".');
-  }
-});
-
 function renderWithNewRandomization() {
   // Generate new random problems for each sheet
   const numSheets = parseInt(elNumSheets.value, 10);
   const numProblems = parseInt(elProblems.value, 10);
-  const minCount = clamp(parseInt(elMin.value, 10) || 1, 1, 30);
-  const maxCount = clamp(parseInt(elMax.value, 10) || 10, 1, 30);
+  const range = getCountRange();
+  const minCount = range.min;
+  const maxCount = range.max;
   const numIcons = 8; // Total available icons
   
   currentState.sheets = [];
@@ -587,8 +715,10 @@ function renderWithoutRandomization() {
 
 function renderWorksheet() {
   const style = parseInt(elStyle.value, 10);
-  const headerMode = elShowHeader.value;
+  const headerMode = getHeaderMode();
   const branded = elBranded.checked;
+  const title = getTitle();
+  const subtitle = getSubtitle();
   const numSheets = currentState.sheets.length;
 
   const icons = ["icon-apple-new", "icon-balloon", "icon-icecream", "icon-pepper", "icon-pizza", "icon-corn", "icon-broccoli", "icon-fish"];
@@ -663,7 +793,7 @@ function renderWorksheet() {
     // Render each sheet
     for (let s = 0; s < numSheets; s++) {
       const problems = currentState.sheets[s];
-      const svg = generateWorksheetSvg(problems, style, headerMode, branded, icons);
+      const svg = generateWorksheetSvg(problems, style, headerMode, branded, icons, title, subtitle);
       svg.setAttribute('width', scaledWidth);
       svg.setAttribute('height', scaledHeight);
       
@@ -680,7 +810,7 @@ function renderWorksheet() {
     // Single sheet - render at full size
     if (currentState.sheets.length > 0) {
       const problems = currentState.sheets[0];
-      const svg = generateWorksheetSvg(problems, style, headerMode, branded, icons);
+      const svg = generateWorksheetSvg(problems, style, headerMode, branded, icons, title, subtitle);
       
       const page = document.createElement("div");
       page.className = "worksheet-page";
@@ -693,11 +823,11 @@ function renderWorksheet() {
 }
 
 // Generate a worksheet SVG (without adding to DOM)
-function generateWorksheetSvg(problems, style, headerMode, branded, icons) {
+function generateWorksheetSvg(problems, style, headerMode, branded, icons, title, subtitle) {
   if (style === 1) {
-    return generateStyle1Svg(problems, headerMode, branded, icons);
+    return generateStyle1Svg(problems, headerMode, branded, icons, title, subtitle);
   } else {
-    return generateStyle2Svg(problems, headerMode, branded, icons);
+    return generateStyle2Svg(problems, headerMode, branded, icons, title, subtitle);
   }
 }
 
@@ -800,7 +930,7 @@ function makeSymbol(id, innerHTML) {
   return sym;
 }
 
-function renderStyle1(problems, headerMode, branded, icons) {
+function renderStyle1(problems, headerMode, branded, icons, title, subtitle) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -818,58 +948,47 @@ function renderStyle1(problems, headerMode, branded, icons) {
   let topGridY;
   const midX = pageW / 2;
 
-  if (headerMode === "both") {
-    // Name — left, wide underline
-    svg.appendChild(svgEl("text", {
-      x: margin, y: 26, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-    }, [document.createTextNode("Name")]));
-    svg.appendChild(svgEl("line", {
-      x1: margin + 38, y1: 28, x2: midX - 30, y2: 28,
-      stroke: "#718096", "stroke-width": 0.75
-    }));
-    // Date — right, wide underline
-    svg.appendChild(svgEl("text", {
-      x: midX + 20, y: 26, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-    }, [document.createTextNode("Date")]));
-    svg.appendChild(svgEl("line", {
-      x1: midX + 54, y1: 28, x2: pageW - margin, y2: 28,
-      stroke: "#718096", "stroke-width": 0.75
-    }));
-    // Large bold title, left-aligned
-    svg.appendChild(svgEl("text", {
-      x: margin, y: 62, class: "txt", "font-size": 26, "font-weight": 800
-    }, [document.createTextNode(elHeaderText.value)]));
-    // Subtitle
-    svg.appendChild(svgEl("text", {
-      x: margin, y: 80, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-    }, [document.createTextNode("Count the objects and write the number.")]));
-
-    topGridY = 92;
-  } else if (headerMode === "name") {
-    svg.appendChild(svgEl("text", {
-      x: margin, y: 26, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-    }, [document.createTextNode("Name")]));
-    svg.appendChild(svgEl("line", {
-      x1: margin + 38, y1: 28, x2: pageW - margin, y2: 28,
-      stroke: "#718096", "stroke-width": 0.75
-    }));
-    svg.appendChild(svgEl("text", {
-      x: margin, y: 62, class: "txt", "font-size": 26, "font-weight": 800
-    }, [document.createTextNode(elHeaderText.value)]));
-    svg.appendChild(svgEl("text", {
-      x: margin, y: 80, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-    }, [document.createTextNode("Count the objects and write the number.")]));
-
-    topGridY = 92;
-  } else {
-    svg.appendChild(svgEl("text", {
-      x: margin, y: 40, class: "txt", "font-size": 26, "font-weight": 800
-    }, [document.createTextNode(elHeaderText.value)]));
-    svg.appendChild(svgEl("text", {
-      x: margin, y: 58, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-    }, [document.createTextNode("Count the objects and write the number.")]));
-
-    topGridY = 70;
+  {
+    let curY = 10;
+    if (headerMode === "both") {
+      svg.appendChild(svgEl("text", {
+        x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+      }, [document.createTextNode("Name")]));
+      svg.appendChild(svgEl("line", {
+        x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18,
+        stroke: "#718096", "stroke-width": 0.75
+      }));
+      svg.appendChild(svgEl("text", {
+        x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+      }, [document.createTextNode("Date")]));
+      svg.appendChild(svgEl("line", {
+        x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
+        stroke: "#718096", "stroke-width": 0.75
+      }));
+      curY += 28;
+    } else if (headerMode === "name") {
+      svg.appendChild(svgEl("text", {
+        x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+      }, [document.createTextNode("Name")]));
+      svg.appendChild(svgEl("line", {
+        x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
+        stroke: "#718096", "stroke-width": 0.75
+      }));
+      curY += 28;
+    }
+    if (title) {
+      svg.appendChild(svgEl("text", {
+        x: margin, y: curY + 38, "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af"
+      }, [document.createTextNode(title)]));
+      curY += 46;
+    }
+    if (subtitle) {
+      svg.appendChild(svgEl("text", {
+        x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568"
+      }, [document.createTextNode(subtitle)]));
+      curY += 20;
+    }
+    topGridY = curY + 6;
   }
 
   const bottomMargin = branded ? 56 : 24;
@@ -877,7 +996,7 @@ function renderStyle1(problems, headerMode, branded, icons) {
   const cols = 2;
   const rows = Math.ceil(problems.length / cols);
 
-  const gutter = 18;
+  const gutter = 8;
   const cellW = (pageW - margin * 2 - gutter) / cols;
   const cellH = (gridH - gutter * (rows - 1)) / rows;
 
@@ -935,15 +1054,15 @@ function renderStyle1(problems, headerMode, branded, icons) {
       width: logoW, height: logoH
     }));
     const bLine1 = svgEl("text", {
-      x: pageW - margin, y: brandY + 15,
-      class: "txt", "font-size": 9,
+      x: pageW - margin, y: brandY + 14,
+      "font-family": "Fredoka, sans-serif", "font-size": 11,
       fill: "#4a5568", "text-anchor": "end"
     });
     bLine1.textContent = "Find worksheets, teacher tools, and more at animalmath.com";
     svg.appendChild(bLine1);
     const bLine2 = svgEl("text", {
-      x: pageW - margin, y: brandY + 30,
-      class: "txt", "font-size": 8,
+      x: pageW - margin, y: brandY + 26,
+      "font-family": "Fredoka, sans-serif", "font-size": 9.5,
       fill: "#a0aec0", "text-anchor": "end"
     });
     bLine2.textContent = "\u00A9 2026 Eggroll Games";
@@ -954,11 +1073,11 @@ function renderStyle1(problems, headerMode, branded, icons) {
 }
 
 // Renamed original function to generate SVG
-function generateStyle1Svg(problems, headerMode, branded, icons) {
-  return renderStyle1(problems, headerMode, branded, icons);
+function generateStyle1Svg(problems, headerMode, branded, icons, title, subtitle) {
+  return renderStyle1(problems, headerMode, branded, icons, title, subtitle);
 }
 
-function renderStyle2(problems, headerMode, branded, icons) {
+function renderStyle2(problems, headerMode, branded, icons, title, subtitle) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -976,54 +1095,47 @@ function renderStyle2(problems, headerMode, branded, icons) {
   let topGridY;
   const midX = pageW / 2;
 
-  if (headerMode === "both") {
-    svg.appendChild(svgEl("text", {
-      x: margin, y: 26, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-    }, [document.createTextNode("Name")]));
-    svg.appendChild(svgEl("line", {
-      x1: margin + 38, y1: 28, x2: midX - 30, y2: 28,
-      stroke: "#718096", "stroke-width": 0.75
-    }));
-    svg.appendChild(svgEl("text", {
-      x: midX + 20, y: 26, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-    }, [document.createTextNode("Date")]));
-    svg.appendChild(svgEl("line", {
-      x1: midX + 54, y1: 28, x2: pageW - margin, y2: 28,
-      stroke: "#718096", "stroke-width": 0.75
-    }));
-    svg.appendChild(svgEl("text", {
-      x: margin, y: 62, class: "txt", "font-size": 26, "font-weight": 800
-    }, [document.createTextNode(elHeaderText.value)]));
-    svg.appendChild(svgEl("text", {
-      x: margin, y: 80, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-    }, [document.createTextNode("Count the objects and write the number.")]));
-
-    topGridY = 92;
-  } else if (headerMode === "name") {
-    svg.appendChild(svgEl("text", {
-      x: margin, y: 26, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-    }, [document.createTextNode("Name")]));
-    svg.appendChild(svgEl("line", {
-      x1: margin + 38, y1: 28, x2: pageW - margin, y2: 28,
-      stroke: "#718096", "stroke-width": 0.75
-    }));
-    svg.appendChild(svgEl("text", {
-      x: margin, y: 62, class: "txt", "font-size": 26, "font-weight": 800
-    }, [document.createTextNode(elHeaderText.value)]));
-    svg.appendChild(svgEl("text", {
-      x: margin, y: 80, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-    }, [document.createTextNode("Count the objects and write the number.")]));
-
-    topGridY = 92;
-  } else {
-    svg.appendChild(svgEl("text", {
-      x: margin, y: 40, class: "txt", "font-size": 26, "font-weight": 800
-    }, [document.createTextNode(elHeaderText.value)]));
-    svg.appendChild(svgEl("text", {
-      x: margin, y: 58, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-    }, [document.createTextNode("Count the objects and write the number.")]));
-
-    topGridY = 70;
+  {
+    let curY = 10;
+    if (headerMode === "both") {
+      svg.appendChild(svgEl("text", {
+        x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+      }, [document.createTextNode("Name")]));
+      svg.appendChild(svgEl("line", {
+        x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18,
+        stroke: "#718096", "stroke-width": 0.75
+      }));
+      svg.appendChild(svgEl("text", {
+        x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+      }, [document.createTextNode("Date")]));
+      svg.appendChild(svgEl("line", {
+        x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
+        stroke: "#718096", "stroke-width": 0.75
+      }));
+      curY += 28;
+    } else if (headerMode === "name") {
+      svg.appendChild(svgEl("text", {
+        x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+      }, [document.createTextNode("Name")]));
+      svg.appendChild(svgEl("line", {
+        x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
+        stroke: "#718096", "stroke-width": 0.75
+      }));
+      curY += 28;
+    }
+    if (title) {
+      svg.appendChild(svgEl("text", {
+        x: margin, y: curY + 38, "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af"
+      }, [document.createTextNode(title)]));
+      curY += 46;
+    }
+    if (subtitle) {
+      svg.appendChild(svgEl("text", {
+        x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568"
+      }, [document.createTextNode(subtitle)]));
+      curY += 20;
+    }
+    topGridY = curY + 6;
   }
 
   const bottomMargin = branded ? 56 : 24;
@@ -1083,15 +1195,15 @@ function renderStyle2(problems, headerMode, branded, icons) {
       width: logoW, height: logoH
     }));
     const bLine1 = svgEl("text", {
-      x: pageW - margin, y: brandY + 15,
-      class: "txt", "font-size": 9,
+      x: pageW - margin, y: brandY + 14,
+      "font-family": "Fredoka, sans-serif", "font-size": 11,
       fill: "#4a5568", "text-anchor": "end"
     });
     bLine1.textContent = "Find worksheets, teacher tools, and more at animalmath.com";
     svg.appendChild(bLine1);
     const bLine2 = svgEl("text", {
-      x: pageW - margin, y: brandY + 30,
-      class: "txt", "font-size": 8,
+      x: pageW - margin, y: brandY + 26,
+      "font-family": "Fredoka, sans-serif", "font-size": 9.5,
       fill: "#a0aec0", "text-anchor": "end"
     });
     bLine2.textContent = "\u00A9 2026 Eggroll Games";
@@ -1102,8 +1214,8 @@ function renderStyle2(problems, headerMode, branded, icons) {
 }
 
 // Renamed original function to generate SVG
-function generateStyle2Svg(problems, headerMode, branded, icons) {
-  return renderStyle2(problems, headerMode, branded, icons);
+function generateStyle2Svg(problems, headerMode, branded, icons, title, subtitle) {
+  return renderStyle2(problems, headerMode, branded, icons, title, subtitle);
 }
 
 function renderAnswerKeyStyle1(problems, headerMode, branded, icons) {
@@ -1132,7 +1244,7 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, icons) {
   const gridH = pageH - topGridY - margin - (branded ? 56 : 0);
   const cols = 2;
   const rows = Math.ceil(problems.length / cols);
-  const gutter = 18;
+  const gutter = 8;
   const cellW = (pageW - margin * 2 - gutter) / cols;
   const cellH = (gridH - gutter * (rows - 1)) / rows;
 
@@ -1203,15 +1315,15 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, icons) {
       width: logoW, height: logoH
     }));
     const bLine1 = svgEl("text", {
-      x: pageW - margin, y: brandY + 15,
-      class: "txt", "font-size": 9,
+      x: pageW - margin, y: brandY + 14,
+      "font-family": "Fredoka, sans-serif", "font-size": 11,
       fill: "#4a5568", "text-anchor": "end"
     });
     bLine1.textContent = "Find worksheets, teacher tools, and more at animalmath.com";
     svg.appendChild(bLine1);
     const bLine2 = svgEl("text", {
-      x: pageW - margin, y: brandY + 30,
-      class: "txt", "font-size": 8,
+      x: pageW - margin, y: brandY + 26,
+      "font-family": "Fredoka, sans-serif", "font-size": 9.5,
       fill: "#a0aec0", "text-anchor": "end"
     });
     bLine2.textContent = "\u00A9 2026 Eggroll Games";
@@ -1316,15 +1428,15 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, icons) {
       width: logoW, height: logoH
     }));
     const bLine1 = svgEl("text", {
-      x: pageW - margin, y: brandY + 15,
-      class: "txt", "font-size": 9,
+      x: pageW - margin, y: brandY + 14,
+      "font-family": "Fredoka, sans-serif", "font-size": 11,
       fill: "#4a5568", "text-anchor": "end"
     });
     bLine1.textContent = "Find worksheets, teacher tools, and more at animalmath.com";
     svg.appendChild(bLine1);
     const bLine2 = svgEl("text", {
-      x: pageW - margin, y: brandY + 30,
-      class: "txt", "font-size": 8,
+      x: pageW - margin, y: brandY + 26,
+      "font-family": "Fredoka, sans-serif", "font-size": 9.5,
       fill: "#a0aec0", "text-anchor": "end"
     });
     bLine2.textContent = "\u00A9 2026 Eggroll Games";
@@ -1339,326 +1451,60 @@ function generateAnswerKeyStyle2Svg(problems, headerMode, branded, icons) {
 }
 
 function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, problemIndex = 0, problemCount = 8 }) {
-  // Optical spacing adjustments - compensate for whitespace in each icon's viewBox
-  // These values represent how much visual padding each icon has (as % of viewBox)
-  const iconOpticalPadding = {
-    'icon-apple': { top: 0.024, right: 0.066, bottom: 0.048, left: 0.078 },
-    'icon-broccoli': { top: 0.016, right: 0.040, bottom: 0.030, left: 0.040 },
-    'icon-lemon': { top: 0.000, right: 0.000, bottom: 0.000, left: 0.000 },
-    'icon-fish': { top: 0.025, right: 0.000, bottom: 0.020, left: 0.000 }
-  };
-  
-  // Create a group for this problem box
   const problemGroup = svgEl("g", { "data-problem": problemIndex });
-  
-  // Get optical padding for this icon
-  const padding = iconOpticalPadding[iconId] || { top: 0, right: 0, bottom: 0, left: 0 };
-  
-  // Calculate available space
-  const boxPadding = 20;
-  let answerBoxBuffer = 12; // Buffer from answer box
-  
-  // Extra buffer for specific counts to move items up or adjust positioning
-  if (problemCount === 8 && (count === 19 || count === 20 || count === 21)) {
-    answerBoxBuffer = 30; // Increased buffer to move items up
-  } else if (problemCount === 8 && (count === 22 || count === 23 || count === 24 || count === 25)) {
-    answerBoxBuffer = -5; // Negative buffer to move items down
-  } else if (problemCount === 8 && count === 26) {
-    answerBoxBuffer = -8; // Move down a little more
-  } else if (problemCount === 8 && (count === 27 || count === 28 || count === 29)) {
-    answerBoxBuffer = -5; // Move down a little
-  } else if (problemCount === 8 && count === 30) {
-    answerBoxBuffer = 20; // Move up to be above the answer box
+  const pad = 10;
+
+  // Available area for icons (inside cell padding)
+  let aX = x + pad;
+  let aY = y + pad;
+  let aW = w - pad * 2;
+  let aH = h - pad * 2;
+
+  // Reduce available height to avoid answer box
+  if (answerBox) {
+    const abTop = answerBox.y - 6; // 6px buffer above answer box
+    const maxH = abTop - aY;
+    if (maxH < aH) aH = maxH;
   }
-  
-  let availableX = x + boxPadding;
-  let availableY = y + boxPadding;
-  let availableW = w - boxPadding * 2;
-  let availableH = h - boxPadding * 2;
-  
-  // Account for answer box if present in lower portion
-  if (answerBox && answerBox.y > y + h * 0.5) {
-    availableH = answerBox.y - y - boxPadding - answerBoxBuffer;
-  }
-  
-  // Custom grid arrangements for specific problem counts
-  let cols, rows;
-  
-  if (problemCount === 6) {
-    // Custom arrangements when Problems = 6
-    switch(count) {
-      case 3:  cols = 3; rows = 1; break; // 3 items in one row
-      case 7:  cols = 4; rows = 2; break; // 7 items in two rows
-      case 8:  cols = 4; rows = 2; break; // 8 items in two rows
-      case 9:  cols = 4; rows = 3; break; // 9 items in three rows
-      case 13: cols = 5; rows = 3; break; // 13 items in three rows
-      case 14: cols = 5; rows = 3; break; // 14 items in three rows
-      case 15: cols = 5; rows = 3; break; // 15 items in three rows
-      case 16: cols = 5; rows = 4; break; // 16 items in four rows
-      case 17: cols = 5; rows = 4; break; // 17 items in four rows
-      case 18: cols = 5; rows = 4; break; // 18 items in four rows
-      case 19: cols = 6; rows = 4; break; // 19 items in four rows
-      case 20: cols = 6; rows = 4; break; // 20 items in four rows
-      case 21: cols = 6; rows = 4; break; // 21 items in four rows
-      case 22: cols = 6; rows = 4; break; // 22 items in four rows
-      case 23: cols = 6; rows = 4; break; // 23 items in four rows
-      case 24: cols = 6; rows = 4; break; // 24 items in four rows
-      case 25: cols = 6; rows = 5; break; // 25 items in five rows
-      case 26: cols = 6; rows = 5; break; // 26 items in five rows
-      case 27: cols = 6; rows = 5; break; // 27 items in five rows
-      case 28: cols = 6; rows = 5; break; // 28 items in five rows
-      case 29: cols = 7; rows = 5; break; // 29 items in five rows
-      case 30: cols = 7; rows = 5; break; // 30 items in five rows
-      default:
-        // Default calculation for other counts
-        cols = Math.ceil(Math.sqrt(count));
-        rows = Math.ceil(count / cols);
+
+  // Auto-calculate grid: try to make icons as large as possible
+  // Try different row counts and pick the one giving the largest icon size
+  let bestSize = 0, bestCols = 1, bestRows = 1;
+  const spacingRatio = 0.15;
+
+  for (let r = 1; r <= count; r++) {
+    const c = Math.ceil(count / r);
+    const sizeByW = aW / (c + (c - 1) * spacingRatio);
+    const sizeByH = aH / (r + (r - 1) * spacingRatio);
+    const sz = Math.min(sizeByW, sizeByH, 120);
+    if (sz > bestSize) {
+      bestSize = sz;
+      bestCols = c;
+      bestRows = r;
     }
-  } else if (problemCount === 8) {
-    // Custom arrangements when Problems = 8
-    switch(count) {
-      case 2:  cols = 2; rows = 1; break; // 2 items in one row
-      case 3:  cols = 3; rows = 1; break; // 3 items in one row
-      case 4:  cols = 4; rows = 1; break; // 4 items in one row
-      case 5:  cols = 4; rows = 2; break; // 5 items in two rows, four columns
-      case 6:  cols = 4; rows = 2; break; // 6 items in two rows, four columns
-      case 7:  cols = 4; rows = 2; break; // 7 items in two rows, four columns
-      case 8:  cols = 5; rows = 2; break; // 8 items in two rows, five columns
-      case 9:  cols = 5; rows = 2; break; // 9 items in two rows, five columns
-      case 10: cols = 5; rows = 2; break; // 10 items in two rows, five columns
-      case 11: cols = 5; rows = 3; break; // 11 items in three rows, five columns
-      case 12: cols = 5; rows = 3; break; // 12 items in three rows, five columns
-      case 13: cols = 5; rows = 3; break; // 13 items in three rows, five columns
-      case 14: cols = 6; rows = 3; break; // 14 items in three rows, six columns
-      case 15: cols = 6; rows = 3; break; // 15 items in three rows, six columns
-      case 16: cols = 6; rows = 3; break; // 16 items in three rows, six columns
-      case 17: cols = 7; rows = 3; break; // 17 items in three rows, seven columns
-      case 18: cols = 7; rows = 3; break; // 18 items in three rows, seven columns
-      case 19: cols = 7; rows = 3; break; // 19 items in three rows, seven columns
-      case 20: cols = 7; rows = 3; break; // 20 items in three rows, seven columns
-      case 21: cols = 7; rows = 3; break; // 21 items in three rows, seven columns
-      case 22: cols = 7; rows = 4; break; // 22 items in four rows, seven columns
-      case 23: cols = 7; rows = 4; break; // 23 items in four rows, seven columns
-      case 24: cols = 7; rows = 4; break; // 24 items in four rows, seven columns
-      case 25: cols = 7; rows = 4; break; // 25 items in four rows, seven columns
-      case 26: cols = 7; rows = 4; break; // 26 items in four rows, seven columns
-      case 27: cols = 8; rows = 4; break; // 27 items in four rows, eight columns
-      case 28: cols = 8; rows = 4; break; // 28 items in four rows, eight columns
-      case 29: cols = 8; rows = 4; break; // 29 items in four rows, eight columns
-      case 30: cols = 8; rows = 4; break; // 30 items in four rows, eight columns
-      default:
-        // Default calculation for other counts
-        cols = Math.ceil(Math.sqrt(count));
-        rows = Math.ceil(count / cols);
-    }
-  } else if (problemCount === 10) {
-    // Custom arrangements when Problems = 10
-    switch(count) {
-      case 2:  cols = 2; rows = 1; break; // 2 items in one row
-      case 3:  cols = 3; rows = 1; break; // 3 items in one row
-      case 4:  cols = 4; rows = 1; break; // 4 items in one row
-      case 5:  cols = 3; rows = 2; break; // 5 items in two rows, three columns
-      case 6:  cols = 3; rows = 2; break; // 6 items in two rows, three columns
-      case 7:  cols = 4; rows = 2; break; // 7 items in two rows, four columns
-      case 8:  cols = 4; rows = 2; break; // 8 items in two rows, four columns
-      case 9:  cols = 5; rows = 2; break; // 9 items in two rows, five columns
-      case 10: cols = 5; rows = 2; break; // 10 items in two rows, five columns
-      case 11: cols = 4; rows = 3; break; // 11 items in three rows, four columns
-      case 12: cols = 4; rows = 3; break; // 12 items in three rows, four columns
-      case 13: cols = 5; rows = 3; break; // 13 items in three rows, five columns
-      case 14: cols = 5; rows = 3; break; // 14 items in three rows, five columns
-      case 15: cols = 5; rows = 3; break; // 15 items in three rows, five columns
-      case 16: cols = 6; rows = 3; break; // 16 items in three rows, six columns
-      case 17: cols = 6; rows = 3; break; // 17 items in three rows, six columns
-      case 18: cols = 6; rows = 3; break; // 18 items in three rows, six columns
-      case 19: cols = 5; rows = 4; break; // 19 items in four rows, five columns
-      case 20: cols = 5; rows = 4; break; // 20 items in four rows, five columns
-      case 21: cols = 6; rows = 4; break; // 21 items in four rows, six columns
-      case 22: cols = 6; rows = 4; break; // 22 items in four rows, six columns
-      case 23: cols = 6; rows = 4; break; // 23 items in four rows, six columns
-      case 24: cols = 6; rows = 4; break; // 24 items in four rows, six columns
-      case 25: cols = 7; rows = 4; break; // 25 items in four rows, seven columns
-      case 26: cols = 7; rows = 4; break; // 26 items in four rows, seven columns
-      case 27: cols = 7; rows = 4; break; // 27 items in four rows, seven columns
-      case 28: cols = 7; rows = 4; break; // 28 items in four rows, seven columns
-      case 29: cols = 6; rows = 5; break; // 29 items in five rows, six columns
-      case 30: cols = 6; rows = 5; break; // 30 items in five rows, six columns
-      default:
-        // Default calculation for other counts
-        cols = Math.ceil(Math.sqrt(count));
-        rows = Math.ceil(count / cols);
-    }
-  } else if (problemCount === 12) {
-    // Custom arrangements when Problems = 12
-    switch(count) {
-      case 2:  cols = 2; rows = 1; break; // 2 items in one row
-      case 3:  cols = 3; rows = 1; break; // 3 items in one row
-      case 4:  cols = 4; rows = 1; break; // 4 items in one row
-      case 5:  cols = 3; rows = 2; break; // 5 items in two rows, three columns
-      case 6:  cols = 3; rows = 2; break; // 6 items in two rows, three columns
-      case 7:  cols = 4; rows = 2; break; // 7 items in two rows, four columns
-      case 8:  cols = 4; rows = 2; break; // 8 items in two rows, four columns
-      case 9:  cols = 3; rows = 3; break; // 9 items in three rows, three columns
-      case 10: cols = 4; rows = 3; break; // 10 items in three rows, four columns
-      case 11: cols = 4; rows = 3; break; // 11 items in three rows, four columns
-      case 12: cols = 4; rows = 3; break; // 12 items in three rows, four columns
-      case 13: cols = 5; rows = 3; break; // 13 items in three rows, five columns
-      case 14: cols = 5; rows = 3; break; // 14 items in three rows, five columns
-      case 15: cols = 5; rows = 3; break; // 15 items in three rows, five columns
-      case 16: cols = 4; rows = 4; break; // 16 items in four rows, four columns
-      case 17: cols = 5; rows = 4; break; // 17 items in four rows, five columns
-      case 18: cols = 5; rows = 4; break; // 18 items in four rows, five columns
-      case 19: cols = 5; rows = 4; break; // 19 items in four rows, five columns
-      case 20: cols = 5; rows = 4; break; // 20 items in four rows, five columns
-      case 21: cols = 6; rows = 4; break; // 21 items in four rows, six columns
-      case 22: cols = 6; rows = 4; break; // 22 items in four rows, six columns
-      case 23: cols = 6; rows = 4; break; // 23 items in four rows, six columns
-      case 24: cols = 6; rows = 4; break; // 24 items in four rows, six columns
-      case 25: cols = 5; rows = 5; break; // 25 items in five rows, five columns
-      case 26: cols = 6; rows = 5; break; // 26 items in five rows, six columns
-      case 27: cols = 6; rows = 5; break; // 27 items in five rows, six columns
-      case 28: cols = 6; rows = 5; break; // 28 items in five rows, six columns
-      case 29: cols = 6; rows = 5; break; // 29 items in five rows, six columns
-      case 30: cols = 6; rows = 5; break; // 30 items in five rows, six columns
-      default:
-        // Default calculation for other counts
-        cols = Math.ceil(Math.sqrt(count));
-        rows = Math.ceil(count / cols);
-    }
-  } else {
-    // Default calculation for other problem counts
-    cols = Math.ceil(Math.sqrt(count));
-    rows = Math.ceil(count / cols);
   }
-  
-  // Calculate icon size to fit the grid
-  const itemSpacingPercent = 0.15; // 15% spacing between items
-  const maxIconW = availableW / (cols + (cols - 1) * itemSpacingPercent);
-  const maxIconH = availableH / (rows + (rows - 1) * itemSpacingPercent);
-  
-  let iconSize = Math.min(maxIconW, maxIconH);
-  
-  // Apply minimum size limit (lower for 30 items to allow more scaling down)
-  if (problemCount === 8 && count === 30) {
-    iconSize = Math.max(20, Math.min(iconSize, 120)); // Lower minimum for 30 items
-  } else {
-    iconSize = Math.max(25, Math.min(iconSize, 120));
-  }
-  
-  // Custom scaling for specific problem counts and item counts
-  if (problemCount === 8 && (count === 5 || count === 6 || count === 7)) {
-    iconSize = iconSize * 1.25; // Scale up by 25%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 8 && (count === 11 || count === 12 || count === 13)) {
-    iconSize = iconSize * 1.15; // Scale up by 15%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 8 && (count === 14 || count === 15 || count === 16)) {
-    iconSize = iconSize * 1.15; // Scale up by 15%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 8 && (count === 17 || count === 18)) {
-    iconSize = iconSize * 0.90; // Scale down by 10%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 8 && (count === 19 || count === 20 || count === 21)) {
-    iconSize = iconSize * 0.95; // Scale down by 5%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 8 && (count === 27 || count === 28)) {
-    iconSize = iconSize * 0.90; // Scale down by 10%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 8 && count === 29) {
-    iconSize = iconSize * 0.75; // Scale down by 25%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 8 && count === 30) {
-    iconSize = iconSize * 1.10; // Scale to 110% (scale up by 10%)
-    iconSize = Math.max(20, Math.min(iconSize, 120)); // Re-clamp with lower minimum
-  } else if (problemCount === 10 && (count === 5 || count === 6)) {
-    iconSize = iconSize * 1.20; // Scale up by 20%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 10 && (count === 7 || count === 8)) {
-    iconSize = iconSize * 1.15; // Scale up by 15%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 10 && (count === 11 || count === 12)) {
-    iconSize = iconSize * 1.10; // Scale up by 10%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 10 && (count >= 19 && count <= 24)) {
-    iconSize = iconSize * 0.95; // Scale down by 5%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 10 && (count >= 25 && count <= 28)) {
-    iconSize = iconSize * 0.90; // Scale down by 10%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 10 && (count === 29 || count === 30)) {
-    iconSize = iconSize * 0.95; // Scale down by 5%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 12 && (count === 5 || count === 6)) {
-    iconSize = iconSize * 1.20; // Scale up by 20%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 12 && (count === 7 || count === 8)) {
-    iconSize = iconSize * 1.15; // Scale up by 15%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 12 && count === 9) {
-    iconSize = iconSize * 1.10; // Scale up by 10%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 12 && (count >= 17 && count <= 20)) {
-    iconSize = iconSize * 0.95; // Scale down by 5%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 12 && (count >= 21 && count <= 24)) {
-    iconSize = iconSize * 0.90; // Scale down by 10%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 12 && count === 25) {
-    iconSize = iconSize * 0.95; // Scale down by 5%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  } else if (problemCount === 12 && (count >= 26 && count <= 30)) {
-    iconSize = iconSize * 0.90; // Scale down by 10%
-    iconSize = Math.max(25, Math.min(iconSize, 120)); // Re-clamp after scaling
-  }
-  
-  const itemSpacing = iconSize * itemSpacingPercent;
-  
-  // Calculate optical adjustments
-  const opticalAdjustH = iconSize * (padding.left + padding.right);
-  const opticalAdjustV = iconSize * (padding.top + padding.bottom);
-  const adjustedSpacingH = itemSpacing + opticalAdjustH;
-  const adjustedSpacingV = itemSpacing + opticalAdjustV;
-  
-  // Calculate grid dimensions
-  const gridWidth = cols * iconSize + (cols - 1) * adjustedSpacingH;
-  const gridHeight = rows * iconSize + (rows - 1) * adjustedSpacingV;
-  
-  // Center the grid
-  let gridStartX = availableX + (availableW - gridWidth) / 2;
-  let gridStartY = availableY + (availableH - gridHeight) / 2;
-  
-  // Special positioning adjustments for specific counts
-  if (problemCount === 8 && count === 30) {
-    // Move left 7px and down 5px, then adjust down 7px more
-    // Net: left 7px and down 12px (5+7)
-    gridStartX = gridStartX - 7; // Move 7px to the left
-    gridStartY = gridStartY + 12; // Move 12px down
-  }
-  
-  // Calculate icon position offsets for optical padding
-  const iconOffsetX = iconSize * (padding.left - padding.right) / 2;
-  const iconOffsetY = iconSize * (padding.top - padding.bottom) / 2;
-  
-  // Place items in a simple grid
-  let itemIndex = 0;
-  for (let r = 0; r < rows && itemIndex < count; r++) {
-    for (let c = 0; c < cols && itemIndex < count; c++) {
-      const itemX = gridStartX + c * (iconSize + adjustedSpacingH) - iconOffsetX;
-      const itemY = gridStartY + r * (iconSize + adjustedSpacingV) - iconOffsetY;
-      
+
+  let iconSize = Math.max(18, bestSize);
+  const spacing = iconSize * spacingRatio;
+  const gridW = bestCols * iconSize + (bestCols - 1) * spacing;
+  const gridH = bestRows * iconSize + (bestRows - 1) * spacing;
+  const startX = aX + (aW - gridW) / 2;
+  const startY = aY + (aH - gridH) / 2;
+
+  let idx = 0;
+  for (let r = 0; r < bestRows && idx < count; r++) {
+    for (let c = 0; c < bestCols && idx < count; c++) {
+      const ix = startX + c * (iconSize + spacing);
+      const iy = startY + r * (iconSize + spacing);
       problemGroup.appendChild(svgEl("use", {
         href: `#${iconId}`,
-        x: itemX,
-        y: itemY,
-        width: iconSize,
-        height: iconSize
+        x: ix, y: iy,
+        width: iconSize, height: iconSize
       }));
-      
-      itemIndex++;
+      idx++;
     }
   }
-  
-  // Add the group to the svg
+
   svg.appendChild(problemGroup);
 }
 
@@ -1688,27 +1534,53 @@ function placeObjectsRow(svg, { iconId, count, x, y, w, h }) {
 }
 
 function placeObjectsRowLeftAligned(svg, { iconId, count, x, y, w, h, maxCount }) {
-  // Calculate size based on maxCount so all rows have same-sized icons
-  const itemsToFit = maxCount || count;
-  const spacing = 6; // Fixed small spacing between items
-  const startX = x + 5; // Small left padding
-  
-  // Calculate size that fits maxCount items with spacing
-  const availableWidth = w - 10 - (itemsToFit * spacing);
-  let size = Math.min(h * 0.85, availableWidth / itemsToFit, 50);
-  size = Math.max(20, size);
-  
-  for (let i = 0; i < count; i++) {
-    const cx = startX + i * (size + spacing) + size / 2;
-    const cy = y + h / 2;
+  const spacing = 6;
+  const startX = x + 5;
+  const needsWrap = count > 10;
 
-    svg.appendChild(svgEl("use", {
-      href: `#${iconId}`,
-      x: cx - size / 2,
-      y: cy - size / 2,
-      width: size,
-      height: size
-    }));
+  if (needsWrap) {
+    // Two rows
+    const perRow = Math.ceil(count / 2);
+    const itemsForSize = Math.max(perRow, maxCount ? Math.ceil(maxCount / 2) : perRow);
+    const availW = w - 10;
+    const sizeByW = (availW - (itemsForSize - 1) * spacing) / itemsForSize;
+    const sizeByH = (h - spacing) / 2 * 0.9;
+    let size = Math.min(sizeByW, sizeByH, 50);
+    size = Math.max(20, size);
+
+    const rowH = size + spacing;
+    const totalH = rowH * 2 - spacing;
+    const startY = y + (h - totalH) / 2;
+
+    for (let i = 0; i < count; i++) {
+      const row = Math.floor(i / perRow);
+      const col = i % perRow;
+      const cx = startX + col * (size + spacing) + size / 2;
+      const cy = startY + row * rowH + size / 2;
+      svg.appendChild(svgEl("use", {
+        href: `#${iconId}`,
+        x: cx - size / 2, y: cy - size / 2,
+        width: size, height: size
+      }));
+    }
+  } else {
+    // Single row
+    const itemsForSize = maxCount || count;
+    const availW = w - 10;
+    const sizeByW = (availW - (itemsForSize - 1) * spacing) / itemsForSize;
+    const sizeByH = h * 0.85;
+    let size = Math.min(sizeByW, sizeByH, 50);
+    size = Math.max(20, size);
+
+    for (let i = 0; i < count; i++) {
+      const cx = startX + i * (size + spacing) + size / 2;
+      const cy = y + h / 2;
+      svg.appendChild(svgEl("use", {
+        href: `#${iconId}`,
+        x: cx - size / 2, y: cy - size / 2,
+        width: size, height: size
+      }));
+    }
   }
 }
 
