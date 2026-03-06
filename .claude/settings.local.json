@@ -1,5 +1,4 @@
 {
-  "approvalMode": "never",
   "permissions": {
     "allow": [
       "Bash(grep -n \"src=\" \"C:/Users/blake/Dropbox/Eggroll/Prototypes/Animal Math Website/Worksheets Website\"/*.html)",
@@ -23,7 +22,27 @@
       "Bash(where python3)",
       "Bash(python -c \"with open\\(r''C:\\\\Users\\\\blake\\\\Dropbox\\\\Eggroll\\\\Prototypes\\\\Animal Math Website\\\\Worksheets Website\\\\index.html'', ''rb''\\) as f: data=f.read\\(\\); print\\(len\\(data\\)\\); print\\(''Card 38'' in data.decode\\(''utf-8'', errors=''replace''\\)\\)\")",
       "Bash(python -c \"import os; p=r''C:\\\\Users\\\\blake\\\\Dropbox\\\\Eggroll\\\\Prototypes\\\\Animal Math Website\\\\Worksheets Website\\\\index.html''; os.utime\\(p, None\\); print\\(''touched, size:'', os.path.getsize\\(p\\)\\)\")",
-      "Bash(python -c \":*)"
+      "Bash(python -c \":*)",
+      "Bash(pip show Pillow)",
+      "Bash(pip show potrace)",
+      "Bash(python -c \"import PIL; print\\(''PIL available''\\)\")",
+      "Bash(python -c \"import potrace; print\\(''potrace available''\\)\")",
+      "Bash(python3 -c \"import PIL; print\\(''PIL available''\\)\")",
+      "Bash(python -c \"import PIL; print\\(''PIL:'', PIL.__version__\\)\")",
+      "Bash(python -c \"import numpy; print\\(''numpy:'', numpy.__version__\\)\")",
+      "Bash(pip install Pillow pypotrace)",
+      "Bash(pip install Pillow)",
+      "Bash(python -c \"from PIL import Image; print\\(''Pillow works''\\)\")",
+      "Bash(pip install vtracer)",
+      "Bash(npx --yes imagetracerjs --help)",
+      "Bash(pip install potrace)",
+      "Bash(pip install numpy)",
+      "Bash(python:*)",
+      "Bash(where potrace)",
+      "Bash(potrace --version)",
+      "Bash(winget list potrace)",
+      "Bash(pip install opencv-python-headless)"
     ]
-  }
+  },
+  "approvalMode": "never"
 }
