@@ -512,18 +512,22 @@
     const themes = {
       animals: {
         title: "Favorite Animals",
+        axisCategory: "Animals",
         items: ["Cats", "Dogs", "Fish", "Birds", "Rabbits", "Hamsters", "Turtles", "Horses", "Frogs", "Ducks"]
       },
       fruits: {
         title: "Favorite Fruits",
+        axisCategory: "Fruits",
         items: ["Apples", "Bananas", "Grapes", "Oranges", "Strawberries", "Watermelons", "Peaches", "Cherries", "Pears", "Mangoes"]
       },
       colors: {
         title: "Favorite Colors",
+        axisCategory: "Colors",
         items: ["Red", "Blue", "Green", "Yellow", "Purple", "Orange", "Pink", "Black", "White", "Brown"]
       },
       sports: {
         title: "Favorite Sports",
+        axisCategory: "Sports",
         items: ["Soccer", "Baseball", "Basketball", "Swimming", "Tennis", "Running", "Gymnastics", "Hockey", "Football", "Volleyball"]
       }
     };
@@ -568,44 +572,49 @@
     }
 
     // Theme-specific language for questions
+    // All category names are lowercased in question text.
+    // Questions use explicit graph terms: "votes", "received", etc.
     const themeLanguage = {
       animals: {
-        verb: "voted for",
-        subject: "students",
-        mostLeast: "got the most votes",
-        leastPhrase: "got the fewest votes",
-        morePhrase: "more votes did {A} get than {B}",
-        totalPhrase: "votes were there in all",
-        axisLabel: "Number of Votes"
+        axisLabel: "Number of Votes",
+        countQ: "How many votes were for {X}?",
+        mostQ: "Which animal received the most votes?",
+        leastQ: "Which animal received the fewest votes?",
+        diffQ: "How many more votes were there for {A} than {B}?",
+        totalQ: "How many votes were there in all?",
+        addQ: "How many {A} and {B} votes were there all together?"
       },
       fruits: {
-        verb: "chose",
-        subject: "students",
-        mostLeast: "is the most popular",
-        leastPhrase: "is the least popular",
-        morePhrase: "more students chose {A} than {B}",
-        totalPhrase: "students voted in all",
-        axisLabel: "Number of Students"
+        axisLabel: "Number of Votes",
+        countQ: "How many votes were for {X}?",
+        mostQ: "Which fruit received the most votes?",
+        leastQ: "Which fruit received the fewest votes?",
+        diffQ: "How many more votes were there for {A} than {B}?",
+        totalQ: "How many votes were there in all?",
+        addQ: "How many {A} and {B} votes were there all together?"
       },
       colors: {
-        verb: "picked",
-        subject: "people",
-        mostLeast: "is the most popular color",
-        leastPhrase: "is the least popular color",
-        morePhrase: "more people picked {A} than {B}",
-        totalPhrase: "people voted in all",
-        axisLabel: "Number of People"
+        axisLabel: "Number of Votes",
+        countQ: "How many votes were for {X}?",
+        mostQ: "Which color received the most votes?",
+        leastQ: "Which color received the fewest votes?",
+        diffQ: "How many more votes were there for {A} than {B}?",
+        totalQ: "How many votes were there in all?",
+        addQ: "How many {A} and {B} votes were there all together?"
       },
       sports: {
-        verb: "like",
-        subject: "students",
-        mostLeast: "is the most popular sport",
-        leastPhrase: "is the least popular sport",
-        morePhrase: "more students like {A} than {B}",
-        totalPhrase: "students were surveyed in all",
-        axisLabel: "Number of Students"
+        axisLabel: "Number of Votes",
+        countQ: "How many votes were for {X}?",
+        mostQ: "Which sport received the most votes?",
+        leastQ: "Which sport received the fewest votes?",
+        diffQ: "How many more votes were there for {A} than {B}?",
+        totalQ: "How many votes were there in all?",
+        addQ: "How many {A} and {B} votes were there all together?"
       }
     };
+
+    // Helper: lowercase a category name for use in questions
+    function lc(name) { return name.toLowerCase(); }
 
     function generateGraphData(opts) {
       const pick = pickCategories(opts.dataTheme, opts.numCategories);
@@ -627,7 +636,6 @@
     }
 
     function generateQuestions(categories, values, count, resolvedTheme) {
-      const questions = [];
       const used = new Set();
       const lang = themeLanguage[resolvedTheme] || themeLanguage.animals;
 
@@ -639,43 +647,42 @@
         if (values[i] < minVal) { minVal = values[i]; minIdx = i; }
       }
 
-      // Question types pool
+      // Build question pool — all category names are lowercased
       const qTypes = [];
 
-      // Type 1: How many voted for / chose / picked X? (counting)
+      // Type 1: Counting — "How many votes were for cats?"
       for (let i = 0; i < categories.length; i++) {
         qTypes.push({
           type: "count",
-          text: "How many " + lang.subject + " " + lang.verb + " " + categories[i] + "?",
+          text: lang.countQ.replace("{X}", lc(categories[i])),
           answer: values[i],
           key: "count-" + i
         });
       }
 
-      // Type 2: Which has the most / least?
+      // Type 2: Most / Least — "Which animal received the most/fewest votes?"
       qTypes.push({
         type: "most",
-        text: "Which " + lang.mostLeast + "?",
-        answer: categories[maxIdx],
+        text: lang.mostQ,
+        answer: lc(categories[maxIdx]),
         key: "most"
       });
       qTypes.push({
         type: "least",
-        text: "Which " + lang.leastPhrase + "?",
-        answer: categories[minIdx],
+        text: lang.leastQ,
+        answer: lc(categories[minIdx]),
         key: "least"
       });
 
-      // Type 3: How many more X than Y?
+      // Type 3: Difference — "How many more votes were there for dogs than cats?"
       for (let i = 0; i < categories.length; i++) {
         for (let j = i + 1; j < categories.length; j++) {
           if (values[i] !== values[j]) {
             const bigger = values[i] > values[j] ? i : j;
             const smaller = values[i] > values[j] ? j : i;
-            const phrase = lang.morePhrase.replace("{A}", categories[bigger]).replace("{B}", categories[smaller]);
             qTypes.push({
               type: "difference",
-              text: "How many " + phrase + "?",
+              text: lang.diffQ.replace("{A}", lc(categories[bigger])).replace("{B}", lc(categories[smaller])),
               answer: Math.abs(values[i] - values[j]),
               key: "diff-" + i + "-" + j
             });
@@ -683,36 +690,48 @@
         }
       }
 
-      // Type 4: How many in total?
+      // Type 4: Total — "How many votes were there in all?"
       qTypes.push({
         type: "total",
-        text: "How many " + lang.totalPhrase + "?",
+        text: lang.totalQ,
         answer: values.reduce((a, b) => a + b, 0),
         key: "total"
       });
 
-      // Ensure variety: try to include at least one counting, one comparison, one difference
+      // Type 5: Addition — "How many cat and dog votes were there all together?"
+      for (let i = 0; i < categories.length; i++) {
+        for (let j = i + 1; j < categories.length; j++) {
+          qTypes.push({
+            type: "addition",
+            text: lang.addQ.replace("{A}", lc(categories[i])).replace("{B}", lc(categories[j])),
+            answer: values[i] + values[j],
+            key: "add-" + i + "-" + j
+          });
+        }
+      }
+
+      // Ensure variety: pick one of each type first
       const picks = [];
       const countQs = qTypes.filter(q => q.type === "count");
       const compQs = qTypes.filter(q => q.type === "most" || q.type === "least");
       const diffQs = qTypes.filter(q => q.type === "difference");
-      const totalQs = qTypes.filter(q => q.type === "total");
+      const addQs = qTypes.filter(q => q.type === "addition");
 
-      // Pick one of each type first
       if (countQs.length > 0) {
         const q = countQs[Math.floor(Math.random() * countQs.length)];
-        picks.push(q);
-        used.add(q.key);
+        picks.push(q); used.add(q.key);
       }
       if (compQs.length > 0 && picks.length < count) {
         const q = compQs[Math.floor(Math.random() * compQs.length)];
-        picks.push(q);
-        used.add(q.key);
+        picks.push(q); used.add(q.key);
       }
       if (diffQs.length > 0 && picks.length < count) {
         const q = diffQs[Math.floor(Math.random() * diffQs.length)];
-        picks.push(q);
-        used.add(q.key);
+        picks.push(q); used.add(q.key);
+      }
+      if (addQs.length > 0 && picks.length < count) {
+        const q = addQs[Math.floor(Math.random() * addQs.length)];
+        picks.push(q); used.add(q.key);
       }
 
       // Fill remaining with random unused questions
@@ -723,8 +742,7 @@
       }
       for (const q of remaining) {
         if (picks.length >= count) break;
-        picks.push(q);
-        used.add(q.key);
+        picks.push(q); used.add(q.key);
       }
 
       // Shuffle final selection
@@ -817,7 +835,7 @@
     function drawVerticalBarGraph(svg, categories, values, maxValue, left, top, width, height, resolvedTheme) {
       const numCats = categories.length;
       const lang = themeLanguage[resolvedTheme] || themeLanguage.animals;
-      const themeTitle = themes[resolvedTheme] ? themes[resolvedTheme].title : "Favorites";
+      const axisCategory = themes[resolvedTheme] ? themes[resolvedTheme].axisCategory : "Items";
       const labelAreaH = 56; // extra room for category title below category names
       const titleAreaH = 24;
       const yAxisLabelW = 44; // wider to fit rotated y-axis label
@@ -826,13 +844,14 @@
       const chartW = width - yAxisLabelW - 10;
       const chartH = height - labelAreaH - titleAreaH;
 
-      // Y-axis rotated label
+      // Y-axis rotated label with comfortable letter-spacing
       const yLabelX = left + 14;
       const yLabelY = chartTop + chartH / 2;
       const yTitle = svgEl("text", {
         x: yLabelX, y: yLabelY,
         class: "txt", "font-size": 12, "font-weight": 700,
         fill: "#2d3748", "text-anchor": "middle",
+        "letter-spacing": "0.5",
         transform: "rotate(-90," + yLabelX + "," + yLabelY + ")"
       });
       yTitle.textContent = lang.axisLabel;
@@ -908,13 +927,13 @@
         svg.appendChild(catLabel);
       }
 
-      // X-axis category title (e.g. "Favorite Animals") centered below category names
+      // X-axis category title (e.g. "Animals") centered below category names
       const xCatTitle = svgEl("text", {
         x: chartLeft + chartW / 2, y: chartTop + chartH + 36,
         class: "txt", "font-size": 13, "font-weight": 700,
         fill: "#2d3748", "text-anchor": "middle"
       });
-      xCatTitle.textContent = themeTitle;
+      xCatTitle.textContent = axisCategory;
       svg.appendChild(xCatTitle);
     }
 
@@ -922,7 +941,7 @@
     function drawHorizontalBarGraph(svg, categories, values, maxValue, left, top, width, height, resolvedTheme) {
       const numCats = categories.length;
       const lang = themeLanguage[resolvedTheme] || themeLanguage.animals;
-      const themeTitle = themes[resolvedTheme] ? themes[resolvedTheme].title : "Favorites";
+      const axisCategory = themes[resolvedTheme] ? themes[resolvedTheme].axisCategory : "Items";
       const titleAreaH = 24;
       const labelAreaW = 80;
       const xAxisLabelH = 42; // extra room for axis label below tick labels
@@ -931,7 +950,7 @@
       const chartW = width - labelAreaW - 10;
       const chartH = height - xAxisLabelH - titleAreaH;
 
-      // Y-axis category title (rotated, to the far left, describing what categories represent)
+      // Y-axis category title (rotated, e.g. "Animals")
       const yCatTitleX = left + 6;
       const yCatTitleY = chartTop + chartH / 2;
       const yCatTitle = svgEl("text", {
@@ -940,14 +959,15 @@
         fill: "#2d3748", "text-anchor": "middle",
         transform: "rotate(-90," + yCatTitleX + "," + yCatTitleY + ")"
       });
-      yCatTitle.textContent = themeTitle;
+      yCatTitle.textContent = axisCategory;
       svg.appendChild(yCatTitle);
 
-      // X-axis number label (e.g. "Number of Votes")
+      // X-axis number label (e.g. "Number of Votes") with comfortable letter-spacing
       const xTitle = svgEl("text", {
         x: chartLeft + chartW / 2, y: chartTop + chartH + xAxisLabelH - 4,
         class: "txt", "font-size": 12, "font-weight": 700,
-        fill: "#2d3748", "text-anchor": "middle"
+        fill: "#2d3748", "text-anchor": "middle",
+        "letter-spacing": "0.5"
       });
       xTitle.textContent = lang.axisLabel;
       svg.appendChild(xTitle);
