@@ -636,8 +636,28 @@
 
       // Branding
       if (branded) {
-        const br = svgEl("text", { x: pageW / 2, y: pageH - 20, class: "txt", "font-size": 12, "text-anchor": "middle", fill: "#a0aec0" });
-        br.textContent = "animalmath.com"; svg.appendChild(br);
+        const brandY = pageH - 48;
+        const logoH = 38;
+        const logoW = Math.round(logoH * 2.79);
+        svg.appendChild(svgEl("image", {
+          href: "../branding/emma-logo.png",
+          x: margin, y: brandY,
+          width: logoW, height: logoH
+        }));
+        const bLine1 = svgEl("text", {
+          x: pageW - margin, y: brandY + 15,
+          class: "txt", "font-size": 9,
+          fill: "#4a5568", "text-anchor": "end"
+        });
+        bLine1.textContent = "Find worksheets, teacher tools, and more at animalmath.com";
+        svg.appendChild(bLine1);
+        const bLine2 = svgEl("text", {
+          x: pageW - margin, y: brandY + 30,
+          class: "txt", "font-size": 8,
+          fill: "#a0aec0", "text-anchor": "end"
+        });
+        bLine2.textContent = "\u00A9 2026 Eggroll Games";
+        svg.appendChild(bLine2);
       }
 
       // Layout

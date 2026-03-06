@@ -260,7 +260,7 @@
     
     @page {
       size: letter;
-      margin: 0.641in 0.46in 0.46in 0.46in;
+      margin: 0.25in;
     }
 
     @media (max-width: 1024px) {
@@ -358,7 +358,6 @@
 
       <div class="button-group">
         <button id="btnGenerate">🔄 Generate New</button>
-        <button id="btnPdf">📄 Download PDF</button>
         <button id="btnPrint">🖨️ Print</button>
       </div>
 
@@ -817,55 +816,63 @@ function renderStyle1(problems, headerMode, branded, icons) {
   svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
 
   let topGridY;
+  const midX = pageW / 2;
 
   if (headerMode === "both") {
+    // Name — left, wide underline
     svg.appendChild(svgEl("text", {
-      x: margin, y: 30, class: "txt", "font-size": 14, "font-weight": 400
-    }, [document.createTextNode("Name:")]));
+      x: margin, y: 26, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+    }, [document.createTextNode("Name")]));
     svg.appendChild(svgEl("line", {
-      x1: margin + 50, y1: 32,
-      x2: margin + 240, y2: 32,
-      stroke: "#000", "stroke-width": 1
+      x1: margin + 38, y1: 28, x2: midX - 30, y2: 28,
+      stroke: "#718096", "stroke-width": 0.75
     }));
-
+    // Date — right, wide underline
     svg.appendChild(svgEl("text", {
-      x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400
-    }, [document.createTextNode("Date:")]));
+      x: midX + 20, y: 26, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+    }, [document.createTextNode("Date")]));
     svg.appendChild(svgEl("line", {
-      x1: pageW - margin - 140, y1: 32,
-      x2: pageW - margin, y2: 32,
-      stroke: "#000", "stroke-width": 1
+      x1: midX + 54, y1: 28, x2: pageW - margin, y2: 28,
+      stroke: "#718096", "stroke-width": 0.75
     }));
-
+    // Large bold title, left-aligned
     svg.appendChild(svgEl("text", {
-      x: pageW / 2, y: 70, class: "txt", "font-size": 20, "font-weight": 700, "text-anchor": "middle"
+      x: margin, y: 62, class: "txt", "font-size": 26, "font-weight": 800
     }, [document.createTextNode(elHeaderText.value)]));
+    // Subtitle
+    svg.appendChild(svgEl("text", {
+      x: margin, y: 80, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+    }, [document.createTextNode("Count the objects and write the number.")]));
 
-    topGridY = 88;
+    topGridY = 92;
   } else if (headerMode === "name") {
     svg.appendChild(svgEl("text", {
-      x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400, "text-anchor": "end"
-    }, [document.createTextNode("Name:")]));
+      x: margin, y: 26, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+    }, [document.createTextNode("Name")]));
     svg.appendChild(svgEl("line", {
-      x1: pageW - margin - 180, y1: 32,
-      x2: pageW - margin, y2: 32,
-      stroke: "#000", "stroke-width": 1
+      x1: margin + 38, y1: 28, x2: pageW - margin, y2: 28,
+      stroke: "#718096", "stroke-width": 0.75
     }));
-
     svg.appendChild(svgEl("text", {
-      x: pageW / 2, y: 70, class: "txt", "font-size": 20, "font-weight": 700, "text-anchor": "middle"
+      x: margin, y: 62, class: "txt", "font-size": 26, "font-weight": 800
     }, [document.createTextNode(elHeaderText.value)]));
+    svg.appendChild(svgEl("text", {
+      x: margin, y: 80, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+    }, [document.createTextNode("Count the objects and write the number.")]));
 
-    topGridY = 88;
+    topGridY = 92;
   } else {
     svg.appendChild(svgEl("text", {
-      x: pageW / 2, y: 45, class: "txt", "font-size": 22, "font-weight": 700, "text-anchor": "middle"
+      x: margin, y: 40, class: "txt", "font-size": 26, "font-weight": 800
     }, [document.createTextNode(elHeaderText.value)]));
+    svg.appendChild(svgEl("text", {
+      x: margin, y: 58, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+    }, [document.createTextNode("Count the objects and write the number.")]));
 
-    topGridY = 65;
+    topGridY = 70;
   }
 
-  const bottomMargin = 24;
+  const bottomMargin = branded ? 56 : 24;
   const gridH = pageH - topGridY - bottomMargin;
   const cols = 2;
   const rows = Math.ceil(problems.length / cols);
@@ -917,11 +924,30 @@ function renderStyle1(problems, headerMode, branded, icons) {
     }));
   }
 
-  // Add branding at bottom without affecting layout
+  // Add branding at bottom
   if (branded) {
-    svg.appendChild(svgEl("text", {
-      x: pageW / 2, y: pageH - 8, class: "txt", "font-size": 11, "text-anchor": "middle", fill: "#666"
-    }, [document.createTextNode("animalmath.com")]));
+    const brandY = pageH - 48;
+    const logoH = 38;
+    const logoW = Math.round(logoH * 2.79);
+    svg.appendChild(svgEl("image", {
+      href: "../branding/emma-logo.png",
+      x: margin, y: brandY,
+      width: logoW, height: logoH
+    }));
+    const bLine1 = svgEl("text", {
+      x: pageW - margin, y: brandY + 15,
+      class: "txt", "font-size": 9,
+      fill: "#4a5568", "text-anchor": "end"
+    });
+    bLine1.textContent = "Find worksheets, teacher tools, and more at animalmath.com";
+    svg.appendChild(bLine1);
+    const bLine2 = svgEl("text", {
+      x: pageW - margin, y: brandY + 30,
+      class: "txt", "font-size": 8,
+      fill: "#a0aec0", "text-anchor": "end"
+    });
+    bLine2.textContent = "\u00A9 2026 Eggroll Games";
+    svg.appendChild(bLine2);
   }
 
   return svg;
@@ -948,55 +974,59 @@ function renderStyle2(problems, headerMode, branded, icons) {
   svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
 
   let topGridY;
+  const midX = pageW / 2;
 
   if (headerMode === "both") {
     svg.appendChild(svgEl("text", {
-      x: margin, y: 30, class: "txt", "font-size": 14, "font-weight": 400
-    }, [document.createTextNode("Name:")]));
+      x: margin, y: 26, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+    }, [document.createTextNode("Name")]));
     svg.appendChild(svgEl("line", {
-      x1: margin + 50, y1: 32,
-      x2: margin + 240, y2: 32,
-      stroke: "#000", "stroke-width": 1
+      x1: margin + 38, y1: 28, x2: midX - 30, y2: 28,
+      stroke: "#718096", "stroke-width": 0.75
     }));
-
     svg.appendChild(svgEl("text", {
-      x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400
-    }, [document.createTextNode("Date:")]));
+      x: midX + 20, y: 26, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+    }, [document.createTextNode("Date")]));
     svg.appendChild(svgEl("line", {
-      x1: pageW - margin - 140, y1: 32,
-      x2: pageW - margin, y2: 32,
-      stroke: "#000", "stroke-width": 1
+      x1: midX + 54, y1: 28, x2: pageW - margin, y2: 28,
+      stroke: "#718096", "stroke-width": 0.75
     }));
-
     svg.appendChild(svgEl("text", {
-      x: pageW / 2, y: 70, class: "txt", "font-size": 20, "font-weight": 700, "text-anchor": "middle"
+      x: margin, y: 62, class: "txt", "font-size": 26, "font-weight": 800
     }, [document.createTextNode(elHeaderText.value)]));
+    svg.appendChild(svgEl("text", {
+      x: margin, y: 80, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+    }, [document.createTextNode("Count the objects and write the number.")]));
 
-    topGridY = 88;
+    topGridY = 92;
   } else if (headerMode === "name") {
     svg.appendChild(svgEl("text", {
-      x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400, "text-anchor": "end"
-    }, [document.createTextNode("Name:")]));
+      x: margin, y: 26, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+    }, [document.createTextNode("Name")]));
     svg.appendChild(svgEl("line", {
-      x1: pageW - margin - 180, y1: 32,
-      x2: pageW - margin, y2: 32,
-      stroke: "#000", "stroke-width": 1
+      x1: margin + 38, y1: 28, x2: pageW - margin, y2: 28,
+      stroke: "#718096", "stroke-width": 0.75
     }));
-
     svg.appendChild(svgEl("text", {
-      x: pageW / 2, y: 70, class: "txt", "font-size": 20, "font-weight": 700, "text-anchor": "middle"
+      x: margin, y: 62, class: "txt", "font-size": 26, "font-weight": 800
     }, [document.createTextNode(elHeaderText.value)]));
+    svg.appendChild(svgEl("text", {
+      x: margin, y: 80, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+    }, [document.createTextNode("Count the objects and write the number.")]));
 
-    topGridY = 88;
+    topGridY = 92;
   } else {
     svg.appendChild(svgEl("text", {
-      x: pageW / 2, y: 45, class: "txt", "font-size": 22, "font-weight": 700, "text-anchor": "middle"
+      x: margin, y: 40, class: "txt", "font-size": 26, "font-weight": 800
     }, [document.createTextNode(elHeaderText.value)]));
+    svg.appendChild(svgEl("text", {
+      x: margin, y: 58, class: "txt", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+    }, [document.createTextNode("Count the objects and write the number.")]));
 
-    topGridY = 65;
+    topGridY = 70;
   }
 
-  const bottomMargin = 24;
+  const bottomMargin = branded ? 56 : 24;
   const gutter = 8; // Gap between rows
   const gridH = pageH - topGridY - bottomMargin;
   
@@ -1042,11 +1072,30 @@ function renderStyle2(problems, headerMode, branded, icons) {
     }));
   }
 
-  // Add branding at bottom without affecting layout
+  // Add branding at bottom
   if (branded) {
-    svg.appendChild(svgEl("text", {
-      x: pageW / 2, y: pageH - 8, class: "txt", "font-size": 11, "text-anchor": "middle", fill: "#666"
-    }, [document.createTextNode("animalmath.com")]));
+    const brandY = pageH - 48;
+    const logoH = 38;
+    const logoW = Math.round(logoH * 2.79);
+    svg.appendChild(svgEl("image", {
+      href: "../branding/emma-logo.png",
+      x: margin, y: brandY,
+      width: logoW, height: logoH
+    }));
+    const bLine1 = svgEl("text", {
+      x: pageW - margin, y: brandY + 15,
+      class: "txt", "font-size": 9,
+      fill: "#4a5568", "text-anchor": "end"
+    });
+    bLine1.textContent = "Find worksheets, teacher tools, and more at animalmath.com";
+    svg.appendChild(bLine1);
+    const bLine2 = svgEl("text", {
+      x: pageW - margin, y: brandY + 30,
+      class: "txt", "font-size": 8,
+      fill: "#a0aec0", "text-anchor": "end"
+    });
+    bLine2.textContent = "\u00A9 2026 Eggroll Games";
+    svg.appendChild(bLine2);
   }
 
   return svg;
@@ -1080,7 +1129,7 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, icons) {
   }, [document.createTextNode("ANSWER KEY")]));
   topGridY = 68;
 
-  const gridH = pageH - topGridY - margin - (branded ? 24 : 0);
+  const gridH = pageH - topGridY - margin - (branded ? 56 : 0);
   const cols = 2;
   const rows = Math.ceil(problems.length / cols);
   const gutter = 18;
@@ -1143,11 +1192,30 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, icons) {
     svg.appendChild(answerText);
   }
 
-  // Add branding at bottom without affecting layout
+  // Add branding at bottom
   if (branded) {
-    svg.appendChild(svgEl("text", {
-      x: pageW / 2, y: pageH - 8, class: "txt", "font-size": 11, "text-anchor": "middle", fill: "#666"
-    }, [document.createTextNode("animalmath.com")]));
+    const brandY = pageH - 48;
+    const logoH = 38;
+    const logoW = Math.round(logoH * 2.79);
+    svg.appendChild(svgEl("image", {
+      href: "../branding/emma-logo.png",
+      x: margin, y: brandY,
+      width: logoW, height: logoH
+    }));
+    const bLine1 = svgEl("text", {
+      x: pageW - margin, y: brandY + 15,
+      class: "txt", "font-size": 9,
+      fill: "#4a5568", "text-anchor": "end"
+    });
+    bLine1.textContent = "Find worksheets, teacher tools, and more at animalmath.com";
+    svg.appendChild(bLine1);
+    const bLine2 = svgEl("text", {
+      x: pageW - margin, y: brandY + 30,
+      class: "txt", "font-size": 8,
+      fill: "#a0aec0", "text-anchor": "end"
+    });
+    bLine2.textContent = "\u00A9 2026 Eggroll Games";
+    svg.appendChild(bLine2);
   }
 
   return svg;
@@ -1178,7 +1246,7 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, icons) {
   }, [document.createTextNode("ANSWER KEY")]));
   
   const topGridY = 65;
-  const bottomMargin = 24;
+  const bottomMargin = branded ? 56 : 24;
   const gutter = 8;
   const gridH = pageH - topGridY - bottomMargin;
   
@@ -1237,11 +1305,30 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, icons) {
     svg.appendChild(answerText);
   }
 
-  // Add branding at bottom without affecting layout
+  // Add branding at bottom
   if (branded) {
-    svg.appendChild(svgEl("text", {
-      x: pageW / 2, y: pageH - 8, class: "txt", "font-size": 11, "text-anchor": "middle", fill: "#666"
-    }, [document.createTextNode("animalmath.com")]));
+    const brandY = pageH - 48;
+    const logoH = 38;
+    const logoW = Math.round(logoH * 2.79);
+    svg.appendChild(svgEl("image", {
+      href: "../branding/emma-logo.png",
+      x: margin, y: brandY,
+      width: logoW, height: logoH
+    }));
+    const bLine1 = svgEl("text", {
+      x: pageW - margin, y: brandY + 15,
+      class: "txt", "font-size": 9,
+      fill: "#4a5568", "text-anchor": "end"
+    });
+    bLine1.textContent = "Find worksheets, teacher tools, and more at animalmath.com";
+    svg.appendChild(bLine1);
+    const bLine2 = svgEl("text", {
+      x: pageW - margin, y: brandY + 30,
+      class: "txt", "font-size": 8,
+      fill: "#a0aec0", "text-anchor": "end"
+    });
+    bLine2.textContent = "\u00A9 2026 Eggroll Games";
+    svg.appendChild(bLine2);
   }
 
   return svg;
