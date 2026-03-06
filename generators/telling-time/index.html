@@ -345,7 +345,14 @@
         height: 100% !important;
       }
     }
+    @page {
+      size: letter;
+      margin: 0.5in 0.4in 0in 0.4in;
+    }
   </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="main-container">
@@ -736,11 +743,31 @@
       }
 
       if (branded) {
-        const br = svgEl("text", { x: pageW / 2, y: pageH - 20, class: "txt", "font-size": 12, "text-anchor": "middle", fill: "#a0aec0" });
-        br.textContent = "animalmath.com"; svg.appendChild(br);
+        const brandY = pageH - 48;
+        const logoH = 38;
+        const logoW = Math.round(logoH * 2.79);
+        svg.appendChild(svgEl("image", {
+          href: "../branding/emma-logo.png",
+          x: margin, y: brandY,
+          width: logoW, height: logoH
+        }));
+        const bLine1 = svgEl("text", {
+          x: pageW - margin, y: brandY + 14,
+          "font-family": "Fredoka, sans-serif", "font-size": 11,
+          fill: "#4a5568", "text-anchor": "end"
+        });
+        bLine1.textContent = "Find worksheets, teacher tools, and more at animalmath.com";
+        svg.appendChild(bLine1);
+        const bLine2 = svgEl("text", {
+          x: pageW - margin, y: brandY + 26,
+          "font-family": "Fredoka, sans-serif", "font-size": 9.5,
+          fill: "#a0aec0", "text-anchor": "end"
+        });
+        bLine2.textContent = "\u00A9 2026 Eggroll Games";
+        svg.appendChild(bLine2);
       }
 
-      const bottomMargin = branded ? 50 : 40;
+      const bottomMargin = branded ? 56 : 24;
       const availH = pageH - bottomMargin - topGridY;
       const availW = pageW - margin * 2;
 

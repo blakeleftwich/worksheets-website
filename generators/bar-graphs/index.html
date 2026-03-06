@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bar Graph Worksheet Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    @page { size: letter; margin: 0.5in 0.4in 0in 0.4in; }
     * {
       margin: 0;
       padding: 0;
@@ -817,15 +819,15 @@
         }));
         // Right-side text
         const line1 = svgEl("text", {
-          x: pageW - margin, y: brandY + 15,
-          class: "txt", "font-size": 9,
+          x: pageW - margin, y: brandY + 14,
+          "font-family": "Fredoka, sans-serif", "font-size": 11,
           fill: "#4a5568", "text-anchor": "end"
         });
         line1.textContent = "Find worksheets, teacher tools, and more at animalmath.com";
         svg.appendChild(line1);
         const line2 = svgEl("text", {
-          x: pageW - margin, y: brandY + 30,
-          class: "txt", "font-size": 8,
+          x: pageW - margin, y: brandY + 26,
+          "font-family": "Fredoka, sans-serif", "font-size": 9.5,
           fill: "#a0aec0", "text-anchor": "end"
         });
         line2.textContent = "\u00A9 2026 Eggroll Games";
@@ -833,7 +835,7 @@
       }
 
       // ===== Layout calculations =====
-      const bottomMargin = branded ? 50 : 40;
+      const bottomMargin = branded ? 56 : 24;
       const availH = pageH - bottomMargin - topY;
       const graphAreaH = availH * 0.52;
       const questionsAreaH = availH * 0.48;
