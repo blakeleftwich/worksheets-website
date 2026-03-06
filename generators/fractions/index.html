@@ -421,6 +421,10 @@
 
       <div class="checkbox-row" style="margin-bottom:12px;">
         <label>
+          <input type="checkbox" id="splitShading">
+          <span>Allow Split Shading</span>
+        </label>
+        <label>
           <input type="checkbox" id="answerKey">
           <span>Include Answer Key Sheets</span>
         </label>
@@ -485,6 +489,7 @@
     const elProblems = document.getElementById("problemsPerSheet");
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
+    const elSplitShading = document.getElementById("splitShading");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
     const elHeaderMode = document.getElementById("headerMode");
     const elHeaderModeOptions = document.getElementById("headerModeOptions");
@@ -513,6 +518,7 @@
         problemsPerSheet: parseInt(elProblems.value, 10),
         numWorksheets: parseInt(elNumSheets.value, 10),
         answerKey: elAnswerKey.checked,
+        splitShading: elSplitShading.checked,
         showHeader: showHeader,
         title: "Basic Fractions",
         branded: elBranded.checked,
@@ -520,6 +526,25 @@
     }
 
     // ===== Problem generation =====
+    // Generate an array of `numer` unique random indices from 0..denom-1
+    function randomShadedIndices(denom, numer) {
+      const indices = [];
+      for (let i = 0; i < denom; i++) indices.push(i);
+      // Fisher-Yates shuffle
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+      return indices.slice(0, numer).sort((a, b) => a - b);
+    }
+
+    // Generate contiguous indices: 0, 1, ..., numer-1
+    function contiguousShadedIndices(numer) {
+      const indices = [];
+      for (let i = 0; i < numer; i++) indices.push(i);
+      return indices;
+    }
+
     function generateProblems(count, opts) {
       const problems = [];
       const possibleDenoms = [];
@@ -547,7 +572,11 @@
         if (seen.has(key) && attempts < count * 50) continue;
         seen.add(key);
 
-        problems.push({ numer, denom, shape, type });
+        const shadedIndices = opts.splitShading
+          ? randomShadedIndices(denom, numer)
+          : contiguousShadedIndices(numer);
+
+        problems.push({ numer, denom, shape, type, shadedIndices });
       }
 
       // Fill remainder if needed
@@ -556,7 +585,10 @@
         const numer = 1 + Math.floor(Math.random() * (denom - 1));
         const shape = shapeOptions[Math.floor(Math.random() * shapeOptions.length)];
         const type = typeOptions[Math.floor(Math.random() * typeOptions.length)];
-        problems.push({ numer, denom, shape, type });
+        const shadedIndices = opts.splitShading
+          ? randomShadedIndices(denom, numer)
+          : contiguousShadedIndices(numer);
+        problems.push({ numer, denom, shape, type, shadedIndices });
       }
 
       // Shuffle
@@ -569,8 +601,9 @@
     }
 
     // ===== Shape Drawing =====
-    // Draw a circle (pie) divided into `denom` equal slices, with `numer` shaded
-    function drawCircle(g, cx, cy, r, denom, numer, shaded) {
+    // Draw a circle (pie) divided into `denom` equal slices, with specified slices shaded
+    // shadedIndices: array of slice indices to shade (e.g. [0,2] for 1st and 3rd slice)
+    function drawCircle(g, cx, cy, r, denom, numer, shaded, shadedIndices) {
       // Background circle
       g.appendChild(svgEl("circle", {
         cx: cx, cy: cy, r: r,
@@ -589,7 +622,10 @@
 
       // Draw shaded slices first (so lines draw on top)
       if (shaded) {
-        for (let i = 0; i < numer; i++) {
+        const toShade = shadedIndices || contiguousShadedIndices(numer);
+        const shadeSet = new Set(toShade);
+        for (let i = 0; i < denom; i++) {
+          if (!shadeSet.has(i)) continue;
           const startAngle = (i * 2 * Math.PI / denom) - Math.PI / 2;
           const endAngle = ((i + 1) * 2 * Math.PI / denom) - Math.PI / 2;
           const x1 = cx + r * Math.cos(startAngle);
@@ -622,8 +658,8 @@
       }));
     }
 
-    // Draw a rectangle divided into `denom` equal vertical strips, with `numer` shaded
-    function drawRectangle(g, x, y, w, h, denom, numer, shaded) {
+    // Draw a rectangle divided into `denom` equal vertical strips, with specified strips shaded
+    function drawRectangle(g, x, y, w, h, denom, numer, shaded, shadedIndices) {
       // Background
       g.appendChild(svgEl("rect", {
         x: x, y: y, width: w, height: h,
@@ -634,7 +670,10 @@
 
       // Draw shaded parts
       if (shaded) {
-        for (let i = 0; i < numer; i++) {
+        const toShade = shadedIndices || contiguousShadedIndices(numer);
+        const shadeSet = new Set(toShade);
+        for (let i = 0; i < denom; i++) {
+          if (!shadeSet.has(i)) continue;
           g.appendChild(svgEl("rect", {
             x: x + i * partW, y: y, width: partW, height: h,
             fill: "#667eea", "fill-opacity": "0.35", stroke: "none"
@@ -657,8 +696,8 @@
       }));
     }
 
-    // Draw a square divided into a grid, with `numer` shaded
-    function drawSquare(g, x, y, size, denom, numer, shaded) {
+    // Draw a square divided into a grid, with specified cells shaded
+    function drawSquare(g, x, y, size, denom, numer, shaded, shadedIndices) {
       // Determine grid layout
       let cols, rows;
       if (denom <= 4) {
@@ -693,14 +732,18 @@
 
       // Shade cells left-to-right, top-to-bottom
       if (shaded) {
-        let count = 0;
-        for (let r = 0; r < rows && count < numer; r++) {
-          for (let c = 0; c < cols && count < numer; c++) {
-            g.appendChild(svgEl("rect", {
-              x: x + c * cellW, y: y + r * cellH, width: cellW, height: cellH,
-              fill: "#667eea", "fill-opacity": "0.35", stroke: "none"
-            }));
-            count++;
+        const toShade = shadedIndices || contiguousShadedIndices(numer);
+        const shadeSet = new Set(toShade);
+        let cellIndex = 0;
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            if (shadeSet.has(cellIndex)) {
+              g.appendChild(svgEl("rect", {
+                x: x + c * cellW, y: y + r * cellH, width: cellW, height: cellH,
+                fill: "#667eea", "fill-opacity": "0.35", stroke: "none"
+              }));
+            }
+            cellIndex++;
           }
         }
       }
@@ -814,13 +857,13 @@
 
           const shapeG = svgEl("g", {});
           if (prob.shape === "circle") {
-            drawCircle(shapeG, shapeCX, shapeCY, shapeSize * 0.45, prob.denom, prob.numer, true);
+            drawCircle(shapeG, shapeCX, shapeCY, shapeSize * 0.45, prob.denom, prob.numer, true, prob.shadedIndices);
           } else if (prob.shape === "rectangle") {
             const rw = shapeSize * 0.95;
             const rh = shapeSize * 0.42;
-            drawRectangle(shapeG, shapeCX - rw / 2, shapeCY - rh / 2, rw, rh, prob.denom, prob.numer, true);
+            drawRectangle(shapeG, shapeCX - rw / 2, shapeCY - rh / 2, rw, rh, prob.denom, prob.numer, true, prob.shadedIndices);
           } else {
-            drawSquare(shapeG, shapeCX - shapeSize * 0.4, shapeCY - shapeSize * 0.4, shapeSize * 0.8, prob.denom, prob.numer, true);
+            drawSquare(shapeG, shapeCX - shapeSize * 0.4, shapeCY - shapeSize * 0.4, shapeSize * 0.8, prob.denom, prob.numer, true, prob.shadedIndices);
           }
           svg.appendChild(shapeG);
 
@@ -857,25 +900,13 @@
             denomEl.textContent = String(prob.denom);
             svg.appendChild(denomEl);
           } else {
-            // Blank lines for numerator and denominator
+            // Blank for numerator and denominator (no dotted lines)
             const blankW = 36;
-            // Numerator blank
-            svg.appendChild(svgEl("line", {
-              x1: fracX - blankW / 2, y1: cellCenterY - 4,
-              x2: fracX + blankW / 2, y2: cellCenterY - 4,
-              stroke: "#a0aec0", "stroke-width": "1.5", "stroke-dasharray": "4,3"
-            }));
-            // Fraction bar
+            // Fraction bar (solid line only)
             svg.appendChild(svgEl("line", {
               x1: fracX - blankW / 2, y1: cellCenterY + 6,
               x2: fracX + blankW / 2, y2: cellCenterY + 6,
               stroke: "#2d3748", "stroke-width": "2.5"
-            }));
-            // Denominator blank
-            svg.appendChild(svgEl("line", {
-              x1: fracX - blankW / 2, y1: cellCenterY + 26,
-              x2: fracX + blankW / 2, y2: cellCenterY + 26,
-              stroke: "#a0aec0", "stroke-width": "1.5", "stroke-dasharray": "4,3"
             }));
           }
 
@@ -920,13 +951,13 @@
 
           const shapeG = svgEl("g", {});
           if (prob.shape === "circle") {
-            drawCircle(shapeG, shapeCX, shapeCY, shapeSize * 0.45, prob.denom, prob.numer, doShade);
+            drawCircle(shapeG, shapeCX, shapeCY, shapeSize * 0.45, prob.denom, prob.numer, doShade, prob.shadedIndices);
           } else if (prob.shape === "rectangle") {
             const rw = shapeSize * 0.95;
             const rh = shapeSize * 0.42;
-            drawRectangle(shapeG, shapeCX - rw / 2, shapeCY - rh / 2, rw, rh, prob.denom, prob.numer, doShade);
+            drawRectangle(shapeG, shapeCX - rw / 2, shapeCY - rh / 2, rw, rh, prob.denom, prob.numer, doShade, prob.shadedIndices);
           } else {
-            drawSquare(shapeG, shapeCX - shapeSize * 0.4, shapeCY - shapeSize * 0.4, shapeSize * 0.8, prob.denom, prob.numer, doShade);
+            drawSquare(shapeG, shapeCX - shapeSize * 0.4, shapeCY - shapeSize * 0.4, shapeSize * 0.8, prob.denom, prob.numer, doShade, prob.shadedIndices);
           }
           svg.appendChild(shapeG);
         }
@@ -1111,6 +1142,7 @@
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
     elBranded.addEventListener("change", () => renderWithoutRandomization());
     elAnswerKey.addEventListener("change", () => {});
+    elSplitShading.addEventListener("change", () => renderWithNewRandomization());
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
     document.getElementById("btnPdf").addEventListener("click", handlePdf);

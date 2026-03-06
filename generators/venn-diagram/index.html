@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Venn Diagram Worksheet Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      background: white;
+      padding: 32px 24px;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-group > label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 6px;
+    }
+
+    .control-group input[type="number"],
+    .control-group input[type="text"],
+    .control-group select {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .control-group input:focus,
+    .control-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .control-group input:hover,
+    .control-group select:hover {
+      border-color: #cbd5e0;
+    }
+
+    /* ===== Advanced Options Toggle ===== */
+    .advanced-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 10px 0;
+      margin-bottom: 4px;
+      user-select: none;
+    }
+
+    .advanced-toggle .toggle-arrow {
+      font-size: 12px;
+      transition: transform 0.2s;
+      color: #667eea;
+    }
+
+    .advanced-toggle .toggle-arrow.open {
+      transform: rotate(90deg);
+    }
+
+    .advanced-toggle span:last-child {
+      font-size: 13px;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .advanced-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background: #f7fafc;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .advanced-panel.open {
+      max-height: 500px;
+    }
+
+    .advanced-panel-inner {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .advanced-panel-inner .control-group {
+      margin-bottom: 0;
+    }
+
+    .adv-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .adv-checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .adv-checkbox-row label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      cursor: pointer;
+    }
+
+    .adv-sub {
+      padding-left: 26px;
+    }
+
+    .adv-sub select {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 13px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+    }
+
+    .adv-sub label {
+      font-size: 12px;
+      color: #718096;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* ===== Checkboxes ===== */
+    .checkbox-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .checkbox-row label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .checkbox-row span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    /* ===== Buttons ===== */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .button-group button {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .button-group button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-generate {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-print {
+      background: #ed8936;
+      color: white;
+    }
+
+    /* ===== Preview ===== */
+    .preview-area {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px;
+      overflow: auto;
+    }
+
+    #sheetWrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    #sheetWrap.grid-view {
+      display: grid;
+      justify-items: center;
+    }
+
+    .worksheet-page {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      padding: 12px;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 900px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: relative;
+        height: auto;
+      }
+      .preview-area {
+        padding: 12px;
+      }
+      #sheetWrap {
+        gap: 16px;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        padding: 0 !important;
+      }
+      #sheetWrap.grid-view {
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: none !important;
+        padding: 0 !important;
+      }
+      .worksheet-page {
+        padding: 8px;
+        width: 100%;
+        max-width: 100%;
+      }
+      .worksheet-page svg {
+        width: 100% !important;
+        height: auto !important;
+      }
+    }
+
+    /* ===== Print ===== */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+      .main-container {
+        display: block;
+      }
+      .sidebar {
+        display: none !important;
+      }
+      .preview-area {
+        padding: 0;
+        margin: 0;
+      }
+      #sheetWrap {
+        gap: 0;
+        display: block !important;
+        padding: 0 !important;
+        flex-direction: unset !important;
+      }
+      .worksheet-page {
+        box-shadow: none;
+        border-radius: 0;
+        page-break-after: always;
+        break-after: page;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+      }
+      .worksheet-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+      .worksheet-page svg {
+        width: 100% !important;
+        height: 100% !important;
+      }
+    }
+  </style>
+  <script src="../../jspdf.umd.min.js"></script>
+  <script src="../../svg2pdf.js"></script>
+</head>
+<body>
+  <div class="main-container">
+    <!-- Left sidebar controls -->
+    <div class="sidebar">
+      <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #667eea; text-decoration: none; margin-bottom: 16px; transition: gap 0.2s;"
+         onmouseover="this.style.gap='10px'" onmouseout="this.style.gap='6px'">
+        &larr; All Worksheets
+      </a>
+      <h2>Venn Diagram Worksheet Generator</h2>
+
+      <div class="control-group">
+        <label for="modeSelect">Mode</label>
+        <select id="modeSelect">
+          <option value="sort" selected>Sort the Items</option>
+          <option value="read">Read the Diagram</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="categorySelect">Category Type</label>
+        <select id="categorySelect">
+          <option value="numbers" selected>Numbers / Math</option>
+          <option value="animals">Animals</option>
+          <option value="foods">Foods</option>
+          <option value="objects">Everyday Objects</option>
+          <option value="random">Random Mix</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="difficultySelect">Difficulty</label>
+        <select id="difficultySelect">
+          <option value="easy" selected>Easy - Clear categories</option>
+          <option value="medium">Medium - Some tricky items</option>
+          <option value="hard">Hard - Requires thinking</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="numItemsSelect">Number of Items to Sort</label>
+        <select id="numItemsSelect">
+          <option value="6">6</option>
+          <option value="8" selected>8</option>
+          <option value="10">10</option>
+          <option value="12">12</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="problemsPerPage">Problems per Page</label>
+        <select id="problemsPerPage">
+          <option value="1" selected>1 (Large)</option>
+          <option value="2">2 (Medium)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="numWorksheets">Number of Worksheets</label>
+        <select id="numWorksheets">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+
+      <div class="checkbox-row" style="margin-bottom:12px;">
+        <label>
+          <input type="checkbox" id="answerKey">
+          <span>Include Answer Key Sheets</span>
+        </label>
+      </div>
+
+      <!-- Advanced Options -->
+      <div class="advanced-toggle" id="advToggle">
+        <span class="toggle-arrow" id="advArrow">&#9654;</span>
+        <span>Advanced Options</span>
+      </div>
+      <div class="advanced-panel" id="advPanel">
+        <div class="advanced-panel-inner">
+
+          <!-- Name / Date -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="showHeaderEnabled" checked />
+            <label for="showHeaderEnabled">Name / Date</label>
+          </div>
+          <div class="adv-sub" id="headerModeOptions">
+            <label for="headerMode">Show</label>
+            <select id="headerMode">
+              <option value="both" selected>Name &amp; Date</option>
+              <option value="name">Name Only</option>
+            </select>
+          </div>
+
+          <!-- Branding -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="branded" checked />
+            <label for="branded">Branding</label>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-generate" id="btnGenerate">&#x1F504; Generate New</button>
+        <button class="btn-print" id="btnPrint">&#x1F5A8;&#xFE0F; Print</button>
+      </div>
+    </div>
+
+    <!-- Preview area -->
+    <div class="preview-area">
+      <div id="sheetWrap"></div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Helpers =====
+    function svgEl(tag, attrs) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      return el;
+    }
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+      return a;
+    }
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function randInt(lo, hi) { return lo + Math.floor(Math.random() * (hi - lo + 1)); }
+
+    // ===== Element refs =====
+    const sheetWrap = document.getElementById("sheetWrap");
+    const elMode = document.getElementById("modeSelect");
+    const elCategory = document.getElementById("categorySelect");
+    const elDifficulty = document.getElementById("difficultySelect");
+    const elNumItems = document.getElementById("numItemsSelect");
+    const elProblemsPerPage = document.getElementById("problemsPerPage");
+    const elNumSheets = document.getElementById("numWorksheets");
+    const elAnswerKey = document.getElementById("answerKey");
+    const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
+    const elHeaderMode = document.getElementById("headerMode");
+    const elHeaderModeOptions = document.getElementById("headerModeOptions");
+    const elBranded = document.getElementById("branded");
+    const advToggle = document.getElementById("advToggle");
+    const advPanel = document.getElementById("advPanel");
+    const advArrow = document.getElementById("advArrow");
+
+    // ===== Advanced panel toggle =====
+    advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
+
+    // ===== Content Databases =====
+
+    // Numbers/Math category sets
+    const numberSets = {
+      easy: [
+        {
+          labelA: "Even Numbers", labelB: "Numbers Less Than 10",
+          generate(count) {
+            const pool = [];
+            for (let i = 1; i <= 20; i++) pool.push(i);
+            return pickItems(pool, count, n => n % 2 === 0, n => n < 10);
+          }
+        },
+        {
+          labelA: "Odd Numbers", labelB: "Numbers Less Than 10",
+          generate(count) {
+            const pool = [];
+            for (let i = 1; i <= 20; i++) pool.push(i);
+            return pickItems(pool, count, n => n % 2 !== 0, n => n < 10);
+          }
+        },
+        {
+          labelA: "Numbers Greater Than 5", labelB: "Even Numbers",
+          generate(count) {
+            const pool = [];
+            for (let i = 1; i <= 15; i++) pool.push(i);
+            return pickItems(pool, count, n => n > 5, n => n % 2 === 0);
+          }
+        },
+        {
+          labelA: "Numbers Less Than 8", labelB: "Numbers Greater Than 3",
+          generate(count) {
+            const pool = [];
+            for (let i = 1; i <= 12; i++) pool.push(i);
+            return pickItems(pool, count, n => n < 8, n => n > 3);
+          }
+        }
+      ],
+      medium: [
+        {
+          labelA: "Multiples of 3", labelB: "Even Numbers",
+          generate(count) {
+            const pool = [];
+            for (let i = 1; i <= 24; i++) pool.push(i);
+            return pickItems(pool, count, n => n % 3 === 0, n => n % 2 === 0);
+          }
+        },
+        {
+          labelA: "Odd Numbers", labelB: "Multiples of 5",
+          generate(count) {
+            const pool = [];
+            for (let i = 1; i <= 30; i++) pool.push(i);
+            return pickItems(pool, count, n => n % 2 !== 0, n => n % 5 === 0);
+          }
+        },
+        {
+          labelA: "Numbers Less Than 15", labelB: "Multiples of 4",
+          generate(count) {
+            const pool = [];
+            for (let i = 1; i <= 24; i++) pool.push(i);
+            return pickItems(pool, count, n => n < 15, n => n % 4 === 0);
+          }
+        }
+      ],
+      hard: [
+        {
+          labelA: "Multiples of 3", labelB: "Multiples of 4",
+          generate(count) {
+            const pool = [];
+            for (let i = 1; i <= 36; i++) pool.push(i);
+            return pickItems(pool, count, n => n % 3 === 0, n => n % 4 === 0);
+          }
+        },
+        {
+          labelA: "Prime Numbers", labelB: "Numbers Less Than 15",
+          generate(count) {
+            const primes = new Set([2,3,5,7,11,13,17,19,23,29]);
+            const pool = [];
+            for (let i = 1; i <= 30; i++) pool.push(i);
+            return pickItems(pool, count, n => primes.has(n), n => n < 15);
+          }
+        },
+        {
+          labelA: "Multiples of 2", labelB: "Multiples of 3",
+          generate(count) {
+            const pool = [];
+            for (let i = 1; i <= 30; i++) pool.push(i);
+            return pickItems(pool, count, n => n % 2 === 0, n => n % 3 === 0);
+          }
+        }
+      ]
+    };
+
+    // Animals category sets
+    const animalSets = {
+      easy: [
+        {
+          labelA: "Has Wings", labelB: "Has 4 Legs",
+          items: {
+            onlyA: ["robin", "parrot", "eagle", "penguin", "hummingbird", "owl"],
+            onlyB: ["dog", "cat", "horse", "cow", "elephant", "rabbit"],
+            both: ["bat", "flying squirrel"],
+            neither: ["snake", "fish", "worm", "octopus", "snail", "jellyfish"]
+          }
+        },
+        {
+          labelA: "Lives in Water", labelB: "Has Fur",
+          items: {
+            onlyA: ["fish", "jellyfish", "crab", "shark", "starfish", "seahorse"],
+            onlyB: ["cat", "dog", "rabbit", "hamster", "fox", "squirrel"],
+            both: ["otter", "beaver", "seal"],
+            neither: ["bird", "snake", "frog", "lizard", "turtle", "spider"]
+          }
+        },
+        {
+          labelA: "Can Fly", labelB: "Lives on a Farm",
+          items: {
+            onlyA: ["eagle", "parrot", "bat", "butterfly", "owl", "hummingbird"],
+            onlyB: ["cow", "pig", "goat", "sheep", "donkey", "horse"],
+            both: ["chicken", "duck", "goose"],
+            neither: ["fish", "snake", "dog", "cat", "frog", "whale"]
+          }
+        }
+      ],
+      medium: [
+        {
+          labelA: "Lays Eggs", labelB: "Has Feathers",
+          items: {
+            onlyA: ["turtle", "snake", "frog", "fish", "lizard", "crocodile"],
+            onlyB: [],
+            both: ["chicken", "robin", "eagle", "duck", "owl", "penguin"],
+            neither: ["dog", "cat", "horse", "whale", "bear", "rabbit"]
+          }
+        },
+        {
+          labelA: "Eats Meat", labelB: "Lives in Groups",
+          items: {
+            onlyA: ["hawk", "spider", "snake", "crocodile", "frog", "owl"],
+            onlyB: ["sheep", "cow", "bee", "penguin", "goose", "deer"],
+            both: ["wolf", "lion", "dolphin", "ant"],
+            neither: ["turtle", "koala", "sloth", "panda", "rabbit"]
+          }
+        },
+        {
+          labelA: "Has a Tail", labelB: "Can Swim",
+          items: {
+            onlyA: ["cat", "horse", "monkey", "squirrel", "fox", "lizard"],
+            onlyB: ["frog", "crab", "jellyfish", "penguin", "octopus"],
+            both: ["fish", "dolphin", "otter", "beaver", "whale", "shark"],
+            neither: ["spider", "snail", "butterfly", "ladybug"]
+          }
+        }
+      ],
+      hard: [
+        {
+          labelA: "Nocturnal", labelB: "Herbivore",
+          items: {
+            onlyA: ["owl", "bat", "fox", "raccoon", "wolf", "cat"],
+            onlyB: ["cow", "horse", "sheep", "goat", "elephant", "giraffe"],
+            both: ["rabbit", "deer", "hamster"],
+            neither: ["eagle", "dog", "chicken", "parrot", "lion"]
+          }
+        },
+        {
+          labelA: "Cold-Blooded", labelB: "Has No Legs",
+          items: {
+            onlyA: ["lizard", "frog", "turtle", "crocodile", "gecko"],
+            onlyB: ["worm", "slug", "jellyfish"],
+            both: ["snake", "eel"],
+            neither: ["dog", "cat", "bird", "horse", "rabbit", "bear"]
+          }
+        },
+        {
+          labelA: "Endangered", labelB: "Lives in Asia",
+          items: {
+            onlyA: ["blue whale", "gorilla", "polar bear", "sea turtle"],
+            onlyB: ["chicken", "dog", "crow", "sparrow", "rat"],
+            both: ["panda", "tiger", "snow leopard", "orangutan"],
+            neither: ["cat", "rabbit", "pigeon", "ant", "bee"]
+          }
+        }
+      ]
+    };
+
+    // Foods category sets
+    const foodSets = {
+      easy: [
+        {
+          labelA: "Fruits", labelB: "Red Things",
+          items: {
+            onlyA: ["banana", "orange", "grape", "kiwi", "pineapple", "blueberry"],
+            onlyB: ["fire truck", "stop sign", "ladybug", "rose", "cardinal"],
+            both: ["apple", "strawberry", "cherry", "watermelon"],
+            neither: ["broccoli", "carrot", "bread", "milk", "cheese"]
+          }
+        },
+        {
+          labelA: "Vegetables", labelB: "Green Things",
+          items: {
+            onlyA: ["carrot", "beet", "potato", "corn", "onion", "sweet potato"],
+            onlyB: ["frog", "grass", "leaf", "emerald", "parrot"],
+            both: ["broccoli", "spinach", "peas", "cucumber", "celery"],
+            neither: ["apple", "bread", "milk", "chicken", "rice"]
+          }
+        },
+        {
+          labelA: "Sweet Foods", labelB: "Cold Foods",
+          items: {
+            onlyA: ["cookie", "cake", "candy", "chocolate", "donut", "honey"],
+            onlyB: ["salad", "sushi", "sandwich", "celery", "cold soup"],
+            both: ["ice cream", "popsicle", "frozen yogurt", "smoothie"],
+            neither: ["bread", "rice", "pasta", "chicken", "steak"]
+          }
+        }
+      ],
+      medium: [
+        {
+          labelA: "Grows on Trees", labelB: "Has Seeds",
+          items: {
+            onlyA: ["coconut", "maple syrup", "bark", "leaf"],
+            onlyB: ["watermelon", "sunflower", "pumpkin", "tomato", "pepper"],
+            both: ["apple", "orange", "cherry", "peach", "lemon", "pear"],
+            neither: ["carrot", "potato", "bread", "milk", "cheese"]
+          }
+        },
+        {
+          labelA: "Dairy Products", labelB: "Needs Refrigeration",
+          items: {
+            onlyA: [],
+            onlyB: ["meat", "fish", "eggs", "lettuce", "juice", "leftovers"],
+            both: ["milk", "cheese", "yogurt", "butter", "cream", "sour cream"],
+            neither: ["bread", "rice", "cereal", "crackers", "peanut butter"]
+          }
+        },
+        {
+          labelA: "Round Shape", labelB: "Fruits",
+          items: {
+            onlyA: ["basketball", "cookie", "donut", "globe", "clock", "coin"],
+            onlyB: ["banana", "pineapple", "star fruit", "mango"],
+            both: ["orange", "apple", "grape", "cherry", "peach"],
+            neither: ["carrot", "bread", "book", "pencil", "chair"]
+          }
+        }
+      ],
+      hard: [
+        {
+          labelA: "Contains Protein", labelB: "Comes from Plants",
+          items: {
+            onlyA: ["steak", "chicken", "fish", "eggs", "shrimp"],
+            onlyB: ["lettuce", "apple", "rice", "bread", "corn"],
+            both: ["beans", "tofu", "peanuts", "almonds", "lentils"],
+            neither: ["water", "salt", "ice"]
+          }
+        },
+        {
+          labelA: "Breakfast Foods", labelB: "Contains Grain",
+          items: {
+            onlyA: ["eggs", "bacon", "orange juice", "yogurt", "fruit"],
+            onlyB: ["sandwich", "pasta", "pizza", "crackers"],
+            both: ["cereal", "toast", "pancakes", "oatmeal", "muffin"],
+            neither: ["steak", "salad", "soup", "broccoli", "chicken"]
+          }
+        },
+        {
+          labelA: "Cooked Before Eating", labelB: "Originally from Americas",
+          items: {
+            onlyA: ["bread", "chicken", "steak", "pasta", "rice"],
+            onlyB: ["peanuts", "blueberry", "cashew"],
+            both: ["corn", "potato", "tomato", "chocolate", "pumpkin"],
+            neither: ["apple", "grape", "lettuce", "carrot", "milk"]
+          }
+        }
+      ]
+    };
+
+    // Everyday objects category sets
+    const objectSets = {
+      easy: [
+        {
+          labelA: "Found in a Kitchen", labelB: "Made of Metal",
+          items: {
+            onlyA: ["plate", "cup", "napkin", "sponge", "towel", "apron"],
+            onlyB: ["car", "bicycle", "coin", "key", "nail", "robot"],
+            both: ["fork", "spoon", "knife", "pot", "pan"],
+            neither: ["pillow", "shoe", "book", "crayon", "ball"]
+          }
+        },
+        {
+          labelA: "Used at School", labelB: "Made of Paper",
+          items: {
+            onlyA: ["desk", "chalkboard", "backpack", "lunch box", "locker"],
+            onlyB: ["newspaper", "tissue", "paper bag", "napkin", "gift wrap"],
+            both: ["book", "notebook", "folder", "worksheet"],
+            neither: ["pillow", "bathtub", "TV", "oven", "garden hose"]
+          }
+        },
+        {
+          labelA: "Has Wheels", labelB: "Uses Electricity",
+          items: {
+            onlyA: ["bicycle", "wagon", "skateboard", "scooter", "wheelbarrow"],
+            onlyB: ["lamp", "TV", "toaster", "blender", "fan"],
+            both: ["car", "train", "bus", "electric scooter"],
+            neither: ["book", "chair", "cup", "shoe", "hat"]
+          }
+        }
+      ],
+      medium: [
+        {
+          labelA: "Bigger Than a Cat", labelB: "Found Outdoors",
+          items: {
+            onlyA: ["couch", "refrigerator", "bed", "bathtub", "desk"],
+            onlyB: ["flower", "ant", "ladybug", "pebble", "leaf"],
+            both: ["tree", "car", "horse", "elephant", "house"],
+            neither: ["cup", "pencil", "coin", "key", "sock"]
+          }
+        },
+        {
+          labelA: "Holds Liquid", labelB: "Made of Glass",
+          items: {
+            onlyA: ["bucket", "pool", "bathtub", "water bottle", "thermos"],
+            onlyB: ["mirror", "light bulb", "eyeglasses", "window"],
+            both: ["cup", "vase", "fish bowl", "jar"],
+            neither: ["book", "shoe", "chair", "pencil", "hat"]
+          }
+        },
+        {
+          labelA: "Soft", labelB: "Found in Bedroom",
+          items: {
+            onlyA: ["cotton ball", "kitten", "cloud", "bread", "sponge"],
+            onlyB: ["dresser", "alarm clock", "night light", "closet"],
+            both: ["pillow", "blanket", "teddy bear", "pajamas"],
+            neither: ["rock", "fork", "car", "hammer", "brick"]
+          }
+        }
+      ],
+      hard: [
+        {
+          labelA: "Existed 100 Years Ago", labelB: "Uses a Screen",
+          items: {
+            onlyA: ["horse carriage", "candle", "quill pen", "sundial", "oil lamp"],
+            onlyB: ["smartphone", "tablet", "smartwatch", "laptop"],
+            both: ["TV", "calculator", "movie camera"],
+            neither: ["hoverboard", "drone", "robot vacuum", "3D printer"]
+          }
+        },
+        {
+          labelA: "Makes Sound", labelB: "Needs Batteries",
+          items: {
+            onlyA: ["drum", "bell", "whistle", "piano", "horn"],
+            onlyB: ["flashlight", "TV remote", "toy car", "calculator"],
+            both: ["radio", "walkie-talkie", "alarm clock", "toy robot"],
+            neither: ["book", "chair", "cup", "hat", "painting"]
+          }
+        },
+        {
+          labelA: "Transparent", labelB: "Can Break Easily",
+          items: {
+            onlyA: ["air", "clean water", "plastic wrap", "contact lens"],
+            onlyB: ["egg", "cookie", "pencil lead", "crayon", "chalk"],
+            both: ["glass", "ice", "light bulb", "crystal"],
+            neither: ["rock", "rubber ball", "pillow", "book", "shoe"]
+          }
+        }
+      ]
+    };
+
+    // ===== Pick items ensuring good distribution across regions =====
+    function pickItems(pool, count, testA, testB) {
+      const onlyA = [], onlyB = [], both = [], neither = [];
+      for (const item of pool) {
+        const inA = testA(item), inB = testB(item);
+        if (inA && inB) both.push(item);
+        else if (inA) onlyA.push(item);
+        else if (inB) onlyB.push(item);
+        else neither.push(item);
+      }
+      return distributeItems({ onlyA, onlyB, both, neither }, count);
+    }
+
+    function distributeItems(buckets, count) {
+      const result = { onlyA: [], onlyB: [], both: [], neither: [] };
+      const sA = shuffle(buckets.onlyA);
+      const sB = shuffle(buckets.onlyB);
+      const sBoth = shuffle(buckets.both);
+      const sNeither = shuffle(buckets.neither);
+
+      // Ensure at least 1 item in each non-empty region, then fill
+      let remaining = count;
+      const regions = ['both', 'onlyA', 'onlyB', 'neither'];
+      const sources = { onlyA: sA, onlyB: sB, both: sBoth, neither: sNeither };
+
+      // First pass: guarantee at least 1 per region if available
+      for (const r of regions) {
+        if (sources[r].length > 0 && remaining > 0) {
+          result[r].push(sources[r].shift());
+          remaining--;
+        }
+      }
+
+      // Second pass: fill proportionally
+      const allRemaining = [...sources.onlyA.map(x => ({item: x, region: 'onlyA'})),
+                            ...sources.onlyB.map(x => ({item: x, region: 'onlyB'})),
+                            ...sources.both.map(x => ({item: x, region: 'both'})),
+                            ...sources.neither.map(x => ({item: x, region: 'neither'}))];
+      const shuffled = shuffle(allRemaining);
+      for (let i = 0; i < remaining && i < shuffled.length; i++) {
+        result[shuffled[i].region].push(shuffled[i].item);
+      }
+
+      return result;
+    }
+
+    function distributeFromPreset(preset, count) {
+      return distributeItems({
+        onlyA: preset.onlyA.slice(),
+        onlyB: preset.onlyB.slice(),
+        both: preset.both.slice(),
+        neither: preset.neither.slice()
+      }, count);
+    }
+
+    // ===== Generate a single Venn problem =====
+    function generateVennProblem(category, difficulty, numItems) {
+      const db = {
+        numbers: numberSets,
+        animals: animalSets,
+        foods: foodSets,
+        objects: objectSets
+      };
+
+      let cat = category;
+      if (cat === 'random') {
+        const cats = ['numbers', 'animals', 'foods', 'objects'];
+        cat = pick(cats);
+      }
+
+      const sets = db[cat];
+      if (!sets) return generateVennProblem('numbers', difficulty, numItems);
+
+      const diffSets = sets[difficulty] || sets.easy;
+      const chosen = pick(diffSets);
+
+      let items;
+      if (chosen.generate) {
+        items = chosen.generate(numItems);
+      } else {
+        items = distributeFromPreset(chosen.items, numItems);
+      }
+
+      return {
+        labelA: chosen.labelA,
+        labelB: chosen.labelB,
+        items: items
+      };
+    }
+
+    // ===== Generate "Read the Diagram" questions =====
+    function generateReadQuestions(problem) {
+      const { labelA, labelB, items } = problem;
+      const allA = [...items.onlyA, ...items.both];
+      const allB = [...items.onlyB, ...items.both];
+      const questions = [];
+
+      // How many items in A?
+      questions.push({
+        q: "How many items are in \"" + labelA + "\"?",
+        a: String(allA.length)
+      });
+      // How many in B?
+      questions.push({
+        q: "How many items are in \"" + labelB + "\"?",
+        a: String(allB.length)
+      });
+      // How many in both?
+      questions.push({
+        q: "How many items are in BOTH circles?",
+        a: String(items.both.length)
+      });
+      // How many only in A?
+      questions.push({
+        q: "How many items are ONLY in \"" + labelA + "\"?",
+        a: String(items.onlyA.length)
+      });
+      // How many outside both?
+      if (items.neither.length > 0) {
+        questions.push({
+          q: "How many items are outside both circles?",
+          a: String(items.neither.length)
+        });
+      }
+      // Name one in both (if exists)
+      if (items.both.length > 0) {
+        questions.push({
+          q: "Name one item that is in both circles.",
+          a: items.both[0]
+        });
+      }
+      // Total items
+      const total = items.onlyA.length + items.onlyB.length + items.both.length + items.neither.length;
+      questions.push({
+        q: "How many items are there in total?",
+        a: String(total)
+      });
+
+      return questions.slice(0, 6);
+    }
+
+    // ===== State =====
+    let currentState = { sheets: [] };
+
+    // ===== Gather options =====
+    function gatherOptions() {
+      let showHeader = "none";
+      if (elShowHeaderEnabled.checked) showHeader = elHeaderMode.value;
+      return {
+        mode: elMode.value,
+        category: elCategory.value,
+        difficulty: elDifficulty.value,
+        numItems: parseInt(elNumItems.value, 10),
+        problemsPerPage: parseInt(elProblemsPerPage.value, 10),
+        numWorksheets: parseInt(elNumSheets.value, 10),
+        answerKey: elAnswerKey.checked,
+        showHeader: showHeader,
+        branded: elBranded.checked
+      };
+    }
+
+    // ===== Generate sheet data =====
+    function generateSheetData(opts) {
+      const problems = [];
+      for (let i = 0; i < opts.problemsPerPage; i++) {
+        const problem = generateVennProblem(opts.category, opts.difficulty, opts.numItems);
+        if (opts.mode === 'read') {
+          problem.questions = generateReadQuestions(problem);
+        }
+        problems.push(problem);
+      }
+      return problems;
+    }
+
+    // ===== SVG Text Wrapping Helper =====
+    function addWrappedText(svg, text, x, y, maxWidth, fontSize, attrs) {
+      const baseAttrs = { class: "txt", "font-size": fontSize, ...attrs };
+      const words = String(text).split(' ');
+      let line = '';
+      let lineY = y;
+      const lineHeight = fontSize * 1.3;
+
+      for (let i = 0; i < words.length; i++) {
+        const testLine = line ? line + ' ' + words[i] : words[i];
+        const testWidth = testLine.length * fontSize * 0.52;
+        if (testWidth > maxWidth && line) {
+          const tEl = svgEl("text", { x, y: lineY, ...baseAttrs });
+          tEl.textContent = line;
+          svg.appendChild(tEl);
+          line = words[i];
+          lineY += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      if (line) {
+        const tEl = svgEl("text", { x, y: lineY, ...baseAttrs });
+        tEl.textContent = line;
+        svg.appendChild(tEl);
+      }
+      return lineY + lineHeight;
+    }
+
+    // ===== Format item display =====
+    function formatItem(item) {
+      if (typeof item === 'number') return String(item);
+      return String(item);
+    }
+
+    // ===== SVG Rendering =====
+    function renderWorksheetSVG(sheetData, options) {
+      const { showHeader, branded, showAnswers, mode } = options;
+      const pageW = 612, pageH = 792, margin = 36;
+      const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
+      const st = document.createElementNS("http://www.w3.org/2000/svg", "style");
+      st.textContent = ".txt { font-family: Arial, Helvetica, sans-serif; }";
+      svg.appendChild(st);
+      svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
+
+      // Header
+      let topY;
+      const title = "Venn Diagram" + (mode === 'read' ? " - Read the Diagram" : " - Sort the Items");
+      if (showHeader === "both") {
+        const nl = svgEl("text", { x: margin, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
+        svg.appendChild(svgEl("line", { x1: margin + 50, y1: 32, x2: margin + 240, y2: 32, stroke: "#000", "stroke-width": 1 }));
+        const dl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); dl.textContent = "Date:"; svg.appendChild(dl);
+        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
+        const tl = svgEl("text", { x: pageW / 2, y: 68, class: "txt", "font-size": showAnswers ? 16 : 18, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
+        topY = 82;
+      } else if (showHeader === "name") {
+        const nl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
+        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
+        const tl = svgEl("text", { x: pageW / 2, y: 68, class: "txt", "font-size": showAnswers ? 16 : 18, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
+        topY = 82;
+      } else {
+        const tl = svgEl("text", { x: pageW / 2, y: 40, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
+        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
+        topY = 56;
+      }
+
+      if (branded) {
+        const br = svgEl("text", { x: pageW / 2, y: pageH - 16, class: "txt", "font-size": 12, "text-anchor": "middle", fill: "#a0aec0" });
+        br.textContent = "animalmath.com"; svg.appendChild(br);
+      }
+
+      const bottomMargin = branded ? 40 : 28;
+      const availH = pageH - topY - bottomMargin;
+      const numProblems = sheetData.length;
+      const problemH = availH / numProblems;
+
+      for (let p = 0; p < numProblems; p++) {
+        const problem = sheetData[p];
+        const pTop = topY + p * problemH;
+        const pBottom = pTop + problemH;
+
+        // Draw separator between problems
+        if (p > 0) {
+          svg.appendChild(svgEl("line", { x1: margin, y1: pTop, x2: pageW - margin, y2: pTop, stroke: "#e2e8f0", "stroke-width": 1.5 }));
+        }
+
+        if (mode === 'sort') {
+          renderSortProblem(svg, problem, pTop, pBottom, pageW, margin, showAnswers, numProblems);
+        } else {
+          renderReadProblem(svg, problem, pTop, pBottom, pageW, margin, showAnswers, numProblems);
+        }
+      }
+
+      return svg;
+    }
+
+    // ===== Render Sort Mode Problem =====
+    function renderSortProblem(svg, problem, pTop, pBottom, pageW, margin, showAnswers, numProblems) {
+      const { labelA, labelB, items } = problem;
+      const isLarge = numProblems === 1;
+
+      // Layout calculations
+      const areaH = pBottom - pTop;
+      const diagramTopPad = 8;
+      const labelH = 16;
+      const itemBoxH = isLarge ? Math.min(110, areaH * 0.18) : Math.min(70, areaH * 0.16);
+      const diagramH = areaH - diagramTopPad - labelH - itemBoxH - 16;
+
+      // Circle parameters
+      const centerY = pTop + diagramTopPad + labelH + diagramH / 2;
+      const r = Math.min(diagramH / 2 - 4, (pageW - margin * 2) * 0.30);
+      const overlap = r * 0.55;
+      const cxA = pageW / 2 - (r - overlap / 2);
+      const cxB = pageW / 2 + (r - overlap / 2);
+
+      // Labels
+      const labelFontSize = isLarge ? 14 : 11;
+      const labelY = pTop + diagramTopPad + labelH;
+      const lA = svgEl("text", { x: cxA - r * 0.3, y: labelY, class: "txt", "font-size": labelFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2b6cb0" });
+      lA.textContent = labelA; svg.appendChild(lA);
+      const lB = svgEl("text", { x: cxB + r * 0.3, y: labelY, class: "txt", "font-size": labelFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#9b2c2c" });
+      lB.textContent = labelB; svg.appendChild(lB);
+
+      // Draw circles using clipPaths for overlap coloring
+      const defs = svgEl("defs");
+      const clipId = "clip-" + Math.random().toString(36).substr(2, 9);
+      const clipA = svgEl("clipPath", { id: clipId + "-a" });
+      clipA.appendChild(svgEl("circle", { cx: cxA, cy: centerY, r: r }));
+      defs.appendChild(clipA);
+      const clipB = svgEl("clipPath", { id: clipId + "-b" });
+      clipB.appendChild(svgEl("circle", { cx: cxB, cy: centerY, r: r }));
+      defs.appendChild(clipB);
+      svg.appendChild(defs);
+
+      // Left circle fill (light blue)
+      svg.appendChild(svgEl("circle", { cx: cxA, cy: centerY, r: r, fill: "#ebf8ff", stroke: "#4299e1", "stroke-width": 2 }));
+      // Right circle fill (light pink)
+      svg.appendChild(svgEl("circle", { cx: cxB, cy: centerY, r: r, fill: "#fff5f5", stroke: "#fc8181", "stroke-width": 2 }));
+      // Overlap region (light purple) - draw an intersection path
+      const overlapPath = getIntersectionPath(cxA, cxB, centerY, r);
+      svg.appendChild(svgEl("path", { d: overlapPath, fill: "#faf5ff", stroke: "none" }));
+      // Re-draw circle outlines on top
+      svg.appendChild(svgEl("circle", { cx: cxA, cy: centerY, r: r, fill: "none", stroke: "#4299e1", "stroke-width": 2 }));
+      svg.appendChild(svgEl("circle", { cx: cxB, cy: centerY, r: r, fill: "none", stroke: "#fc8181", "stroke-width": 2 }));
+
+      // "Neither" label outside
+      const neitherFS = isLarge ? 10 : 8;
+      const neitherLabel = svgEl("text", { x: margin + 6, y: centerY + r - 6, class: "txt", "font-size": neitherFS, fill: "#718096", "font-style": "italic" });
+      neitherLabel.textContent = "Neither"; svg.appendChild(neitherLabel);
+
+      // "Both" label in overlap center
+      const bothFS = isLarge ? 10 : 8;
+      const bothLabel = svgEl("text", { x: (cxA + cxB) / 2, y: centerY - r + 18, class: "txt", "font-size": bothFS, fill: "#805ad5", "font-style": "italic", "text-anchor": "middle" });
+      bothLabel.textContent = "Both"; svg.appendChild(bothLabel);
+
+      if (showAnswers) {
+        // Place answers in correct regions
+        const ansFS = isLarge ? 11 : 9;
+
+        // Only A items - left side of left circle
+        const aX = cxA - r * 0.45;
+        let aY = centerY - (items.onlyA.length - 1) * (ansFS * 1.3) / 2;
+        items.onlyA.forEach(item => {
+          const t = svgEl("text", { x: aX, y: aY, class: "txt", "font-size": ansFS, "text-anchor": "middle", fill: "#2b6cb0", "font-weight": 600 });
+          t.textContent = formatItem(item); svg.appendChild(t);
+          aY += ansFS * 1.3;
+        });
+
+        // Only B items - right side of right circle
+        const bX = cxB + r * 0.45;
+        let bY = centerY - (items.onlyB.length - 1) * (ansFS * 1.3) / 2;
+        items.onlyB.forEach(item => {
+          const t = svgEl("text", { x: bX, y: bY, class: "txt", "font-size": ansFS, "text-anchor": "middle", fill: "#9b2c2c", "font-weight": 600 });
+          t.textContent = formatItem(item); svg.appendChild(t);
+          bY += ansFS * 1.3;
+        });
+
+        // Both items - in overlap center
+        const bothX = (cxA + cxB) / 2;
+        let bothY = centerY - (items.both.length - 1) * (ansFS * 1.3) / 2;
+        items.both.forEach(item => {
+          const t = svgEl("text", { x: bothX, y: bothY, class: "txt", "font-size": ansFS, "text-anchor": "middle", fill: "#6b46c1", "font-weight": 600 });
+          t.textContent = formatItem(item); svg.appendChild(t);
+          bothY += ansFS * 1.3;
+        });
+
+        // Neither items - outside, bottom left
+        if (items.neither.length > 0) {
+          const nX = margin + 10;
+          let nY = centerY - r + 30;
+          items.neither.forEach(item => {
+            const t = svgEl("text", { x: nX, y: nY, class: "txt", "font-size": ansFS, fill: "#718096", "font-weight": 600 });
+            t.textContent = formatItem(item); svg.appendChild(t);
+            nY += ansFS * 1.3;
+          });
+        }
+      } else {
+        // Draw write-in lines inside circles for students
+        const lineLen = isLarge ? 60 : 40;
+        const lineGap = isLarge ? 18 : 14;
+        const maxLines = isLarge ? 6 : 4;
+
+        // Lines in left only area
+        const laX = cxA - r * 0.45;
+        let laY = centerY - maxLines * lineGap / 2 + 10;
+        for (let i = 0; i < maxLines; i++) {
+          svg.appendChild(svgEl("line", { x1: laX - lineLen / 2, y1: laY, x2: laX + lineLen / 2, y2: laY, stroke: "#bee3f8", "stroke-width": 1 }));
+          laY += lineGap;
+        }
+
+        // Lines in right only area
+        const rbX = cxB + r * 0.45;
+        let rbY = centerY - maxLines * lineGap / 2 + 10;
+        for (let i = 0; i < maxLines; i++) {
+          svg.appendChild(svgEl("line", { x1: rbX - lineLen / 2, y1: rbY, x2: rbX + lineLen / 2, y2: rbY, stroke: "#fed7d7", "stroke-width": 1 }));
+          rbY += lineGap;
+        }
+
+        // Lines in overlap area
+        const olX = (cxA + cxB) / 2;
+        const overlapLines = isLarge ? 4 : 3;
+        let olY = centerY - overlapLines * lineGap / 2 + 10;
+        for (let i = 0; i < overlapLines; i++) {
+          svg.appendChild(svgEl("line", { x1: olX - lineLen * 0.4, y1: olY, x2: olX + lineLen * 0.4, y2: olY, stroke: "#e9d8fd", "stroke-width": 1 }));
+          olY += lineGap;
+        }
+      }
+
+      // Item bank box at bottom
+      const boxTop = pBottom - itemBoxH - 4;
+      const boxW = pageW - margin * 2;
+      svg.appendChild(svgEl("rect", { x: margin, y: boxTop, width: boxW, height: itemBoxH, rx: 6, ry: 6, fill: "#f7fafc", stroke: "#e2e8f0", "stroke-width": 1.5 }));
+
+      // "Sort these items:" label
+      const bankLabelFS = isLarge ? 11 : 9;
+      const bankLabel = svgEl("text", { x: margin + 10, y: boxTop + bankLabelFS + 6, class: "txt", "font-size": bankLabelFS, "font-weight": 700, fill: "#4a5568" });
+      bankLabel.textContent = "Sort these items into the Venn diagram:"; svg.appendChild(bankLabel);
+
+      // All items shuffled
+      const allItems = shuffle([
+        ...items.onlyA.map(i => formatItem(i)),
+        ...items.onlyB.map(i => formatItem(i)),
+        ...items.both.map(i => formatItem(i)),
+        ...items.neither.map(i => formatItem(i))
+      ]);
+
+      const itemFS = isLarge ? 12 : 10;
+      const itemPadding = isLarge ? 14 : 10;
+      const itemsStartY = boxTop + bankLabelFS + 6 + itemFS + 6;
+      const maxPerRow = isLarge ? 5 : 6;
+      const colW = boxW / maxPerRow;
+
+      for (let i = 0; i < allItems.length; i++) {
+        const row = Math.floor(i / maxPerRow);
+        const col = i % maxPerRow;
+        const ix = margin + 16 + col * colW;
+        const iy = itemsStartY + row * (itemFS + itemPadding);
+
+        // Bullet
+        svg.appendChild(svgEl("circle", { cx: ix, cy: iy - 3, r: 2, fill: "#667eea" }));
+
+        const t = svgEl("text", { x: ix + 8, y: iy, class: "txt", "font-size": itemFS, fill: "#2d3748" });
+        t.textContent = allItems[i]; svg.appendChild(t);
+      }
+    }
+
+    // ===== Render Read Mode Problem =====
+    function renderReadProblem(svg, problem, pTop, pBottom, pageW, margin, showAnswers, numProblems) {
+      const { labelA, labelB, items, questions } = problem;
+      const isLarge = numProblems === 1;
+
+      const areaH = pBottom - pTop;
+      const diagramTopPad = 8;
+      const labelH = 16;
+      const questionH = isLarge ? Math.min(200, areaH * 0.32) : Math.min(120, areaH * 0.28);
+      const diagramH = areaH - diagramTopPad - labelH - questionH - 12;
+
+      // Circle parameters
+      const centerY = pTop + diagramTopPad + labelH + diagramH / 2;
+      const r = Math.min(diagramH / 2 - 4, (pageW - margin * 2) * 0.30);
+      const overlap = r * 0.55;
+      const cxA = pageW / 2 - (r - overlap / 2);
+      const cxB = pageW / 2 + (r - overlap / 2);
+
+      // Labels
+      const labelFontSize = isLarge ? 14 : 11;
+      const labelY = pTop + diagramTopPad + labelH;
+      const lA = svgEl("text", { x: cxA - r * 0.3, y: labelY, class: "txt", "font-size": labelFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2b6cb0" });
+      lA.textContent = labelA; svg.appendChild(lA);
+      const lB = svgEl("text", { x: cxB + r * 0.3, y: labelY, class: "txt", "font-size": labelFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#9b2c2c" });
+      lB.textContent = labelB; svg.appendChild(lB);
+
+      // Draw circles
+      svg.appendChild(svgEl("circle", { cx: cxA, cy: centerY, r: r, fill: "#ebf8ff", stroke: "#4299e1", "stroke-width": 2 }));
+      svg.appendChild(svgEl("circle", { cx: cxB, cy: centerY, r: r, fill: "#fff5f5", stroke: "#fc8181", "stroke-width": 2 }));
+      const overlapPath = getIntersectionPath(cxA, cxB, centerY, r);
+      svg.appendChild(svgEl("path", { d: overlapPath, fill: "#faf5ff", stroke: "none" }));
+      svg.appendChild(svgEl("circle", { cx: cxA, cy: centerY, r: r, fill: "none", stroke: "#4299e1", "stroke-width": 2 }));
+      svg.appendChild(svgEl("circle", { cx: cxB, cy: centerY, r: r, fill: "none", stroke: "#fc8181", "stroke-width": 2 }));
+
+      // Place all items in the diagram (filled in for reading)
+      const ansFS = isLarge ? 11 : 9;
+
+      // Only A items
+      const aX = cxA - r * 0.45;
+      let aY = centerY - (items.onlyA.length - 1) * (ansFS * 1.3) / 2;
+      items.onlyA.forEach(item => {
+        const t = svgEl("text", { x: aX, y: aY, class: "txt", "font-size": ansFS, "text-anchor": "middle", fill: "#2b6cb0", "font-weight": 600 });
+        t.textContent = formatItem(item); svg.appendChild(t);
+        aY += ansFS * 1.3;
+      });
+
+      // Only B items
+      const bX = cxB + r * 0.45;
+      let bY = centerY - (items.onlyB.length - 1) * (ansFS * 1.3) / 2;
+      items.onlyB.forEach(item => {
+        const t = svgEl("text", { x: bX, y: bY, class: "txt", "font-size": ansFS, "text-anchor": "middle", fill: "#9b2c2c", "font-weight": 600 });
+        t.textContent = formatItem(item); svg.appendChild(t);
+        bY += ansFS * 1.3;
+      });
+
+      // Both items
+      const bothX = (cxA + cxB) / 2;
+      let bothY = centerY - (items.both.length - 1) * (ansFS * 1.3) / 2;
+      items.both.forEach(item => {
+        const t = svgEl("text", { x: bothX, y: bothY, class: "txt", "font-size": ansFS, "text-anchor": "middle", fill: "#6b46c1", "font-weight": 600 });
+        t.textContent = formatItem(item); svg.appendChild(t);
+        bothY += ansFS * 1.3;
+      });
+
+      // Neither items
+      if (items.neither.length > 0) {
+        const nX = margin + 10;
+        let nY = centerY - r + 30;
+        items.neither.forEach(item => {
+          const t = svgEl("text", { x: nX, y: nY, class: "txt", "font-size": ansFS, fill: "#718096", "font-weight": 600 });
+          t.textContent = formatItem(item); svg.appendChild(t);
+          nY += ansFS * 1.3;
+        });
+        // "Outside" label
+        const outLabel = svgEl("text", { x: margin + 6, y: nY + 4, class: "txt", "font-size": isLarge ? 8 : 7, fill: "#a0aec0", "font-style": "italic" });
+        outLabel.textContent = "(outside both)"; svg.appendChild(outLabel);
+      }
+
+      // Questions section at bottom
+      const qTop = pBottom - questionH - 4;
+      svg.appendChild(svgEl("line", { x1: margin, y1: qTop - 4, x2: pageW - margin, y2: qTop - 4, stroke: "#e2e8f0", "stroke-width": 1 }));
+
+      const qLabelFS = isLarge ? 12 : 10;
+      const qLabel = svgEl("text", { x: margin + 4, y: qTop + qLabelFS + 2, class: "txt", "font-size": qLabelFS, "font-weight": 700, fill: "#4a5568" });
+      qLabel.textContent = "Answer the questions:"; svg.appendChild(qLabel);
+
+      const qFS = isLarge ? 11 : 9;
+      const qGap = isLarge ? 24 : 18;
+      let qY = qTop + qLabelFS + qGap;
+
+      if (questions) {
+        questions.forEach((q, idx) => {
+          // Question number and text
+          const qText = svgEl("text", { x: margin + 8, y: qY, class: "txt", "font-size": qFS, fill: "#2d3748" });
+          qText.textContent = (idx + 1) + ". " + q.q; svg.appendChild(qText);
+
+          // Answer line
+          const lineX = pageW - margin - 100;
+          svg.appendChild(svgEl("line", { x1: lineX, y1: qY + 2, x2: pageW - margin, y2: qY + 2, stroke: "#cbd5e0", "stroke-width": 1 }));
+
+          if (showAnswers) {
+            const aText = svgEl("text", { x: lineX + 50, y: qY, class: "txt", "font-size": qFS, "font-weight": 700, fill: "#3182ce", "text-anchor": "middle" });
+            aText.textContent = q.a; svg.appendChild(aText);
+          }
+
+          qY += qGap;
+        });
+      }
+    }
+
+    // ===== Helper: Get intersection path (lens) for two circles =====
+    function getIntersectionPath(cx1, cx2, cy, r) {
+      const d = cx2 - cx1;
+      if (d >= 2 * r) return "";
+      // Intersection points of two equal-radius circles sharing the same cy
+      const a = d / 2;
+      const h = Math.sqrt(r * r - a * a);
+      const midX = (cx1 + cx2) / 2;
+      const topY = cy - h;
+      const botY = cy + h;
+
+      // Lens shape: top to bottom along left circle's right arc (CW),
+      // then bottom back to top along right circle's left arc (CW)
+      return "M " + midX + " " + topY +
+             " A " + r + " " + r + " 0 0 1 " + midX + " " + botY +
+             " A " + r + " " + r + " 0 0 1 " + midX + " " + topY + " Z";
+    }
+
+    // ===== Render functions =====
+    function renderWithNewRandomization() {
+      const opts = gatherOptions();
+      currentState.sheets = [];
+      for (let s = 0; s < opts.numWorksheets; s++) {
+        currentState.sheets.push(generateSheetData(opts));
+      }
+      renderWorksheet();
+    }
+
+    function renderWithoutRandomization() {
+      const opts = gatherOptions();
+      while (currentState.sheets.length < opts.numWorksheets) {
+        currentState.sheets.push(generateSheetData(opts));
+      }
+      if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
+      renderWorksheet();
+    }
+
+    function isMobile() { return window.innerWidth <= 900; }
+
+    function renderWorksheet() {
+      const opts = gatherOptions();
+      const numSheets = currentState.sheets.length;
+      sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
+      const sheetWidth = 612, sheetHeight = 792;
+
+      if (isMobile()) {
+        for (let s = 0; s < numSheets; s++) {
+          const p = document.createElement("div"); p.className = "worksheet-page";
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, branded: opts.branded, showAnswers: false, mode: opts.mode });
+          p.appendChild(v); sheetWrap.appendChild(p);
+        }
+        return;
+      }
+
+      if (numSheets > 1) {
+        sheetWrap.classList.add("grid-view");
+        const ep = numSheets >= 3 ? 12 : 0;
+        const aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
+        let cols;
+        if (numSheets <= 3) { cols = numSheets; if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        else { cols = Math.min(3, numSheets); if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        const msw = (aw - (cols - 1) * gap) / cols, msh = numSheets <= 3 ? ah : ah * 0.8;
+        const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
+        const sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
+        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
+        sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
+        for (let s = 0; s < numSheets; s++) {
+          const p = document.createElement("div"); p.className = "worksheet-page";
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, branded: opts.branded, showAnswers: false, mode: opts.mode });
+          v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
+        }
+      } else {
+        const p = document.createElement("div"); p.className = "worksheet-page";
+        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, branded: opts.branded, showAnswers: false, mode: opts.mode });
+        p.appendChild(v); sheetWrap.appendChild(p);
+      }
+    }
+
+    function handlePrint() {
+      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
+      const opts = gatherOptions();
+      const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
+      sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
+      for (let i = 0; i < currentState.sheets.length; i++) {
+        const p = document.createElement("div"); p.className = "worksheet-page";
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, branded: opts.branded, showAnswers: false, mode: opts.mode }));
+        sheetWrap.appendChild(p);
+      }
+      if (opts.answerKey) {
+        for (let i = 0; i < currentState.sheets.length; i++) {
+          const p = document.createElement("div"); p.className = "worksheet-page";
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", branded: opts.branded, showAnswers: true, mode: opts.mode }));
+          sheetWrap.appendChild(p);
+        }
+      }
+      setTimeout(() => { window.print(); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 50);
+    }
+
+    // ===== Event Listeners =====
+    elMode.addEventListener("change", () => renderWithNewRandomization());
+    elCategory.addEventListener("change", () => renderWithNewRandomization());
+    elDifficulty.addEventListener("change", () => renderWithNewRandomization());
+    elNumItems.addEventListener("change", () => renderWithNewRandomization());
+    elProblemsPerPage.addEventListener("change", () => renderWithNewRandomization());
+    elNumSheets.addEventListener("change", () => renderWithNewRandomization());
+    elShowHeaderEnabled.addEventListener("change", () => {
+      elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
+      renderWithoutRandomization();
+    });
+    elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
+    elBranded.addEventListener("change", () => renderWithoutRandomization());
+    elAnswerKey.addEventListener("change", () => {});
+    document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
+    document.getElementById("btnPrint").addEventListener("click", handlePrint);
+    let resizeTimeout;
+    window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150); });
+
+    // Init
+    renderWithNewRandomization();
+  </script>
+</body>
+</html>

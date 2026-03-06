@@ -498,8 +498,10 @@
 
     // ===== Half-shape templates =====
     // Each template is defined as an array of [col, row] grid coords for the LEFT half
-    // Grid origin is top-left of the left half. col goes 0..gridCols/2-1, row goes 0..gridRows-1
-    // Mirror is done by reflecting col across the line of symmetry
+    // col=0 is the far-left edge, col=halfCols-1 (4) is adjacent to the center line of symmetry
+    // row goes 0..gridRows-1 (top to bottom)
+    // Every template MUST include cells at col=4 so the pattern touches the center dashed line
+    // Mirror (answer) is done by reflecting col across the center line
 
     const TEMPLATES_SIMPLE = [
       // Half-heart (left side)
@@ -832,9 +834,10 @@
         const template = templates[problems[i].templateIdx % templates.length];
 
         // Draw left half cells (the given part)
+        // tc=0 maps to far left, tc=halfCols-1 maps to adjacent to center line
         for (const [tc, tr] of template.cells) {
           if (tr >= gridRows || tc >= halfCols) continue;
-          const fx = gx + (halfCols - 1 - tc) * cellSize;
+          const fx = gx + tc * cellSize;
           const fy = gy + tr * cellSize;
           svg.appendChild(svgEl("rect", {
             x: fx + 0.5, y: fy + 0.5, width: cellSize - 1, height: cellSize - 1,
@@ -842,11 +845,12 @@
           }));
         }
 
-        // Draw answer (right half - mirrored)
+        // Draw answer (right half - mirrored across center line)
+        // Mirror: left column tc maps to right column (totalCols - 1 - tc)
         if (showAnswers) {
           for (const [tc, tr] of template.cells) {
             if (tr >= gridRows || tc >= halfCols) continue;
-            const fx = gx + (halfCols + tc) * cellSize;
+            const fx = gx + (totalCols - 1 - tc) * cellSize;
             const fy = gy + tr * cellSize;
             svg.appendChild(svgEl("rect", {
               x: fx + 0.5, y: fy + 0.5, width: cellSize - 1, height: cellSize - 1,

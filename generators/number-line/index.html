@@ -118,7 +118,7 @@
     }
 
     .advanced-panel.open {
-      max-height: 500px;
+      max-height: 600px;
     }
 
     .advanced-panel-inner {
@@ -449,6 +449,19 @@
             <input type="text" id="worksheetTitle" value="Number Line" style="width:100%;padding:8px 10px;font-size:13px;border:2px solid #e2e8f0;border-radius:8px;" />
           </div>
 
+          <!-- Answer Positions -->
+          <div class="control-group">
+            <label for="answerPositions">Answer positions</label>
+            <select id="answerPositions">
+              <option value="on" selected>On tick marks (default)</option>
+              <option value="between">Between tick marks (harder)</option>
+              <option value="mixed">Mixed</option>
+            </select>
+            <div style="font-size:11px; color:#718096; margin-top:4px; line-height:1.4;">
+              Controls whether missing/target numbers fall on visible tick marks or between them.
+            </div>
+          </div>
+
           <!-- Branding -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="branded" checked />
@@ -495,6 +508,7 @@
     const elCustomTitleOptions = document.getElementById("customTitleOptions");
     const elTitle = document.getElementById("worksheetTitle");
     const elBranded = document.getElementById("branded");
+    const elAnswerPositions = document.getElementById("answerPositions");
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
     const advArrow = document.getElementById("advArrow");
@@ -506,56 +520,174 @@
     let currentState = { sheets: [] };
 
     // ===== Problem generation =====
+    // Compute the tick step for a given range (must match rendering logic)
+    function getTickStep(rangeMax) {
+      if (rangeMax > 50) return 10;
+      if (rangeMax > 20) return 5;
+      if (rangeMax > 10) return 2;
+      return 1;
+    }
+
+    // Build array of tick-mark values for a range
+    function getTickValues(rangeMax) {
+      const step = getTickStep(rangeMax);
+      const vals = [];
+      for (let v = 0; v <= rangeMax; v += step) vals.push(v);
+      return vals;
+    }
+
+    // Check whether a value falls on a tick mark
+    function isOnTick(val, rangeMax) {
+      const step = getTickStep(rangeMax);
+      return val % step === 0 && val >= 0 && val <= rangeMax;
+    }
+
+    // For "between" mode: generate a value that is NOT on a tick mark
+    function randBetweenTicks(rangeMax) {
+      const step = getTickStep(rangeMax);
+      if (step === 1) {
+        // Every integer is a tick mark, so "between" isn't possible with integers.
+        // Return a random integer anyway (fall back to on-tick).
+        return randInt(1, rangeMax - 1);
+      }
+      // Pick a value that doesn't land on a tick
+      let attempts = 0;
+      while (attempts < 200) {
+        const v = randInt(1, rangeMax - 1);
+        if (v % step !== 0) return v;
+        attempts++;
+      }
+      return randInt(1, rangeMax - 1);
+    }
+
     function generateProblems(count, opts) {
-      const { mode, rangeMax } = opts;
+      const { mode, rangeMax, answerPositions = "on" } = opts;
       const problems = [];
       const seen = new Set();
       let attempts = 0;
+      const step = getTickStep(rangeMax);
+      // Tick values excluding endpoints (candidates for on-tick answers)
+      const ticksInner = [];
+      for (let v = step; v < rangeMax; v += step) ticksInner.push(v);
+      // All tick values including endpoints
+      const ticksAll = getTickValues(rangeMax);
 
       while (problems.length < count && attempts < count * 200) {
         attempts++;
         let problem = null;
 
+        // For "mixed" mode, randomly decide per-problem whether answer is on or between ticks
+        let posMode = answerPositions; // "on", "between", "mixed"
+        if (posMode === "mixed") {
+          posMode = Math.random() < 0.5 ? "on" : "between";
+        }
+
         if (mode === "addition") {
-          // Generate a + b where a,b >= 1 and a+b <= rangeMax
-          const a = randInt(1, rangeMax - 1);
-          const maxB = rangeMax - a;
-          if (maxB < 1) continue;
-          const b = randInt(1, maxB);
-          const answer = a + b;
+          let a, b, answer;
+
+          if (posMode === "on" || step === 1) {
+            // Both operands and answer must be on tick marks
+            // Pick two tick values for a and answer, where a < answer
+            if (ticksAll.length < 3) { // Need at least 0, one middle, and rangeMax
+              a = randInt(1, rangeMax - 1);
+              b = randInt(1, rangeMax - a);
+              answer = a + b;
+            } else {
+              // Pick 'a' from tick values (not the last one)
+              const aIdx = randInt(0, ticksAll.length - 2);
+              a = ticksAll[aIdx];
+              // Pick 'answer' from tick values that are greater than a
+              const validAnswers = ticksAll.filter(v => v > a);
+              if (validAnswers.length === 0) continue;
+              answer = validAnswers[randInt(0, validAnswers.length - 1)];
+              b = answer - a;
+              if (a === 0 || b === 0) continue; // Skip trivial problems
+            }
+          } else {
+            // "between" mode: answer should NOT be on a tick mark
+            if (step === 1) {
+              // Can't do between for step=1, just do normal
+              a = randInt(1, rangeMax - 1);
+              b = randInt(1, rangeMax - a);
+              answer = a + b;
+            } else {
+              answer = randBetweenTicks(rangeMax);
+              // Pick a such that b = answer - a > 0 and a > 0
+              a = randInt(1, answer - 1);
+              b = answer - a;
+            }
+          }
+
           const key = "add:" + a + "+" + b;
           if (seen.has(key)) continue;
           seen.add(key);
           problem = { mode: "addition", a, b, answer, lineStart: 0, lineEnd: rangeMax };
 
         } else if (mode === "subtraction") {
-          // Generate a - b where a >= 2, b >= 1, a-b >= 0
-          const a = randInt(2, rangeMax);
-          const b = randInt(1, a);
-          const answer = a - b;
+          let a, b, answer;
+
+          if (posMode === "on" || step === 1) {
+            // Both operands and answer must be on tick marks
+            if (ticksAll.length < 3) {
+              a = randInt(2, rangeMax);
+              b = randInt(1, a);
+              answer = a - b;
+            } else {
+              // Pick 'a' from tick values (not 0)
+              const validA = ticksAll.filter(v => v > 0);
+              if (validA.length < 1) continue;
+              a = validA[randInt(0, validA.length - 1)];
+              // Pick 'answer' from tick values less than a
+              const validAnswers = ticksAll.filter(v => v < a);
+              if (validAnswers.length === 0) continue;
+              answer = validAnswers[randInt(0, validAnswers.length - 1)];
+              b = a - answer;
+              if (b === 0) continue;
+            }
+          } else {
+            // "between" mode: answer should NOT be on a tick
+            if (step === 1) {
+              a = randInt(2, rangeMax);
+              b = randInt(1, a);
+              answer = a - b;
+            } else {
+              answer = randBetweenTicks(rangeMax);
+              // a must be > answer and <= rangeMax
+              a = randInt(answer + 1, rangeMax);
+              b = a - answer;
+            }
+          }
+
           const key = "sub:" + a + "-" + b;
           if (seen.has(key)) continue;
           seen.add(key);
           problem = { mode: "subtraction", a, b, answer, lineStart: 0, lineEnd: rangeMax };
 
         } else if (mode === "place") {
-          // Pick a number to place on the line
-          const target = randInt(1, rangeMax - 1);
+          let target;
+
+          if (posMode === "on" || step === 1) {
+            // Target must be on a tick mark (not an endpoint)
+            if (ticksInner.length === 0) {
+              target = randInt(1, rangeMax - 1);
+            } else {
+              target = ticksInner[randInt(0, ticksInner.length - 1)];
+            }
+          } else {
+            // "between" mode: target should NOT be on a tick
+            target = randBetweenTicks(rangeMax);
+          }
+
           const key = "place:" + target;
           if (seen.has(key)) continue;
           seen.add(key);
           problem = { mode: "place", target, lineStart: 0, lineEnd: rangeMax };
 
         } else if (mode === "missing") {
-          // Number line with some labels blanked out
-          // Determine step (must match rendering logic)
-          let step = 1;
-          if (rangeMax > 50) step = 10;
-          else if (rangeMax > 20) step = 5;
-          else if (rangeMax > 10) step = 2;
-          // Build candidates: only values that appear as tick labels, excluding endpoints
-          const candidates = [];
-          for (let v = step; v < rangeMax; v += step) candidates.push(v);
+          // Missing mode: blanks are always from tick label positions (this is inherent to the mode)
+          // The answerPositions setting doesn't change missing mode since blanks
+          // must be at visible tick positions for the student to see the blank line.
+          const candidates = [...ticksInner];
           if (candidates.length === 0) continue;
           // Choose how many blanks
           const numBlanks = candidates.length <= 5 ? randInt(1, 2) : rangeMax <= 10 ? randInt(1, 3) : randInt(2, 4);
@@ -578,23 +710,43 @@
       // Fill remainder if needed
       while (problems.length < count) {
         if (mode === "addition") {
+          if (ticksAll.length >= 3) {
+            const aIdx = randInt(0, ticksAll.length - 2);
+            const a = ticksAll[aIdx];
+            const validAnswers = ticksAll.filter(v => v > a && v > 0);
+            if (validAnswers.length > 0) {
+              const answer = validAnswers[randInt(0, validAnswers.length - 1)];
+              const b = answer - a;
+              if (a > 0 && b > 0) {
+                problems.push({ mode: "addition", a, b, answer, lineStart: 0, lineEnd: rangeMax });
+                continue;
+              }
+            }
+          }
           const a = randInt(1, Math.max(1, rangeMax - 1));
           const b = randInt(1, Math.max(1, rangeMax - a));
           problems.push({ mode: "addition", a, b, answer: a + b, lineStart: 0, lineEnd: rangeMax });
         } else if (mode === "subtraction") {
+          if (ticksAll.length >= 3) {
+            const validA = ticksAll.filter(v => v > 0);
+            if (validA.length > 0) {
+              const a = validA[randInt(0, validA.length - 1)];
+              const validAnswers = ticksAll.filter(v => v < a);
+              if (validAnswers.length > 0) {
+                const answer = validAnswers[randInt(0, validAnswers.length - 1)];
+                problems.push({ mode: "subtraction", a, b: a - answer, answer, lineStart: 0, lineEnd: rangeMax });
+                continue;
+              }
+            }
+          }
           const a = randInt(2, rangeMax);
           const b = randInt(1, a);
           problems.push({ mode: "subtraction", a, b, answer: a - b, lineStart: 0, lineEnd: rangeMax });
         } else if (mode === "place") {
-          problems.push({ mode: "place", target: randInt(1, rangeMax - 1), lineStart: 0, lineEnd: rangeMax });
+          const target = ticksInner.length > 0 ? ticksInner[randInt(0, ticksInner.length - 1)] : randInt(1, rangeMax - 1);
+          problems.push({ mode: "place", target, lineStart: 0, lineEnd: rangeMax });
         } else {
-          let step = 1;
-          if (rangeMax > 50) step = 10;
-          else if (rangeMax > 20) step = 5;
-          else if (rangeMax > 10) step = 2;
-          const cands = [];
-          for (let v = step; v < rangeMax; v += step) cands.push(v);
-          const blank = cands.length > 0 ? cands[randInt(0, cands.length - 1)] : 1;
+          const blank = ticksInner.length > 0 ? ticksInner[randInt(0, ticksInner.length - 1)] : 1;
           problems.push({ mode: "missing", blanks: [blank], lineStart: 0, lineEnd: rangeMax });
         }
       }
@@ -629,6 +781,7 @@
         title: title,
         branded: elBranded.checked,
         answerKey: elAnswerKey.checked,
+        answerPositions: elAnswerPositions.value, // "on", "between", "mixed"
       };
     }
 
@@ -1074,6 +1227,7 @@
     });
     elTitle.addEventListener("input", () => renderWithoutRandomization());
     elAnswerKey.addEventListener("change", () => {});
+    elAnswerPositions.addEventListener("change", () => renderWithNewRandomization());
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
     document.getElementById("btnPdf").addEventListener("click", handlePdf);

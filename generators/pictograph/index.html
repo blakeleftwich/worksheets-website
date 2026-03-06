@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bar Graph Worksheet Generator</title>
+  <title>Pictograph Worksheet Generator</title>
   <style>
     * {
       margin: 0;
@@ -360,17 +360,18 @@
     <div class="sidebar">
       <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #667eea; text-decoration: none; margin-bottom: 16px; transition: gap 0.2s;"
          onmouseover="this.style.gap='10px'" onmouseout="this.style.gap='6px'">
-        ← All Worksheets
+        &#8592; All Worksheets
       </a>
-      <h2>Bar Graph Worksheet Generator</h2>
+      <h2>Pictograph Worksheet Generator</h2>
 
       <div class="control-group">
         <label for="dataTheme">Data Theme</label>
         <select id="dataTheme">
-          <option value="animals" selected>Favorite Animals</option>
-          <option value="fruits">Favorite Fruits</option>
-          <option value="colors">Favorite Colors</option>
-          <option value="sports">Favorite Sports</option>
+          <option value="ice_cream" selected>Ice Cream Flavors</option>
+          <option value="pets">Pets</option>
+          <option value="fruits">Fruits</option>
+          <option value="sports">Sports</option>
+          <option value="seasons">Seasons</option>
           <option value="random">Random</option>
         </select>
       </div>
@@ -385,28 +386,39 @@
       </div>
 
       <div class="control-group">
-        <label for="maxValue">Max Value on Axis</label>
-        <select id="maxValue">
-          <option value="5" selected>5</option>
+        <label for="keyValue">Key Value (Each Picture =)</label>
+        <select id="keyValue">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="5">5</option>
           <option value="10">10</option>
-          <option value="15">15</option>
         </select>
       </div>
 
       <div class="control-group">
-        <label for="numQuestions">Questions per Graph</label>
+        <label for="allowHalf">Allow Half Pictures</label>
+        <select id="allowHalf">
+          <option value="yes" selected>Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="maxValue">Max Value per Category</label>
+        <select id="maxValue">
+          <option value="10" selected>10</option>
+          <option value="20">20</option>
+          <option value="30">30</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="numQuestions">Number of Questions</label>
         <select id="numQuestions">
           <option value="3">3</option>
           <option value="4" selected>4</option>
           <option value="5">5</option>
-        </select>
-      </div>
-
-      <div class="control-group">
-        <label for="graphOrientation">Graph Orientation</label>
-        <select id="graphOrientation">
-          <option value="vertical" selected>Vertical Bars</option>
-          <option value="horizontal">Horizontal Bars</option>
         </select>
       </div>
 
@@ -489,9 +501,10 @@
     const sheetWrap = document.getElementById("sheetWrap");
     const elDataTheme = document.getElementById("dataTheme");
     const elNumCategories = document.getElementById("numCategories");
+    const elKeyValue = document.getElementById("keyValue");
+    const elAllowHalf = document.getElementById("allowHalf");
     const elMaxValue = document.getElementById("maxValue");
     const elNumQuestions = document.getElementById("numQuestions");
-    const elGraphOrientation = document.getElementById("graphOrientation");
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
@@ -510,36 +523,228 @@
 
     // ===== Theme data =====
     const themes = {
-      animals: {
-        title: "Favorite Animals",
-        items: ["Cats", "Dogs", "Fish", "Birds", "Rabbits", "Hamsters", "Turtles", "Horses", "Frogs", "Ducks"]
+      ice_cream: {
+        title: "Favorite Ice Cream Flavors",
+        items: ["Chocolate", "Vanilla", "Strawberry", "Mint", "Cookie Dough", "Cookies & Cream", "Banana", "Mango"],
+        symbolName: "ice cream cone",
+        subject: "students",
+        verb: "chose",
+        mostPhrase: "is the most popular flavor",
+        leastPhrase: "is the least popular flavor",
+        morePhrase: "more students chose {A} than {B}",
+        totalPhrase: "students were surveyed in all"
+      },
+      pets: {
+        title: "Favorite Pets",
+        items: ["Dogs", "Cats", "Fish", "Birds", "Hamsters", "Rabbits", "Turtles", "Horses"],
+        symbolName: "paw print",
+        subject: "students",
+        verb: "voted for",
+        mostPhrase: "got the most votes",
+        leastPhrase: "got the fewest votes",
+        morePhrase: "more students voted for {A} than {B}",
+        totalPhrase: "students voted in all"
       },
       fruits: {
         title: "Favorite Fruits",
-        items: ["Apples", "Bananas", "Grapes", "Oranges", "Strawberries", "Watermelons", "Peaches", "Cherries", "Pears", "Mangoes"]
-      },
-      colors: {
-        title: "Favorite Colors",
-        items: ["Red", "Blue", "Green", "Yellow", "Purple", "Orange", "Pink", "Black", "White", "Brown"]
+        items: ["Apples", "Bananas", "Grapes", "Oranges", "Strawberries", "Watermelons", "Peaches", "Cherries"],
+        symbolName: "apple",
+        subject: "students",
+        verb: "picked",
+        mostPhrase: "is the most popular fruit",
+        leastPhrase: "is the least popular fruit",
+        morePhrase: "more students picked {A} than {B}",
+        totalPhrase: "students were asked in all"
       },
       sports: {
         title: "Favorite Sports",
-        items: ["Soccer", "Baseball", "Basketball", "Swimming", "Tennis", "Running", "Gymnastics", "Hockey", "Football", "Volleyball"]
+        items: ["Soccer", "Baseball", "Basketball", "Swimming", "Tennis", "Running", "Gymnastics", "Hockey"],
+        symbolName: "ball",
+        subject: "students",
+        verb: "like",
+        mostPhrase: "is the most popular sport",
+        leastPhrase: "is the least popular sport",
+        morePhrase: "more students like {A} than {B}",
+        totalPhrase: "students were surveyed in all"
+      },
+      seasons: {
+        title: "Favorite Seasons",
+        items: ["Spring", "Summer", "Fall", "Winter"],
+        symbolName: "symbol",
+        subject: "people",
+        verb: "chose",
+        mostPhrase: "is the most popular season",
+        leastPhrase: "is the least popular season",
+        morePhrase: "more people chose {A} than {B}",
+        totalPhrase: "people were asked in all"
       }
     };
 
-    const barColors = [
-      "#4299E1", // blue
-      "#F56565", // red
-      "#48BB78", // green
-      "#ED8936", // orange
-      "#9F7AEA", // purple
-      "#38B2AC", // teal
-      "#ED64A6", // pink
-      "#ECC94B", // yellow
-      "#667EEA", // indigo
-      "#FC8181"  // light red
-    ];
+    // ===== SVG Symbol Drawing =====
+    // Each function draws a symbol at (cx, cy) with given size, into an SVG group
+    // If half is true, clip to left half
+
+    function drawSymbolIceCream(g, cx, cy, size, half) {
+      // Ice cream cone: triangle bottom + circle scoop top
+      const s = size;
+      const scoopR = s * 0.32;
+      const coneTopY = cy - s * 0.05;
+      const coneBotY = cy + s * 0.48;
+      const coneHalfW = s * 0.26;
+
+      if (half) {
+        const clipId = "clip-" + Math.random().toString(36).substr(2, 9);
+        const clipPath = svgEl("clipPath", { id: clipId });
+        clipPath.appendChild(svgEl("rect", { x: cx - s, y: cy - s, width: s, height: s * 2 }));
+        g.appendChild(clipPath);
+        const hg = svgEl("g", { "clip-path": "url(#" + clipId + ")" });
+        // Cone (triangle)
+        hg.appendChild(svgEl("polygon", {
+          points: (cx - coneHalfW) + "," + coneTopY + " " + (cx + coneHalfW) + "," + coneTopY + " " + cx + "," + coneBotY,
+          fill: "#D2A068", stroke: "#8B6914", "stroke-width": 0.8
+        }));
+        // Scoop
+        hg.appendChild(svgEl("circle", {
+          cx: cx, cy: cy - s * 0.22, r: scoopR,
+          fill: "#F9A8C9", stroke: "#C0507A", "stroke-width": 0.8
+        }));
+        g.appendChild(hg);
+      } else {
+        // Cone (triangle)
+        g.appendChild(svgEl("polygon", {
+          points: (cx - coneHalfW) + "," + coneTopY + " " + (cx + coneHalfW) + "," + coneTopY + " " + cx + "," + coneBotY,
+          fill: "#D2A068", stroke: "#8B6914", "stroke-width": 0.8
+        }));
+        // Scoop
+        g.appendChild(svgEl("circle", {
+          cx: cx, cy: cy - s * 0.22, r: scoopR,
+          fill: "#F9A8C9", stroke: "#C0507A", "stroke-width": 0.8
+        }));
+      }
+    }
+
+    function drawSymbolPaw(g, cx, cy, size, half) {
+      // Paw print: one large pad + 4 small toe pads
+      const s = size;
+      const col = "#6B4226";
+      if (half) {
+        const clipId = "clip-" + Math.random().toString(36).substr(2, 9);
+        const clipPath = svgEl("clipPath", { id: clipId });
+        clipPath.appendChild(svgEl("rect", { x: cx - s, y: cy - s, width: s, height: s * 2 }));
+        g.appendChild(clipPath);
+        const hg = svgEl("g", { "clip-path": "url(#" + clipId + ")" });
+        // Main pad (ellipse)
+        hg.appendChild(svgEl("ellipse", { cx: cx, cy: cy + s * 0.1, rx: s * 0.26, ry: s * 0.22, fill: col }));
+        // Toe pads
+        hg.appendChild(svgEl("circle", { cx: cx - s * 0.22, cy: cy - s * 0.18, r: s * 0.12, fill: col }));
+        hg.appendChild(svgEl("circle", { cx: cx - s * 0.06, cy: cy - s * 0.3, r: s * 0.12, fill: col }));
+        hg.appendChild(svgEl("circle", { cx: cx + s * 0.12, cy: cy - s * 0.3, r: s * 0.12, fill: col }));
+        hg.appendChild(svgEl("circle", { cx: cx + s * 0.26, cy: cy - s * 0.18, r: s * 0.12, fill: col }));
+        g.appendChild(hg);
+      } else {
+        // Main pad
+        g.appendChild(svgEl("ellipse", { cx: cx, cy: cy + s * 0.1, rx: s * 0.26, ry: s * 0.22, fill: col }));
+        // Toe pads
+        g.appendChild(svgEl("circle", { cx: cx - s * 0.22, cy: cy - s * 0.18, r: s * 0.12, fill: col }));
+        g.appendChild(svgEl("circle", { cx: cx - s * 0.06, cy: cy - s * 0.3, r: s * 0.12, fill: col }));
+        g.appendChild(svgEl("circle", { cx: cx + s * 0.12, cy: cy - s * 0.3, r: s * 0.12, fill: col }));
+        g.appendChild(svgEl("circle", { cx: cx + s * 0.26, cy: cy - s * 0.18, r: s * 0.12, fill: col }));
+      }
+    }
+
+    function drawSymbolApple(g, cx, cy, size, half) {
+      // Apple: circle body + small stem + leaf
+      const s = size;
+      const r = s * 0.34;
+      if (half) {
+        const clipId = "clip-" + Math.random().toString(36).substr(2, 9);
+        const clipPath = svgEl("clipPath", { id: clipId });
+        clipPath.appendChild(svgEl("rect", { x: cx - s, y: cy - s, width: s, height: s * 2 }));
+        g.appendChild(clipPath);
+        const hg = svgEl("g", { "clip-path": "url(#" + clipId + ")" });
+        hg.appendChild(svgEl("circle", { cx: cx, cy: cy + s * 0.05, r: r, fill: "#E53E3E", stroke: "#C53030", "stroke-width": 0.8 }));
+        // Stem
+        hg.appendChild(svgEl("line", { x1: cx, y1: cy - s * 0.28, x2: cx, y2: cy - s * 0.42, stroke: "#5D3A1A", "stroke-width": 1.5, "stroke-linecap": "round" }));
+        // Leaf
+        hg.appendChild(svgEl("ellipse", { cx: cx + s * 0.12, cy: cy - s * 0.38, rx: s * 0.12, ry: s * 0.06, fill: "#38A169", transform: "rotate(25," + (cx + s * 0.12) + "," + (cy - s * 0.38) + ")" }));
+        g.appendChild(hg);
+      } else {
+        g.appendChild(svgEl("circle", { cx: cx, cy: cy + s * 0.05, r: r, fill: "#E53E3E", stroke: "#C53030", "stroke-width": 0.8 }));
+        // Stem
+        g.appendChild(svgEl("line", { x1: cx, y1: cy - s * 0.28, x2: cx, y2: cy - s * 0.42, stroke: "#5D3A1A", "stroke-width": 1.5, "stroke-linecap": "round" }));
+        // Leaf
+        g.appendChild(svgEl("ellipse", { cx: cx + s * 0.12, cy: cy - s * 0.38, rx: s * 0.12, ry: s * 0.06, fill: "#38A169", transform: "rotate(25," + (cx + s * 0.12) + "," + (cy - s * 0.38) + ")" }));
+      }
+    }
+
+    function drawSymbolBall(g, cx, cy, size, half) {
+      // Soccer/sports ball: circle with lines
+      const s = size;
+      const r = s * 0.34;
+      if (half) {
+        const clipId = "clip-" + Math.random().toString(36).substr(2, 9);
+        const clipPath = svgEl("clipPath", { id: clipId });
+        clipPath.appendChild(svgEl("rect", { x: cx - s, y: cy - s, width: s, height: s * 2 }));
+        g.appendChild(clipPath);
+        const hg = svgEl("g", { "clip-path": "url(#" + clipId + ")" });
+        hg.appendChild(svgEl("circle", { cx: cx, cy: cy, r: r, fill: "#ECC94B", stroke: "#B7791F", "stroke-width": 0.8 }));
+        // Cross lines
+        hg.appendChild(svgEl("line", { x1: cx - r, y1: cy, x2: cx + r, y2: cy, stroke: "#B7791F", "stroke-width": 0.6 }));
+        hg.appendChild(svgEl("line", { x1: cx, y1: cy - r, x2: cx, y2: cy + r, stroke: "#B7791F", "stroke-width": 0.6 }));
+        g.appendChild(hg);
+      } else {
+        g.appendChild(svgEl("circle", { cx: cx, cy: cy, r: r, fill: "#ECC94B", stroke: "#B7791F", "stroke-width": 0.8 }));
+        // Cross lines
+        g.appendChild(svgEl("line", { x1: cx - r, y1: cy, x2: cx + r, y2: cy, stroke: "#B7791F", "stroke-width": 0.6 }));
+        g.appendChild(svgEl("line", { x1: cx, y1: cy - r, x2: cx, y2: cy + r, stroke: "#B7791F", "stroke-width": 0.6 }));
+      }
+    }
+
+    function drawSymbolSeason(g, cx, cy, size, half) {
+      // Sun shape: circle with rays
+      const s = size;
+      const r = s * 0.22;
+      if (half) {
+        const clipId = "clip-" + Math.random().toString(36).substr(2, 9);
+        const clipPath = svgEl("clipPath", { id: clipId });
+        clipPath.appendChild(svgEl("rect", { x: cx - s, y: cy - s, width: s, height: s * 2 }));
+        g.appendChild(clipPath);
+        const hg = svgEl("g", { "clip-path": "url(#" + clipId + ")" });
+        hg.appendChild(svgEl("circle", { cx: cx, cy: cy, r: r, fill: "#F6AD55", stroke: "#DD6B20", "stroke-width": 0.8 }));
+        // Rays
+        for (let a = 0; a < 360; a += 45) {
+          const rad = a * Math.PI / 180;
+          const x1 = cx + Math.cos(rad) * (r + s * 0.06);
+          const y1 = cy + Math.sin(rad) * (r + s * 0.06);
+          const x2 = cx + Math.cos(rad) * (r + s * 0.18);
+          const y2 = cy + Math.sin(rad) * (r + s * 0.18);
+          hg.appendChild(svgEl("line", { x1: x1, y1: y1, x2: x2, y2: y2, stroke: "#DD6B20", "stroke-width": 1.2, "stroke-linecap": "round" }));
+        }
+        g.appendChild(hg);
+      } else {
+        g.appendChild(svgEl("circle", { cx: cx, cy: cy, r: r, fill: "#F6AD55", stroke: "#DD6B20", "stroke-width": 0.8 }));
+        // Rays
+        for (let a = 0; a < 360; a += 45) {
+          const rad = a * Math.PI / 180;
+          const x1 = cx + Math.cos(rad) * (r + s * 0.06);
+          const y1 = cy + Math.sin(rad) * (r + s * 0.06);
+          const x2 = cx + Math.cos(rad) * (r + s * 0.18);
+          const y2 = cy + Math.sin(rad) * (r + s * 0.18);
+          g.appendChild(svgEl("line", { x1: x1, y1: y1, x2: x2, y2: y2, stroke: "#DD6B20", "stroke-width": 1.2, "stroke-linecap": "round" }));
+        }
+      }
+    }
+
+    function drawSymbol(g, themeKey, cx, cy, size, half) {
+      switch (themeKey) {
+        case "ice_cream": drawSymbolIceCream(g, cx, cy, size, half); break;
+        case "pets":      drawSymbolPaw(g, cx, cy, size, half); break;
+        case "fruits":    drawSymbolApple(g, cx, cy, size, half); break;
+        case "sports":    drawSymbolBall(g, cx, cy, size, half); break;
+        case "seasons":   drawSymbolSeason(g, cx, cy, size, half); break;
+        default:          drawSymbolApple(g, cx, cy, size, half); break;
+      }
+    }
 
     // ===== State =====
     let currentState = { sheets: [] };
@@ -559,67 +764,44 @@
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
       }
-      return { items: pool.slice(0, count), resolvedTheme: resolvedTheme };
+      // Clamp count to available items
+      const actualCount = Math.min(count, pool.length);
+      return { items: pool.slice(0, actualCount), resolvedTheme: resolvedTheme };
     }
-
-    function getThemeTitle(theme) {
-      if (theme === "random") return "Favorites Survey";
-      return themes[theme].title;
-    }
-
-    // Theme-specific language for questions
-    const themeLanguage = {
-      animals: {
-        verb: "voted for",
-        subject: "students",
-        mostLeast: "got the most votes",
-        leastPhrase: "got the fewest votes",
-        morePhrase: "more votes did {A} get than {B}",
-        totalPhrase: "votes were there in all",
-        axisLabel: "Number of Votes"
-      },
-      fruits: {
-        verb: "chose",
-        subject: "students",
-        mostLeast: "is the most popular",
-        leastPhrase: "is the least popular",
-        morePhrase: "more students chose {A} than {B}",
-        totalPhrase: "students voted in all",
-        axisLabel: "Number of Students"
-      },
-      colors: {
-        verb: "picked",
-        subject: "people",
-        mostLeast: "is the most popular color",
-        leastPhrase: "is the least popular color",
-        morePhrase: "more people picked {A} than {B}",
-        totalPhrase: "people voted in all",
-        axisLabel: "Number of People"
-      },
-      sports: {
-        verb: "like",
-        subject: "students",
-        mostLeast: "is the most popular sport",
-        leastPhrase: "is the least popular sport",
-        morePhrase: "more students like {A} than {B}",
-        totalPhrase: "students were surveyed in all",
-        axisLabel: "Number of Students"
-      }
-    };
 
     function generateGraphData(opts) {
       const pick = pickCategories(opts.dataTheme, opts.numCategories);
       const categories = pick.items;
       const resolvedTheme = pick.resolvedTheme;
+      const keyVal = opts.keyValue;
+      const allowHalf = opts.allowHalf;
+      const maxVal = opts.maxValue;
       const values = [];
+
       for (let i = 0; i < categories.length; i++) {
-        // Generate values from 1 to maxValue (ensure at least 1 so bars are visible)
-        values.push(1 + Math.floor(Math.random() * opts.maxValue));
+        let v;
+        if (allowHalf && keyVal > 1) {
+          // Value must be a multiple of keyVal/2 (allows half symbols)
+          const halfStep = keyVal / 2;
+          const maxSteps = Math.floor(maxVal / halfStep);
+          const steps = 1 + Math.floor(Math.random() * Math.max(1, maxSteps));
+          v = steps * halfStep;
+        } else {
+          // Value must be a multiple of keyVal (whole symbols only)
+          const maxSteps = Math.floor(maxVal / keyVal);
+          const steps = 1 + Math.floor(Math.random() * Math.max(1, maxSteps));
+          v = steps * keyVal;
+        }
+        v = clamp(v, keyVal > 1 && allowHalf ? keyVal / 2 : keyVal, maxVal);
+        values.push(v);
       }
 
-      // Ensure we have at least two different values for interesting questions
+      // Ensure at least two different values
       if (values.every(v => v === values[0]) && values.length > 1) {
-        values[Math.floor(Math.random() * values.length)] = clamp(values[0] + 1, 1, opts.maxValue);
+        const keyStep = (opts.allowHalf && keyVal > 1) ? keyVal / 2 : keyVal;
+        let newVal = values[0] + keyStep;
+        if (newVal > maxVal) newVal = Math.max(keyStep, values[0] - keyStep);
+        values[Math.floor(Math.random() * values.length)] = newVal;
       }
 
       const questions = generateQuestions(categories, values, opts.numQuestions, resolvedTheme);
@@ -629,7 +811,7 @@
     function generateQuestions(categories, values, count, resolvedTheme) {
       const questions = [];
       const used = new Set();
-      const lang = themeLanguage[resolvedTheme] || themeLanguage.animals;
+      const lang = themes[resolvedTheme];
 
       // Find max and min indices
       let maxVal = -1, minVal = Infinity;
@@ -639,10 +821,9 @@
         if (values[i] < minVal) { minVal = values[i]; minIdx = i; }
       }
 
-      // Question types pool
       const qTypes = [];
 
-      // Type 1: How many voted for / chose / picked X? (counting)
+      // Type 1: Counting - "How many students chose [category]?"
       for (let i = 0; i < categories.length; i++) {
         qTypes.push({
           type: "count",
@@ -652,13 +833,15 @@
         });
       }
 
-      // Type 2: Which has the most / least?
+      // Type 2: Most popular
       qTypes.push({
         type: "most",
-        text: "Which " + lang.mostLeast + "?",
+        text: "Which " + lang.mostPhrase + "?",
         answer: categories[maxIdx],
         key: "most"
       });
+
+      // Type 3: Least popular
       qTypes.push({
         type: "least",
         text: "Which " + lang.leastPhrase + "?",
@@ -666,7 +849,7 @@
         key: "least"
       });
 
-      // Type 3: How many more X than Y?
+      // Type 4: Comparison - "How many more students chose A than B?"
       for (let i = 0; i < categories.length; i++) {
         for (let j = i + 1; j < categories.length; j++) {
           if (values[i] !== values[j]) {
@@ -683,7 +866,7 @@
         }
       }
 
-      // Type 4: How many in total?
+      // Type 5: Total - "How many students were surveyed in all?"
       qTypes.push({
         type: "total",
         text: "How many " + lang.totalPhrase + "?",
@@ -691,28 +874,28 @@
         key: "total"
       });
 
-      // Ensure variety: try to include at least one counting, one comparison, one difference
+      // Ensure variety: try to include one of each type
       const picks = [];
       const countQs = qTypes.filter(q => q.type === "count");
       const compQs = qTypes.filter(q => q.type === "most" || q.type === "least");
       const diffQs = qTypes.filter(q => q.type === "difference");
       const totalQs = qTypes.filter(q => q.type === "total");
 
-      // Pick one of each type first
       if (countQs.length > 0) {
         const q = countQs[Math.floor(Math.random() * countQs.length)];
-        picks.push(q);
-        used.add(q.key);
+        picks.push(q); used.add(q.key);
       }
       if (compQs.length > 0 && picks.length < count) {
         const q = compQs[Math.floor(Math.random() * compQs.length)];
-        picks.push(q);
-        used.add(q.key);
+        picks.push(q); used.add(q.key);
       }
       if (diffQs.length > 0 && picks.length < count) {
         const q = diffQs[Math.floor(Math.random() * diffQs.length)];
-        picks.push(q);
-        used.add(q.key);
+        picks.push(q); used.add(q.key);
+      }
+      if (totalQs.length > 0 && picks.length < count) {
+        const q = totalQs[Math.floor(Math.random() * totalQs.length)];
+        picks.push(q); used.add(q.key);
       }
 
       // Fill remaining with random unused questions
@@ -723,8 +906,7 @@
       }
       for (const q of remaining) {
         if (picks.length >= count) break;
-        picks.push(q);
-        used.add(q.key);
+        picks.push(q); used.add(q.key);
       }
 
       // Shuffle final selection
@@ -738,10 +920,11 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(sheetData, options) {
-      const { showHeader, branded, showAnswers, orientation } = options;
+      const { showHeader, branded, showAnswers } = options;
       const { categories, values, questions, resolvedTheme } = sheetData;
+      const keyVal = parseInt(elKeyValue.value, 10);
+      const allowHalf = elAllowHalf.value === "yes";
       const pageW = 612, pageH = 792, margin = 36;
-      const maxValue = parseInt(elMaxValue.value, 10);
 
       const svg = svgEl("svg", {
         width: pageW, height: pageH,
@@ -754,9 +937,8 @@
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
 
       // ===== Header =====
+      const themeTitle = themes[resolvedTheme].title;
       let topY;
-      // Use the resolved theme title so "Random" mode shows the actual theme for this sheet
-      const themeTitle = resolvedTheme ? themes[resolvedTheme].title : getThemeTitle(elDataTheme.value);
 
       if (showHeader === "both") {
         const nl = svgEl("text", { x: margin, y: 30, class: "txt", "font-size": 14, "font-weight": 400 });
@@ -792,233 +974,148 @@
         br.textContent = "animalmath.com"; svg.appendChild(br);
       }
 
-      // ===== Layout calculations =====
+      // ===== Layout =====
       const bottomMargin = branded ? 50 : 40;
       const availH = pageH - bottomMargin - topY;
-      const graphAreaH = availH * 0.52;
-      const questionsAreaH = availH * 0.48;
-      const graphTop = topY + 10;
-      const questionsTop = graphTop + graphAreaH + 10;
+      const numCats = categories.length;
+      const numQ = questions.length;
 
-      // ===== Draw graph =====
-      if (orientation === "vertical") {
-        drawVerticalBarGraph(svg, categories, values, maxValue, margin, graphTop, pageW - margin * 2, graphAreaH - 20, resolvedTheme);
-      } else {
-        drawHorizontalBarGraph(svg, categories, values, maxValue, margin, graphTop, pageW - margin * 2, graphAreaH - 20, resolvedTheme);
-      }
+      // Pictograph area gets ~55% of available height, questions ~45%
+      const graphAreaH = availH * 0.55;
+      const questionsAreaH = availH * 0.45;
+      const graphTop = topY + 6;
+      const questionsTop = graphTop + graphAreaH + 4;
 
-      // ===== Draw questions =====
+      // ===== Draw Pictograph =====
+      drawPictograph(svg, categories, values, keyVal, allowHalf, resolvedTheme, margin, graphTop, pageW - margin * 2, graphAreaH);
+
+      // ===== Draw Questions =====
       drawQuestions(svg, questions, margin, questionsTop, pageW - margin * 2, questionsAreaH - 10, showAnswers);
 
       return svg;
     }
 
-    // ===== Draw Vertical Bar Graph =====
-    function drawVerticalBarGraph(svg, categories, values, maxValue, left, top, width, height, resolvedTheme) {
+    function drawPictograph(svg, categories, values, keyVal, allowHalf, themeKey, left, top, width, height) {
       const numCats = categories.length;
-      const lang = themeLanguage[resolvedTheme] || themeLanguage.animals;
-      const themeTitle = themes[resolvedTheme] ? themes[resolvedTheme].title : "Favorites";
-      const labelAreaH = 56; // extra room for category title below category names
-      const titleAreaH = 24;
-      const yAxisLabelW = 44; // wider to fit rotated y-axis label
-      const chartLeft = left + yAxisLabelW;
-      const chartTop = top + titleAreaH;
-      const chartW = width - yAxisLabelW - 10;
-      const chartH = height - labelAreaH - titleAreaH;
+      const labelColW = 110; // width for category labels on left
+      const chartLeft = left + labelColW;
+      const chartW = width - labelColW;
 
-      // Y-axis rotated label
-      const yLabelX = left + 14;
-      const yLabelY = chartTop + chartH / 2;
-      const yTitle = svgEl("text", {
-        x: yLabelX, y: yLabelY,
-        class: "txt", "font-size": 12, "font-weight": 700,
-        fill: "#2d3748", "text-anchor": "middle",
-        transform: "rotate(-90," + yLabelX + "," + yLabelY + ")"
-      });
-      yTitle.textContent = lang.axisLabel;
-      svg.appendChild(yTitle);
-
-      // Draw axes
-      svg.appendChild(svgEl("line", {
-        x1: chartLeft, y1: chartTop, x2: chartLeft, y2: chartTop + chartH,
-        stroke: "#2d3748", "stroke-width": 1.5
-      }));
-      svg.appendChild(svgEl("line", {
-        x1: chartLeft, y1: chartTop + chartH, x2: chartLeft + chartW, y2: chartTop + chartH,
-        stroke: "#2d3748", "stroke-width": 1.5
-      }));
-
-      // Y-axis gridlines and labels
-      const yStep = maxValue <= 5 ? 1 : (maxValue <= 10 ? 2 : 3);
-      for (let v = 0; v <= maxValue; v += yStep) {
-        const y = chartTop + chartH - (v / maxValue) * chartH;
-        // Gridline
-        svg.appendChild(svgEl("line", {
-          x1: chartLeft, y1: y, x2: chartLeft + chartW, y2: y,
-          stroke: "#e2e8f0", "stroke-width": 0.75, "stroke-dasharray": v === 0 ? "none" : "4,3"
-        }));
-        // Tick
-        svg.appendChild(svgEl("line", {
-          x1: chartLeft - 4, y1: y, x2: chartLeft, y2: y,
-          stroke: "#2d3748", "stroke-width": 1
-        }));
-        // Label
-        const lbl = svgEl("text", {
-          x: chartLeft - 8, y: y + 4,
-          class: "txt", "font-size": 11, "font-weight": 500,
-          fill: "#4a5568", "text-anchor": "end"
-        });
-        lbl.textContent = String(v);
-        svg.appendChild(lbl);
-      }
-
-      // Bars
-      const barGroupW = chartW / numCats;
-      const barW = Math.min(barGroupW * 0.6, 60);
-      const barPad = (barGroupW - barW) / 2;
-
+      // Calculate max number of whole symbols any row needs
+      let maxSymbols = 0;
       for (let i = 0; i < numCats; i++) {
-        const bx = chartLeft + i * barGroupW + barPad;
-        const barH = (values[i] / maxValue) * chartH;
-        const by = chartTop + chartH - barH;
-
-        // Bar
-        svg.appendChild(svgEl("rect", {
-          x: bx, y: by, width: barW, height: barH,
-          fill: barColors[i % barColors.length],
-          rx: 3, ry: 3
-        }));
-
-        // Value on top of bar
-        const valLabel = svgEl("text", {
-          x: bx + barW / 2, y: by - 5,
-          class: "txt", "font-size": 11, "font-weight": 700,
-          fill: "#2d3748", "text-anchor": "middle"
-        });
-        valLabel.textContent = String(values[i]);
-        svg.appendChild(valLabel);
-
-        // Category name below x-axis
-        const catLabel = svgEl("text", {
-          x: bx + barW / 2, y: chartTop + chartH + 16,
-          class: "txt", "font-size": 10, "font-weight": 600,
-          fill: "#2d3748", "text-anchor": "middle"
-        });
-        catLabel.textContent = categories[i];
-        svg.appendChild(catLabel);
+        const wholeCount = Math.floor(values[i] / keyVal);
+        const hasHalf = allowHalf && keyVal > 1 && (values[i] % keyVal !== 0);
+        maxSymbols = Math.max(maxSymbols, wholeCount + (hasHalf ? 1 : 0));
       }
+      maxSymbols = Math.max(maxSymbols, 1);
 
-      // X-axis category title (e.g. "Favorite Animals") centered below category names
-      const xCatTitle = svgEl("text", {
-        x: chartLeft + chartW / 2, y: chartTop + chartH + 36,
-        class: "txt", "font-size": 13, "font-weight": 700,
-        fill: "#2d3748", "text-anchor": "middle"
-      });
-      xCatTitle.textContent = themeTitle;
-      svg.appendChild(xCatTitle);
-    }
+      // Key line height
+      const keyLineH = 28;
+      // Available height for rows
+      const rowsAreaH = height - keyLineH - 10;
+      const rowH = Math.min(rowsAreaH / numCats, 60);
+      const totalRowsH = rowH * numCats;
 
-    // ===== Draw Horizontal Bar Graph =====
-    function drawHorizontalBarGraph(svg, categories, values, maxValue, left, top, width, height, resolvedTheme) {
-      const numCats = categories.length;
-      const lang = themeLanguage[resolvedTheme] || themeLanguage.animals;
-      const themeTitle = themes[resolvedTheme] ? themes[resolvedTheme].title : "Favorites";
-      const titleAreaH = 24;
-      const labelAreaW = 80;
-      const xAxisLabelH = 42; // extra room for axis label below tick labels
-      const chartLeft = left + labelAreaW;
-      const chartTop = top + titleAreaH;
-      const chartW = width - labelAreaW - 10;
-      const chartH = height - xAxisLabelH - titleAreaH;
+      // Symbol sizing: fit within row and columns
+      const symbolSpacing = Math.min(chartW / maxSymbols, rowH * 0.9);
+      const symbolSize = symbolSpacing * 0.78;
 
-      // Y-axis category title (rotated, to the far left, describing what categories represent)
-      const yCatTitleX = left + 6;
-      const yCatTitleY = chartTop + chartH / 2;
-      const yCatTitle = svgEl("text", {
-        x: yCatTitleX, y: yCatTitleY,
-        class: "txt", "font-size": 12, "font-weight": 700,
-        fill: "#2d3748", "text-anchor": "middle",
-        transform: "rotate(-90," + yCatTitleX + "," + yCatTitleY + ")"
-      });
-      yCatTitle.textContent = themeTitle;
-      svg.appendChild(yCatTitle);
+      // Center rows vertically in available space
+      const rowsStartY = top + (rowsAreaH - totalRowsH) / 2;
 
-      // X-axis number label (e.g. "Number of Votes")
-      const xTitle = svgEl("text", {
-        x: chartLeft + chartW / 2, y: chartTop + chartH + xAxisLabelH - 4,
-        class: "txt", "font-size": 12, "font-weight": 700,
-        fill: "#2d3748", "text-anchor": "middle"
-      });
-      xTitle.textContent = lang.axisLabel;
-      svg.appendChild(xTitle);
-
-      // Draw axes
-      svg.appendChild(svgEl("line", {
-        x1: chartLeft, y1: chartTop, x2: chartLeft, y2: chartTop + chartH,
-        stroke: "#2d3748", "stroke-width": 1.5
-      }));
-      svg.appendChild(svgEl("line", {
-        x1: chartLeft, y1: chartTop + chartH, x2: chartLeft + chartW, y2: chartTop + chartH,
-        stroke: "#2d3748", "stroke-width": 1.5
-      }));
-
-      // X-axis gridlines and labels
-      const xStep = maxValue <= 5 ? 1 : (maxValue <= 10 ? 2 : 3);
-      for (let v = 0; v <= maxValue; v += xStep) {
-        const x = chartLeft + (v / maxValue) * chartW;
-        // Gridline
-        svg.appendChild(svgEl("line", {
-          x1: x, y1: chartTop, x2: x, y2: chartTop + chartH,
-          stroke: "#e2e8f0", "stroke-width": 0.75, "stroke-dasharray": v === 0 ? "none" : "4,3"
-        }));
-        // Tick
-        svg.appendChild(svgEl("line", {
-          x1: x, y1: chartTop + chartH, x2: x, y2: chartTop + chartH + 4,
-          stroke: "#2d3748", "stroke-width": 1
-        }));
-        // Label
-        const lbl = svgEl("text", {
-          x: x, y: chartTop + chartH + 16,
-          class: "txt", "font-size": 11, "font-weight": 500,
-          fill: "#4a5568", "text-anchor": "middle"
-        });
-        lbl.textContent = String(v);
-        svg.appendChild(lbl);
-      }
-
-      // Bars
-      const barGroupH = chartH / numCats;
-      const barH = Math.min(barGroupH * 0.6, 40);
-      const barPad = (barGroupH - barH) / 2;
-
+      // Draw grid background (alternating light rows)
       for (let i = 0; i < numCats; i++) {
-        const by = chartTop + i * barGroupH + barPad;
-        const barW = (values[i] / maxValue) * chartW;
+        if (i % 2 === 0) {
+          svg.appendChild(svgEl("rect", {
+            x: left, y: rowsStartY + i * rowH,
+            width: width, height: rowH,
+            fill: "#F7FAFC", rx: 2
+          }));
+        }
+      }
 
-        // Bar
-        svg.appendChild(svgEl("rect", {
-          x: chartLeft, y: by, width: barW, height: barH,
-          fill: barColors[i % barColors.length],
-          rx: 3, ry: 3
+      // Draw horizontal grid lines
+      for (let i = 0; i <= numCats; i++) {
+        svg.appendChild(svgEl("line", {
+          x1: left, y1: rowsStartY + i * rowH,
+          x2: left + width, y2: rowsStartY + i * rowH,
+          stroke: "#CBD5E0", "stroke-width": 0.75
         }));
+      }
 
-        // Value at end of bar
-        const valLabel = svgEl("text", {
-          x: chartLeft + barW + 6, y: by + barH / 2 + 4,
-          class: "txt", "font-size": 11, "font-weight": 700,
-          fill: "#2d3748", "text-anchor": "start"
-        });
-        valLabel.textContent = String(values[i]);
-        svg.appendChild(valLabel);
+      // Draw vertical separator between labels and symbols
+      svg.appendChild(svgEl("line", {
+        x1: chartLeft, y1: rowsStartY,
+        x2: chartLeft, y2: rowsStartY + totalRowsH,
+        stroke: "#CBD5E0", "stroke-width": 0.75
+      }));
 
-        // Category label to the left
+      // Draw category labels and symbols
+      for (let i = 0; i < numCats; i++) {
+        const rowCy = rowsStartY + i * rowH + rowH / 2;
+
+        // Category label
         const catLabel = svgEl("text", {
-          x: chartLeft - 8, y: by + barH / 2 + 4,
-          class: "txt", "font-size": 10, "font-weight": 600,
+          x: left + labelColW - 10, y: rowCy + 5,
+          class: "txt", "font-size": 13, "font-weight": 600,
           fill: "#2d3748", "text-anchor": "end"
         });
         catLabel.textContent = categories[i];
         svg.appendChild(catLabel);
+
+        // Draw symbols
+        const wholeCount = Math.floor(values[i] / keyVal);
+        const hasHalf = allowHalf && keyVal > 1 && (values[i] % keyVal !== 0);
+        const symbolStartX = chartLeft + symbolSpacing * 0.55;
+
+        for (let s = 0; s < wholeCount; s++) {
+          const sx = symbolStartX + s * symbolSpacing;
+          drawSymbol(svg, themeKey, sx, rowCy, symbolSize, false);
+        }
+
+        // Draw half symbol if needed
+        if (hasHalf) {
+          const sx = symbolStartX + wholeCount * symbolSpacing;
+          drawSymbol(svg, themeKey, sx, rowCy, symbolSize, true);
+        }
+      }
+
+      // ===== Key =====
+      const keyY = rowsStartY + totalRowsH + 20;
+
+      // Build the key text and symbol inline
+      // First, the text "Key: Each"
+      const keyTextBefore = svgEl("text", {
+        x: left + width / 2 - 60, y: keyY,
+        class: "txt", "font-size": 13, "font-weight": 700,
+        fill: "#2d3748", "text-anchor": "end"
+      });
+      keyTextBefore.textContent = "Key: Each";
+      svg.appendChild(keyTextBefore);
+
+      // Draw a small key symbol
+      drawSymbol(svg, themeKey, left + width / 2 - 44, keyY - 4, 18, false);
+
+      // Then " = X [subject]"
+      const keyTextAfter = svgEl("text", {
+        x: left + width / 2 - 28, y: keyY,
+        class: "txt", "font-size": 13, "font-weight": 700,
+        fill: "#2d3748", "text-anchor": "start"
+      });
+      const lang = themes[themeKey];
+      keyTextAfter.textContent = " = " + keyVal + " " + lang.subject;
+      svg.appendChild(keyTextAfter);
+
+      // If half symbols allowed, add note
+      if (allowHalf && keyVal > 1) {
+        const halfNote = svgEl("text", {
+          x: left + width / 2, y: keyY + 16,
+          class: "txt", "font-size": 11, "font-weight": 500,
+          fill: "#718096", "text-anchor": "middle"
+        });
+        halfNote.textContent = "(Half picture = " + (keyVal / 2) + " " + lang.subject + ")";
+        svg.appendChild(halfNote);
       }
     }
 
@@ -1085,9 +1182,10 @@
       return {
         dataTheme: elDataTheme.value,
         numCategories: parseInt(elNumCategories.value, 10),
+        keyValue: parseInt(elKeyValue.value, 10),
+        allowHalf: elAllowHalf.value === "yes",
         maxValue: parseInt(elMaxValue.value, 10),
         numQuestions: parseInt(elNumQuestions.value, 10),
-        orientation: elGraphOrientation.value,
         numWorksheets: parseInt(elNumSheets.value, 10),
         showHeader: showHeader,
         branded: elBranded.checked,
@@ -1129,8 +1227,7 @@
           const p = document.createElement("div");
           p.className = "worksheet-page";
           const v = renderWorksheetSVG(currentState.sheets[s], {
-            showHeader: opts.showHeader, branded: opts.branded,
-            showAnswers: false, orientation: opts.orientation
+            showHeader: opts.showHeader, branded: opts.branded, showAnswers: false
           });
           p.appendChild(v);
           sheetWrap.appendChild(p);
@@ -1165,8 +1262,7 @@
           const p = document.createElement("div");
           p.className = "worksheet-page";
           const v = renderWorksheetSVG(currentState.sheets[s], {
-            showHeader: opts.showHeader, branded: opts.branded,
-            showAnswers: false, orientation: opts.orientation
+            showHeader: opts.showHeader, branded: opts.branded, showAnswers: false
           });
           v.setAttribute("width", sw);
           v.setAttribute("height", sh);
@@ -1177,8 +1273,7 @@
         const p = document.createElement("div");
         p.className = "worksheet-page";
         const v = renderWorksheetSVG(currentState.sheets[0], {
-          showHeader: opts.showHeader, branded: opts.branded,
-          showAnswers: false, orientation: opts.orientation
+          showHeader: opts.showHeader, branded: opts.branded, showAnswers: false
         });
         p.appendChild(v);
         sheetWrap.appendChild(p);
@@ -1194,8 +1289,7 @@
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div"); p.className = "worksheet-page";
         p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
-          showHeader: opts.showHeader, branded: opts.branded,
-          showAnswers: false, orientation: opts.orientation
+          showHeader: opts.showHeader, branded: opts.branded, showAnswers: false
         }));
         sheetWrap.appendChild(p);
       }
@@ -1203,8 +1297,7 @@
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
           p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
-            showHeader: "none", branded: opts.branded,
-            showAnswers: true, orientation: opts.orientation
+            showHeader: "none", branded: opts.branded, showAnswers: true
           }));
           sheetWrap.appendChild(p);
         }
@@ -1239,23 +1332,23 @@
         const svgNode = renderWorksheetSVG(allSheets[i].data, {
           showHeader: allSheets[i].showAnswers ? "none" : opts.showHeader,
           branded: opts.branded,
-          showAnswers: allSheets[i].showAnswers,
-          orientation: opts.orientation
+          showAnswers: allSheets[i].showAnswers
         });
         document.body.appendChild(svgNode);
         await pdf.svg(svgNode, { x: 0, y: 0, width: pageW, height: pageH });
         document.body.removeChild(svgNode);
       }
 
-      pdf.save("bar-graph-worksheet.pdf");
+      pdf.save("pictograph-worksheet.pdf");
     }
 
     // ===== Event Listeners =====
     elDataTheme.addEventListener("change", () => renderWithNewRandomization());
     elNumCategories.addEventListener("change", () => renderWithNewRandomization());
+    elKeyValue.addEventListener("change", () => renderWithNewRandomization());
+    elAllowHalf.addEventListener("change", () => renderWithNewRandomization());
     elMaxValue.addEventListener("change", () => renderWithNewRandomization());
     elNumQuestions.addEventListener("change", () => renderWithNewRandomization());
-    elGraphOrientation.addEventListener("change", () => renderWithoutRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
 
     elShowHeaderEnabled.addEventListener("change", () => {

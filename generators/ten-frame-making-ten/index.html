@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ten Frames Worksheet Generator</title>
+  <title>Ten Frame Making Ten Worksheet Generator</title>
   <style>
     * {
       margin: 0;
@@ -363,43 +363,23 @@
    onmouseover="this.style.gap='10px'" onmouseout="this.style.gap='6px'">
   &larr; All Worksheets
 </a>
-      <h2>Ten Frames Worksheet Generator</h2>
+      <h2>Ten Frame Making Ten Worksheet Generator</h2>
 
       <div class="control-group">
-        <label for="modeSelect">Mode</label>
-        <select id="modeSelect">
-          <option value="count" selected>Count the dots</option>
-          <option value="fill">Fill the frame</option>
-        </select>
-      </div>
-
-      <div class="control-group">
-        <label for="rangeSelect">Number Range</label>
-        <select id="rangeSelect">
-          <option value="1-5">1 &ndash; 5</option>
-          <option value="1-10" selected>1 &ndash; 10</option>
-          <option value="1-20">1 &ndash; 20 (double ten frames)</option>
+        <label for="targetSelect">Target Number</label>
+        <select id="targetSelect">
+          <option value="5">Make 5</option>
+          <option value="10" selected>Make 10</option>
+          <option value="20">Make 20</option>
         </select>
       </div>
 
       <div class="control-group">
         <label for="problemsPerSheet">Problems per Sheet</label>
         <select id="problemsPerSheet">
-          <option value="4">4</option>
-          <option value="6" selected>6</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
+          <option value="6">6</option>
+          <option value="8" selected>8</option>
           <option value="10">10</option>
-          <option value="12">12</option>
-        </select>
-      </div>
-
-      <div class="control-group">
-        <label for="dotStyle">Dot Style</label>
-        <select id="dotStyle">
-          <option value="circles" selected>Filled circles</option>
-          <option value="stars">Stars</option>
-          <option value="hearts">Hearts</option>
         </select>
       </div>
 
@@ -434,12 +414,6 @@
       <div class="advanced-panel" id="advPanel">
         <div class="advanced-panel-inner">
 
-          <!-- Number line hint -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="numberLineHint" />
-            <label for="numberLineHint">Show number line hint</label>
-          </div>
-
           <!-- Show header -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="showHeaderEnabled" checked />
@@ -460,7 +434,7 @@
           </div>
           <div class="adv-sub" id="customTitleOptions" style="display:none;">
             <label for="worksheetTitle">Title</label>
-            <input type="text" id="worksheetTitle" value="Ten Frames" style="width:100%;padding:8px 10px;font-size:13px;border:2px solid #e2e8f0;border-radius:8px;" />
+            <input type="text" id="worksheetTitle" value="Making Ten" style="width:100%;padding:8px 10px;font-size:13px;border:2px solid #e2e8f0;border-radius:8px;" />
           </div>
 
           <!-- Branding -->
@@ -476,6 +450,10 @@
         <button class="btn-generate" id="btnGenerate">&#x1f504; Generate New</button>
         <button class="btn-pdf" id="btnPdf">&#x1f4c4; Download PDF</button>
         <button class="btn-print" id="btnPrint">&#x1f5a8;&#xfe0f; Print</button>
+      </div>
+
+      <div style="margin-top: 24px; text-align: center;">
+        <a href="../../about.html" style="font-size: 12px; color: #a0aec0; text-decoration: none;">About</a>
       </div>
     </div>
 
@@ -497,13 +475,10 @@
 
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
-    const elMode = document.getElementById("modeSelect");
-    const elRange = document.getElementById("rangeSelect");
+    const elTarget = document.getElementById("targetSelect");
     const elProblems = document.getElementById("problemsPerSheet");
-    const elDotStyle = document.getElementById("dotStyle");
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
-    const elNumberLineHint = document.getElementById("numberLineHint");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
     const elHeaderMode = document.getElementById("headerMode");
     const elHeaderModeOptions = document.getElementById("headerModeOptions");
@@ -522,37 +497,47 @@
     let currentState = { sheets: [] };
 
     // ===== Problem generation =====
-    function generateProblems(count, rangeStr) {
-      let lo, hi;
-      if (rangeStr === "1-5") { lo = 1; hi = 5; }
-      else if (rangeStr === "1-10") { lo = 1; hi = 10; }
-      else { lo = 1; hi = 20; }
-
+    function generateProblems(count, target) {
       const problems = [];
+      // Valid dot counts: 1 to (target - 1) so the missing addend is always >= 1
+      const lo = 1, hi = target - 1;
       const range = hi - lo + 1;
 
       if (count <= range) {
-        // No duplicates: pick 'count' unique numbers from [lo..hi]
+        // Pick unique values from [lo..hi]
         const pool = [];
         for (let n = lo; n <= hi; n++) pool.push(n);
-        // Shuffle
         for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
-        for (let i = 0; i < count; i++) problems.push(pool[i]);
+        for (let i = 0; i < count; i++) {
+          const dots = pool[i];
+          const missing = target - dots;
+          const blankFirst = Math.random() < 0.5;
+          problems.push({ dots, missing, target, blankFirst });
+        }
       } else {
-        // More problems than range — allow repeats but try to spread evenly
+        // More problems than range: fill with full shuffled sets + remainder
         const fullSets = Math.floor(count / range);
         const remainder = count % range;
         for (let s = 0; s < fullSets; s++) {
           const pool = [];
           for (let n = lo; n <= hi; n++) pool.push(n);
           for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
-          for (const n of pool) problems.push(n);
+          for (const dots of pool) {
+            const missing = target - dots;
+            const blankFirst = Math.random() < 0.5;
+            problems.push({ dots, missing, target, blankFirst });
+          }
         }
         if (remainder > 0) {
           const pool = [];
           for (let n = lo; n <= hi; n++) pool.push(n);
           for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
-          for (let i = 0; i < remainder; i++) problems.push(pool[i]);
+          for (let i = 0; i < remainder; i++) {
+            const dots = pool[i];
+            const missing = target - dots;
+            const blankFirst = Math.random() < 0.5;
+            problems.push({ dots, missing, target, blankFirst });
+          }
         }
       }
 
@@ -561,83 +546,51 @@
       return problems;
     }
 
-    // ===== SVG dot shapes =====
-    function drawDot(svg, cx, cy, r, style) {
-      if (style === "stars") {
-        // 5-pointed star
-        const points = [];
-        for (let i = 0; i < 10; i++) {
-          const angle = (Math.PI / 2) * -1 + (Math.PI / 5) * i;
-          const rad = i % 2 === 0 ? r : r * 0.4;
-          points.push((cx + rad * Math.cos(angle)).toFixed(1) + "," + (cy + rad * Math.sin(angle)).toFixed(1));
-        }
-        svg.appendChild(svgEl("polygon", { points: points.join(" "), fill: "#e53e3e" }));
-      } else if (style === "hearts") {
-        // Heart shape using a path
-        const s = r / 6;
-        const path = "M " + cx + " " + (cy + s * 2.5) +
-          " C " + (cx - s * 3) + " " + (cy - s * 1) + ", " + (cx - s * 6) + " " + (cy - s * 3.5) + ", " + cx + " " + (cy - s * 6) +
-          " C " + (cx + s * 6) + " " + (cy - s * 3.5) + ", " + (cx + s * 3) + " " + (cy - s * 1) + ", " + cx + " " + (cy + s * 2.5) + " Z";
-        svg.appendChild(svgEl("path", { d: path, fill: "#e53e3e" }));
-      } else {
-        // Filled circle (default)
-        svg.appendChild(svgEl("circle", { cx: cx, cy: cy, r: r, fill: "#2b6cb0" }));
-      }
-    }
-
-    // ===== Draw a single ten frame =====
-    function drawTenFrame(svg, x, y, cellSize, filledCount, dotStyle, showDots) {
-      const cols = 5, rows = 2;
+    // ===== Draw a ten frame =====
+    // rows x cols grid with thick borders, filled dots as solid black circles
+    function drawTenFrame(svg, x, y, cellSize, rows, cols, filledCount) {
       const frameW = cols * cellSize;
       const frameH = rows * cellSize;
+      const strokeW = 2.5;
 
-      // Outer border
-      svg.appendChild(svgEl("rect", { x: x, y: y, width: frameW, height: frameH, fill: "none", stroke: "#2d3748", "stroke-width": "1.5", rx: 2, ry: 2 }));
+      // Outer border - thick
+      svg.appendChild(svgEl("rect", {
+        x: x, y: y, width: frameW, height: frameH,
+        fill: "none", stroke: "#000", "stroke-width": String(strokeW), rx: 2, ry: 2
+      }));
 
-      // Grid lines and cells
+      // Grid cells and dots
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
           const cx = x + c * cellSize;
           const cy = y + r * cellSize;
-          svg.appendChild(svgEl("rect", { x: cx, y: cy, width: cellSize, height: cellSize, fill: "none", stroke: "#2d3748", "stroke-width": "1" }));
+          svg.appendChild(svgEl("rect", {
+            x: cx, y: cy, width: cellSize, height: cellSize,
+            fill: "none", stroke: "#000", "stroke-width": "1.5"
+          }));
 
-          if (showDots) {
-            const cellIndex = r * cols + c; // left-to-right, top-to-bottom
-            if (cellIndex < filledCount) {
-              const dotR = cellSize * 0.28;
-              drawDot(svg, cx + cellSize / 2, cy + cellSize / 2, dotR, dotStyle);
-            }
+          const cellIndex = r * cols + c;
+          if (cellIndex < filledCount) {
+            const dotR = cellSize * 0.30;
+            svg.appendChild(svgEl("circle", {
+              cx: cx + cellSize / 2, cy: cy + cellSize / 2, r: dotR, fill: "#000"
+            }));
           }
         }
       }
     }
 
-    // ===== Draw number line =====
-    function drawNumberLine(svg, x, y, maxNum, width) {
-      const lineY = y + 8;
-      const tickH = 6;
-      const leftPad = 10;
-      const rightPad = 10;
-      const usableW = width - leftPad - rightPad;
-      const step = usableW / maxNum;
-
-      // Main line
-      svg.appendChild(svgEl("line", { x1: x + leftPad, y1: lineY, x2: x + leftPad + usableW, y2: lineY, stroke: "#718096", "stroke-width": "1" }));
-
-      for (let i = 0; i <= maxNum; i++) {
-        const tx = x + leftPad + i * step;
-        // Tick
-        svg.appendChild(svgEl("line", { x1: tx, y1: lineY - tickH / 2, x2: tx, y2: lineY + tickH / 2, stroke: "#718096", "stroke-width": "1" }));
-        // Number
-        const numEl = svgEl("text", { x: tx, y: lineY + tickH / 2 + 10, class: "txt", "font-size": "7", "text-anchor": "middle", fill: "#718096" });
-        numEl.textContent = String(i);
-        svg.appendChild(numEl);
-      }
+    // ===== Get frame dimensions for a target =====
+    function getFrameConfig(target) {
+      if (target === 5) return { rows: 1, cols: 5, frames: 1 };
+      if (target === 10) return { rows: 2, cols: 5, frames: 1 };
+      // target === 20: two 2x5 frames side by side
+      return { rows: 2, cols: 5, frames: 2 };
     }
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options) {
-      const { showHeader, title, branded, showAnswers, mode, dotStyle, showNumberLine, range } = options;
+      const { showHeader, title, branded, showAnswers, target } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       const st = document.createElementNS("http://www.w3.org/2000/svg", "style");
@@ -652,19 +605,35 @@
         svg.appendChild(svgEl("line", { x1: margin + 50, y1: 32, x2: margin + 240, y2: 32, stroke: "#000", "stroke-width": 1 }));
         const dl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); dl.textContent = "Date:"; svg.appendChild(dl);
         svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
-        const tl = svgEl("text", { x: pageW / 2, y: 78, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
+        const tl = svgEl("text", { x: pageW / 2, y: 68, class: "txt", "font-size": showAnswers ? 16 : 18, "font-weight": 700, "text-anchor": "middle" });
         tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
-        topGridY = 95;
+        // Instructions line
+        if (!showAnswers) {
+          const inst = svgEl("text", { x: pageW / 2, y: 86, class: "txt", "font-size": 11, "font-weight": 400, "text-anchor": "middle", fill: "#4a5568" });
+          inst.textContent = "Complete the addition sentence using the ten frame.";
+          svg.appendChild(inst);
+        }
+        topGridY = showAnswers ? 85 : 98;
       } else if (showHeader === "name") {
         const nl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
         svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
-        const tl = svgEl("text", { x: pageW / 2, y: 78, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
+        const tl = svgEl("text", { x: pageW / 2, y: 68, class: "txt", "font-size": showAnswers ? 16 : 18, "font-weight": 700, "text-anchor": "middle" });
         tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
-        topGridY = 95;
+        if (!showAnswers) {
+          const inst = svgEl("text", { x: pageW / 2, y: 86, class: "txt", "font-size": 11, "font-weight": 400, "text-anchor": "middle", fill: "#4a5568" });
+          inst.textContent = "Complete the addition sentence using the ten frame.";
+          svg.appendChild(inst);
+        }
+        topGridY = showAnswers ? 85 : 98;
       } else {
-        const tl = svgEl("text", { x: pageW / 2, y: 45, class: "txt", "font-size": showAnswers ? 20 : 22, "font-weight": 700, "text-anchor": "middle" });
+        const tl = svgEl("text", { x: pageW / 2, y: 40, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
         tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
-        topGridY = 65;
+        if (!showAnswers) {
+          const inst = svgEl("text", { x: pageW / 2, y: 58, class: "txt", "font-size": 11, "font-weight": 400, "text-anchor": "middle", fill: "#4a5568" });
+          inst.textContent = "Complete the addition sentence using the ten frame.";
+          svg.appendChild(inst);
+        }
+        topGridY = showAnswers ? 58 : 70;
       }
 
       // Branding
@@ -673,58 +642,48 @@
         br.textContent = "animalmath.com"; svg.appendChild(br);
       }
 
-      // Number line
-      const maxNumForLine = range === "1-20" ? 20 : 10;
-      let numberLineH = 0;
-      if (showNumberLine) {
-        numberLineH = 30;
-        drawNumberLine(svg, margin + 40, pageH - (branded ? 50 : 36) - numberLineH, maxNumForLine, pageW - margin * 2 - 80);
-      }
-
-      // Layout
+      // Layout grid
       const count = problems.length;
-      const bottomMargin = (branded ? 50 : 40) + numberLineH;
+      const bottomMargin = branded ? 50 : 40;
       const gridTop = topGridY;
       const availH = pageH - bottomMargin - gridTop;
       const availW = pageW - margin * 2;
 
-      // Determine grid layout
-      const isDouble = range === "1-20";
-      let cols, rows;
-      if (count <= 8) { cols = 2; }
-      else { cols = 3; }
-      rows = Math.ceil(count / cols);
-
+      const cols = 2;
+      const rows = Math.ceil(count / cols);
       const colW = availW / cols;
       const rowH = availH / rows;
 
-      // Ten frame sizing — scale to fill the available cell area
-      const maxCellW = colW - 30;   // horizontal room inside each problem cell
-      const maxCellH = rowH - 40;   // vertical room (leave space for answer line + padding)
+      const frameConfig = getFrameConfig(target);
+
+      // Calculate cell size for ten frame to fit well in the available space
+      // Frame needs to be LARGE and clear for young children
+      const maxFrameW = colW - 40; // horizontal room
+      const maxFrameH = rowH * 0.55; // vertical room for frame (leave room for equation below)
 
       let cellSize;
-      if (isDouble) {
-        // Two frames side-by-side: total width = 5*cell*2 + gap, height = 2*cell + answerLine
-        const gapEst = 8;
+      if (frameConfig.frames === 2) {
+        // Two frames side by side: total width = 2 * (5 * cell) + gap
+        const doubleGap = 10;
         cellSize = Math.min(
-          Math.floor((maxCellW - gapEst) / 10),   // fit width for 10 columns + gap
-          Math.floor((maxCellH - 30) / 2)          // fit height for 2 rows + answer area
+          Math.floor((maxFrameW - doubleGap) / 10),
+          Math.floor(maxFrameH / frameConfig.rows)
         );
-        cellSize = clamp(cellSize, 14, 40);
       } else {
         cellSize = Math.min(
-          Math.floor(maxCellW / 5),                // fit width for 5 columns
-          Math.floor((maxCellH - 30) / 2)          // fit height for 2 rows + answer area
+          Math.floor(maxFrameW / frameConfig.cols),
+          Math.floor(maxFrameH / frameConfig.rows)
         );
-        cellSize = clamp(cellSize, 16, 50);
       }
+      cellSize = clamp(cellSize, 14, 50);
 
-      const singleFrameW = 5 * cellSize;
-      const singleFrameH = 2 * cellSize;
-      const doubleGap = 8;
-      const totalFrameW = isDouble ? singleFrameW * 2 + doubleGap : singleFrameW;
+      const singleFrameW = frameConfig.cols * cellSize;
+      const singleFrameH = frameConfig.rows * cellSize;
+      const doubleGap = 10;
+      const totalFrameW = frameConfig.frames === 2 ? singleFrameW * 2 + doubleGap : singleFrameW;
 
-      // Problem number font size
+      // Equation font size - LARGE for young children
+      const eqFontSize = Math.min(28, Math.max(16, Math.floor(rowH * 0.18)));
       const probNumSize = 11;
 
       for (let i = 0; i < problems.length; i++) {
@@ -732,7 +691,7 @@
         const row = Math.floor(i / cols);
         const cellLeft = margin + col * colW;
         const cellTop = gridTop + row * rowH;
-        const num = problems[i];
+        const prob = problems[i];
 
         // Problem number
         const pnX = cellLeft + 4;
@@ -740,83 +699,167 @@
         const numLabel = svgEl("text", { x: pnX, y: pnY, class: "txt", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
         numLabel.textContent = (i + 1) + "."; svg.appendChild(numLabel);
 
-        // Center the frame + answer area within the cell
-        const contentCenterY = cellTop + rowH / 2;
-        // Horizontally center the frame block within the cell (with a small left offset for the problem number)
-        const contentStartX = cellLeft + (colW - totalFrameW) / 2 + 6;
+        // Center the frame horizontally in the cell
+        const contentCenterX = cellLeft + colW / 2;
+        const frameStartX = contentCenterX - totalFrameW / 2;
 
-        if (mode === "count") {
-          // "Count the dots" mode: show filled ten frame, student writes the number
-          // Vertical gap between bottom of ten frame and answer line
-          const answerGap = Math.max(22, cellSize * 0.7);
-          if (isDouble && num > 10) {
-            // Two ten frames side by side
-            const totalBlockH = singleFrameH + answerGap + 4;
-            const frameBlockY = contentCenterY - totalBlockH / 2;
-            drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 10, dotStyle, true);
-            drawTenFrame(svg, contentStartX + singleFrameW + doubleGap, frameBlockY, cellSize, num - 10, dotStyle, true);
+        // Vertical layout: frame on top, equation below
+        // Position frame in upper portion of cell, equation in lower portion
+        const gapBetween = Math.max(12, rowH * 0.06);
+        const totalContentH = singleFrameH + gapBetween + eqFontSize;
+        const contentStartY = cellTop + (rowH - totalContentH) / 2;
+        const frameY = contentStartY;
 
-            // Answer line below
-            const lineY = frameBlockY + singleFrameH + answerGap;
-            const lineW = 50;
-            const lineCx = contentStartX + totalFrameW / 2;
-            svg.appendChild(svgEl("line", { x1: lineCx - lineW / 2, y1: lineY, x2: lineCx + lineW / 2, y2: lineY, stroke: "#2d3748", "stroke-width": "1.5" }));
-
-            if (showAnswers) {
-              const ansEl = svgEl("text", { x: lineCx, y: lineY - 5, class: "txt", "font-size": "16", "font-weight": "700", "text-anchor": "middle", fill: "#3182ce" });
-              ansEl.textContent = String(num); svg.appendChild(ansEl);
-            }
-          } else {
-            // Single ten frame
-            const totalBlockH = singleFrameH + answerGap + 4;
-            const frameBlockY = contentCenterY - totalBlockH / 2;
-            drawTenFrame(svg, contentStartX, frameBlockY, cellSize, num, dotStyle, true);
-
-            // Answer line below
-            const lineY = frameBlockY + singleFrameH + answerGap;
-            const lineW = 50;
-            const lineCx = contentStartX + singleFrameW / 2;
-            svg.appendChild(svgEl("line", { x1: lineCx - lineW / 2, y1: lineY, x2: lineCx + lineW / 2, y2: lineY, stroke: "#2d3748", "stroke-width": "1.5" }));
-
-            if (showAnswers) {
-              const ansEl = svgEl("text", { x: lineCx, y: lineY - 5, class: "txt", "font-size": "16", "font-weight": "700", "text-anchor": "middle", fill: "#3182ce" });
-              ansEl.textContent = String(num); svg.appendChild(ansEl);
-            }
-          }
+        // Draw the ten frame(s)
+        if (frameConfig.frames === 2) {
+          // For target 20: two frames side by side
+          const dotsInFirst = Math.min(prob.dots, 10);
+          const dotsInSecond = Math.max(0, prob.dots - 10);
+          drawTenFrame(svg, frameStartX, frameY, cellSize, frameConfig.rows, frameConfig.cols, dotsInFirst);
+          drawTenFrame(svg, frameStartX + singleFrameW + doubleGap, frameY, cellSize, frameConfig.rows, frameConfig.cols, dotsInSecond);
         } else {
-          // "Fill the frame" mode: show the number, student fills the empty frame
-          const numLabelGap = Math.max(14, cellSize * 0.5);  // gap between number text and frame top
-          if (isDouble && num > 10) {
-            // Show number on top, two ten frames below
-            const totalBlockH = 18 + numLabelGap + singleFrameH;  // 18 for text height
-            const blockStartY = contentCenterY - totalBlockH / 2;
-            const numY = blockStartY + 16;
-            const numEl = svgEl("text", { x: contentStartX + totalFrameW / 2, y: numY, class: "txt", "font-size": "20", "font-weight": "700", "text-anchor": "middle", fill: "#1a202c" });
-            numEl.textContent = String(num); svg.appendChild(numEl);
+          drawTenFrame(svg, frameStartX, frameY, cellSize, frameConfig.rows, frameConfig.cols, prob.dots);
+        }
 
-            const frameBlockY = numY + numLabelGap;
-            if (showAnswers) {
-              drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 10, dotStyle, true);
-              drawTenFrame(svg, contentStartX + singleFrameW + doubleGap, frameBlockY, cellSize, num - 10, dotStyle, true);
-            } else {
-              drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 0, dotStyle, false);
-              drawTenFrame(svg, contentStartX + singleFrameW + doubleGap, frameBlockY, cellSize, 0, dotStyle, false);
-            }
+        // Draw the equation below the frame
+        const eqY = frameY + singleFrameH + gapBetween + eqFontSize * 0.8;
+
+        // Build the equation string parts
+        // blankFirst: ___ + dots = target
+        // !blankFirst: dots + ___ = target
+        const dotsStr = String(prob.dots);
+        const missingStr = String(prob.missing);
+        const targetStr = String(prob.target);
+        const blankW = eqFontSize * 2.0; // width of the blank underline
+
+        // Measure approximate equation width to center it
+        const charW = eqFontSize * 0.62;
+        const spaceW = eqFontSize * 0.35;
+        const plusW = charW;
+        const equalsW = charW;
+
+        let eqTotalW;
+        if (prob.blankFirst) {
+          // ___ + dotsStr = targetStr
+          eqTotalW = blankW + spaceW + plusW + spaceW + dotsStr.length * charW + spaceW + equalsW + spaceW + targetStr.length * charW;
+        } else {
+          // dotsStr + ___ = targetStr
+          eqTotalW = dotsStr.length * charW + spaceW + plusW + spaceW + blankW + spaceW + equalsW + spaceW + targetStr.length * charW;
+        }
+
+        let eqX = contentCenterX - eqTotalW / 2;
+
+        if (prob.blankFirst) {
+          // Draw blank (underline) or answer
+          if (showAnswers) {
+            const ansEl = svgEl("text", {
+              x: eqX + blankW / 2, y: eqY,
+              "text-anchor": "middle",
+              "font-family": "Arial, Helvetica, sans-serif",
+              "font-size": String(eqFontSize), "font-weight": "700", fill: "#3182ce"
+            });
+            ansEl.textContent = missingStr; svg.appendChild(ansEl);
           } else {
-            // Show number on top, ten frame below
-            const totalBlockH = 18 + numLabelGap + singleFrameH;
-            const blockStartY = contentCenterY - totalBlockH / 2;
-            const numY = blockStartY + 16;
-            const numEl = svgEl("text", { x: contentStartX + singleFrameW / 2, y: numY, class: "txt", "font-size": "20", "font-weight": "700", "text-anchor": "middle", fill: "#1a202c" });
-            numEl.textContent = String(num); svg.appendChild(numEl);
-
-            const frameBlockY = numY + numLabelGap;
-            if (showAnswers) {
-              drawTenFrame(svg, contentStartX, frameBlockY, cellSize, num, dotStyle, true);
-            } else {
-              drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 0, dotStyle, false);
-            }
+            // Underline for blank
+            const lineY2 = eqY + 4;
+            svg.appendChild(svgEl("line", {
+              x1: eqX + 2, y1: lineY2, x2: eqX + blankW - 2, y2: lineY2,
+              stroke: "#000", "stroke-width": "2.5"
+            }));
           }
+          eqX += blankW + spaceW;
+
+          // Plus sign
+          const plusEl = svgEl("text", {
+            x: eqX, y: eqY,
+            "font-family": "Arial, Helvetica, sans-serif",
+            "font-size": String(eqFontSize), "font-weight": "700", fill: "#1a202c"
+          });
+          plusEl.textContent = "+"; svg.appendChild(plusEl);
+          eqX += plusW + spaceW;
+
+          // Dots number
+          const dotsEl = svgEl("text", {
+            x: eqX, y: eqY,
+            "font-family": "Arial, Helvetica, sans-serif",
+            "font-size": String(eqFontSize), "font-weight": "700", fill: "#1a202c"
+          });
+          dotsEl.textContent = dotsStr; svg.appendChild(dotsEl);
+          eqX += dotsStr.length * charW + spaceW;
+
+          // Equals sign
+          const eqEl = svgEl("text", {
+            x: eqX, y: eqY,
+            "font-family": "Arial, Helvetica, sans-serif",
+            "font-size": String(eqFontSize), "font-weight": "700", fill: "#1a202c"
+          });
+          eqEl.textContent = "="; svg.appendChild(eqEl);
+          eqX += equalsW + spaceW;
+
+          // Target number
+          const tgtEl = svgEl("text", {
+            x: eqX, y: eqY,
+            "font-family": "Arial, Helvetica, sans-serif",
+            "font-size": String(eqFontSize), "font-weight": "700", fill: "#1a202c"
+          });
+          tgtEl.textContent = targetStr; svg.appendChild(tgtEl);
+
+        } else {
+          // dotsStr + ___ = targetStr
+
+          // Dots number
+          const dotsEl = svgEl("text", {
+            x: eqX, y: eqY,
+            "font-family": "Arial, Helvetica, sans-serif",
+            "font-size": String(eqFontSize), "font-weight": "700", fill: "#1a202c"
+          });
+          dotsEl.textContent = dotsStr; svg.appendChild(dotsEl);
+          eqX += dotsStr.length * charW + spaceW;
+
+          // Plus sign
+          const plusEl = svgEl("text", {
+            x: eqX, y: eqY,
+            "font-family": "Arial, Helvetica, sans-serif",
+            "font-size": String(eqFontSize), "font-weight": "700", fill: "#1a202c"
+          });
+          plusEl.textContent = "+"; svg.appendChild(plusEl);
+          eqX += plusW + spaceW;
+
+          // Draw blank (underline) or answer
+          if (showAnswers) {
+            const ansEl = svgEl("text", {
+              x: eqX + blankW / 2, y: eqY,
+              "text-anchor": "middle",
+              "font-family": "Arial, Helvetica, sans-serif",
+              "font-size": String(eqFontSize), "font-weight": "700", fill: "#3182ce"
+            });
+            ansEl.textContent = missingStr; svg.appendChild(ansEl);
+          } else {
+            // Underline for blank
+            const lineY2 = eqY + 4;
+            svg.appendChild(svgEl("line", {
+              x1: eqX + 2, y1: lineY2, x2: eqX + blankW - 2, y2: lineY2,
+              stroke: "#000", "stroke-width": "2.5"
+            }));
+          }
+          eqX += blankW + spaceW;
+
+          // Equals sign
+          const eqEl = svgEl("text", {
+            x: eqX, y: eqY,
+            "font-family": "Arial, Helvetica, sans-serif",
+            "font-size": String(eqFontSize), "font-weight": "700", fill: "#1a202c"
+          });
+          eqEl.textContent = "="; svg.appendChild(eqEl);
+          eqX += equalsW + spaceW;
+
+          // Target number
+          const tgtEl = svgEl("text", {
+            x: eqX, y: eqY,
+            "font-family": "Arial, Helvetica, sans-serif",
+            "font-size": String(eqFontSize), "font-weight": "700", fill: "#1a202c"
+          });
+          tgtEl.textContent = targetStr; svg.appendChild(tgtEl);
         }
       }
       return svg;
@@ -826,15 +869,14 @@
     function gatherOptions() {
       let showHeader = "none";
       if (elShowHeaderEnabled.checked) showHeader = elHeaderMode.value;
-      const title = elCustomTitleEnabled.checked ? (elTitle.value || "Ten Frames") : "Ten Frames";
+      const target = parseInt(elTarget.value, 10);
+      const defaultTitle = "Making " + target;
+      const title = elCustomTitleEnabled.checked ? (elTitle.value || defaultTitle) : defaultTitle;
       return {
-        mode: elMode.value,
-        range: elRange.value,
+        target: target,
         problemsPerSheet: parseInt(elProblems.value, 10),
-        dotStyle: elDotStyle.value,
         numWorksheets: parseInt(elNumSheets.value, 10),
         answerKey: elAnswerKey.checked,
-        showNumberLine: elNumberLineHint.checked,
         showHeader: showHeader,
         title: title,
         branded: elBranded.checked,
@@ -845,7 +887,7 @@
       const opts = gatherOptions();
       currentState.sheets = [];
       for (let s = 0; s < opts.numWorksheets; s++) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.range));
+        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.target));
       }
       renderWorksheet();
     }
@@ -853,7 +895,7 @@
     function renderWithoutRandomization() {
       const opts = gatherOptions();
       while (currentState.sheets.length < opts.numWorksheets) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.range));
+        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.target));
       }
       if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
       renderWorksheet();
@@ -870,7 +912,7 @@
       if (isMobile()) {
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range });
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false, target: opts.target });
           p.appendChild(v); sheetWrap.appendChild(p);
         }
         return;
@@ -881,22 +923,22 @@
         sheetWrap.classList.add("grid-view");
         const ep = numSheets >= 3 ? 12 : 0;
         const aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
-        let cols;
-        if (numSheets <= 3) { cols = numSheets; if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        else { cols = Math.min(3, numSheets); if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        const msw = (aw - (cols - 1) * gap) / cols, msh = numSheets <= 3 ? ah : ah * 0.8;
+        let gridCols;
+        if (numSheets <= 3) { gridCols = numSheets; if ((aw - (gridCols - 1) * gap) / gridCols < mrw) gridCols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        else { gridCols = Math.min(3, numSheets); if ((aw - (gridCols - 1) * gap) / gridCols < mrw) gridCols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        const msw = (aw - (gridCols - 1) * gap) / gridCols, msh = numSheets <= 3 ? ah : ah * 0.8;
         const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
         const sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
-        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
+        sheetWrap.style.gridTemplateColumns = "repeat(" + gridCols + ", " + (sw + 24) + "px)";
         sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range });
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false, target: opts.target });
           v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
         }
       } else {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range });
+        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false, target: opts.target });
         p.appendChild(v); sheetWrap.appendChild(p);
       }
     }
@@ -909,13 +951,13 @@
       sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range }));
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false, target: opts.target }));
         sheetWrap.appendChild(p);
       }
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, branded: opts.branded, showAnswers: true, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: false, range: opts.range }));
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, branded: opts.branded, showAnswers: true, target: opts.target }));
           sheetWrap.appendChild(p);
         }
       }
@@ -942,19 +984,19 @@
 
         for (let i = 0; i < currentState.sheets.length; i++) {
           if (i > 0) pdf.addPage();
-          const svgClone = renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range });
+          const svgClone = renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false, target: opts.target });
           await pdf.svg(svgClone, { x: pdfMargin, y: pdfMargin + topOffset, width: contentWidth, height: contentHeight });
         }
 
         if (opts.answerKey) {
           for (let i = 0; i < currentState.sheets.length; i++) {
             pdf.addPage();
-            const answerSvg = renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, branded: opts.branded, showAnswers: true, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: false, range: opts.range });
+            const answerSvg = renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, branded: opts.branded, showAnswers: true, target: opts.target });
             await pdf.svg(answerSvg, { x: pdfMargin, y: pdfMargin + topOffset, width: contentWidth, height: contentHeight });
           }
         }
 
-        pdf.save('ten-frames-worksheet.pdf');
+        pdf.save('ten-frame-making-ten-worksheet.pdf');
       } catch (error) {
         console.error('PDF generation error:', error);
         alert('PDF generation failed. Please use Print button and select "Save as PDF".');
@@ -962,12 +1004,9 @@
     }
 
     // ===== Event Listeners =====
-    elMode.addEventListener("change", () => renderWithNewRandomization());
-    elRange.addEventListener("change", () => renderWithNewRandomization());
+    elTarget.addEventListener("change", () => renderWithNewRandomization());
     elProblems.addEventListener("change", () => renderWithNewRandomization());
-    elDotStyle.addEventListener("change", () => renderWithoutRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
-    elNumberLineHint.addEventListener("change", () => renderWithoutRandomization());
     elShowHeaderEnabled.addEventListener("change", () => {
       elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
       renderWithoutRandomization();
