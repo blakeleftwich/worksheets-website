@@ -170,7 +170,8 @@
       padding-left: 26px;
     }
 
-    .adv-sub select {
+    .adv-sub select,
+    .adv-sub input[type="text"] {
       width: 100%;
       padding: 8px 10px;
       font-size: 13px;
@@ -371,7 +372,7 @@
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="../../jspdf.umd.min.js"></script>
   <script src="../../svg2pdf.js"></script>
 </head>
@@ -474,10 +475,28 @@
             </select>
           </div>
 
-          <!-- Worksheet Title -->
-          <div class="control-group" style="margin-bottom:0;">
-            <label for="worksheetTitle">Worksheet Title</label>
-            <input type="text" id="worksheetTitle" value="Number Tracing Practice" style="width:100%;padding:8px 10px;font-size:13px;border:2px solid #e2e8f0;border-radius:8px;" />
+          <!-- Customize worksheet titles -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="customTitleEnabled" />
+            <label for="customTitleEnabled">Customize worksheet titles</label>
+          </div>
+          <div class="adv-sub" id="customTitleOptions" style="display:none;">
+            <div class="adv-checkbox-row" style="margin-bottom:8px;">
+              <input type="checkbox" id="showTitle" checked />
+              <label for="showTitle">Show title</label>
+            </div>
+            <div id="titleInputWrap">
+              <label for="headerText">Title</label>
+              <input type="text" id="headerText" value="Number Tracing Practice" />
+            </div>
+            <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
+              <input type="checkbox" id="showSubtitle" checked />
+              <label for="showSubtitle">Show subtitle</label>
+            </div>
+            <div id="subtitleInputWrap">
+              <label for="subtitleText">Subtitle</label>
+              <input type="text" id="subtitleText" value="" />
+            </div>
           </div>
 
           <!-- Branding -->
@@ -504,9 +523,10 @@
 
   <script>
     // ===== Helpers =====
-    function svgEl(tag, attrs) {
+    function svgEl(tag, attrs, children) {
       const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
       if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      if (children) children.forEach(c => el.appendChild(c));
       return el;
     }
     function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
@@ -524,8 +544,15 @@
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
     const elHeaderMode = document.getElementById("headerMode");
     const elHeaderModeOptions = document.getElementById("headerModeOptions");
-    const elTitle = document.getElementById("worksheetTitle");
     const elBranded = document.getElementById("branded");
+    const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
+    const elCustomTitleOptions = document.getElementById("customTitleOptions");
+    const elHeaderText = document.getElementById("headerText");
+    const elSubtitleText = document.getElementById("subtitleText");
+    const elShowTitle = document.getElementById("showTitle");
+    const elShowSubtitle = document.getElementById("showSubtitle");
+    const elTitleInputWrap = document.getElementById("titleInputWrap");
+    const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
     const advArrow = document.getElementById("advArrow");
@@ -536,10 +563,29 @@
       advArrow.classList.toggle("open");
     });
 
+    function getHeaderMode() {
+      return elShowHeaderEnabled.checked ? elHeaderMode.value : "none";
+    }
+
+    function getTitle() {
+      if (elCustomTitleEnabled.checked) {
+        return elShowTitle.checked ? elHeaderText.value : "";
+      }
+      return "Number Tracing Practice";
+    }
+
+    function getSubtitle() {
+      if (elCustomTitleEnabled.checked) {
+        return elShowSubtitle.checked ? elSubtitleText.value : "";
+      }
+      return "";
+    }
+
     // ===== Gather options =====
     function gatherOptions() {
-      let showHeader = "none";
-      if (elShowHeaderEnabled.checked) showHeader = elHeaderMode.value;
+      const showHeader = getHeaderMode();
+      const title = getTitle();
+      const subtitle = getSubtitle();
       return {
         startNumber: clamp(parseInt(elStartNumber.value, 10) || 0, 0, 20),
         endNumber: clamp(parseInt(elEndNumber.value, 10) || 10, 0, 20),
@@ -550,19 +596,17 @@
         includePracticeLine: elIncludePracticeLine.checked,
         answerKey: elAnswerKey.checked,
         showHeader: showHeader,
-        title: elTitle.value || "Number Tracing Practice",
+        title: title,
+        subtitle: subtitle,
         branded: elBranded.checked,
       };
     }
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(numbers, options) {
-      const { showHeader, title, branded, traceStyle, repetitions, includePracticeLine, fontSize, showAnswers } = options;
+      const { showHeader, title, subtitle, branded, traceStyle, repetitions, includePracticeLine, fontSize, showAnswers } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
-      const st = document.createElementNS("http://www.w3.org/2000/svg", "style");
-      st.textContent = ".txt { font-family: Arial, Helvetica, sans-serif; }";
-      svg.appendChild(st);
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
 
       // Font size mapping
@@ -571,26 +615,49 @@
       else if (fontSize === "large") numFontSize = 72;
       else numFontSize = 60; // medium
 
-      // Header
+      const midX = pageW / 2;
       let topContentY;
-      if (showHeader === "both") {
-        const nl = svgEl("text", { x: margin, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
-        svg.appendChild(svgEl("line", { x1: margin + 50, y1: 32, x2: margin + 240, y2: 32, stroke: "#000", "stroke-width": 1 }));
-        const dl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); dl.textContent = "Date:"; svg.appendChild(dl);
-        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
-        const tl = svgEl("text", { x: pageW / 2, y: 78, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
-        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
-        topContentY = 96;
-      } else if (showHeader === "name") {
-        const nl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
-        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
-        const tl = svgEl("text", { x: pageW / 2, y: 78, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
-        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
-        topContentY = 96;
-      } else {
-        const tl = svgEl("text", { x: pageW / 2, y: 45, class: "txt", "font-size": showAnswers ? 20 : 22, "font-weight": 700, "text-anchor": "middle" });
-        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
-        topContentY = 65;
+      {
+        let curY = 10;
+        if (showHeader === "both") {
+          svg.appendChild(svgEl("text", {
+            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+          }, [document.createTextNode("Name")]));
+          svg.appendChild(svgEl("line", {
+            x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18,
+            stroke: "#718096", "stroke-width": 0.75
+          }));
+          svg.appendChild(svgEl("text", {
+            x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+          }, [document.createTextNode("Date")]));
+          svg.appendChild(svgEl("line", {
+            x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
+            stroke: "#718096", "stroke-width": 0.75
+          }));
+          curY += 28;
+        } else if (showHeader === "name") {
+          svg.appendChild(svgEl("text", {
+            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+          }, [document.createTextNode("Name")]));
+          svg.appendChild(svgEl("line", {
+            x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
+            stroke: "#718096", "stroke-width": 0.75
+          }));
+          curY += 28;
+        }
+        if (title) {
+          svg.appendChild(svgEl("text", {
+            x: margin, y: curY + 38, "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af"
+          }, [document.createTextNode(title)]));
+          curY += 46;
+        }
+        if (subtitle) {
+          svg.appendChild(svgEl("text", {
+            x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568"
+          }, [document.createTextNode(subtitle)]));
+          curY += 20;
+        }
+        topContentY = curY + 6;
       }
 
       // Branding footer
@@ -798,7 +865,7 @@
         for (let s = 0; s < numPages; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
           const v = renderWorksheetSVG(currentState.pages[s], {
-            showHeader: opts.showHeader, title: opts.title, branded: opts.branded,
+            showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
             traceStyle: opts.traceStyle, repetitions: opts.repetitions,
             includePracticeLine: opts.includePracticeLine, fontSize: opts.fontSize,
             showAnswers: false
@@ -824,7 +891,7 @@
         for (let s = 0; s < numPages; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
           const v = renderWorksheetSVG(currentState.pages[s], {
-            showHeader: opts.showHeader, title: opts.title, branded: opts.branded,
+            showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
             traceStyle: opts.traceStyle, repetitions: opts.repetitions,
             includePracticeLine: opts.includePracticeLine, fontSize: opts.fontSize,
             showAnswers: false
@@ -869,7 +936,7 @@
         for (let i = 0; i < currentState.pages.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
           p.appendChild(renderWorksheetSVG(currentState.pages[i], {
-            showHeader: "none", title: opts.title, branded: opts.branded,
+            showHeader: "none", title: opts.title ? opts.title + " \u2014 Answer Key" : "Answer Key", subtitle: "", branded: opts.branded,
             traceStyle: opts.traceStyle, repetitions: opts.repetitions,
             includePracticeLine: false, fontSize: opts.fontSize,
             showAnswers: true
@@ -899,7 +966,7 @@
       if (opts.answerKey) {
         for (let i = 0; i < currentState.pages.length; i++) {
           svgs.push(renderWorksheetSVG(currentState.pages[i], {
-            showHeader: "none", title: opts.title, branded: opts.branded,
+            showHeader: "none", title: opts.title ? opts.title + " \u2014 Answer Key" : "Answer Key", subtitle: "", branded: opts.branded,
             traceStyle: opts.traceStyle, repetitions: opts.repetitions,
             includePracticeLine: false, fontSize: opts.fontSize,
             showAnswers: true
@@ -938,7 +1005,20 @@
     });
     elHeaderMode.addEventListener("change", () => regenerate());
     elBranded.addEventListener("change", () => regenerate());
-    elTitle.addEventListener("input", () => regenerate());
+    elCustomTitleEnabled.addEventListener("change", () => {
+      elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
+      regenerate();
+    });
+    elShowTitle.addEventListener("change", () => {
+      elTitleInputWrap.style.display = elShowTitle.checked ? "" : "none";
+      regenerate();
+    });
+    elShowSubtitle.addEventListener("change", () => {
+      elSubtitleInputWrap.style.display = elShowSubtitle.checked ? "" : "none";
+      regenerate();
+    });
+    elHeaderText.addEventListener("input", () => regenerate());
+    elSubtitleText.addEventListener("input", () => regenerate());
     elAnswerKey.addEventListener("change", () => {});
     document.getElementById("btnGenerate").addEventListener("click", () => regenerate());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);

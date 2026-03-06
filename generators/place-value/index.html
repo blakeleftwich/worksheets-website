@@ -358,7 +358,7 @@
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="../../jspdf.umd.min.js"></script>
   <script src="../../svg2pdf.js"></script>
 </head>
@@ -450,14 +450,28 @@
             </select>
           </div>
 
-          <!-- Worksheet Title -->
+          <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
-            <label for="customTitleEnabled">Customize worksheet title</label>
+            <label for="customTitleEnabled">Customize worksheet titles</label>
           </div>
           <div class="adv-sub" id="customTitleOptions" style="display:none;">
-            <label for="worksheetTitle">Title</label>
-            <input type="text" id="worksheetTitle" value="Place Value: Tens and Ones" />
+            <div class="adv-checkbox-row" style="margin-bottom:8px;">
+              <input type="checkbox" id="showTitle" checked />
+              <label for="showTitle">Show title</label>
+            </div>
+            <div id="titleInputWrap">
+              <label for="headerText">Title</label>
+              <input type="text" id="headerText" value="Place Value: Tens and Ones" />
+            </div>
+            <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
+              <input type="checkbox" id="showSubtitle" checked />
+              <label for="showSubtitle">Show subtitle</label>
+            </div>
+            <div id="subtitleInputWrap">
+              <label for="subtitleText">Subtitle</label>
+              <input type="text" id="subtitleText" value="" />
+            </div>
           </div>
 
           <!-- Branding -->
@@ -484,9 +498,10 @@
 
   <script>
     // ===== Helpers =====
-    function svgEl(tag, attrs) {
+    function svgEl(tag, attrs, children) {
       const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
       if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      if (children) children.forEach(c => el.appendChild(c));
       return el;
     }
 
@@ -503,7 +518,12 @@
     const elHeaderModeOptions = document.getElementById("headerModeOptions");
     const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
     const elCustomTitleOptions = document.getElementById("customTitleOptions");
-    const elTitle = document.getElementById("worksheetTitle");
+    const elHeaderText = document.getElementById("headerText");
+    const elSubtitleText = document.getElementById("subtitleText");
+    const elShowTitle = document.getElementById("showTitle");
+    const elShowSubtitle = document.getElementById("showSubtitle");
+    const elTitleInputWrap = document.getElementById("titleInputWrap");
+    const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
     const elBranded = document.getElementById("branded");
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
@@ -512,7 +532,25 @@
     // ===== Advanced panel toggle =====
     advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
 
-    // ===== State =====
+    function getHeaderMode() {
+      return elShowHeaderEnabled.checked ? elHeaderMode.value : "none";
+    }
+
+    function getTitle() {
+      if (elCustomTitleEnabled.checked) {
+        return elShowTitle.checked ? elHeaderText.value : "";
+      }
+      return "Place Value: Tens and Ones";
+    }
+
+    function getSubtitle() {
+      if (elCustomTitleEnabled.checked) {
+        return elShowSubtitle.checked ? elSubtitleText.value : "";
+      }
+      return "";
+    }
+
+        // ===== State =====
     let currentState = { sheets: [] };
 
     // ===== Number generation =====
@@ -558,11 +596,9 @@
 
     // ===== Gather options =====
     function gatherOptions() {
-      let showHeader = "none";
-      if (elShowHeaderEnabled.checked) {
-        showHeader = elHeaderMode.value;
-      }
-      const title = elCustomTitleEnabled.checked ? (elTitle.value || "Place Value") : generateAutoTitle();
+      const showHeader = getHeaderMode();
+      const title = getTitle();
+      const subtitle = getSubtitle();
       return {
         mode: elMode.value,
         range: elRange.value,
@@ -571,6 +607,7 @@
         showChart: elShowChart.checked,
         showHeader: showHeader,
         title: title,
+        subtitle: subtitle,
         branded: elBranded.checked,
         answerKey: elAnswerKey.checked,
       };
@@ -578,33 +615,63 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(numbers, options) {
-      const { mode, showChart, showHeader, title, branded, showAnswers } = options;
+      const { mode, showChart, showHeader, title, subtitle, branded, showAnswers } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const useHundreds = hasHundreds();
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
-      const st = document.createElementNS("http://www.w3.org/2000/svg", "style");
-      st.textContent = ".txt { font-family: Arial, Helvetica, sans-serif; }";
-      svg.appendChild(st);
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
 
-      // Header
+      const midX = pageW / 2;
       let topGridY;
-      if (showHeader === "both") {
-        const nl = svgEl("text", { x: margin, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
-        svg.appendChild(svgEl("line", { x1: margin + 50, y1: 32, x2: margin + 240, y2: 32, stroke: "#000", "stroke-width": 1 }));
-        const dl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); dl.textContent = "Date:"; svg.appendChild(dl);
-        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
-        const tl = svgEl("text", { x: pageW / 2, y: 62, class: "txt", "font-size": showAnswers ? 16 : 18, "font-weight": 700, "text-anchor": "middle" });
-        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
-        topGridY = 80;
+      {
+        let curY = 10;
+        if (showHeader === "both") {
+          svg.appendChild(svgEl("text", {
+            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+          }, [document.createTextNode("Name")]));
+          svg.appendChild(svgEl("line", {
+            x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18,
+            stroke: "#718096", "stroke-width": 0.75
+          }));
+          svg.appendChild(svgEl("text", {
+            x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+          }, [document.createTextNode("Date")]));
+          svg.appendChild(svgEl("line", {
+            x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
+            stroke: "#718096", "stroke-width": 0.75
+          }));
+          curY += 28;
+        } else if (showHeader === "name") {
+          svg.appendChild(svgEl("text", {
+            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+          }, [document.createTextNode("Name")]));
+          svg.appendChild(svgEl("line", {
+            x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
+            stroke: "#718096", "stroke-width": 0.75
+          }));
+          curY += 28;
+        }
+        if (title) {
+          svg.appendChild(svgEl("text", {
+            x: margin, y: curY + 38, "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af"
+          }, [document.createTextNode(title)]));
+          curY += 46;
+        }
+        if (subtitle) {
+          svg.appendChild(svgEl("text", {
+            x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568"
+          }, [document.createTextNode(subtitle)]));
+          curY += 20;
+        }
+        topGridY = curY + 6;
       } else if (showHeader === "name") {
-        const nl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
+        const nl = svgEl("text", { x: pageW - margin - 190, y: 30, "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
         svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
-        const tl = svgEl("text", { x: pageW / 2, y: 62, class: "txt", "font-size": showAnswers ? 16 : 18, "font-weight": 700, "text-anchor": "middle" });
+        const tl = svgEl("text", { x: pageW / 2, y: 62, "font-family": "Fredoka, sans-serif", "font-size": showAnswers ? 16 : 18, "font-weight": 700, "text-anchor": "middle" });
         tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
         topGridY = 80;
       } else {
-        const tl = svgEl("text", { x: pageW / 2, y: 45, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
+        const tl = svgEl("text", { x: pageW / 2, y: 45, "font-family": "Fredoka, sans-serif", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
         tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
         topGridY = 60;
       }
@@ -672,7 +739,7 @@
 
         // Problem number
         const probNumSize = 10;
-        const probNumEl = svgEl("text", { x: cellLeft + 4, y: cellTop + 16, class: "txt", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
+        const probNumEl = svgEl("text", { x: cellLeft + 4, y: cellTop + 16, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
         probNumEl.textContent = (i + 1) + "."; svg.appendChild(probNumEl);
 
         // Compute content area within cell
@@ -693,21 +760,21 @@
           const answerY = contentTop + contentH - answerBoxH - 4;
 
           // Label
-          const eqLabel = svgEl("text", { x: answerX - 8, y: answerY + answerBoxH / 2 + 5, class: "txt", "font-size": 14, "font-weight": 700, "text-anchor": "end", fill: "#2d3748" });
+          const eqLabel = svgEl("text", { x: answerX - 8, y: answerY + answerBoxH / 2 + 5, "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700, "text-anchor": "end", fill: "#2d3748" });
           eqLabel.textContent = "="; svg.appendChild(eqLabel);
 
           // Box
           svg.appendChild(svgEl("rect", { x: answerX, y: answerY, width: answerBoxW, height: answerBoxH, rx: 4, ry: 4, fill: "none", stroke: "#2d3748", "stroke-width": 1.5 }));
 
           if (showAnswers) {
-            const ansEl = svgEl("text", { x: answerX + answerBoxW / 2, y: answerY + answerBoxH / 2 + 5, class: "txt", "font-size": 16, "font-weight": 700, "text-anchor": "middle", fill: "#3182ce" });
+            const ansEl = svgEl("text", { x: answerX + answerBoxW / 2, y: answerY + answerBoxH / 2 + 5, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 700, "text-anchor": "middle", fill: "#3182ce" });
             ansEl.textContent = String(num); svg.appendChild(ansEl);
           }
 
         } else if (mode === "number-to-blocks") {
           // Show number, student draws blocks
           const numFontSize = 28;
-          const numEl = svgEl("text", { x: contentLeft + 10, y: contentTop + 32, class: "txt", "font-size": numFontSize, "font-weight": 700, fill: "#2d3748" });
+          const numEl = svgEl("text", { x: contentLeft + 10, y: contentTop + 32, "font-family": "Fredoka, sans-serif", "font-size": numFontSize, "font-weight": 700, fill: "#2d3748" });
           numEl.textContent = String(num); svg.appendChild(numEl);
 
           // Dashed box for drawing area
@@ -723,7 +790,7 @@
           }
 
           // Label inside the box
-          const hint = svgEl("text", { x: drawLeft + drawW / 2, y: drawTop + drawH / 2 + 4, class: "txt", "font-size": 10, "text-anchor": "middle", fill: "#cbd5e0" });
+          const hint = svgEl("text", { x: drawLeft + drawW / 2, y: drawTop + drawH / 2 + 4, "font-family": "Fredoka, sans-serif", "font-size": 10, "text-anchor": "middle", fill: "#cbd5e0" });
           hint.textContent = "Draw blocks here"; svg.appendChild(hint);
 
           if (showAnswers) {
@@ -753,43 +820,43 @@
             // Hundreds blank
             svg.appendChild(svgEl("line", { x1: cx, y1: formY + 16, x2: cx + blankW, y2: formY + 16, stroke: "#2d3748", "stroke-width": 1.5 }));
             if (showAnswers) {
-              const t = svgEl("text", { x: cx + blankW / 2, y: formY + 12, class: "txt", "font-size": 14, "font-weight": 700, "text-anchor": "middle", fill: "#3182ce" });
+              const t = svgEl("text", { x: cx + blankW / 2, y: formY + 12, "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700, "text-anchor": "middle", fill: "#3182ce" });
               t.textContent = String(hundreds * 100); svg.appendChild(t);
             }
             cx += blankW + gap;
 
             // Plus
-            const p1 = svgEl("text", { x: cx, y: formY + 12, class: "txt", "font-size": 14, "font-weight": 700, fill: "#2d3748" });
+            const p1 = svgEl("text", { x: cx, y: formY + 12, "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700, fill: "#2d3748" });
             p1.textContent = "+"; svg.appendChild(p1); cx += 14 + gap;
 
             // Tens blank
             svg.appendChild(svgEl("line", { x1: cx, y1: formY + 16, x2: cx + blankW, y2: formY + 16, stroke: "#2d3748", "stroke-width": 1.5 }));
             if (showAnswers) {
-              const t = svgEl("text", { x: cx + blankW / 2, y: formY + 12, class: "txt", "font-size": 14, "font-weight": 700, "text-anchor": "middle", fill: "#3182ce" });
+              const t = svgEl("text", { x: cx + blankW / 2, y: formY + 12, "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700, "text-anchor": "middle", fill: "#3182ce" });
               t.textContent = String(tens * 10); svg.appendChild(t);
             }
             cx += blankW + gap;
 
             // Plus
-            const p2 = svgEl("text", { x: cx, y: formY + 12, class: "txt", "font-size": 14, "font-weight": 700, fill: "#2d3748" });
+            const p2 = svgEl("text", { x: cx, y: formY + 12, "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700, fill: "#2d3748" });
             p2.textContent = "+"; svg.appendChild(p2); cx += 14 + gap;
 
             // Ones blank
             svg.appendChild(svgEl("line", { x1: cx, y1: formY + 16, x2: cx + blankW, y2: formY + 16, stroke: "#2d3748", "stroke-width": 1.5 }));
             if (showAnswers) {
-              const t = svgEl("text", { x: cx + blankW / 2, y: formY + 12, class: "txt", "font-size": 14, "font-weight": 700, "text-anchor": "middle", fill: "#3182ce" });
+              const t = svgEl("text", { x: cx + blankW / 2, y: formY + 12, "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700, "text-anchor": "middle", fill: "#3182ce" });
               t.textContent = String(ones); svg.appendChild(t);
             }
             cx += blankW + gap;
 
             // Equals
-            const eq = svgEl("text", { x: cx, y: formY + 12, class: "txt", "font-size": 14, "font-weight": 700, fill: "#2d3748" });
+            const eq = svgEl("text", { x: cx, y: formY + 12, "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700, fill: "#2d3748" });
             eq.textContent = "="; svg.appendChild(eq); cx += 14 + gap;
 
             // Total blank
             svg.appendChild(svgEl("line", { x1: cx, y1: formY + 16, x2: cx + blankW, y2: formY + 16, stroke: "#2d3748", "stroke-width": 1.5 }));
             if (showAnswers) {
-              const t = svgEl("text", { x: cx + blankW / 2, y: formY + 12, class: "txt", "font-size": 14, "font-weight": 700, "text-anchor": "middle", fill: "#3182ce" });
+              const t = svgEl("text", { x: cx + blankW / 2, y: formY + 12, "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700, "text-anchor": "middle", fill: "#3182ce" });
               t.textContent = String(num); svg.appendChild(t);
             }
           } else {
@@ -802,31 +869,31 @@
             // Tens blank
             svg.appendChild(svgEl("line", { x1: cx, y1: formY + 16, x2: cx + blankW, y2: formY + 16, stroke: "#2d3748", "stroke-width": 1.5 }));
             if (showAnswers) {
-              const t = svgEl("text", { x: cx + blankW / 2, y: formY + 12, class: "txt", "font-size": 14, "font-weight": 700, "text-anchor": "middle", fill: "#3182ce" });
+              const t = svgEl("text", { x: cx + blankW / 2, y: formY + 12, "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700, "text-anchor": "middle", fill: "#3182ce" });
               t.textContent = String(tens * 10); svg.appendChild(t);
             }
             cx += blankW + gap;
 
             // Plus
-            const p1 = svgEl("text", { x: cx, y: formY + 12, class: "txt", "font-size": 14, "font-weight": 700, fill: "#2d3748" });
+            const p1 = svgEl("text", { x: cx, y: formY + 12, "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700, fill: "#2d3748" });
             p1.textContent = "+"; svg.appendChild(p1); cx += 14 + gap;
 
             // Ones blank
             svg.appendChild(svgEl("line", { x1: cx, y1: formY + 16, x2: cx + blankW, y2: formY + 16, stroke: "#2d3748", "stroke-width": 1.5 }));
             if (showAnswers) {
-              const t = svgEl("text", { x: cx + blankW / 2, y: formY + 12, class: "txt", "font-size": 14, "font-weight": 700, "text-anchor": "middle", fill: "#3182ce" });
+              const t = svgEl("text", { x: cx + blankW / 2, y: formY + 12, "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700, "text-anchor": "middle", fill: "#3182ce" });
               t.textContent = String(ones); svg.appendChild(t);
             }
             cx += blankW + gap;
 
             // Equals
-            const eq = svgEl("text", { x: cx, y: formY + 12, class: "txt", "font-size": 14, "font-weight": 700, fill: "#2d3748" });
+            const eq = svgEl("text", { x: cx, y: formY + 12, "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700, fill: "#2d3748" });
             eq.textContent = "="; svg.appendChild(eq); cx += 14 + gap;
 
             // Total blank
             svg.appendChild(svgEl("line", { x1: cx, y1: formY + 16, x2: cx + blankW, y2: formY + 16, stroke: "#2d3748", "stroke-width": 1.5 }));
             if (showAnswers) {
-              const t = svgEl("text", { x: cx + blankW / 2, y: formY + 12, class: "txt", "font-size": 14, "font-weight": 700, "text-anchor": "middle", fill: "#3182ce" });
+              const t = svgEl("text", { x: cx + blankW / 2, y: formY + 12, "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700, "text-anchor": "middle", fill: "#3182ce" });
               t.textContent = String(num); svg.appendChild(t);
             }
           }
@@ -849,19 +916,19 @@
         svg.appendChild(svgEl("line", { x1: x + colW, y1: y, x2: x + colW, y2: y + headerH, stroke: "#cbd5e0", "stroke-width": 0.75 }));
         svg.appendChild(svgEl("line", { x1: x + colW * 2, y1: y, x2: x + colW * 2, y2: y + headerH, stroke: "#cbd5e0", "stroke-width": 0.75 }));
         // Labels
-        const h = svgEl("text", { x: x + colW * 0.5, y: y + 13, class: "txt", "font-size": fontSize, "font-weight": 700, "text-anchor": "middle", fill: "#4a5568" });
+        const h = svgEl("text", { x: x + colW * 0.5, y: y + 13, "font-family": "Fredoka, sans-serif", "font-size": fontSize, "font-weight": 700, "text-anchor": "middle", fill: "#4a5568" });
         h.textContent = "Hundreds"; svg.appendChild(h);
-        const t = svgEl("text", { x: x + colW * 1.5, y: y + 13, class: "txt", "font-size": fontSize, "font-weight": 700, "text-anchor": "middle", fill: "#4a5568" });
+        const t = svgEl("text", { x: x + colW * 1.5, y: y + 13, "font-family": "Fredoka, sans-serif", "font-size": fontSize, "font-weight": 700, "text-anchor": "middle", fill: "#4a5568" });
         t.textContent = "Tens"; svg.appendChild(t);
-        const o = svgEl("text", { x: x + colW * 2.5, y: y + 13, class: "txt", "font-size": fontSize, "font-weight": 700, "text-anchor": "middle", fill: "#4a5568" });
+        const o = svgEl("text", { x: x + colW * 2.5, y: y + 13, "font-family": "Fredoka, sans-serif", "font-size": fontSize, "font-weight": 700, "text-anchor": "middle", fill: "#4a5568" });
         o.textContent = "Ones"; svg.appendChild(o);
       } else {
         const colW = w / 2;
         svg.appendChild(svgEl("rect", { x: x, y: y, width: w, height: headerH, fill: "#f0f4f8", stroke: "#cbd5e0", "stroke-width": 0.75 }));
         svg.appendChild(svgEl("line", { x1: x + colW, y1: y, x2: x + colW, y2: y + headerH, stroke: "#cbd5e0", "stroke-width": 0.75 }));
-        const t = svgEl("text", { x: x + colW * 0.5, y: y + 13, class: "txt", "font-size": fontSize, "font-weight": 700, "text-anchor": "middle", fill: "#4a5568" });
+        const t = svgEl("text", { x: x + colW * 0.5, y: y + 13, "font-family": "Fredoka, sans-serif", "font-size": fontSize, "font-weight": 700, "text-anchor": "middle", fill: "#4a5568" });
         t.textContent = "Tens"; svg.appendChild(t);
-        const o = svgEl("text", { x: x + colW * 1.5, y: y + 13, class: "txt", "font-size": fontSize, "font-weight": 700, "text-anchor": "middle", fill: "#4a5568" });
+        const o = svgEl("text", { x: x + colW * 1.5, y: y + 13, "font-family": "Fredoka, sans-serif", "font-size": fontSize, "font-weight": 700, "text-anchor": "middle", fill: "#4a5568" });
         o.textContent = "Ones"; svg.appendChild(o);
       }
     }
@@ -1083,7 +1150,7 @@
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { ...opts, showHeader: "none", showAnswers: true }));
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { ...opts, showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", showAnswers: true }));
           sheetWrap.appendChild(p);
         }
       }
@@ -1118,7 +1185,7 @@
         if (opts.answerKey) {
           for (let i = 0; i < currentState.sheets.length; i++) {
             pdf.addPage();
-            const answerSvg = renderWorksheetSVG(currentState.sheets[i], { ...opts, showHeader: "none", showAnswers: true });
+            const answerSvg = renderWorksheetSVG(currentState.sheets[i], { ...opts, showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", showAnswers: true });
             await pdf.svg(answerSvg, { x: pdfMargin, y: pdfMargin + topOffset, width: contentWidth, height: contentHeight });
           }
         }
@@ -1143,10 +1210,19 @@
     });
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
-      elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "block" : "none";
+      elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
       renderWithoutRandomization();
     });
-    elTitle.addEventListener("input", () => renderWithoutRandomization());
+    elShowTitle.addEventListener("change", () => {
+      elTitleInputWrap.style.display = elShowTitle.checked ? "" : "none";
+      renderWithoutRandomization();
+    });
+    elShowSubtitle.addEventListener("change", () => {
+      elSubtitleInputWrap.style.display = elShowSubtitle.checked ? "" : "none";
+      renderWithoutRandomization();
+    });
+    elHeaderText.addEventListener("input", () => renderWithoutRandomization());
+    elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
     elBranded.addEventListener("change", () => renderWithoutRandomization());
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);

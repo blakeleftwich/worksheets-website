@@ -1237,7 +1237,7 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, icons) {
 
   // Answer key has no Name/Date lines, only title
   svg.appendChild(svgEl("text", {
-    x: pageW / 2, y: 50, class: "txt", "font-size": 20, "font-weight": 700, "text-anchor": "middle"
+    x: pageW / 2, y: 50, "font-family": "Fredoka, sans-serif", "font-size": 20, "font-weight": 700, "text-anchor": "middle"
   }, [document.createTextNode("ANSWER KEY")]));
   topGridY = 68;
 
@@ -1354,7 +1354,7 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, icons) {
 
   // Answer key: same layout as worksheet but "ANSWER KEY" title and no Name/Date
   svg.appendChild(svgEl("text", {
-    x: pageW / 2, y: 45, class: "txt", "font-size": 22, "font-weight": 700, "text-anchor": "middle"
+    x: pageW / 2, y: 45, "font-family": "Fredoka, sans-serif", "font-size": 22, "font-weight": 700, "text-anchor": "middle"
   }, [document.createTextNode("ANSWER KEY")]));
   
   const topGridY = 65;

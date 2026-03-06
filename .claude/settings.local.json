@@ -41,8 +41,10 @@
       "Bash(where potrace)",
       "Bash(potrace --version)",
       "Bash(winget list potrace)",
-      "Bash(pip install opencv-python-headless)"
+      "Bash(pip install opencv-python-headless)",
+      "Bash(while read dir)",
+      "Bash(do basename \"$dir\")",
+      "Bash(done)"
     ]
-  },
-  "approvalMode": "never"
+  }
 }

@@ -156,7 +156,8 @@
       padding-left: 26px;
     }
 
-    .adv-sub select {
+    .adv-sub select,
+    .adv-sub input[type="text"] {
       width: 100%;
       padding: 8px 10px;
       font-size: 13px;
@@ -358,7 +359,7 @@
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="../../jspdf.umd.min.js"></script>
   <script src="../../svg2pdf.js"></script>
 </head>
@@ -463,14 +464,28 @@
             </select>
           </div>
 
-          <!-- Custom title -->
+          <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
-            <label for="customTitleEnabled">Customize worksheet title</label>
+            <label for="customTitleEnabled">Customize worksheet titles</label>
           </div>
           <div class="adv-sub" id="customTitleOptions" style="display:none;">
-            <label for="worksheetTitle">Title</label>
-            <input type="text" id="worksheetTitle" value="Measurement Practice" style="width:100%;padding:8px 10px;font-size:13px;border:2px solid #e2e8f0;border-radius:8px;" />
+            <div class="adv-checkbox-row" style="margin-bottom:8px;">
+              <input type="checkbox" id="showTitle" checked />
+              <label for="showTitle">Show title</label>
+            </div>
+            <div id="titleInputWrap">
+              <label for="headerText">Title</label>
+              <input type="text" id="headerText" value="Measurement Practice" />
+            </div>
+            <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
+              <input type="checkbox" id="showSubtitle" checked />
+              <label for="showSubtitle">Show subtitle</label>
+            </div>
+            <div id="subtitleInputWrap">
+              <label for="subtitleText">Subtitle</label>
+              <input type="text" id="subtitleText" value="" />
+            </div>
           </div>
 
           <!-- Branding -->
@@ -501,9 +516,10 @@
 
   <script>
     // ===== Helpers =====
-    function svgEl(tag, attrs) {
+    function svgEl(tag, attrs, children) {
       const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
       if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      if (children) children.forEach(c => el.appendChild(c));
       return el;
     }
     function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
@@ -525,7 +541,12 @@
     const elHeaderModeOptions = document.getElementById("headerModeOptions");
     const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
     const elCustomTitleOptions = document.getElementById("customTitleOptions");
-    const elTitle = document.getElementById("worksheetTitle");
+    const elHeaderText = document.getElementById("headerText");
+    const elSubtitleText = document.getElementById("subtitleText");
+    const elShowTitle = document.getElementById("showTitle");
+    const elShowSubtitle = document.getElementById("showSubtitle");
+    const elTitleInputWrap = document.getElementById("titleInputWrap");
+    const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
     const elBranded = document.getElementById("branded");
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
@@ -869,33 +890,34 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options) {
-      const { showHeader, title, branded, showAnswers } = options;
+      const { showHeader, title, subtitle, branded, showAnswers } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
-      const st = document.createElementNS("http://www.w3.org/2000/svg", "style");
-      st.textContent = ".txt { font-family: Arial, Helvetica, sans-serif; }";
-      svg.appendChild(st);
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
-
+      const midX = pageW / 2;
       let topGridY;
-      if (showHeader === "both") {
-        const nl = svgEl("text", { x: margin, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
-        svg.appendChild(svgEl("line", { x1: margin + 50, y1: 32, x2: margin + 240, y2: 32, stroke: "#000", "stroke-width": 1 }));
-        const dl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); dl.textContent = "Date:"; svg.appendChild(dl);
-        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
-        const tl = svgEl("text", { x: pageW / 2, y: 68, class: "txt", "font-size": showAnswers ? 16 : 18, "font-weight": 700, "text-anchor": "middle" });
-        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
-        topGridY = 82;
-      } else if (showHeader === "name") {
-        const nl = svgEl("text", { x: pageW - margin - 190, y: 30, class: "txt", "font-size": 14, "font-weight": 400 }); nl.textContent = "Name:"; svg.appendChild(nl);
-        svg.appendChild(svgEl("line", { x1: pageW - margin - 140, y1: 32, x2: pageW - margin, y2: 32, stroke: "#000", "stroke-width": 1 }));
-        const tl = svgEl("text", { x: pageW / 2, y: 68, class: "txt", "font-size": showAnswers ? 16 : 18, "font-weight": 700, "text-anchor": "middle" });
-        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
-        topGridY = 82;
-      } else {
-        const tl = svgEl("text", { x: pageW / 2, y: 40, class: "txt", "font-size": showAnswers ? 18 : 20, "font-weight": 700, "text-anchor": "middle" });
-        tl.textContent = showAnswers ? title + " \u2014 Answer Key" : title; svg.appendChild(tl);
-        topGridY = 58;
+      {
+        let curY = 10;
+        if (showHeader === "both") {
+          svg.appendChild(svgEl("text", { x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode("Name")]));
+          svg.appendChild(svgEl("line", { x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
+          svg.appendChild(svgEl("text", { x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode("Date")]));
+          svg.appendChild(svgEl("line", { x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
+          curY += 28;
+        } else if (showHeader === "name") {
+          svg.appendChild(svgEl("text", { x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode("Name")]));
+          svg.appendChild(svgEl("line", { x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
+          curY += 28;
+        }
+        if (title) {
+          svg.appendChild(svgEl("text", { x: margin, y: curY + 38, "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af" }, [document.createTextNode(title)]));
+          curY += 46;
+        }
+        if (subtitle) {
+          svg.appendChild(svgEl("text", { x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode(subtitle)]));
+          curY += 20;
+        }
+        topGridY = curY + 6;
       }
 
       if (branded) {
@@ -935,7 +957,7 @@
 
         // Problem number
         const pnSize = 11;
-        const pnEl = svgEl("text", { x: margin, y: rowTop + 16, class: "txt", "font-size": String(pnSize), "font-weight": "600", fill: "#a0aec0" });
+        const pnEl = svgEl("text", { x: margin, y: rowTop + 16, "font-family": "Fredoka, sans-serif", "font-size": String(pnSize), "font-weight": "600", fill: "#a0aec0" });
         pnEl.textContent = (i + 1) + "."; svg.appendChild(pnEl);
 
         // Separator line between problems
@@ -963,7 +985,7 @@
 
       // Instruction text
       const instrY = rowTop + 14;
-      const instr = svgEl("text", { x: x, y: instrY, class: "txt", "font-size": "10", fill: "#555" });
+      const instr = svgEl("text", { x: x, y: instrY, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#555" });
       instr.textContent = "How long is the " + obj.label.toLowerCase() + "?"; svg.appendChild(instr);
 
       if (measureType === "non_standard") {
@@ -987,18 +1009,18 @@
 
         // Answer area
         const ansY = unitY + 34;
-        const ansTxt = svgEl("text", { x: x, y: ansY, class: "txt", "font-size": "11", fill: "#333" });
+        const ansTxt = svgEl("text", { x: x, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": "11", fill: "#333" });
         ansTxt.textContent = "The " + obj.label.toLowerCase() + " is "; svg.appendChild(ansTxt);
 
         // Answer blank
         const blankX = x + 115;
         svg.appendChild(svgEl("line", { x1: blankX, y1: ansY + 2, x2: blankX + 40, y2: ansY + 2, stroke: "#333", "stroke-width": "1" }));
 
-        const unitTxt = svgEl("text", { x: blankX + 45, y: ansY, class: "txt", "font-size": "11", fill: "#333" });
+        const unitTxt = svgEl("text", { x: blankX + 45, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": "11", fill: "#333" });
         unitTxt.textContent = unitLabel + " long."; svg.appendChild(unitTxt);
 
         if (showAnswers) {
-          const ans = svgEl("text", { x: blankX + 20, y: ansY, class: "txt", "font-size": "12", "font-weight": "700", "text-anchor": "middle", fill: "#3182ce" });
+          const ans = svgEl("text", { x: blankX + 20, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": "12", "font-weight": "700", "text-anchor": "middle", fill: "#3182ce" });
           ans.textContent = String(measurement); svg.appendChild(ans);
         }
       } else {
@@ -1020,17 +1042,17 @@
 
         // Answer area
         const ansY = rulerY + 44;
-        const ansTxt = svgEl("text", { x: x, y: ansY, class: "txt", "font-size": "11", fill: "#333" });
+        const ansTxt = svgEl("text", { x: x, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": "11", fill: "#333" });
         ansTxt.textContent = "The " + obj.label.toLowerCase() + " is "; svg.appendChild(ansTxt);
 
         const blankX = x + 115;
         svg.appendChild(svgEl("line", { x1: blankX, y1: ansY + 2, x2: blankX + 40, y2: ansY + 2, stroke: "#333", "stroke-width": "1" }));
 
-        const unitTxt = svgEl("text", { x: blankX + 45, y: ansY, class: "txt", "font-size": "11", fill: "#333" });
+        const unitTxt = svgEl("text", { x: blankX + 45, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": "11", fill: "#333" });
         unitTxt.textContent = unitLabel + " long."; svg.appendChild(unitTxt);
 
         if (showAnswers) {
-          const ans = svgEl("text", { x: blankX + 20, y: ansY, class: "txt", "font-size": "12", "font-weight": "700", "text-anchor": "middle", fill: "#3182ce" });
+          const ans = svgEl("text", { x: blankX + 20, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": "12", "font-weight": "700", "text-anchor": "middle", fill: "#3182ce" });
           ans.textContent = String(measurement); svg.appendChild(ans);
         }
       }
@@ -1043,7 +1065,7 @@
 
       // Instruction text
       const instrY = rowTop + 14;
-      const instr = svgEl("text", { x: x, y: instrY, class: "txt", "font-size": "10", fill: "#555" });
+      const instr = svgEl("text", { x: x, y: instrY, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#555" });
       instr.textContent = "Which is longer? Circle the longer object."; svg.appendChild(instr);
 
       const halfH = (rowH - 24) / 2;
@@ -1063,7 +1085,7 @@
         drawNonStandardUnits(svg, x, unitAY, m1, nonStandardUnit, unitSize);
         // Label
         const labelAY = unitAY + 20;
-        const labelA = svgEl("text", { x: x, y: labelAY, class: "txt", "font-size": "10", fill: "#333" });
+        const labelA = svgEl("text", { x: x, y: labelAY, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#333" });
         labelA.textContent = obj1.label + ": " + m1 + " " + unitLabel; svg.appendChild(labelA);
 
         // Object B
@@ -1078,7 +1100,7 @@
         drawNonStandardUnits(svg, x, unitBY, m2, nonStandardUnit, unitSize);
         // Label
         const labelBY = unitBY + 20;
-        const labelB = svgEl("text", { x: x, y: labelBY, class: "txt", "font-size": "10", fill: "#333" });
+        const labelB = svgEl("text", { x: x, y: labelBY, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#333" });
         labelB.textContent = obj2.label + ": " + m2 + " " + unitLabel; svg.appendChild(labelB);
       } else {
         const unitType = measureType === "ruler_in" ? "in" : "cm";
@@ -1095,7 +1117,7 @@
         const rulerAY = objAY + objAH + 2;
         drawRuler(svg, x, rulerAY, maxMeasure, unitType, m1);
         // Label
-        const labelA = svgEl("text", { x: x + maxMeasure * pxPerUnit + 22, y: rulerAY + 20, class: "txt", "font-size": "10", fill: "#333" });
+        const labelA = svgEl("text", { x: x + maxMeasure * pxPerUnit + 22, y: rulerAY + 20, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#333" });
         labelA.textContent = obj1.label; svg.appendChild(labelA);
 
         // Object B
@@ -1109,22 +1131,22 @@
         const rulerBY = objBY + objBH + 2;
         drawRuler(svg, x, rulerBY, maxMeasure, unitType, m2);
         // Label
-        const labelB = svgEl("text", { x: x + maxMeasure * pxPerUnit + 22, y: rulerBY + 20, class: "txt", "font-size": "10", fill: "#333" });
+        const labelB = svgEl("text", { x: x + maxMeasure * pxPerUnit + 22, y: rulerBY + 20, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#333" });
         labelB.textContent = obj2.label; svg.appendChild(labelB);
       }
 
       // Answer blank
       const ansY = rowTop + rowH - 10;
-      const ansTxt = svgEl("text", { x: x, y: ansY, class: "txt", "font-size": "10", fill: "#333" });
+      const ansTxt = svgEl("text", { x: x, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#333" });
       ansTxt.textContent = "The "; svg.appendChild(ansTxt);
       const blankX = x + 28;
       svg.appendChild(svgEl("line", { x1: blankX, y1: ansY + 2, x2: blankX + 70, y2: ansY + 2, stroke: "#333", "stroke-width": "1" }));
-      const tailTxt = svgEl("text", { x: blankX + 75, y: ansY, class: "txt", "font-size": "10", fill: "#333" });
+      const tailTxt = svgEl("text", { x: blankX + 75, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#333" });
       tailTxt.textContent = "is longer."; svg.appendChild(tailTxt);
 
       if (showAnswers) {
         const winner = m1 > m2 ? obj1.label : obj2.label;
-        const ans = svgEl("text", { x: blankX + 35, y: ansY, class: "txt", "font-size": "11", "font-weight": "700", "text-anchor": "middle", fill: "#3182ce" });
+        const ans = svgEl("text", { x: blankX + 35, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": "11", "font-weight": "700", "text-anchor": "middle", fill: "#3182ce" });
         ans.textContent = winner.toLowerCase(); svg.appendChild(ans);
       }
     }
@@ -1136,7 +1158,7 @@
 
       // Instruction text
       const instrY = rowTop + 14;
-      const instr = svgEl("text", { x: x, y: instrY, class: "txt", "font-size": "10", fill: "#555" });
+      const instr = svgEl("text", { x: x, y: instrY, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#555" });
       instr.textContent = "Estimate the length, then measure to check."; svg.appendChild(instr);
 
       if (measureType === "non_standard") {
@@ -1152,28 +1174,28 @@
 
         // Reference: show 1 unit for scale
         const refY = objY + objH + 8;
-        const refLabel = svgEl("text", { x: x, y: refY, class: "txt", "font-size": "9", fill: "#888" });
+        const refLabel = svgEl("text", { x: x, y: refY, "font-family": "Fredoka, sans-serif", "font-size": "9", fill: "#888" });
         refLabel.textContent = "1 " + getUnitLabel(measureType, nonStandardUnit, false) + " ="; svg.appendChild(refLabel);
         drawNonStandardUnits(svg, x + 62, refY - 10, 1, nonStandardUnit, unitSize);
 
         // Estimate blank
         const estY = refY + 22;
-        const estLabel = svgEl("text", { x: x, y: estY, class: "txt", "font-size": "10", fill: "#333" });
+        const estLabel = svgEl("text", { x: x, y: estY, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#333" });
         estLabel.textContent = "My estimate:"; svg.appendChild(estLabel);
         svg.appendChild(svgEl("line", { x1: x + 80, y1: estY + 2, x2: x + 120, y2: estY + 2, stroke: "#333", "stroke-width": "1" }));
-        const estUnitTxt = svgEl("text", { x: x + 125, y: estY, class: "txt", "font-size": "10", fill: "#333" });
+        const estUnitTxt = svgEl("text", { x: x + 125, y: estY, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#333" });
         estUnitTxt.textContent = unitLabel; svg.appendChild(estUnitTxt);
 
         // Actual blank
         const actY = estY + 18;
-        const actLabel = svgEl("text", { x: x, y: actY, class: "txt", "font-size": "10", fill: "#333" });
+        const actLabel = svgEl("text", { x: x, y: actY, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#333" });
         actLabel.textContent = "Actual length:"; svg.appendChild(actLabel);
         svg.appendChild(svgEl("line", { x1: x + 90, y1: actY + 2, x2: x + 130, y2: actY + 2, stroke: "#333", "stroke-width": "1" }));
-        const actUnitTxt = svgEl("text", { x: x + 135, y: actY, class: "txt", "font-size": "10", fill: "#333" });
+        const actUnitTxt = svgEl("text", { x: x + 135, y: actY, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#333" });
         actUnitTxt.textContent = unitLabel; svg.appendChild(actUnitTxt);
 
         if (showAnswers) {
-          const ans = svgEl("text", { x: x + 110, y: actY, class: "txt", "font-size": "11", "font-weight": "700", "text-anchor": "middle", fill: "#3182ce" });
+          const ans = svgEl("text", { x: x + 110, y: actY, "font-family": "Fredoka, sans-serif", "font-size": "11", "font-weight": "700", "text-anchor": "middle", fill: "#3182ce" });
           ans.textContent = String(measurement); svg.appendChild(ans);
         }
       } else {
@@ -1190,34 +1212,41 @@
 
         // Reference: show the ruler below but smaller for scale context
         const refY = objY + objH + 8;
-        const refLabel = svgEl("text", { x: x, y: refY, class: "txt", "font-size": "9", fill: "#888" });
+        const refLabel = svgEl("text", { x: x, y: refY, "font-family": "Fredoka, sans-serif", "font-size": "9", fill: "#888" });
         refLabel.textContent = "Use your own ruler to check!"; svg.appendChild(refLabel);
 
         // Estimate blank
         const estY = refY + 16;
-        const estLabel = svgEl("text", { x: x, y: estY, class: "txt", "font-size": "10", fill: "#333" });
+        const estLabel = svgEl("text", { x: x, y: estY, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#333" });
         estLabel.textContent = "My estimate:"; svg.appendChild(estLabel);
         svg.appendChild(svgEl("line", { x1: x + 80, y1: estY + 2, x2: x + 120, y2: estY + 2, stroke: "#333", "stroke-width": "1" }));
-        const estUnitTxt = svgEl("text", { x: x + 125, y: estY, class: "txt", "font-size": "10", fill: "#333" });
+        const estUnitTxt = svgEl("text", { x: x + 125, y: estY, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#333" });
         estUnitTxt.textContent = unitLabel; svg.appendChild(estUnitTxt);
 
         // Actual blank
         const actY = estY + 18;
-        const actLabel = svgEl("text", { x: x, y: actY, class: "txt", "font-size": "10", fill: "#333" });
+        const actLabel = svgEl("text", { x: x, y: actY, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#333" });
         actLabel.textContent = "Actual length:"; svg.appendChild(actLabel);
         svg.appendChild(svgEl("line", { x1: x + 90, y1: actY + 2, x2: x + 130, y2: actY + 2, stroke: "#333", "stroke-width": "1" }));
-        const actUnitTxt = svgEl("text", { x: x + 135, y: actY, class: "txt", "font-size": "10", fill: "#333" });
+        const actUnitTxt = svgEl("text", { x: x + 135, y: actY, "font-family": "Fredoka, sans-serif", "font-size": "10", fill: "#333" });
         actUnitTxt.textContent = unitLabel; svg.appendChild(actUnitTxt);
 
         if (showAnswers) {
-          const ans = svgEl("text", { x: x + 110, y: actY, class: "txt", "font-size": "11", "font-weight": "700", "text-anchor": "middle", fill: "#3182ce" });
+          const ans = svgEl("text", { x: x + 110, y: actY, "font-family": "Fredoka, sans-serif", "font-size": "11", "font-weight": "700", "text-anchor": "middle", fill: "#3182ce" });
           ans.textContent = String(measurement); svg.appendChild(ans);
         }
       }
     }
 
-    // ===== Auto title =====
-    function generateAutoTitle() {
+    // ===== Helper functions =====
+    function getHeaderMode() {
+      return elShowHeaderEnabled.checked ? elHeaderMode.value : "none";
+    }
+
+    function getTitle() {
+      if (elCustomTitleEnabled.checked) {
+        return elShowTitle.checked ? elHeaderText.value : "";
+      }
       const mt = elMeasureType.value;
       const pt = elProblemType.value;
       let typeLabel = "";
@@ -1234,11 +1263,18 @@
       return probLabel + " (" + typeLabel + ")";
     }
 
+    function getSubtitle() {
+      if (elCustomTitleEnabled.checked) {
+        return elShowSubtitle.checked ? elSubtitleText.value : "";
+      }
+      return "";
+    }
+
     // ===== Gather options =====
     function gatherOptions() {
-      let showHeader = "none";
-      if (elShowHeaderEnabled.checked) showHeader = elHeaderMode.value;
-      const title = elCustomTitleEnabled.checked ? (elTitle.value || "Measurement Practice") : generateAutoTitle();
+      const showHeader = getHeaderMode();
+      const title = getTitle();
+      const subtitle = getSubtitle();
       return {
         measureType: elMeasureType.value,
         maxMeasure: parseInt(elMaxMeasure.value, 10),
@@ -1246,8 +1282,9 @@
         nonStandardUnit: elNonStandardUnit.value,
         numWorksheets: parseInt(elNumSheets.value, 10),
         problemsPerSheet: parseInt(elProblems.value, 10),
-        showHeader: showHeader,
-        title: title,
+        showHeader,
+        title,
+        subtitle,
         branded: elBranded.checked,
         answerKey: elAnswerKey.checked
       };
@@ -1280,7 +1317,7 @@
       if (isMobile()) {
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false });
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false });
           p.appendChild(v); sheetWrap.appendChild(p);
         }
         return;
@@ -1300,12 +1337,12 @@
         sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false });
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false });
           v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
         }
       } else {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false });
+        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false });
         p.appendChild(v); sheetWrap.appendChild(p);
       }
     }
@@ -1319,11 +1356,11 @@
       const allSheets = [...currentState.sheets];
       const svgs = [];
       for (let i = 0; i < allSheets.length; i++) {
-        svgs.push(renderWorksheetSVG(allSheets[i], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false }));
+        svgs.push(renderWorksheetSVG(allSheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false }));
       }
       if (opts.answerKey) {
         for (let i = 0; i < allSheets.length; i++) {
-          svgs.push(renderWorksheetSVG(allSheets[i], { showHeader: "none", title: opts.title, branded: opts.branded, showAnswers: true }));
+          svgs.push(renderWorksheetSVG(allSheets[i], { showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", branded: opts.branded, showAnswers: true }));
         }
       }
 
@@ -1344,13 +1381,13 @@
       sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, branded: opts.branded, showAnswers: false }));
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false }));
         sheetWrap.appendChild(p);
       }
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, branded: opts.branded, showAnswers: true }));
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", branded: opts.branded, showAnswers: true }));
           sheetWrap.appendChild(p);
         }
       }
@@ -1369,10 +1406,19 @@
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
     elBranded.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
-      elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "block" : "none";
+      elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
       renderWithoutRandomization();
     });
-    elTitle.addEventListener("input", () => renderWithoutRandomization());
+    elShowTitle.addEventListener("change", () => {
+      elTitleInputWrap.style.display = elShowTitle.checked ? "" : "none";
+      renderWithoutRandomization();
+    });
+    elShowSubtitle.addEventListener("change", () => {
+      elSubtitleInputWrap.style.display = elShowSubtitle.checked ? "" : "none";
+      renderWithoutRandomization();
+    });
+    elHeaderText.addEventListener("input", () => renderWithoutRandomization());
+    elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
     elAnswerKey.addEventListener("change", () => {});
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPdf").addEventListener("click", handlePdf);
