@@ -512,18 +512,15 @@
     }
 
     function expandNumber(n) {
-      // Returns the expanded form parts, e.g. 347 => [300, 40, 7]
+      // Returns the expanded form parts for EVERY digit position, including zeros.
+      // e.g. 347 => [300, 40, 7], 30 => [30, 0], 305 => [300, 0, 5]
       const str = String(n);
       const parts = [];
       for (let i = 0; i < str.length; i++) {
         const digit = parseInt(str[i], 10);
-        if (digit !== 0) {
-          const placeValue = digit * Math.pow(10, str.length - 1 - i);
-          parts.push(placeValue);
-        }
+        const placeValue = digit * Math.pow(10, str.length - 1 - i);
+        parts.push(placeValue);
       }
-      // Handle the case where all digits might be 0 (shouldn't happen with our range)
-      if (parts.length === 0) parts.push(0);
       return parts;
     }
 
