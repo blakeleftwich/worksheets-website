@@ -507,7 +507,7 @@
 
           <!-- Allow zero -->
           <div class="adv-checkbox-row">
-            <input type="checkbox" id="useZero" />
+            <input type="checkbox" id="useZero" checked />
             <label for="useZero">Allow zero</label>
           </div>
 
@@ -635,6 +635,12 @@
             </select>
           </div>
 
+          <!-- Numbered -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="numbered" checked />
+            <label for="numbered">Numbered</label>
+          </div>
+
           <!-- Show boxes -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="showBoxes" checked />
@@ -719,6 +725,7 @@
     const elRandomMixSection = document.getElementById("randomMixSection");
     const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
     const elCustomTitleOptions = document.getElementById("customTitleOptions");
+    const elNumbered = document.getElementById("numbered");
     const elShowBoxes = document.getElementById("showBoxes");
 
     // ===== Advanced panel toggle =====
@@ -991,7 +998,7 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options) {
-      const { showHeader, title, subtitle, branded, showAnswers, showBoxes } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, showBoxes, numbered } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
@@ -1002,27 +1009,27 @@
         let curY = 10;
         if (showHeader === "both") {
           svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#000000"
           }, [document.createTextNode("Name")]));
           svg.appendChild(svgEl("line", {
             x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18,
-            stroke: "#718096", "stroke-width": 0.75
+            stroke: "#000000", "stroke-width": 0.75
           }));
           svg.appendChild(svgEl("text", {
-            x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+            x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#000000"
           }, [document.createTextNode("Date")]));
           svg.appendChild(svgEl("line", {
             x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
-            stroke: "#718096", "stroke-width": 0.75
+            stroke: "#000000", "stroke-width": 0.75
           }));
           curY += 28;
         } else if (showHeader === "name") {
           svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#000000"
           }, [document.createTextNode("Name")]));
           svg.appendChild(svgEl("line", {
             x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
-            stroke: "#718096", "stroke-width": 0.75
+            stroke: "#000000", "stroke-width": 0.75
           }));
           curY += 28;
         }
@@ -1034,7 +1041,7 @@
         }
         if (subtitle) {
           svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568"
+            x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#000000"
           }, [document.createTextNode(subtitle)]));
           curY += 20;
         }
@@ -1093,7 +1100,7 @@
 
       // Fixed problem number size — matches column worksheet generator
       const probNumSize = 10;
-      const probNumW = probNumSize * (count >= 10 ? 2.0 : 1.6);
+      const probNumW = numbered !== false ? probNumSize * (count >= 10 ? 2.0 : 1.6) : 0;
 
       // First pass: find the widest equation (up to and including the equals sign) in each column
       // For larger numbers, use a tighter gap after equals to give more room for answers
@@ -1131,28 +1138,30 @@
         let x = cellLeft + 8;
 
         // Problem number — fixed size, top-aligned with equation text
-        const probNumY = cy - 0.72 * (fontSize - probNumSize);
-        const numEl = svgEl("text", { x: x, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
-        numEl.textContent = (i + 1) + "."; svg.appendChild(numEl);
-        x += probNumW;
+        if (numbered !== false) {
+          const probNumY = cy - 0.72 * (fontSize - probNumSize);
+          const numEl = svgEl("text", { x: x, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
+          numEl.textContent = (i + 1) + "."; svg.appendChild(numEl);
+          x += probNumW;
+        }
 
         // First number
-        const topEl = svgEl("text", { x: x, y: cy, "font-family": "Arial, Helvetica, sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
+        const topEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
         topEl.textContent = aStr; svg.appendChild(topEl);
         x += aStr.length * charW + charW * 0.8;
 
         // Operator
-        const opEl = svgEl("text", { x: x, y: cy, "font-family": "Arial, Helvetica, sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
+        const opEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
         opEl.textContent = opSymbol; svg.appendChild(opEl);
         x += charW * 1.6;
 
         // Second number
-        const botEl = svgEl("text", { x: x, y: cy, "font-family": "Arial, Helvetica, sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
+        const botEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
         botEl.textContent = bStr; svg.appendChild(botEl);
         x += bStr.length * charW + charW * 0.8;
 
         // Equals sign
-        const eqEl = svgEl("text", { x: x, y: cy, "font-family": "Arial, Helvetica, sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
+        const eqEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
         eqEl.textContent = "="; svg.appendChild(eqEl);
 
         // Answer box — aligned per column, as left as possible with small buffer after equals
@@ -1164,7 +1173,7 @@
         }
 
         if (showAnswers) {
-          const ansEl = svgEl("text", { x: boxX + bW / 2, y: cy, "text-anchor": "middle", "font-family": "Arial, Helvetica, sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "700", fill: "#3182ce" });
+          const ansEl = svgEl("text", { x: boxX + bW / 2, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "700", fill: "#3182ce" });
           ansEl.textContent = ansStr; svg.appendChild(ansEl);
         }
       }
@@ -1208,6 +1217,7 @@
         regroupMode: elRegroupMode.value,
         noRemainders: elNoRemainders.checked,
         randomMix: elRandomMix.checked,
+        numbered: elNumbered.checked,
         showBoxes: elShowBoxes.checked,
       };
     }
@@ -1237,7 +1247,7 @@
         // Mobile: render all sheets at native size, CSS scales them to fit
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showBoxes: opts.showBoxes });
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showBoxes: opts.showBoxes, numbered: opts.numbered });
           p.appendChild(v); sheetWrap.appendChild(p);
         }
         return;
@@ -1258,12 +1268,12 @@
         sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showBoxes: opts.showBoxes });
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showBoxes: opts.showBoxes, numbered: opts.numbered });
           v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
         }
       } else {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showBoxes: opts.showBoxes });
+        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showBoxes: opts.showBoxes, numbered: opts.numbered });
         p.appendChild(v); sheetWrap.appendChild(p);
       }
     }
@@ -1275,13 +1285,13 @@
       sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showBoxes: opts.showBoxes }));
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showBoxes: opts.showBoxes, numbered: opts.numbered }));
         sheetWrap.appendChild(p);
       }
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", branded: opts.branded, showAnswers: true, showBoxes: opts.showBoxes }));
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", branded: opts.branded, showAnswers: true, showBoxes: opts.showBoxes, numbered: opts.numbered }));
           sheetWrap.appendChild(p);
         }
       }
@@ -1304,6 +1314,7 @@
     });
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
     elBranded.addEventListener("change", () => renderWithoutRandomization());
+    elNumbered.addEventListener("change", () => renderWithoutRandomization());
     elShowBoxes.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
