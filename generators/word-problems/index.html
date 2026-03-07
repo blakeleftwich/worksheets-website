@@ -276,11 +276,6 @@
       color: white;
     }
 
-    .btn-pdf {
-      background: #38a169;
-      color: white;
-    }
-
     .btn-print {
       background: #ed8936;
       color: white;
@@ -402,10 +397,7 @@
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="../../jspdf.umd.min.js"></script>
-  <script src="../../svg2pdf.js"></script>
-</head>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet"></head>
 <body>
   <div class="main-container">
     <!-- Left sidebar controls -->
@@ -531,7 +523,6 @@
       <div class="button-group">
         <button class="btn-generate" id="btnGenerate">&#x1F504; Generate New</button>
         <button class="btn-print" id="btnPrint">&#x1F5A8;&#xFE0F; Print</button>
-        <button class="btn-pdf" id="btnPdf">&#x1F4E5; Download PDF</button>
       </div>
     </div>
 
@@ -1150,33 +1141,6 @@
       setTimeout(() => { window.print(); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 50);
     }
 
-    // ===== Download PDF =====
-    async function handlePDF() {
-      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
-      const opts = gatherOptions();
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: [612, 792] });
-
-      const allSVGs = [];
-      for (let i = 0; i < currentState.sheets.length; i++) {
-        allSVGs.push(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showWorkSpace: opts.showWorkSpace }));
-      }
-      if (opts.answerKey) {
-        for (let i = 0; i < currentState.sheets.length; i++) {
-          allSVGs.push(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", branded: opts.branded, showAnswers: true, showWorkSpace: false }));
-        }
-      }
-
-      for (let i = 0; i < allSVGs.length; i++) {
-        if (i > 0) doc.addPage([612, 792]);
-        const svgNode = allSVGs[i];
-        document.body.appendChild(svgNode);
-        await doc.svg(svgNode, { x: 0, y: 0, width: 612, height: 792 });
-        document.body.removeChild(svgNode);
-      }
-
-      doc.save("word-problems.pdf");
-    }
 
     // ===== Event Listeners =====
     elRange.addEventListener("change", () => renderWithNewRandomization());
@@ -1206,7 +1170,6 @@
     elAnswerKey.addEventListener("change", () => {});
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
-    document.getElementById("btnPdf").addEventListener("click", handlePDF);
     let resizeTimeout;
     window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150); });
 

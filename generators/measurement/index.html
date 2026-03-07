@@ -233,11 +233,6 @@
       color: white;
     }
 
-    .btn-pdf {
-      background: #38a169;
-      color: white;
-    }
-
     .btn-print {
       background: #ed8936;
       color: white;
@@ -359,10 +354,7 @@
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="../../jspdf.umd.min.js"></script>
-  <script src="../../svg2pdf.js"></script>
-</head>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet"></head>
 <body>
   <div class="main-container">
     <!-- Left sidebar controls -->
@@ -499,7 +491,6 @@
 
       <div class="button-group">
         <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
-        <button class="btn-pdf" id="btnPdf">&#128196; Download PDF</button>
         <button class="btn-print" id="btnPrint">&#128424; Print</button>
       </div>
 
@@ -1347,32 +1338,6 @@
       }
     }
 
-    async function handlePdf() {
-      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
-      const opts = gatherOptions();
-      const pageW = 612, pageH = 792;
-      const pdf = new jspdf.jsPDF({ unit: "pt", format: [pageW, pageH] });
-
-      const allSheets = [...currentState.sheets];
-      const svgs = [];
-      for (let i = 0; i < allSheets.length; i++) {
-        svgs.push(renderWorksheetSVG(allSheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false }));
-      }
-      if (opts.answerKey) {
-        for (let i = 0; i < allSheets.length; i++) {
-          svgs.push(renderWorksheetSVG(allSheets[i], { showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", branded: opts.branded, showAnswers: true }));
-        }
-      }
-
-      for (let i = 0; i < svgs.length; i++) {
-        if (i > 0) pdf.addPage([pageW, pageH]);
-        const svgNode = svgs[i];
-        document.body.appendChild(svgNode);
-        await svg2pdf(svgNode, pdf, { x: 0, y: 0, width: pageW, height: pageH });
-        document.body.removeChild(svgNode);
-      }
-      pdf.save("measurement-worksheet.pdf");
-    }
 
     function handlePrint() {
       if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
@@ -1421,7 +1386,6 @@
     elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
     elAnswerKey.addEventListener("change", () => {});
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
-    document.getElementById("btnPdf").addEventListener("click", handlePdf);
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
     let resizeTimeout;
     window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150); });

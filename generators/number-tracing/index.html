@@ -247,11 +247,6 @@
       color: white;
     }
 
-    .btn-pdf {
-      background: #38a169;
-      color: white;
-    }
-
     .btn-print {
       background: #ed8936;
       color: white;
@@ -372,10 +367,7 @@
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="../../jspdf.umd.min.js"></script>
-  <script src="../../svg2pdf.js"></script>
-</head>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet"></head>
 <body>
   <div class="main-container">
     <!-- Left sidebar controls -->
@@ -511,7 +503,6 @@
       <div class="button-group">
         <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
         <button class="btn-print" id="btnPrint">&#128424; Print</button>
-        <button class="btn-pdf" id="btnPdf">&#128196; Download PDF</button>
       </div>
     </div>
 
@@ -947,49 +938,6 @@
       setTimeout(() => { window.print(); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 50);
     }
 
-    // ===== PDF Download =====
-    async function handlePdf() {
-      if (!currentState.pages.length) { alert("Generate a worksheet first!"); return; }
-      const opts = gatherOptions();
-      const pageW = 612, pageH = 792;
-
-      // Collect all SVGs to render
-      const svgs = [];
-      for (let i = 0; i < currentState.pages.length; i++) {
-        svgs.push(renderWorksheetSVG(currentState.pages[i], {
-          showHeader: opts.showHeader, title: opts.title, branded: opts.branded,
-          traceStyle: opts.traceStyle, repetitions: opts.repetitions,
-          includePracticeLine: opts.includePracticeLine, fontSize: opts.fontSize,
-          showAnswers: false
-        }));
-      }
-      if (opts.answerKey) {
-        for (let i = 0; i < currentState.pages.length; i++) {
-          svgs.push(renderWorksheetSVG(currentState.pages[i], {
-            showHeader: "none", title: opts.title ? opts.title + " \u2014 Answer Key" : "Answer Key", subtitle: "", branded: opts.branded,
-            traceStyle: opts.traceStyle, repetitions: opts.repetitions,
-            includePracticeLine: false, fontSize: opts.fontSize,
-            showAnswers: true
-          }));
-        }
-      }
-
-      const pdf = new jspdf.jsPDF({ orientation: "portrait", unit: "pt", format: [pageW, pageH] });
-
-      for (let i = 0; i < svgs.length; i++) {
-        if (i > 0) pdf.addPage([pageW, pageH]);
-        // Temporarily add SVG to DOM for svg2pdf
-        const temp = document.createElement("div");
-        temp.style.position = "absolute";
-        temp.style.left = "-9999px";
-        temp.appendChild(svgs[i]);
-        document.body.appendChild(temp);
-        await svg2pdf(svgs[i], pdf, { x: 0, y: 0, width: pageW, height: pageH });
-        document.body.removeChild(temp);
-      }
-
-      pdf.save("number-tracing-worksheet.pdf");
-    }
 
     // ===== Event Listeners =====
     elStartNumber.addEventListener("input", () => regenerate());
@@ -1022,7 +970,6 @@
     elAnswerKey.addEventListener("change", () => {});
     document.getElementById("btnGenerate").addEventListener("click", () => regenerate());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
-    document.getElementById("btnPdf").addEventListener("click", handlePdf);
     let resizeTimeout;
     window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.pages.length > 1) renderWorksheets(); }, 150); });
 

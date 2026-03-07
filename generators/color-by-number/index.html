@@ -233,11 +233,6 @@
       color: white;
     }
 
-    .btn-pdf {
-      background: #38a169;
-      color: white;
-    }
-
     .btn-print {
       background: #ed8936;
       color: white;
@@ -359,10 +354,7 @@
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="../../jspdf.umd.min.js"></script>
-  <script src="../../svg2pdf.js"></script>
-</head>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet"></head>
 <body>
   <div class="main-container">
     <!-- Left sidebar controls -->
@@ -487,7 +479,6 @@
 
       <div class="button-group">
         <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
-        <button class="btn-pdf" id="btnPDF">&#128196; Download PDF</button>
         <button class="btn-print" id="btnPrint">&#128424; Print</button>
       </div>
 
@@ -1206,40 +1197,6 @@
       }, 50);
     }
 
-    // ===== PDF =====
-    async function handlePDF() {
-      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
-      const opts = gatherOptions();
-      const title = generateTitle(opts);
-      const pageW = 612, pageH = 792;
-
-      const allSVGs = [];
-      for (let i = 0; i < currentState.sheets.length; i++) {
-        allSVGs.push(renderWorksheetSVG(currentState.sheets[i], {
-          headerMode: opts.headerMode, title: title, branded: opts.branded,
-          showAnswers: false, numColors: opts.numColors
-        }));
-      }
-      if (opts.answerKey) {
-        for (let i = 0; i < currentState.sheets.length; i++) {
-          allSVGs.push(renderWorksheetSVG(currentState.sheets[i], {
-            headerMode: "none", title: title, branded: opts.branded,
-            showAnswers: true, numColors: opts.numColors
-          }));
-        }
-      }
-
-      const pdf = new jspdf.jsPDF({ unit: "pt", format: [pageW, pageH] });
-      for (let i = 0; i < allSVGs.length; i++) {
-        if (i > 0) pdf.addPage([pageW, pageH]);
-        const container = document.createElement("div");
-        container.appendChild(allSVGs[i]);
-        document.body.appendChild(container);
-        await svg2pdf(allSVGs[i], pdf, { x: 0, y: 0, width: pageW, height: pageH });
-        document.body.removeChild(container);
-      }
-      pdf.save("color-by-number.pdf");
-    }
 
     // ===== Event Listeners =====
     elOperation.addEventListener("change", () => renderWithNewRandomization());
@@ -1266,8 +1223,6 @@
     elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
-    document.getElementById("btnPDF").addEventListener("click", handlePDF);
-
     let resizeTimeout;
     window.addEventListener("resize", () => {
       clearTimeout(resizeTimeout);

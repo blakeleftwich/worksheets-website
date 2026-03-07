@@ -233,11 +233,6 @@
       color: white;
     }
 
-    .btn-pdf {
-      background: #38a169;
-      color: white;
-    }
-
     .btn-print {
       background: #ed8936;
       color: white;
@@ -358,10 +353,7 @@
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="../../jspdf.umd.min.js"></script>
-  <script src="../../svg2pdf.js"></script>
-</head>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet"></head>
 <body>
   <div class="main-container">
     <!-- Left sidebar controls -->
@@ -482,8 +474,7 @@
       <div class="button-group">
         <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
         <button class="btn-print" id="btnPrint">&#128424; Print</button>
-        <button class="btn-pdf" id="btnPDF">&#128196; Download PDF</button>
-      </div>
+</div>
     </div>
 
     <!-- Preview area -->
@@ -914,37 +905,6 @@
       }
       setTimeout(() => { window.print(); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 50);
     }
-
-    // ===== PDF =====
-    async function handlePDF() {
-      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
-      const opts = gatherOptions();
-      const { jsPDF } = window.jspdf;
-
-      const pages = [];
-      for (let i = 0; i < currentState.sheets.length; i++) {
-        pages.push(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false }));
-      }
-      if (opts.answerKey) {
-        for (let i = 0; i < currentState.sheets.length; i++) {
-          pages.push(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", branded: opts.branded, showAnswers: true }));
-        }
-      }
-
-      const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "letter" });
-      for (let i = 0; i < pages.length; i++) {
-        if (i > 0) doc.addPage("letter", "portrait");
-        const container = document.createElement("div");
-        container.style.position = "absolute";
-        container.style.left = "-9999px";
-        container.appendChild(pages[i]);
-        document.body.appendChild(container);
-        await doc.svg(pages[i], { x: 0, y: 0, width: 612, height: 792 });
-        document.body.removeChild(container);
-      }
-      doc.save("before-after-between-worksheet.pdf");
-    }
-
     // ===== Event Listeners =====
     elMode.addEventListener("change", () => renderWithNewRandomization());
     elRange.addEventListener("change", () => renderWithNewRandomization());
@@ -973,8 +933,7 @@
     elAnswerKey.addEventListener("change", () => {});
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
-    document.getElementById("btnPDF").addEventListener("click", handlePDF);
-    let resizeTimeout;
+let resizeTimeout;
     window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150); });
 
     // Init

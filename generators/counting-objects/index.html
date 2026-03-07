@@ -218,18 +218,6 @@
       transform: translateY(0);
     }
 
-    #btnPdf {
-      background: #48bb78;
-      color: white;
-      box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
-    }
-
-    #btnPdf:hover {
-      background: #38a169;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(72, 187, 120, 0.4);
-    }
-
     #btnPrint {
       background: #ed8936;
       color: white;
@@ -499,11 +487,7 @@
     <div class="preview-area">
       <div id="sheetWrap"></div>
     </div>
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://unpkg.com/svg2pdf.js@2.2.3/dist/svg2pdf.umd.min.js"></script>
-  <script>
+  </div>  <script>
 const sheetWrap = document.getElementById("sheetWrap");
 const statusEl = document.getElementById("status");
 

@@ -249,11 +249,6 @@
       color: white;
     }
 
-    .btn-pdf {
-      background: #38a169;
-      color: white;
-    }
-
     .btn-print {
       background: #ed8936;
       color: white;
@@ -375,10 +370,7 @@
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="../../jspdf.umd.min.js"></script>
-  <script src="../../svg2pdf.js"></script>
-</head>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet"></head>
 <body>
   <div class="main-container">
     <!-- Left sidebar controls -->
@@ -515,8 +507,7 @@
       <div class="button-group">
         <button class="btn-generate" id="btnGenerate">&#x1f504; Generate New</button>
         <button class="btn-print" id="btnPrint">&#x1f5a8;&#xfe0f; Print</button>
-        <button class="btn-pdf" id="btnPdf">&#x1f4c4; Download PDF</button>
-      </div>
+</div>
     </div>
 
     <!-- Preview area -->
@@ -948,44 +939,6 @@
       setTimeout(() => { window.print(); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 50);
     }
 
-    async function handlePdf() {
-      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
-      const opts = gatherOptions();
-
-      if (typeof svg2pdf === 'undefined') {
-        alert('PDF library not loaded. Please use Print button and select "Save as PDF".');
-        return;
-      }
-
-      try {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter', compress: false });
-        const pageWidth = 612, pageHeight = 792;
-        const pdfMargin = 33, topOffset = 8;
-        const contentWidth = pageWidth - (pdfMargin * 2);
-        const contentHeight = pageHeight - (pdfMargin * 2) - topOffset;
-
-        for (let i = 0; i < currentState.sheets.length; i++) {
-          if (i > 0) pdf.addPage();
-          const svgClone = renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, blanks: opts.blanks });
-          await pdf.svg(svgClone, { x: pdfMargin, y: pdfMargin + topOffset, width: contentWidth, height: contentHeight });
-        }
-
-        if (opts.answerKey) {
-          for (let i = 0; i < currentState.sheets.length; i++) {
-            pdf.addPage();
-            const answerSvg = renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", branded: opts.branded, showAnswers: true, blanks: opts.blanks });
-            await pdf.svg(answerSvg, { x: pdfMargin, y: pdfMargin + topOffset, width: contentWidth, height: contentHeight });
-          }
-        }
-
-        pdf.save('number-patterns-worksheet.pdf');
-      } catch (error) {
-        console.error('PDF generation error:', error);
-        alert('PDF generation failed. Please use Print button and select "Save as PDF".');
-      }
-    }
-
     // ===== Event Listeners =====
     elPatternType.addEventListener("change", () => renderWithNewRandomization());
     elDifficulty.addEventListener("change", () => renderWithNewRandomization());
@@ -1016,8 +969,7 @@
     elAnswerKey.addEventListener("change", () => {});
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
-    document.getElementById("btnPdf").addEventListener("click", handlePdf);
-    let resizeTimeout;
+let resizeTimeout;
     window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150); });
 
     // Init

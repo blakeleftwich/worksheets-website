@@ -234,11 +234,6 @@
       color: white;
     }
 
-    .btn-pdf {
-      background: #38a169;
-      color: white;
-    }
-
     .btn-print {
       background: #ed8936;
       color: white;
@@ -360,10 +355,7 @@
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="../../jspdf.umd.min.js"></script>
-  <script src="../../svg2pdf.js"></script>
-</head>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet"></head>
 <body>
   <div class="main-container">
     <!-- Left sidebar controls -->
@@ -481,8 +473,7 @@
 
       <div class="button-group">
         <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
-        <button class="btn-pdf" id="btnPdf">&#128196; Download PDF</button>
-        <button class="btn-print" id="btnPrint">&#128424; Print</button>
+<button class="btn-print" id="btnPrint">&#128424; Print</button>
       </div>
     </div>
 
@@ -925,55 +916,6 @@
       setTimeout(() => { window.print(); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 50);
     }
 
-    // ===== Download PDF =====
-    async function handleDownloadPDF() {
-      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
-      const opts = gatherOptions();
-
-      if (typeof svg2pdf === 'undefined' || typeof window.jspdf === 'undefined') {
-        alert('PDF library not loaded. Please use Print button and select "Save as PDF".');
-        return;
-      }
-
-      try {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'pt',
-          format: 'letter',
-          compress: false
-        });
-
-        const pageWidth = 612;
-        const pageHeight = 792;
-        const pdfMargin = 33;
-        const topOffset = 8;
-        const contentWidth = pageWidth - (pdfMargin * 2);
-        const contentHeight = pageHeight - (pdfMargin * 2) - topOffset;
-
-        // Worksheet pages
-        for (let i = 0; i < currentState.sheets.length; i++) {
-          if (i > 0) pdf.addPage();
-          const svgClone = renderWorksheetSVG(currentState.sheets[i], { mode: opts.mode, showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false });
-          await pdf.svg(svgClone, { x: pdfMargin, y: pdfMargin + topOffset, width: contentWidth, height: contentHeight });
-        }
-
-        // Answer key pages
-        if (opts.answerKey) {
-          for (let i = 0; i < currentState.sheets.length; i++) {
-            pdf.addPage();
-            const answerSvg = renderWorksheetSVG(currentState.sheets[i], { mode: opts.mode, showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", branded: opts.branded, showAnswers: true });
-            await pdf.svg(answerSvg, { x: pdfMargin, y: pdfMargin + topOffset, width: contentWidth, height: contentHeight });
-          }
-        }
-
-        pdf.save('tally-marks-worksheet.pdf');
-      } catch (error) {
-        console.error('PDF generation error:', error);
-        alert('PDF generation failed. Please use Print button and select "Save as PDF".');
-      }
-    }
-
     // ===== Event Listeners =====
     elMode.addEventListener("change", () => renderWithNewRandomization());
     elRange.addEventListener("change", () => renderWithNewRandomization());
@@ -1002,8 +944,7 @@
     elAnswerKey.addEventListener("change", () => {});
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
-    document.getElementById("btnPdf").addEventListener("click", handleDownloadPDF);
-    let resizeTimeout;
+let resizeTimeout;
     window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150); });
 
     // Init
