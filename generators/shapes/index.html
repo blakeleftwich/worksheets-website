@@ -462,7 +462,7 @@
             </div>
             <div id="subtitleInputWrap">
               <label for="subtitleText">Subtitle</label>
-              <input type="text" id="subtitleText" value="" />
+              <input type="text" id="subtitleText" value="Identify each shape." />
             </div>
           </div>
 
@@ -638,7 +638,13 @@
       if (elCustomTitleEnabled.checked) {
         return elShowSubtitle.checked ? elSubtitleText.value : "";
       }
-      return "";
+      const activity = elActivityType.value;
+      if (activity === "name") return "Write the name of each shape.";
+      if (activity === "sides") return "Count the sides of each shape.";
+      if (activity === "corners") return "Count the corners of each shape.";
+      if (activity === "identify") return "Circle all the matching shapes.";
+      if (activity === "mixed") return "Identify each shape.";
+      return "Identify each shape.";
     }
 
     // ===== State =====

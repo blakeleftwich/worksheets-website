@@ -471,7 +471,7 @@
             </div>
             <div id="subtitleInputWrap">
               <label for="subtitleText">Subtitle</label>
-              <input type="text" id="subtitleText" value="" />
+              <input type="text" id="subtitleText" value="Complete the other half of each shape." />
             </div>
           </div>
 
@@ -549,7 +549,11 @@
       if (elCustomTitleEnabled.checked) {
         return elShowSubtitle.checked ? elSubtitleText.value : "";
       }
-      return "";
+      const type = elActivityType.value;
+      if (type === "complete") return "Complete the other half of each shape.";
+      if (type === "identify") return "Circle the shapes that are symmetrical.";
+      if (type === "drawLine") return "Draw the line of symmetry on each shape.";
+      return "Complete the other half of each shape.";
     }
 
     // ===== State =====

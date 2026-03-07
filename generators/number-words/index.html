@@ -466,7 +466,7 @@
             </div>
             <div id="subtitleInputWrap">
               <label for="subtitleText">Subtitle</label>
-              <input type="text" id="subtitleText" value="" />
+              <input type="text" id="subtitleText" value="Match each number to its word." />
             </div>
           </div>
 
@@ -612,8 +612,10 @@
         return elShowSubtitle.checked ? elSubtitleText.value : "";
       }
       const mode = elMode.value;
+      if (mode === "writeWord") return "Write the word for each number.";
+      if (mode === "writeNumber") return "Write the number for each word.";
       if (mode === "match") return "Draw a line from each number to its matching word.";
-      return "";
+      return "Match each number to its word.";
     }
 
     // ===== Gather options =====
