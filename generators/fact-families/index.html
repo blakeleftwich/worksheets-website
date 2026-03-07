@@ -444,6 +444,18 @@
             </select>
           </div>
 
+          <!-- Numbered -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="numbered" checked />
+            <label for="numbered">Numbered</label>
+          </div>
+
+          <!-- Include example -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="includeExample" />
+            <label for="includeExample">Include example</label>
+          </div>
+
           <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
@@ -517,7 +529,9 @@
     const elShowSubtitle = document.getElementById("showSubtitle");
     const elTitleInputWrap = document.getElementById("titleInputWrap");
     const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
+    const elNumbered = document.getElementById("numbered");
     const elBranded = document.getElementById("branded");
+    const elIncludeExample = document.getElementById("includeExample");
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
     const advArrow = document.getElementById("advArrow");
@@ -602,7 +616,7 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(families, options) {
-      const { showHeader, title, subtitle, branded, showAnswers, operation, difficulty, masks } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, operation, difficulty, masks, numbered, includeExample } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
@@ -686,11 +700,14 @@
         const cellY = topGridY + row * cellH;
         const { a, b, c } = families[i];
         const mask = masks ? masks[i] : null;
+        const isExample = (i === 0 && includeExample && !showAnswers);
 
         // Problem number
-        const probNumSize = 11;
-        const probNum = svgEl("text", { x: cellX + 4, y: cellY + triPadTop + 4, "font-family": "Fredoka, sans-serif", "font-size": probNumSize, "font-weight": 600, fill: "#a0aec0" });
-        probNum.textContent = (i + 1) + "."; svg.appendChild(probNum);
+        if (numbered !== false) {
+          const probNumSize = 11;
+          const probNum = svgEl("text", { x: cellX + 4, y: cellY + triPadTop + 4, "font-family": "Fredoka, sans-serif", "font-size": probNumSize, "font-weight": 600, fill: "#a0aec0" });
+          probNum.textContent = (i + 1) + "."; svg.appendChild(probNum);
+        }
 
         // Triangle dimensions - scale with cell size
         const triW = Math.round((cols === 1 ? 140 : 110) * triScale);
@@ -747,6 +764,16 @@
         });
         brNum.textContent = String(b); svg.appendChild(brNum);
 
+        // Example badge (above equations)
+        if (isExample) {
+          const eqBadgeGap = Math.round(16 * triScale);
+          const badgeX = cellX + colW / 2 - 21;
+          const badgeY = leftY + eqBadgeGap - 14;
+          svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
+          const badgeText = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
+          badgeText.textContent = "Example"; svg.appendChild(badgeText);
+        }
+
         // Equations below triangle
         const eqGapFromTri = Math.round(16 * triScale);
         const eqStartY = leftY + eqGapFromTri;
@@ -796,7 +823,16 @@
 
           // Draw slot helper
           function drawSlot(x, y, value, isBlank) {
-            if (isBlank && !showAnswers) {
+            if (isExample) {
+              // Always show answer in green
+              const numText = svgEl("text", {
+                x: x + blankW / 2, y: y,
+                "font-family": "Fredoka, sans-serif", "font-size": eqFontSize, "font-weight": 700,
+                "text-anchor": "middle", fill: "#16a34a"
+              });
+              numText.textContent = String(value);
+              svg.appendChild(numText);
+            } else if (isBlank && !showAnswers) {
               svg.appendChild(svgEl("line", {
                 x1: x, y1: y + 3,
                 x2: x + blankW, y2: y + 3,
@@ -884,8 +920,10 @@
         showHeader,
         title,
         subtitle,
+        numbered: elNumbered.checked,
         branded: elBranded.checked,
-        answerKey: elAnswerKey.checked
+        answerKey: elAnswerKey.checked,
+        includeExample: elIncludeExample.checked,
       };
     }
 
@@ -936,7 +974,7 @@
           const v = renderWorksheetSVG(currentState.sheets[s].families, {
             showHeader: opts.showHeader, title: opts.title, branded: opts.branded,
             showAnswers: false, operation: opts.operation, difficulty: opts.difficulty,
-            masks: currentState.sheets[s].masks
+            masks: currentState.sheets[s].masks, numbered: opts.numbered, includeExample: opts.includeExample
           });
           p.appendChild(v);
           sheetWrap.appendChild(p);
@@ -962,7 +1000,7 @@
           const v = renderWorksheetSVG(currentState.sheets[s].families, {
             showHeader: opts.showHeader, title: opts.title, branded: opts.branded,
             showAnswers: false, operation: opts.operation, difficulty: opts.difficulty,
-            masks: currentState.sheets[s].masks
+            masks: currentState.sheets[s].masks, numbered: opts.numbered, includeExample: opts.includeExample
           });
           v.setAttribute("width", sw); v.setAttribute("height", sh);
           p.appendChild(v); sheetWrap.appendChild(p);
@@ -972,7 +1010,7 @@
         const v = renderWorksheetSVG(currentState.sheets[0].families, {
           showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
           showAnswers: false, operation: opts.operation, difficulty: opts.difficulty,
-          masks: currentState.sheets[0].masks
+          masks: currentState.sheets[0].masks, numbered: opts.numbered, includeExample: opts.includeExample
         });
         p.appendChild(v); sheetWrap.appendChild(p);
       }
@@ -989,7 +1027,7 @@
         p.appendChild(renderWorksheetSVG(currentState.sheets[i].families, {
           showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
           showAnswers: false, operation: opts.operation, difficulty: opts.difficulty,
-          masks: currentState.sheets[i].masks
+          masks: currentState.sheets[i].masks, numbered: opts.numbered, includeExample: opts.includeExample
         }));
         sheetWrap.appendChild(p);
       }
@@ -999,7 +1037,7 @@
           p.appendChild(renderWorksheetSVG(currentState.sheets[i].families, {
             showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", branded: opts.branded,
             showAnswers: true, operation: opts.operation, difficulty: opts.difficulty,
-            masks: currentState.sheets[i].masks
+            masks: currentState.sheets[i].masks, numbered: opts.numbered
           }));
           sheetWrap.appendChild(p);
         }
@@ -1017,6 +1055,7 @@
       renderWithoutRandomization();
     });
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
+    elNumbered.addEventListener("change", () => renderWithoutRandomization());
     elBranded.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
@@ -1033,6 +1072,7 @@
     elHeaderText.addEventListener("input", () => renderWithoutRandomization());
     elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
     elAnswerKey.addEventListener("change", () => {});
+    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
 let resizeTimeout;

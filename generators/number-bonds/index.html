@@ -447,6 +447,18 @@
             </select>
           </div>
 
+          <!-- Numbered -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="numbered" checked />
+            <label for="numbered">Numbered</label>
+          </div>
+
+          <!-- Include example -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="includeExample" />
+            <label for="includeExample">Include example</label>
+          </div>
+
           <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
@@ -524,9 +536,11 @@
     const elTitleInputWrap = document.getElementById("titleInputWrap");
     const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
     const elBranded = document.getElementById("branded");
+    const elNumbered = document.getElementById("numbered");
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
     const advArrow = document.getElementById("advArrow");
+    const elIncludeExample = document.getElementById("includeExample");
 
     // ===== Advanced panel toggle =====
     advToggle.addEventListener("click", () => {
@@ -667,7 +681,7 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options) {
-      const { showHeader, title, subtitle, branded, showAnswers } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, numbered, includeExample } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
@@ -791,13 +805,15 @@
         const botRightCY = cy + dH * 0.35;
 
         // Problem number (top-left of cell)
-        const numEl = svgEl("text", {
-          x: cellLeft + 8, y: cellTop + 18,
-          "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize),
-          "font-weight": "600", fill: "#a0aec0"
-        });
-        numEl.textContent = (i + 1) + ".";
-        svg.appendChild(numEl);
+        if (numbered !== false) {
+          const numEl = svgEl("text", {
+            x: cellLeft + 8, y: cellTop + 18,
+            "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize),
+            "font-weight": "600", fill: "#a0aec0"
+          });
+          numEl.textContent = (i + 1) + ".";
+          svg.appendChild(numEl);
+        }
 
         // Draw connecting lines (behind circles)
         svg.appendChild(svgEl("line", {
@@ -811,24 +827,27 @@
           stroke: "#4a5568", "stroke-width": String(Math.max(1.5, 1.5 * scale))
         }));
 
+        const isExample = (i === 0 && includeExample && !showAnswers);
+
         // Draw top circle (whole)
         const isWholeMissing = missing === "whole";
+        const wholeIsEx = isExample && isWholeMissing;
         svg.appendChild(svgEl("circle", {
           cx: topCX, cy: topCY, r: topR,
-          fill: isWholeMissing && !showAnswers ? "#fff" : "#fff",
-          stroke: isWholeMissing && !showAnswers ? "#667eea" : "#4a5568",
-          "stroke-width": isWholeMissing && !showAnswers ? "2.5" : "2",
-          "stroke-dasharray": isWholeMissing && !showAnswers ? "5,3" : "none"
+          fill: "#fff",
+          stroke: wholeIsEx ? "#22c55e" : (isWholeMissing && !showAnswers ? "#667eea" : "#4a5568"),
+          "stroke-width": (isWholeMissing && !showAnswers) || wholeIsEx ? "2.5" : "2",
+          "stroke-dasharray": wholeIsEx ? "none" : (isWholeMissing && !showAnswers ? "5,3" : "none")
         }));
         // Whole number text
-        if (!isWholeMissing || showAnswers) {
+        if (!isWholeMissing || showAnswers || wholeIsEx) {
           const wholeText = svgEl("text", {
             x: topCX, y: topCY + topFontSize * 0.35,
             "font-family": "Fredoka, sans-serif",
             "font-size": String(topFontSize),
             "font-weight": "700",
             "text-anchor": "middle",
-            fill: isWholeMissing && showAnswers ? "#e53e3e" : "#1a202c"
+            fill: wholeIsEx ? "#16a34a" : (isWholeMissing && showAnswers ? "#e53e3e" : "#1a202c")
           });
           wholeText.textContent = String(whole);
           svg.appendChild(wholeText);
@@ -836,21 +855,22 @@
 
         // Draw bottom-left circle (part1)
         const isPart1Missing = missing === "part1";
+        const part1IsEx = isExample && isPart1Missing;
         svg.appendChild(svgEl("circle", {
           cx: botLeftCX, cy: botLeftCY, r: botR,
           fill: "#fff",
-          stroke: isPart1Missing && !showAnswers ? "#667eea" : "#4a5568",
-          "stroke-width": isPart1Missing && !showAnswers ? "2.5" : "2",
-          "stroke-dasharray": isPart1Missing && !showAnswers ? "5,3" : "none"
+          stroke: part1IsEx ? "#22c55e" : (isPart1Missing && !showAnswers ? "#667eea" : "#4a5568"),
+          "stroke-width": (isPart1Missing && !showAnswers) || part1IsEx ? "2.5" : "2",
+          "stroke-dasharray": part1IsEx ? "none" : (isPart1Missing && !showAnswers ? "5,3" : "none")
         }));
-        if (!isPart1Missing || showAnswers) {
+        if (!isPart1Missing || showAnswers || part1IsEx) {
           const p1Text = svgEl("text", {
             x: botLeftCX, y: botLeftCY + botFontSize * 0.35,
             "font-family": "Fredoka, sans-serif",
             "font-size": String(botFontSize),
             "font-weight": "700",
             "text-anchor": "middle",
-            fill: isPart1Missing && showAnswers ? "#e53e3e" : "#1a202c"
+            fill: part1IsEx ? "#16a34a" : (isPart1Missing && showAnswers ? "#e53e3e" : "#1a202c")
           });
           p1Text.textContent = String(part1);
           svg.appendChild(p1Text);
@@ -858,24 +878,35 @@
 
         // Draw bottom-right circle (part2)
         const isPart2Missing = missing === "part2";
+        const part2IsEx = isExample && isPart2Missing;
         svg.appendChild(svgEl("circle", {
           cx: botRightCX, cy: botRightCY, r: botR,
           fill: "#fff",
-          stroke: isPart2Missing && !showAnswers ? "#667eea" : "#4a5568",
-          "stroke-width": isPart2Missing && !showAnswers ? "2.5" : "2",
-          "stroke-dasharray": isPart2Missing && !showAnswers ? "5,3" : "none"
+          stroke: part2IsEx ? "#22c55e" : (isPart2Missing && !showAnswers ? "#667eea" : "#4a5568"),
+          "stroke-width": (isPart2Missing && !showAnswers) || part2IsEx ? "2.5" : "2",
+          "stroke-dasharray": part2IsEx ? "none" : (isPart2Missing && !showAnswers ? "5,3" : "none")
         }));
-        if (!isPart2Missing || showAnswers) {
+        if (!isPart2Missing || showAnswers || part2IsEx) {
           const p2Text = svgEl("text", {
             x: botRightCX, y: botRightCY + botFontSize * 0.35,
             "font-family": "Fredoka, sans-serif",
             "font-size": String(botFontSize),
             "font-weight": "700",
             "text-anchor": "middle",
-            fill: isPart2Missing && showAnswers ? "#e53e3e" : "#1a202c"
+            fill: part2IsEx ? "#16a34a" : (isPart2Missing && showAnswers ? "#e53e3e" : "#1a202c")
           });
           p2Text.textContent = String(part2);
           svg.appendChild(p2Text);
+        }
+
+        // Example badge
+        if (isExample) {
+          const badgeX = cx - 21;
+          const badgeY = topCY - topR - 16;
+          svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": 0.75 }));
+          const badgeText = svgEl("text", { x: cx, y: badgeY + 9.5, "font-family": "Fredoka, sans-serif", "font-size": 8, "font-weight": 600, "text-anchor": "middle", fill: "#16a34a" });
+          badgeText.textContent = "Example";
+          svg.appendChild(badgeText);
         }
       }
 
@@ -898,6 +929,8 @@
         subtitle: subtitle,
         branded: elBranded.checked,
         answerKey: elAnswerKey.checked,
+        numbered: elNumbered.checked,
+        includeExample: elIncludeExample.checked,
       };
     }
 
@@ -933,7 +966,7 @@
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div");
           p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false });
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample });
           p.appendChild(v);
           sheetWrap.appendChild(p);
         }
@@ -960,7 +993,7 @@
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div");
           p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false });
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample });
           v.setAttribute("width", sw);
           v.setAttribute("height", sh);
           p.appendChild(v);
@@ -969,7 +1002,7 @@
       } else {
         const p = document.createElement("div");
         p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false });
+        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample });
         p.appendChild(v);
         sheetWrap.appendChild(p);
       }
@@ -986,14 +1019,14 @@
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div");
         p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false }));
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }));
         sheetWrap.appendChild(p);
       }
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div");
           p.className = "worksheet-page";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", branded: opts.branded, showAnswers: true }));
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", branded: opts.branded, showAnswers: true, numbered: opts.numbered }));
           sheetWrap.appendChild(p);
         }
       }
@@ -1015,6 +1048,7 @@
     });
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
     elBranded.addEventListener("change", () => renderWithoutRandomization());
+    elNumbered.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
       renderWithoutRandomization();
@@ -1030,6 +1064,7 @@
     elHeaderText.addEventListener("input", () => renderWithoutRandomization());
     elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
     elAnswerKey.addEventListener("change", () => {});
+    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
 let resizeTimeout;

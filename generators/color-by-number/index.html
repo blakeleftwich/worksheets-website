@@ -444,6 +444,18 @@
             </select>
           </div>
 
+          <!-- Numbered -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="numbered" checked />
+            <label for="numbered">Numbered</label>
+          </div>
+
+          <!-- Include example -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="includeExample" />
+            <label for="includeExample">Include example</label>
+          </div>
+
           <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
@@ -512,7 +524,9 @@
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
     const elHeaderMode = document.getElementById("headerMode");
+    const elNumbered = document.getElementById("numbered");
     const elBranded = document.getElementById("branded");
+    const elIncludeExample = document.getElementById("includeExample");
     const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
     const elCustomTitleOptions = document.getElementById("customTitleOptions");
     const elHeaderText = document.getElementById("headerText");
@@ -810,7 +824,9 @@
         headerMode: getHeaderMode(),
         title: getTitle(),
         subtitle: getSubtitle(),
+        numbered: elNumbered.checked,
         branded: elBranded.checked,
+        includeExample: elIncludeExample.checked
       };
     }
 
@@ -1206,7 +1222,9 @@
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elAnswerKey.addEventListener("change", () => {});
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
+    elNumbered.addEventListener("change", () => renderWithoutRandomization());
     elBranded.addEventListener("change", () => renderWithoutRandomization());
+    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
       renderWithoutRandomization();

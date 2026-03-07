@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Number Line Tool</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      background: white;
+      padding: 32px 24px;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 4px;
+      text-align: left;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #718096;
+      margin-bottom: 24px;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-group > label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 6px;
+    }
+
+    .control-group input[type="number"],
+    .control-group select {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .control-group input:focus,
+    .control-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .control-group input:hover,
+    .control-group select:hover {
+      border-color: #cbd5e0;
+    }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .range-row .control-group {
+      margin-bottom: 0;
+    }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    /* ===== Mode Toggle ===== */
+    .mode-toggle {
+      display: flex;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .mode-toggle input[type="radio"] {
+      display: none;
+    }
+
+    .mode-toggle label {
+      flex: 1;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #718096;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-right: 2px solid #e2e8f0;
+    }
+
+    .mode-toggle label:last-of-type {
+      border-right: none;
+    }
+
+    .mode-toggle input[type="radio"]:checked + label {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    /* ===== Color Picker ===== */
+    .color-picker {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .color-swatch {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.1);
+    }
+
+    .color-swatch.active {
+      border-color: #2d3748;
+      box-shadow: 0 0 0 2px white, 0 0 0 4px #2d3748;
+    }
+
+    /* ===== Buttons ===== */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .button-group button {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .button-group button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-apply {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-clear {
+      background: #e2e8f0;
+      color: #4a5568;
+    }
+
+    .btn-clear:hover {
+      background: #cbd5e0;
+    }
+
+    .btn-danger {
+      background: #fed7d7;
+      color: #c53030;
+    }
+
+    .btn-danger:hover {
+      background: #feb2b2;
+    }
+
+    .clear-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .clear-group button {
+      flex: 1;
+      padding: 10px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .clear-group button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* ===== Workspace ===== */
+    .workspace {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .workspace-inner {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      padding: 24px 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      max-width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    #numberLineSvg {
+      cursor: pointer;
+      display: block;
+    }
+
+    /* Status bar */
+    .status-bar {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(26, 32, 44, 0.85);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+
+    .status-bar.visible {
+      opacity: 1;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1024px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: relative;
+        height: auto;
+      }
+      .workspace {
+        min-height: 60vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <!-- Left sidebar controls -->
+    <div class="sidebar">
+      <a href="../index.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #667eea; text-decoration: none; margin-bottom: 16px; transition: gap 0.2s;"
+         onmouseover="this.style.gap='10px'" onmouseout="this.style.gap='6px'">
+        &#8592; All Tools
+      </a>
+      <h2>Number Line</h2>
+      <div class="subtitle">Visualize addition and subtraction</div>
+
+      <!-- Range Controls -->
+      <span class="section-label">Range</span>
+      <div class="range-row" style="margin-bottom: 20px;">
+        <div class="control-group">
+          <label for="rangeStart">Start</label>
+          <input type="number" id="rangeStart" value="0">
+        </div>
+        <div class="control-group">
+          <label for="rangeEnd">End</label>
+          <input type="number" id="rangeEnd" value="20">
+        </div>
+        <div class="control-group">
+          <label for="rangeInterval">Interval</label>
+          <input type="number" id="rangeInterval" value="1" min="1">
+        </div>
+      </div>
+
+      <div class="button-group" style="margin-top: 0; margin-bottom: 24px;">
+        <button class="btn-apply" id="btnApply">Apply</button>
+      </div>
+
+      <!-- Mode Toggle -->
+      <span class="section-label">Mode</span>
+      <div class="mode-toggle">
+        <input type="radio" name="mode" id="modePoint" value="point" checked>
+        <label for="modePoint">Point</label>
+        <input type="radio" name="mode" id="modeJump" value="jump">
+        <label for="modeJump">Jump</label>
+      </div>
+
+      <!-- Jump Color -->
+      <span class="section-label">Jump Color</span>
+      <div class="color-picker">
+        <div class="color-swatch active" data-color="#667eea" style="background: #667eea;"></div>
+        <div class="color-swatch" data-color="#e53e3e" style="background: #e53e3e;"></div>
+        <div class="color-swatch" data-color="#38a169" style="background: #38a169;"></div>
+        <div class="color-swatch" data-color="#ed8936" style="background: #ed8936;"></div>
+      </div>
+
+      <!-- Actions -->
+      <span class="section-label">Actions</span>
+      <div class="clear-group">
+        <button class="btn-clear" id="btnClearPoints">Clear Points</button>
+        <button class="btn-clear" id="btnClearJumps">Clear Jumps</button>
+      </div>
+      <div class="button-group" style="margin-top: 10px;">
+        <button class="btn-danger" id="btnClearAll">Clear All</button>
+      </div>
+    </div>
+
+    <!-- Workspace -->
+    <div class="workspace" id="workspace">
+      <div class="workspace-inner">
+        <svg id="numberLineSvg"></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status bar for hints -->
+  <div class="status-bar" id="statusBar"></div>
+
+  <script>
+    // ===== State =====
+    const state = {
+      start: 0,
+      end: 20,
+      interval: 1,
+      mode: 'point',       // 'point' or 'jump'
+      jumpColor: '#667eea',
+      points: new Set(),   // tick values with points
+      jumps: [],           // { from, to, color }
+      pendingJumpFrom: null, // tick value for pending jump start
+    };
+
+    // ===== Layout constants =====
+    const TICK_SPACING = 60;
+    const TICK_HEIGHT = 20;
+    const LINE_Y = 0;         // will be centered in SVG
+    const PADDING_X = 50;
+    const PADDING_TOP = 120;
+    const PADDING_BOTTOM = 120;
+    const ARROW_SIZE = 12;
+    const POINT_RADIUS = 8;
+
+    // ===== DOM refs =====
+    const svg = document.getElementById('numberLineSvg');
+    const workspace = document.getElementById('workspace');
+    const statusBar = document.getElementById('statusBar');
+
+    // ===== Utility =====
+    function getTickValues() {
+      const vals = [];
+      const { start, end, interval } = state;
+      if (interval <= 0) return [start, end];
+      for (let v = start; v <= end; v += interval) {
+        vals.push(Math.round(v * 1e10) / 1e10); // avoid float drift
+      }
+      if (vals[vals.length - 1] !== end) vals.push(end);
+      return vals;
+    }
+
+    function tickX(value) {
+      const { start, end } = state;
+      const range = end - start;
+      if (range === 0) return PADDING_X;
+      const totalWidth = getTickValues().length > 1
+        ? (getTickValues().length - 1) * TICK_SPACING
+        : TICK_SPACING;
+      const frac = (value - start) / range;
+      return PADDING_X + frac * totalWidth;
+    }
+
+    function totalSvgWidth() {
+      const ticks = getTickValues();
+      return PADDING_X * 2 + (ticks.length - 1) * TICK_SPACING;
+    }
+
+    // Count how many existing jumps span over a given tick range (for stacking)
+    function countOverlappingJumps(from, to, above) {
+      const minV = Math.min(from, to);
+      const maxV = Math.max(from, to);
+      let count = 0;
+      for (const j of state.jumps) {
+        const jMin = Math.min(j.from, j.to);
+        const jMax = Math.max(j.from, j.to);
+        const jAbove = j.to > j.from;
+        if (jAbove !== above) continue;
+        // Check overlap
+        if (jMin < maxV && jMax > minV) count++;
+      }
+      return count;
+    }
+
+    // ===== Rendering =====
+    function render() {
+      const ticks = getTickValues();
+      const svgWidth = totalSvgWidth();
+
+      // Calculate how much vertical space we need for stacked arcs
+      const maxAboveStack = getMaxStack(true);
+      const maxBelowStack = getMaxStack(false);
+      const arcBaseHeight = 40;
+      const arcStackStep = 30;
+      const aboveSpace = PADDING_TOP + maxAboveStack * arcStackStep;
+      const belowSpace = PADDING_BOTTOM + maxBelowStack * arcStackStep;
+      const svgHeight = aboveSpace + belowSpace;
+      const lineY = aboveSpace;
+
+      svg.setAttribute('width', svgWidth);
+      svg.setAttribute('height', svgHeight);
+      svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
+
+      let html = '';
+
+      // -- Defs for arrowheads --
+      html += `<defs>
+        <marker id="arrowRight" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+          <path d="M0,0 L10,4 L0,8" fill="#4a5568"/>
+        </marker>
+        <marker id="arrowLeft" markerWidth="10" markerHeight="8" refX="1" refY="4" orient="auto">
+          <path d="M10,0 L0,4 L10,8" fill="#4a5568"/>
+        </marker>
+      </defs>`;
+
+      // -- Main horizontal line --
+      const lineX1 = PADDING_X - 20;
+      const lineX2 = PADDING_X + (ticks.length - 1) * TICK_SPACING + 20;
+      html += `<line x1="${lineX1}" y1="${lineY}" x2="${lineX2}" y2="${lineY}"
+                stroke="#4a5568" stroke-width="3" stroke-linecap="round"/>`;
+
+      // -- Arrow tips --
+      // Left arrow
+      html += `<polygon points="${lineX1},${lineY} ${lineX1 + ARROW_SIZE},${lineY - ARROW_SIZE / 2} ${lineX1 + ARROW_SIZE},${lineY + ARROW_SIZE / 2}"
+                fill="#4a5568"/>`;
+      // Right arrow
+      html += `<polygon points="${lineX2},${lineY} ${lineX2 - ARROW_SIZE},${lineY - ARROW_SIZE / 2} ${lineX2 - ARROW_SIZE},${lineY + ARROW_SIZE / 2}"
+                fill="#4a5568"/>`;
+
+      // -- Tick marks and labels --
+      for (let i = 0; i < ticks.length; i++) {
+        const x = PADDING_X + i * TICK_SPACING;
+        const v = ticks[i];
+
+        // Tick mark
+        html += `<line x1="${x}" y1="${lineY - TICK_HEIGHT / 2}" x2="${x}" y2="${lineY + TICK_HEIGHT / 2}"
+                  stroke="#4a5568" stroke-width="2"/>`;
+
+        // Label
+        const label = Number.isInteger(v) ? v : v.toFixed(1);
+        html += `<text x="${x}" y="${lineY + TICK_HEIGHT / 2 + 20}" text-anchor="middle"
+                  font-size="16" font-weight="600" fill="#2d3748" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">${label}</text>`;
+
+        // Highlight pending jump start
+        if (state.pendingJumpFrom !== null && state.pendingJumpFrom === v) {
+          html += `<circle cx="${x}" cy="${lineY}" r="14" fill="none" stroke="${state.jumpColor}" stroke-width="3" opacity="0.6">
+            <animate attributeName="r" values="12;16;12" dur="1.2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.6;0.3;0.6" dur="1.2s" repeatCount="indefinite"/>
+          </circle>`;
+        }
+
+        // Invisible hit area for clicks
+        html += `<rect x="${x - 25}" y="${lineY - 30}" width="50" height="60"
+                  fill="transparent" data-tick="${v}" class="tick-hit" style="cursor:pointer;"/>`;
+      }
+
+      // -- Points --
+      for (const v of state.points) {
+        const idx = ticks.indexOf(v);
+        if (idx === -1) continue;
+        const x = PADDING_X + idx * TICK_SPACING;
+        html += `<circle cx="${x}" cy="${lineY}" r="${POINT_RADIUS}" fill="#e53e3e" stroke="white" stroke-width="2.5" style="cursor:pointer;" class="point-marker" data-tick="${v}"/>`;
+      }
+
+      // -- Jump arcs --
+      for (let ji = 0; ji < state.jumps.length; ji++) {
+        const j = state.jumps[ji];
+        const fromIdx = ticks.indexOf(j.from);
+        const toIdx = ticks.indexOf(j.to);
+        if (fromIdx === -1 || toIdx === -1) continue;
+
+        const x1 = PADDING_X + fromIdx * TICK_SPACING;
+        const x2 = PADDING_X + toIdx * TICK_SPACING;
+        const forward = j.to > j.from;
+        const above = forward; // forward = above, backward = below
+
+        // Calculate stack level for this jump
+        const stackLevel = getJumpStackLevel(ji, above);
+        const arcHeight = arcBaseHeight + stackLevel * arcStackStep;
+
+        const midX = (x1 + x2) / 2;
+        const cpY = above ? lineY - arcHeight : lineY + arcHeight;
+
+        // Arc path (quadratic bezier)
+        const pathD = `M${x1},${lineY} Q${midX},${cpY} ${x2},${lineY}`;
+
+        // Draw arc
+        html += `<path d="${pathD}" fill="none" stroke="${j.color}" stroke-width="3" stroke-linecap="round"/>`;
+
+        // Arrowhead at the end
+        const arrowT = 0.92;
+        const ax = (1 - arrowT) * (1 - arrowT) * x1 + 2 * (1 - arrowT) * arrowT * midX + arrowT * arrowT * x2;
+        const ay = (1 - arrowT) * (1 - arrowT) * lineY + 2 * (1 - arrowT) * arrowT * cpY + arrowT * arrowT * lineY;
+        const dx = 2 * (1 - arrowT) * (midX - x1) + 2 * arrowT * (x2 - midX);
+        const dy = 2 * (1 - arrowT) * (cpY - lineY) + 2 * arrowT * (lineY - cpY);
+        const len = Math.sqrt(dx * dx + dy * dy);
+        const ux = dx / len;
+        const uy = dy / len;
+        const arrowLen = 10;
+        const arrowW = 5;
+        // Perpendicular
+        const px = -uy;
+        const py = ux;
+        const tipX = x2;
+        const tipY = lineY;
+        const baseX = tipX - ux * arrowLen;
+        const baseY = tipY - uy * arrowLen;
+        html += `<polygon points="${tipX},${tipY} ${baseX + px * arrowW},${baseY + py * arrowW} ${baseX - px * arrowW},${baseY - py * arrowW}" fill="${j.color}"/>`;
+
+        // Label at apex
+        const diff = j.to - j.from;
+        const labelText = diff > 0 ? `+${diff}` : `${diff}`;
+        const labelY = above ? cpY - 6 : cpY + 18;
+        html += `<text x="${midX}" y="${labelY}" text-anchor="middle"
+                  font-size="14" font-weight="700" fill="${j.color}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">${labelText}</text>`;
+      }
+
+      svg.innerHTML = html;
+
+      // Attach event listeners
+      attachSvgListeners(lineY);
+    }
+
+    function getMaxStack(above) {
+      let max = 0;
+      for (let i = 0; i < state.jumps.length; i++) {
+        const j = state.jumps[i];
+        const isAbove = j.to > j.from;
+        if (isAbove !== above) continue;
+        const level = getJumpStackLevel(i, above);
+        if (level > max) max = level;
+      }
+      return max;
+    }
+
+    function getJumpStackLevel(jumpIndex, above) {
+      const j = state.jumps[jumpIndex];
+      const minV = Math.min(j.from, j.to);
+      const maxV = Math.max(j.from, j.to);
+      let level = 0;
+      for (let i = 0; i < jumpIndex; i++) {
+        const other = state.jumps[i];
+        const oAbove = other.to > other.from;
+        if (oAbove !== above) continue;
+        const oMin = Math.min(other.from, other.to);
+        const oMax = Math.max(other.from, other.to);
+        // Check if the ranges overlap
+        if (oMin < maxV && oMax > minV) level++;
+      }
+      return level;
+    }
+
+    // ===== SVG Event Handling =====
+    function attachSvgListeners(lineY) {
+      const hitAreas = svg.querySelectorAll('.tick-hit');
+      hitAreas.forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const tickVal = parseFloat(el.getAttribute('data-tick'));
+          handleTickClick(tickVal);
+        });
+      });
+
+      const pointMarkers = svg.querySelectorAll('.point-marker');
+      pointMarkers.forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const tickVal = parseFloat(el.getAttribute('data-tick'));
+          if (state.mode === 'point') {
+            // Remove point
+            state.points.delete(tickVal);
+            render();
+          } else {
+            handleTickClick(tickVal);
+          }
+        });
+      });
+
+      // Clicking empty space in workspace cancels pending jump
+      workspace.addEventListener('click', (e) => {
+        if (e.target === workspace || e.target.closest('.workspace-inner') === e.target) {
+          cancelPendingJump();
+        }
+      });
+    }
+
+    function handleTickClick(value) {
+      if (state.mode === 'point') {
+        if (state.points.has(value)) {
+          state.points.delete(value);
+        } else {
+          state.points.add(value);
+        }
+        render();
+      } else if (state.mode === 'jump') {
+        if (state.pendingJumpFrom === null) {
+          // First click - set start
+          state.pendingJumpFrom = value;
+          showStatus('Click another tick to complete the jump, or press Esc to cancel');
+          render();
+        } else {
+          if (state.pendingJumpFrom === value) {
+            // Clicked same tick, cancel
+            cancelPendingJump();
+            return;
+          }
+          // Second click - complete jump
+          state.jumps.push({
+            from: state.pendingJumpFrom,
+            to: value,
+            color: state.jumpColor
+          });
+          state.pendingJumpFrom = null;
+          hideStatus();
+          render();
+        }
+      }
+    }
+
+    function cancelPendingJump() {
+      if (state.pendingJumpFrom !== null) {
+        state.pendingJumpFrom = null;
+        hideStatus();
+        render();
+      }
+    }
+
+    // ===== Status bar =====
+    function showStatus(msg) {
+      statusBar.textContent = msg;
+      statusBar.classList.add('visible');
+    }
+
+    function hideStatus() {
+      statusBar.classList.remove('visible');
+    }
+
+    // ===== Control bindings =====
+    document.getElementById('btnApply').addEventListener('click', () => {
+      const s = parseInt(document.getElementById('rangeStart').value, 10);
+      const e = parseInt(document.getElementById('rangeEnd').value, 10);
+      const iv = parseFloat(document.getElementById('rangeInterval').value);
+
+      if (isNaN(s) || isNaN(e) || isNaN(iv) || iv <= 0) {
+        alert('Please enter valid range values. Interval must be greater than 0.');
+        return;
+      }
+      if (s >= e) {
+        alert('Start must be less than End.');
+        return;
+      }
+      const tickCount = Math.floor((e - s) / iv) + 1;
+      if (tickCount > 200) {
+        alert('Too many ticks. Please increase the interval or reduce the range.');
+        return;
+      }
+
+      state.start = s;
+      state.end = e;
+      state.interval = iv;
+      // Clear markers that are no longer on valid ticks
+      const validTicks = new Set(getTickValues());
+      for (const p of state.points) {
+        if (!validTicks.has(p)) state.points.delete(p);
+      }
+      state.jumps = state.jumps.filter(j => validTicks.has(j.from) && validTicks.has(j.to));
+      state.pendingJumpFrom = null;
+      hideStatus();
+      render();
+    });
+
+    // Mode toggle
+    document.querySelectorAll('input[name="mode"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        state.mode = radio.value;
+        cancelPendingJump();
+      });
+    });
+
+    // Color swatches
+    document.querySelectorAll('.color-swatch').forEach(swatch => {
+      swatch.addEventListener('click', () => {
+        document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+        swatch.classList.add('active');
+        state.jumpColor = swatch.getAttribute('data-color');
+      });
+    });
+
+    // Clear buttons
+    document.getElementById('btnClearPoints').addEventListener('click', () => {
+      state.points.clear();
+      render();
+    });
+
+    document.getElementById('btnClearJumps').addEventListener('click', () => {
+      state.jumps = [];
+      state.pendingJumpFrom = null;
+      hideStatus();
+      render();
+    });
+
+    document.getElementById('btnClearAll').addEventListener('click', () => {
+      state.points.clear();
+      state.jumps = [];
+      state.pendingJumpFrom = null;
+      hideStatus();
+      render();
+    });
+
+    // Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        cancelPendingJump();
+      }
+    });
+
+    // ===== Initial render =====
+    render();
+  </script>
+</body>
+</html>

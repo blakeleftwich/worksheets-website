@@ -438,6 +438,18 @@
             </select>
           </div>
 
+          <!-- Numbered -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="numbered" checked />
+            <label for="numbered">Numbered</label>
+          </div>
+
+          <!-- Include example -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="includeExample" />
+            <label for="includeExample">Include example</label>
+          </div>
+
           <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
@@ -511,6 +523,8 @@
     const elTitleInputWrap = document.getElementById("titleInputWrap");
     const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
     const elBranded = document.getElementById("branded");
+    const elNumbered = document.getElementById("numbered");
+    const elIncludeExample = document.getElementById("includeExample");
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
     const advArrow = document.getElementById("advArrow");
@@ -587,12 +601,14 @@
         subtitle,
         branded: elBranded.checked,
         answerKey: elAnswerKey.checked,
+        numbered: elNumbered.checked,
+        includeExample: elIncludeExample.checked,
       };
     }
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(numbers, options) {
-      const { showHeader, title, subtitle, branded, showAnswers, mode, targetType } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, mode, targetType, numbered, includeExample } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
@@ -672,18 +688,18 @@
       const availW = pageW - margin * 2;
 
       if (mode === "circle") {
-        renderCircleMode(svg, numbers, topGridY, availW, availH, margin, pageW, showAnswers, targetType);
+        renderCircleMode(svg, numbers, topGridY, availW, availH, margin, pageW, showAnswers, targetType, includeExample);
       } else if (mode === "sort") {
-        renderSortMode(svg, numbers, topGridY, availW, availH, margin, pageW, pageH, showAnswers, bottomMargin);
+        renderSortMode(svg, numbers, topGridY, availW, availH, margin, pageW, pageH, showAnswers, bottomMargin, includeExample);
       } else if (mode === "write") {
-        renderWriteMode(svg, numbers, topGridY, availW, availH, margin, pageW, showAnswers);
+        renderWriteMode(svg, numbers, topGridY, availW, availH, margin, pageW, showAnswers, numbered, includeExample);
       }
 
       return svg;
     }
 
     // ===== Circle Mode =====
-    function renderCircleMode(svg, numbers, topGridY, availW, availH, margin, pageW, showAnswers, targetType) {
+    function renderCircleMode(svg, numbers, topGridY, availW, availH, margin, pageW, showAnswers, targetType, includeExample) {
       // Instruction line
       const instrY = topGridY + 24;
       const instrEl = svgEl("text", { x: pageW / 2, y: instrY, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 600, "text-anchor": "middle", fill: "#2d3748" });
@@ -714,21 +730,31 @@
         const cy = gridTop + row * cellH + cellH / 2;
         const num = numbers[i];
         const isTarget = targetType === "odd" ? (num % 2 !== 0) : (num % 2 === 0);
+        const isExample = (i === 0 && includeExample && !showAnswers);
 
         // Draw circle
+        const circleFill = isExample ? (isTarget ? "rgba(34,197,94,0.15)" : "none") : (showAnswers && isTarget) ? "rgba(102, 126, 234, 0.15)" : "none";
+        const circleStroke = isExample ? (isTarget ? "#22c55e" : "#2d3748") : (showAnswers && isTarget) ? "#667eea" : "#2d3748";
+        const circleWidth = (isExample && isTarget) || (showAnswers && isTarget) ? 3 : 1.5;
         svg.appendChild(svgEl("circle", {
           cx: cx, cy: cy, r: circleR,
-          fill: (showAnswers && isTarget) ? "rgba(102, 126, 234, 0.15)" : "none",
-          stroke: (showAnswers && isTarget) ? "#667eea" : "#2d3748",
-          "stroke-width": (showAnswers && isTarget) ? 3 : 1.5
+          fill: circleFill, stroke: circleStroke, "stroke-width": circleWidth
         }));
+
+        // Example badge above first circle
+        if (isExample) {
+          const badgeX = cx - 21, badgeY = cy - circleR - 16;
+          svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
+          const bt = svgEl("text", { x: cx, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
+          bt.textContent = "Example"; svg.appendChild(bt);
+        }
 
         // Draw number
         const numEl = svgEl("text", {
           x: cx, y: cy + fontSize * 0.35,
           "font-family": "Fredoka, sans-serif", "font-size": fontSize, "font-weight": 700,
           "text-anchor": "middle",
-          fill: (showAnswers && isTarget) ? "#667eea" : "#1a202c"
+          fill: (isExample && isTarget) ? "#16a34a" : (showAnswers && isTarget) ? "#667eea" : "#1a202c"
         });
         numEl.textContent = num;
         svg.appendChild(numEl);
@@ -736,7 +762,7 @@
     }
 
     // ===== Sort Mode =====
-    function renderSortMode(svg, numbers, topGridY, availW, availH, margin, pageW, pageH, showAnswers, bottomMargin) {
+    function renderSortMode(svg, numbers, topGridY, availW, availH, margin, pageW, pageH, showAnswers, bottomMargin, includeExample) {
       const instrY = topGridY + 24;
       const instrEl = svgEl("text", { x: pageW / 2, y: instrY, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 600, "text-anchor": "middle", fill: "#2d3748" });
       instrEl.textContent = "Sort the numbers into odd and even.";
@@ -834,7 +860,7 @@
     }
 
     // ===== Write Mode =====
-    function renderWriteMode(svg, numbers, topGridY, availW, availH, margin, pageW, showAnswers) {
+    function renderWriteMode(svg, numbers, topGridY, availW, availH, margin, pageW, showAnswers, numbered, includeExample) {
       const count = numbers.length;
       const cols = count > 12 ? 2 : 1;
       const rows = Math.ceil(count / cols);
@@ -850,20 +876,23 @@
         const cellLeft = margin + col * colW;
         const cellTop = topGridY + row * rowH;
         const cy = cellTop + rowH / 2 + fontSize * 0.35;
+        const isExample = (i === 0 && includeExample && !showAnswers);
 
         let x = cellLeft + 12;
 
         // Problem number
-        const probNumY = cy - 0.72 * (fontSize - probNumSize);
-        const numLabelEl = svgEl("text", { x: x, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": probNumSize, "font-weight": 600, fill: "#a0aec0" });
-        numLabelEl.textContent = (i + 1) + ".";
-        svg.appendChild(numLabelEl);
+        if (numbered !== false) {
+          const probNumY = cy - 0.72 * (fontSize - probNumSize);
+          const numLabelEl = svgEl("text", { x: x, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": probNumSize, "font-weight": 600, fill: "#a0aec0" });
+          numLabelEl.textContent = (i + 1) + ".";
+          svg.appendChild(numLabelEl);
+        }
         x += probNumSize * (count >= 10 ? 2.0 : 1.6);
 
         // Number
         const numEl = svgEl("text", {
           x: x, y: cy,
-          "font-family": "Arial, Helvetica, sans-serif",
+          "font-family": "'Google Sans Flex', sans-serif",
           "font-size": fontSize, "font-weight": 700, fill: "#1a202c"
         });
         numEl.textContent = numbers[i];
@@ -873,7 +902,7 @@
         // "is" label
         const isEl = svgEl("text", {
           x: x, y: cy,
-          "font-family": "Arial, Helvetica, sans-serif",
+          "font-family": "Fredoka, sans-serif",
           "font-size": fontSize * 0.85, "font-weight": 400, fill: "#4a5568"
         });
         isEl.textContent = "is";
@@ -884,14 +913,31 @@
         const lineW = Math.min(colW * 0.35, 140);
         svg.appendChild(svgEl("line", {
           x1: x, y1: cy + 4, x2: x + lineW, y2: cy + 4,
-          stroke: "#2d3748", "stroke-width": 1
+          stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": 1
         }));
 
-        if (showAnswers) {
+        // Example badge
+        if (isExample) {
+          const badgeX = x + lineW - 44, badgeY = cy - fontSize * 0.7 - 13;
+          svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
+          const bt = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
+          bt.textContent = "Example"; svg.appendChild(bt);
+        }
+
+        if (isExample) {
           const ansEl = svgEl("text", {
             x: x + lineW / 2, y: cy,
             "text-anchor": "middle",
-            "font-family": "Arial, Helvetica, sans-serif",
+            "font-family": "'Google Sans Flex', sans-serif",
+            "font-size": fontSize * 0.85, "font-weight": 700, fill: "#16a34a"
+          });
+          ansEl.textContent = numbers[i] % 2 === 0 ? "even" : "odd";
+          svg.appendChild(ansEl);
+        } else if (showAnswers) {
+          const ansEl = svgEl("text", {
+            x: x + lineW / 2, y: cy,
+            "text-anchor": "middle",
+            "font-family": "'Google Sans Flex', sans-serif",
             "font-size": fontSize * 0.85, "font-weight": 700, fill: "#3182ce"
           });
           ansEl.textContent = numbers[i] % 2 === 0 ? "even" : "odd";
@@ -943,7 +989,7 @@
           const p = document.createElement("div"); p.className = "worksheet-page";
           const v = renderWorksheetSVG(currentState.sheets[s], {
             showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
-            showAnswers: false, mode: opts.mode, targetType: currentState.sheetMeta[s].targetType
+            showAnswers: false, mode: opts.mode, targetType: currentState.sheetMeta[s].targetType, numbered: opts.numbered, includeExample: opts.includeExample
           });
           p.appendChild(v); sheetWrap.appendChild(p);
         }
@@ -966,7 +1012,7 @@
           const p = document.createElement("div"); p.className = "worksheet-page";
           const v = renderWorksheetSVG(currentState.sheets[s], {
             showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
-            showAnswers: false, mode: opts.mode, targetType: currentState.sheetMeta[s].targetType
+            showAnswers: false, mode: opts.mode, targetType: currentState.sheetMeta[s].targetType, numbered: opts.numbered, includeExample: opts.includeExample
           });
           v.setAttribute("width", sw); v.setAttribute("height", sh);
           p.appendChild(v); sheetWrap.appendChild(p);
@@ -975,7 +1021,7 @@
         const p = document.createElement("div"); p.className = "worksheet-page";
         const v = renderWorksheetSVG(currentState.sheets[0], {
           showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
-          showAnswers: false, mode: opts.mode, targetType: currentState.sheetMeta[0].targetType
+          showAnswers: false, mode: opts.mode, targetType: currentState.sheetMeta[0].targetType, numbered: opts.numbered, includeExample: opts.includeExample
         });
         p.appendChild(v); sheetWrap.appendChild(p);
       }
@@ -991,7 +1037,7 @@
         const p = document.createElement("div"); p.className = "worksheet-page";
         p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
           showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
-          showAnswers: false, mode: opts.mode, targetType: currentState.sheetMeta[i].targetType
+          showAnswers: false, mode: opts.mode, targetType: currentState.sheetMeta[i].targetType, includeExample: opts.includeExample
         }));
         sheetWrap.appendChild(p);
       }
@@ -1000,7 +1046,7 @@
           const p = document.createElement("div"); p.className = "worksheet-page";
           p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
             showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", branded: opts.branded,
-            showAnswers: true, mode: opts.mode, targetType: currentState.sheetMeta[i].targetType
+            showAnswers: true, mode: opts.mode, targetType: currentState.sheetMeta[i].targetType, numbered: opts.numbered
           }));
           sheetWrap.appendChild(p);
         }
@@ -1018,6 +1064,7 @@
     });
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
     elBranded.addEventListener("change", () => renderWithoutRandomization());
+    elNumbered.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
       renderWithoutRandomization();
@@ -1032,6 +1079,7 @@
     });
     elHeaderText.addEventListener("input", () => renderWithoutRandomization());
     elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
+    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     elAnswerKey.addEventListener("change", () => {});
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);

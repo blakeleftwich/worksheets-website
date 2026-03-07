@@ -443,6 +443,18 @@
             </select>
           </div>
 
+          <!-- Numbered -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="numbered" checked />
+            <label for="numbered">Numbered</label>
+          </div>
+
+          <!-- Include example -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="includeExample" />
+            <label for="includeExample">Include example</label>
+          </div>
+
           <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
@@ -498,8 +510,10 @@ const elStyle = document.getElementById("style");
 const elShowHeader = document.getElementById("showHeader");
 const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
 const elHeaderModeOptions = document.getElementById("headerModeOptions");
+const elNumbered = document.getElementById("numbered");
 const elBranded = document.getElementById("branded");
 const elAnswerKey = document.getElementById("answerKey");
+const elIncludeExample = document.getElementById("includeExample");
 const elHeaderText = document.getElementById("headerText");
 const elSubtitleText = document.getElementById("subtitleText");
 const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
@@ -578,7 +592,9 @@ elProblems.addEventListener("change", () => renderWithNewRandomization());
 elCountRange.addEventListener("change", () => renderWithNewRandomization());
 elStyle.addEventListener("change", () => renderWithoutRandomization());
 elShowHeader.addEventListener("change", () => renderWithoutRandomization());
+elNumbered.addEventListener("change", () => renderWithoutRandomization());
 elBranded.addEventListener("change", () => renderWithoutRandomization());
+elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
 elHeaderText.addEventListener("input", () => renderWithoutRandomization());
 elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
 
@@ -615,8 +631,9 @@ document.getElementById("btnPrint").addEventListener("click", () => {
     const style = parseInt(elStyle.value, 10);
     const headerMode = getHeaderMode();
     const branded = elBranded.checked;
+    const numbered = elNumbered.checked;
     for (let s = 0; s < currentState.sheets.length; s++) {
-      const akSvg = generateAnswerKeySvg(currentState.sheets[s], style, headerMode, branded);
+      const akSvg = generateAnswerKeySvg(currentState.sheets[s], style, headerMode, branded, numbered);
       const page = document.createElement("div");
       page.className = "worksheet-page";
       page.appendChild(akSvg);
@@ -701,6 +718,8 @@ function renderWorksheet() {
   const style = parseInt(elStyle.value, 10);
   const headerMode = getHeaderMode();
   const branded = elBranded.checked;
+  const numbered = elNumbered.checked;
+  const includeExample = elIncludeExample.checked;
   const title = getTitle();
   const subtitle = getSubtitle();
   const numSheets = currentState.sheets.length;
@@ -777,7 +796,7 @@ function renderWorksheet() {
     // Render each sheet
     for (let s = 0; s < numSheets; s++) {
       const problems = currentState.sheets[s];
-      const svg = generateWorksheetSvg(problems, style, headerMode, branded, icons, title, subtitle);
+      const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample);
       svg.setAttribute('width', scaledWidth);
       svg.setAttribute('height', scaledHeight);
       
@@ -794,8 +813,8 @@ function renderWorksheet() {
     // Single sheet - render at full size
     if (currentState.sheets.length > 0) {
       const problems = currentState.sheets[0];
-      const svg = generateWorksheetSvg(problems, style, headerMode, branded, icons, title, subtitle);
-      
+      const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample);
+
       const page = document.createElement("div");
       page.className = "worksheet-page";
       page.appendChild(svg);
@@ -807,22 +826,22 @@ function renderWorksheet() {
 }
 
 // Generate a worksheet SVG (without adding to DOM)
-function generateWorksheetSvg(problems, style, headerMode, branded, icons, title, subtitle) {
+function generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample) {
   if (style === 1) {
-    return generateStyle1Svg(problems, headerMode, branded, icons, title, subtitle);
+    return generateStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample);
   } else {
-    return generateStyle2Svg(problems, headerMode, branded, icons, title, subtitle);
+    return generateStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample);
   }
 }
 
 // Generate answer key SVG for PDF
-function generateAnswerKeySvg(problems, style, headerMode, branded) {
+function generateAnswerKeySvg(problems, style, headerMode, branded, numbered) {
   const icons = ["icon-apple-new", "icon-balloon", "icon-icecream", "icon-pepper", "icon-pizza", "icon-corn", "icon-broccoli", "icon-fish"];
-  
+
   if (style === 1) {
-    return generateAnswerKeyStyle1Svg(problems, headerMode, branded, icons);
+    return generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons);
   } else {
-    return generateAnswerKeyStyle2Svg(problems, headerMode, branded, icons);
+    return generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons);
   }
 }
 
@@ -846,7 +865,7 @@ function buildDefs() {
 
   const style = svgEl("style");
   style.textContent = `
-    .txt { fill: #000; font-family: Arial, Helvetica, sans-serif; }
+    .txt { fill: #000; font-family: 'Google Sans Flex', sans-serif; font-weight: 700; }
   `;
   defs.appendChild(style);
 
@@ -914,7 +933,7 @@ function makeSymbol(id, innerHTML) {
   return sym;
 }
 
-function renderStyle1(problems, headerMode, branded, icons, title, subtitle) {
+function renderStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -999,6 +1018,13 @@ function renderStyle1(problems, headerMode, branded, icons, title, subtitle) {
       fill: "none", stroke: "#000", "stroke-width": 1
     }));
 
+    if (numbered !== false) {
+      svg.appendChild(svgEl("text", {
+        x: x + 8, y: y + 14,
+        "font-family": "Fredoka, sans-serif", "font-size": 11, "font-weight": 400, fill: "#a0aec0"
+      }, [document.createTextNode((i + 1) + ".")]));
+    }
+
     const problem = problems[i];
     const count = problem.count;
     const iconId = icons[problem.iconIndex];
@@ -1020,11 +1046,41 @@ function renderStyle1(problems, headerMode, branded, icons, title, subtitle) {
       problemCount: problems.length
     });
 
+    const isExample = (i === 0 && includeExample);
+
     svg.appendChild(svgEl("rect", {
       x: boxX, y: boxY, width: boxW, height: boxH,
       rx: 6, ry: 6,
-      fill: "none", stroke: "#000", "stroke-width": 1  // Changed from 2 to 1 to match outer box
+      fill: isExample ? "#f0fdf4" : "none",
+      stroke: isExample ? "#22c55e" : "#000",
+      "stroke-width": 1
     }));
+
+    if (isExample) {
+      // Example badge above answer box
+      const badgeW = 42, badgeH = 13;
+      const badgeX = boxX + boxW - badgeW;
+      const badgeY = boxY - badgeH - 2;
+      svg.appendChild(svgEl("rect", {
+        x: badgeX, y: badgeY, width: badgeW, height: badgeH,
+        rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": 0.75
+      }));
+      const badgeText = svgEl("text", {
+        x: badgeX + badgeW / 2, y: badgeY + 9.5,
+        "font-family": "Fredoka, sans-serif", "font-size": 8, "font-weight": 600,
+        fill: "#16a34a", "text-anchor": "middle"
+      });
+      badgeText.textContent = "Example";
+      svg.appendChild(badgeText);
+      // Show answer in green
+      const ansText = svgEl("text", {
+        x: boxX + boxW / 2, y: boxY + boxH / 2 + 7,
+        "font-family": "'Google Sans Flex', sans-serif", "font-size": 24, "font-weight": 700,
+        fill: "#16a34a", "text-anchor": "middle"
+      });
+      ansText.textContent = String(count);
+      svg.appendChild(ansText);
+    }
   }
 
   // Add branding at bottom
@@ -1057,11 +1113,11 @@ function renderStyle1(problems, headerMode, branded, icons, title, subtitle) {
 }
 
 // Renamed original function to generate SVG
-function generateStyle1Svg(problems, headerMode, branded, icons, title, subtitle) {
-  return renderStyle1(problems, headerMode, branded, icons, title, subtitle);
+function generateStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample) {
+  return renderStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample);
 }
 
-function renderStyle2(problems, headerMode, branded, icons, title, subtitle) {
+function renderStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -1143,6 +1199,13 @@ function renderStyle2(problems, headerMode, branded, icons, title, subtitle) {
       fill: "none", stroke: "#000", "stroke-width": 1
     }));
 
+    if (numbered !== false) {
+      svg.appendChild(svgEl("text", {
+        x: margin + 8, y: y + 14,
+        "font-family": "Fredoka, sans-serif", "font-size": 11, "font-weight": 400, fill: "#a0aec0"
+      }, [document.createTextNode((i + 1) + ".")]));
+    }
+
     const problem = problems[i];
     const count = problem.count;
     const iconId = icons[problem.iconIndex];
@@ -1161,11 +1224,41 @@ function renderStyle2(problems, headerMode, branded, icons, title, subtitle) {
     const boxX = pageW - margin - boxW - 10;
     const boxY = y + (rowHeight - boxH) / 2;
 
+    const isExample = (i === 0 && includeExample);
+
     svg.appendChild(svgEl("rect", {
       x: boxX, y: boxY, width: boxW, height: boxH,
       rx: 6, ry: 6,
-      fill: "none", stroke: "#000", "stroke-width": 1
+      fill: isExample ? "#f0fdf4" : "none",
+      stroke: isExample ? "#22c55e" : "#000",
+      "stroke-width": 1
     }));
+
+    if (isExample) {
+      // Example badge above answer box
+      const badgeW = 42, badgeH = 13;
+      const badgeX = boxX + boxW - badgeW;
+      const badgeY = boxY - badgeH - 2;
+      svg.appendChild(svgEl("rect", {
+        x: badgeX, y: badgeY, width: badgeW, height: badgeH,
+        rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": 0.75
+      }));
+      const badgeText = svgEl("text", {
+        x: badgeX + badgeW / 2, y: badgeY + 9.5,
+        "font-family": "Fredoka, sans-serif", "font-size": 8, "font-weight": 600,
+        fill: "#16a34a", "text-anchor": "middle"
+      });
+      badgeText.textContent = "Example";
+      svg.appendChild(badgeText);
+      // Show answer in green
+      const ansText = svgEl("text", {
+        x: boxX + boxW / 2, y: boxY + boxH / 2 + 7,
+        "font-family": "'Google Sans Flex', sans-serif", "font-size": 24, "font-weight": 700,
+        fill: "#16a34a", "text-anchor": "middle"
+      });
+      ansText.textContent = String(count);
+      svg.appendChild(ansText);
+    }
   }
 
   // Add branding at bottom
@@ -1198,11 +1291,11 @@ function renderStyle2(problems, headerMode, branded, icons, title, subtitle) {
 }
 
 // Renamed original function to generate SVG
-function generateStyle2Svg(problems, headerMode, branded, icons, title, subtitle) {
-  return renderStyle2(problems, headerMode, branded, icons, title, subtitle);
+function generateStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample) {
+  return renderStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample);
 }
 
-function renderAnswerKeyStyle1(problems, headerMode, branded, icons) {
+function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -1247,6 +1340,13 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, icons) {
       fill: "none", stroke: "#000", "stroke-width": 1
     }));
 
+    if (numbered !== false) {
+      svg.appendChild(svgEl("text", {
+        x: x + 8, y: y + 14,
+        "font-family": "Fredoka, sans-serif", "font-size": 11, "font-weight": 400, fill: "#a0aec0"
+      }, [document.createTextNode((i + 1) + ".")]));
+    }
+
     const problem = problems[i];
     const count = problem.count;
     const iconId = icons[problem.iconIndex];
@@ -1273,14 +1373,14 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, icons) {
       rx: 6, ry: 6,
       fill: "none", stroke: "#000", "stroke-width": 1
     }));
-    
+
     // Add answer text inside the box
     const answerText = svgEl("text", {
       x: boxX + boxW / 2,
       y: boxY + boxH / 2 + 7,
-      "font-family": "Arial, Helvetica, sans-serif",
+      "font-family": "'Google Sans Flex', sans-serif",
       "font-size": 24,
-      "font-weight": "bold",
+      "font-weight": "700",
       "text-anchor": "middle",
       fill: "#000"
     });
@@ -1317,11 +1417,11 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, icons) {
   return svg;
 }
 
-function generateAnswerKeyStyle1Svg(problems, headerMode, branded, icons) {
-  return renderAnswerKeyStyle1(problems, headerMode, branded, icons);
+function generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons) {
+  return renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons);
 }
 
-function renderAnswerKeyStyle2(problems, headerMode, branded, icons) {
+function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -1345,12 +1445,12 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, icons) {
   const bottomMargin = branded ? 56 : 24;
   const gutter = 8;
   const gridH = pageH - topGridY - bottomMargin;
-  
+
   const rowHeight = (gridH - gutter * (problems.length - 1)) / problems.length;
   const contentW = pageW - margin * 2;
   const boxW = 75;
   const objectsW = contentW - boxW - 20;
-  
+
   // Find max count across all problems for uniform icon sizing
   const maxCount = Math.max(...problems.map(p => p.count));
 
@@ -1362,6 +1462,13 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, icons) {
       rx: 8, ry: 8,
       fill: "none", stroke: "#000", "stroke-width": 1
     }));
+
+    if (numbered !== false) {
+      svg.appendChild(svgEl("text", {
+        x: margin + 8, y: y + 14,
+        "font-family": "Fredoka, sans-serif", "font-size": 11, "font-weight": 400, fill: "#a0aec0"
+      }, [document.createTextNode((i + 1) + ".")]));
+    }
 
     const problem = problems[i];
     const count = problem.count;
@@ -1391,9 +1498,9 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, icons) {
     const answerText = svgEl("text", {
       x: boxX + boxW / 2,
       y: boxY + boxH / 2 + 7,
-      "font-family": "Arial, Helvetica, sans-serif",
+      "font-family": "'Google Sans Flex', sans-serif",
       "font-size": 24,
-      "font-weight": "bold",
+      "font-weight": "700",
       "text-anchor": "middle",
       fill: "#000"
     });
@@ -1430,8 +1537,8 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, icons) {
   return svg;
 }
 
-function generateAnswerKeyStyle2Svg(problems, headerMode, branded, icons) {
-  return renderAnswerKeyStyle2(problems, headerMode, branded, icons);
+function generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons) {
+  return renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons);
 }
 
 function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, problemIndex = 0, problemCount = 8 }) {

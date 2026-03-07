@@ -423,6 +423,18 @@
             </select>
           </div>
 
+          <!-- Numbered -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="numbered" checked />
+            <label for="numbered">Numbered</label>
+          </div>
+
+          <!-- Include example -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="includeExample" />
+            <label for="includeExample">Include example</label>
+          </div>
+
           <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
@@ -498,6 +510,7 @@
     const elHeaderMode = document.getElementById("headerMode");
     const elHeaderModeOptions = document.getElementById("headerModeOptions");
     const elBranded = document.getElementById("branded");
+    const elNumbered = document.getElementById("numbered");
     const elAnswerKey = document.getElementById("answerKey");
     const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
     const elCustomTitleOptions = document.getElementById("customTitleOptions");
@@ -514,6 +527,7 @@
     const elTickStyle = document.getElementById("tickStyle");
     const elTickStyleOptions = document.getElementById("tickStyleOptions");
     const elShowArrows = document.getElementById("showArrows");
+    const elIncludeExample = document.getElementById("includeExample");
 
     // ===== Advanced panel toggle =====
     advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
@@ -556,6 +570,8 @@
         answerKey: elAnswerKey.checked,
         tickStyle,
         showArrows: elShowArrows.checked,
+        numbered: elNumbered.checked,
+        includeExample: elIncludeExample.checked,
       };
     }
 
@@ -635,9 +651,9 @@
         const el = svgEl("text", {
           x: numX, y: numY + fontSize * 0.35,
           "text-anchor": "middle",
-          "font-family": "Arial, Helvetica, sans-serif",
+          "font-family": "'Google Sans Flex', sans-serif",
           "font-size": String(fontSize),
-          "font-weight": "600",
+          "font-weight": "700",
           fill: color
         });
         el.textContent = String(i);
@@ -728,7 +744,7 @@
 
         const hEl = svgEl("text", {
           x: cx - boxW * 0.16, y: boxTopY + boxH / 2 + fontSize * 0.35,
-          "text-anchor": "middle", "font-family": "Arial, Helvetica, sans-serif",
+          "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif",
           "font-size": String(fontSize), "font-weight": "700", fill: "#3182ce"
         });
         hEl.textContent = hourStr;
@@ -736,7 +752,7 @@
 
         const mEl = svgEl("text", {
           x: cx + boxW * 0.16, y: boxTopY + boxH / 2 + fontSize * 0.35,
-          "text-anchor": "middle", "font-family": "Arial, Helvetica, sans-serif",
+          "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif",
           "font-size": String(fontSize), "font-weight": "700", fill: "#3182ce"
         });
         mEl.textContent = minStr;
@@ -746,7 +762,7 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(sheetTimes, options) {
-      const { showHeader, title, subtitle, branded, showAnswers, tickStyle, showArrows } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, tickStyle, showArrows, numbered, includeExample } = options;
       const color = "#2d3748";
       const pageW = 612, pageH = 792, margin = 36;
 
@@ -846,10 +862,41 @@
         const ccy = cellY + clockAreaH / 2;
         const time = sheetTimes[i];
 
+        // Problem number
+        if (numbered !== false) {
+          const probNumSize = 10;
+          const numEl = svgEl("text", { x: cellX + 4, y: cellY + 12, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
+          numEl.textContent = (i + 1) + ".";
+          svg.appendChild(numEl);
+        }
+
         drawClock(svg, ccx, ccy, radius, time.hour, time.minute, tickStyle, showArrows);
 
         const boxTopY = cellY + clockAreaH + boxGap;
-        drawAnswerBox(svg, ccx, boxTopY, boxH, showAnswers, time);
+        const isExample = (i === 0 && includeExample && !showAnswers);
+        if (isExample) {
+          // Green answer box with time pre-filled
+          const color = "#2d3748";
+          const boxW = boxH * 3.2;
+          const startX = ccx - boxW / 2;
+          svg.appendChild(svgEl("rect", { x: startX, y: boxTopY, width: boxW, height: boxH, fill: "#f0fdf4", stroke: "#22c55e", "stroke-width": "1.5", rx: 3 }));
+          const colonY = boxTopY + boxH / 2;
+          const dotR = boxH * 0.07;
+          svg.appendChild(svgEl("circle", { cx: ccx, cy: colonY - boxH * 0.15, r: dotR, fill: "#16a34a" }));
+          svg.appendChild(svgEl("circle", { cx: ccx, cy: colonY + boxH * 0.15, r: dotR, fill: "#16a34a" }));
+          const fontSize = boxH * 0.55;
+          const hEl = svgEl("text", { x: ccx - boxW * 0.16, y: boxTopY + boxH / 2 + fontSize * 0.35, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#16a34a" });
+          hEl.textContent = String(time.hour); svg.appendChild(hEl);
+          const mEl = svgEl("text", { x: ccx + boxW * 0.16, y: boxTopY + boxH / 2 + fontSize * 0.35, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#16a34a" });
+          mEl.textContent = String(time.minute).padStart(2, "0"); svg.appendChild(mEl);
+          // Badge above box
+          const badgeW = 42, badgeH = 13, badgeX = startX + boxW - badgeW, badgeY = boxTopY - badgeH - 2;
+          svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: badgeW, height: badgeH, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
+          const bt = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
+          bt.textContent = "Example"; svg.appendChild(bt);
+        } else {
+          drawAnswerBox(svg, ccx, boxTopY, boxH, showAnswers, time);
+        }
       }
 
       return svg;
@@ -865,6 +912,8 @@
         showAnswers: !!showAnswers,
         tickStyle: opts.tickStyle,
         showArrows: opts.showArrows,
+        numbered: opts.numbered,
+        includeExample: showAnswers ? false : opts.includeExample,
       };
     }
 
@@ -971,6 +1020,7 @@
     elShowTickMarks.addEventListener("change", () => { syncTickMarksUI(); renderWithoutRandomization(); });
     elTickStyle.addEventListener("change", () => renderWithoutRandomization());
     elShowArrows.addEventListener("change", () => renderWithoutRandomization());
+    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elShowHeaderEnabled.addEventListener("change", () => {
       elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
@@ -978,6 +1028,7 @@
     });
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
     elBranded.addEventListener("change", () => renderWithoutRandomization());
+    elNumbered.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
       renderWithoutRandomization();

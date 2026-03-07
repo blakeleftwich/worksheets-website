@@ -452,6 +452,18 @@
             </select>
           </div>
 
+          <!-- Numbered -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="numbered" checked />
+            <label for="numbered">Numbered</label>
+          </div>
+
+          <!-- Include example -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="includeExample" />
+            <label for="includeExample">Include example</label>
+          </div>
+
           <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
@@ -529,6 +541,8 @@
     const elTitleInputWrap = document.getElementById("titleInputWrap");
     const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
     const elBranded = document.getElementById("branded");
+    const elNumbered = document.getElementById("numbered");
+    const elIncludeExample = document.getElementById("includeExample");
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
     const advArrow = document.getElementById("advArrow");
@@ -673,7 +687,7 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options) {
-      const { showHeader, title, subtitle, branded, showAnswers, mode, dotStyle, showNumberLine, range } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, mode, dotStyle, showNumberLine, range, numbered, includeExample } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
@@ -809,12 +823,15 @@
         const cellLeft = margin + col * colW;
         const cellTop = gridTop + row * rowH;
         const num = problems[i];
+        const isExample = (i === 0 && includeExample && !showAnswers);
 
         // Problem number
-        const pnX = cellLeft + 4;
-        const pnY = cellTop + 16;
-        const numLabel = svgEl("text", { x: pnX, y: pnY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
-        numLabel.textContent = (i + 1) + "."; svg.appendChild(numLabel);
+        if (numbered !== false) {
+          const pnX = cellLeft + 4;
+          const pnY = cellTop + 16;
+          const numLabel = svgEl("text", { x: pnX, y: pnY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
+          numLabel.textContent = (i + 1) + "."; svg.appendChild(numLabel);
+        }
 
         // Center the frame + answer area within the cell
         const contentCenterY = cellTop + rowH / 2;
@@ -838,8 +855,9 @@
             const lineCx = contentStartX + totalFrameW / 2;
             svg.appendChild(svgEl("line", { x1: lineCx - lineW / 2, y1: lineY, x2: lineCx + lineW / 2, y2: lineY, stroke: "#2d3748", "stroke-width": "1.5" }));
 
-            if (showAnswers) {
-              const ansEl = svgEl("text", { x: lineCx, y: lineY - 5, "font-family": "Fredoka, sans-serif", "font-size": "16", "font-weight": "700", "text-anchor": "middle", fill: "#3182ce" });
+            if (showAnswers || isExample) {
+              const ansColor = showAnswers ? "#3182ce" : "#16a34a";
+              const ansEl = svgEl("text", { x: lineCx, y: lineY - 5, "font-family": "Fredoka, sans-serif", "font-size": "16", "font-weight": "700", "text-anchor": "middle", fill: ansColor });
               ansEl.textContent = String(num); svg.appendChild(ansEl);
             }
           } else {
@@ -854,8 +872,9 @@
             const lineCx = contentStartX + singleFrameW / 2;
             svg.appendChild(svgEl("line", { x1: lineCx - lineW / 2, y1: lineY, x2: lineCx + lineW / 2, y2: lineY, stroke: "#2d3748", "stroke-width": "1.5" }));
 
-            if (showAnswers) {
-              const ansEl = svgEl("text", { x: lineCx, y: lineY - 5, "font-family": "Fredoka, sans-serif", "font-size": "16", "font-weight": "700", "text-anchor": "middle", fill: "#3182ce" });
+            if (showAnswers || isExample) {
+              const ansColor = showAnswers ? "#3182ce" : "#16a34a";
+              const ansEl = svgEl("text", { x: lineCx, y: lineY - 5, "font-family": "Fredoka, sans-serif", "font-size": "16", "font-weight": "700", "text-anchor": "middle", fill: ansColor });
               ansEl.textContent = String(num); svg.appendChild(ansEl);
             }
           }
@@ -871,7 +890,7 @@
             numEl.textContent = String(num); svg.appendChild(numEl);
 
             const frameBlockY = numY + numLabelGap;
-            if (showAnswers) {
+            if (showAnswers || isExample) {
               drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 10, dotStyle, true);
               drawTenFrame(svg, contentStartX + singleFrameW + doubleGap, frameBlockY, cellSize, num - 10, dotStyle, true);
             } else {
@@ -887,12 +906,27 @@
             numEl.textContent = String(num); svg.appendChild(numEl);
 
             const frameBlockY = numY + numLabelGap;
-            if (showAnswers) {
+            if (showAnswers || isExample) {
               drawTenFrame(svg, contentStartX, frameBlockY, cellSize, num, dotStyle, true);
             } else {
               drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 0, dotStyle, false);
             }
           }
+        }
+
+        // Example badge
+        if (isExample) {
+          const badgeW = 42, badgeH = 13;
+          const badgeX = cellLeft + (colW - badgeW) / 2;
+          const badgeY = cellTop + 4;
+          svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: badgeW, height: badgeH, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "1" }));
+          const badgeText = svgEl("text", {
+            x: badgeX + badgeW / 2, y: badgeY + badgeH * 0.75,
+            "text-anchor": "middle", "font-family": "Fredoka, sans-serif",
+            "font-size": "8", "font-weight": "600", fill: "#16a34a"
+          });
+          badgeText.textContent = "Example";
+          svg.appendChild(badgeText);
         }
       }
       return svg;
@@ -915,6 +949,8 @@
         title: title,
         subtitle: subtitle,
         branded: elBranded.checked,
+        numbered: elNumbered.checked,
+        includeExample: elIncludeExample.checked,
       };
     }
 
@@ -947,7 +983,7 @@
       if (isMobile()) {
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range });
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range, numbered: opts.numbered, includeExample: opts.includeExample });
           p.appendChild(v); sheetWrap.appendChild(p);
         }
         return;
@@ -968,12 +1004,12 @@
         sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range });
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range, numbered: opts.numbered, includeExample: opts.includeExample });
           v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
         }
       } else {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range });
+        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range, numbered: opts.numbered, includeExample: opts.includeExample });
         p.appendChild(v); sheetWrap.appendChild(p);
       }
     }
@@ -986,13 +1022,13 @@
       sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range }));
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range, numbered: opts.numbered, includeExample: opts.includeExample }));
         sheetWrap.appendChild(p);
       }
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", branded: opts.branded, showAnswers: true, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: false, range: opts.range }));
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", branded: opts.branded, showAnswers: true, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: false, range: opts.range, numbered: opts.numbered }));
           sheetWrap.appendChild(p);
         }
       }
@@ -1000,6 +1036,8 @@
     }
 
     // ===== Event Listeners =====
+    elNumbered.addEventListener("change", () => renderWithoutRandomization());
+    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     elMode.addEventListener("change", () => renderWithNewRandomization());
     elRange.addEventListener("change", () => renderWithNewRandomization());
     elProblems.addEventListener("change", () => renderWithNewRandomization());

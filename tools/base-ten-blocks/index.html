@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Base-Ten Blocks - Interactive Math Tool</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      background: white;
+      padding: 32px 24px;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 4px;
+      text-align: left;
+    }
+
+    .sidebar .subtitle {
+      font-size: 13px;
+      color: #718096;
+      margin-bottom: 24px;
+    }
+
+    /* ===== Section Labels ===== */
+    .section-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 10px;
+    }
+
+    /* ===== Block Tray ===== */
+    .block-tray {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .block-tile {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 6px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .block-tile:hover {
+      border-color: #667eea;
+      background: #f7f8ff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    }
+
+    .block-tile:active {
+      transform: translateY(0);
+    }
+
+    .block-tile .tile-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .block-tile .tile-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .block-tile .tile-value {
+      font-size: 10px;
+      color: #a0aec0;
+      font-weight: 500;
+    }
+
+    /* ===== Color Picker ===== */
+    .color-picker-group {
+      margin-bottom: 24px;
+    }
+
+    .color-options {
+      display: flex;
+      gap: 10px;
+    }
+
+    .color-swatch {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.1);
+    }
+
+    .color-swatch.active {
+      border-color: #1a202c;
+      box-shadow: 0 0 0 2px white, 0 0 0 4px #1a202c;
+    }
+
+    /* ===== Action Buttons ===== */
+    .actions-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .btn-action {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .btn-action:hover {
+      border-color: #667eea;
+      color: #667eea;
+      background: #f7f8ff;
+    }
+
+    .btn-action:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: #e2e8f0;
+      color: #a0aec0;
+      background: #f7fafc;
+    }
+
+    .btn-action:disabled:hover {
+      border-color: #e2e8f0;
+      color: #a0aec0;
+      background: #f7fafc;
+    }
+
+    .btn-action.danger {
+      color: #e53e3e;
+      border-color: #fed7d7;
+    }
+
+    .btn-action.danger:hover {
+      background: #fff5f5;
+      border-color: #e53e3e;
+    }
+
+    .btn-action.danger:disabled {
+      color: #a0aec0;
+      border-color: #e2e8f0;
+    }
+
+    .btn-action.danger:disabled:hover {
+      background: #f7fafc;
+      border-color: #e2e8f0;
+    }
+
+    /* ===== Primary Button ===== */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .button-group button {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .button-group button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-generate {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    /* ===== Total Counter ===== */
+    .total-display {
+      margin-top: 20px;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .total-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.8);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .total-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: white;
+    }
+
+    /* ===== Workspace ===== */
+    .workspace {
+      position: relative;
+      overflow: auto;
+      min-height: 100vh;
+      cursor: default;
+    }
+
+    .workspace-inner {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      min-width: 100%;
+    }
+
+    /* ===== Blocks ===== */
+    .block {
+      position: absolute;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      border-radius: 4px;
+      transition: box-shadow 0.15s;
+    }
+
+    .block:hover {
+      z-index: 50;
+    }
+
+    .block.dragging {
+      cursor: grabbing;
+      z-index: 1000;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    .block.selected {
+      outline: 2px dashed #1a202c;
+      outline-offset: 3px;
+    }
+
+    /* Block type: ONE */
+    .block-one {
+      width: 40px;
+      height: 40px;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Block type: TEN */
+    .block-ten {
+      width: 40px;
+      height: 220px;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Block type: HUNDRED */
+    .block-hundred {
+      width: 220px;
+      height: 220px;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1024px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        height: auto;
+      }
+
+      .workspace {
+        min-height: 70vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <!-- Left sidebar controls -->
+    <div class="sidebar">
+      <a href="../index.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #667eea; text-decoration: none; margin-bottom: 16px; transition: gap 0.2s;"
+         onmouseover="this.style.gap='10px'" onmouseout="this.style.gap='6px'">
+        &larr; All Tools
+      </a>
+      <h2>Base-Ten Blocks</h2>
+      <div class="subtitle">Explore place value with blocks</div>
+
+      <!-- Add Blocks -->
+      <span class="section-label">Add Blocks</span>
+      <div class="block-tray">
+        <div class="block-tile" onclick="addBlock('one')" title="Add a unit cube (value: 1)">
+          <div class="tile-icon">
+            <svg width="28" height="28" viewBox="0 0 28 28">
+              <rect x="4" y="4" width="20" height="20" rx="3" fill="#667eea" stroke="rgba(0,0,0,0.15)" stroke-width="1" class="tile-icon-fill"/>
+            </svg>
+          </div>
+          <span class="tile-label">Ones</span>
+          <span class="tile-value">= 1</span>
+        </div>
+        <div class="block-tile" onclick="addBlock('ten')" title="Add a tens rod (value: 10)">
+          <div class="tile-icon">
+            <svg width="18" height="44" viewBox="0 0 18 44">
+              <rect x="1" y="1" width="16" height="42" rx="2" fill="#667eea" stroke="rgba(0,0,0,0.15)" stroke-width="1" class="tile-icon-fill"/>
+              <line x1="1" y1="5.2" x2="17" y2="5.2" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+              <line x1="1" y1="9.4" x2="17" y2="9.4" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+              <line x1="1" y1="13.6" x2="17" y2="13.6" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+              <line x1="1" y1="17.8" x2="17" y2="17.8" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+              <line x1="1" y1="22" x2="17" y2="22" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+              <line x1="1" y1="26.2" x2="17" y2="26.2" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+              <line x1="1" y1="30.4" x2="17" y2="30.4" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+              <line x1="1" y1="34.6" x2="17" y2="34.6" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+              <line x1="1" y1="38.8" x2="17" y2="38.8" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+            </svg>
+          </div>
+          <span class="tile-label">Tens</span>
+          <span class="tile-value">= 10</span>
+        </div>
+        <div class="block-tile" onclick="addBlock('hundred')" title="Add a hundreds flat (value: 100)">
+          <div class="tile-icon">
+            <svg width="36" height="36" viewBox="0 0 36 36">
+              <rect x="1" y="1" width="34" height="34" rx="2" fill="#667eea" stroke="rgba(0,0,0,0.15)" stroke-width="1" class="tile-icon-fill"/>
+              <line x1="1" y1="4.4" x2="35" y2="4.4" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="1" y1="7.8" x2="35" y2="7.8" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="1" y1="11.2" x2="35" y2="11.2" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="1" y1="14.6" x2="35" y2="14.6" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="1" y1="18" x2="35" y2="18" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="1" y1="21.4" x2="35" y2="21.4" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="1" y1="24.8" x2="35" y2="24.8" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="1" y1="28.2" x2="35" y2="28.2" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="1" y1="31.6" x2="35" y2="31.6" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="4.4" y1="1" x2="4.4" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="7.8" y1="1" x2="7.8" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="11.2" y1="1" x2="11.2" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="14.6" y1="1" x2="14.6" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="18" y1="1" x2="18" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="21.4" y1="1" x2="21.4" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="24.8" y1="1" x2="24.8" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="28.2" y1="1" x2="28.2" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+              <line x1="31.6" y1="1" x2="31.6" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+            </svg>
+          </div>
+          <span class="tile-label">Hundreds</span>
+          <span class="tile-value">= 100</span>
+        </div>
+      </div>
+
+      <!-- Block Color -->
+      <div class="color-picker-group">
+        <span class="section-label">Block Color</span>
+        <div class="color-options">
+          <div class="color-swatch active" style="background: #667eea;" data-color="#667eea" onclick="setColor(this)" title="Blue"></div>
+          <div class="color-swatch" style="background: #48bb78;" data-color="#48bb78" onclick="setColor(this)" title="Green"></div>
+          <div class="color-swatch" style="background: #ed8936;" data-color="#ed8936" onclick="setColor(this)" title="Orange"></div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <span class="section-label">Actions</span>
+      <div class="actions-group">
+        <button class="btn-action" id="btnGroup" onclick="groupBlocks()" disabled>Group into Next</button>
+        <button class="btn-action" id="btnBreak" onclick="breakApart()" disabled>Break Apart</button>
+        <button class="btn-action danger" id="btnDelete" onclick="deleteSelected()" disabled>Delete Selected</button>
+      </div>
+
+      <!-- Clear All -->
+      <div class="button-group">
+        <button class="btn-generate" onclick="clearAll()">Clear All</button>
+      </div>
+
+      <!-- Total -->
+      <div class="total-display">
+        <div class="total-label">Total</div>
+        <div class="total-value" id="totalValue">0</div>
+      </div>
+    </div>
+
+    <!-- Right workspace -->
+    <div class="workspace" id="workspace">
+      <div class="workspace-inner" id="workspaceInner"></div>
+    </div>
+  </div>
+
+  <script>
+    // ===== State =====
+    let blocks = [];
+    let nextId = 1;
+    let currentColor = '#667eea';
+    let dragState = null;
+
+    const workspace = document.getElementById('workspace');
+    const workspaceInner = document.getElementById('workspaceInner');
+    const totalValue = document.getElementById('totalValue');
+    const btnGroup = document.getElementById('btnGroup');
+    const btnBreak = document.getElementById('btnBreak');
+    const btnDelete = document.getElementById('btnDelete');
+
+    // ===== Color Picker =====
+    function setColor(el) {
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+      el.classList.add('active');
+      currentColor = el.dataset.color;
+      updateTrayIcons();
+    }
+
+    function updateTrayIcons() {
+      document.querySelectorAll('.tile-icon-fill').forEach(el => {
+        el.setAttribute('fill', currentColor);
+      });
+    }
+
+    // ===== Block Dimensions =====
+    function getBlockSize(type) {
+      switch (type) {
+        case 'one': return { w: 40, h: 40 };
+        case 'ten': return { w: 40, h: 220 };
+        case 'hundred': return { w: 220, h: 220 };
+      }
+    }
+
+    function getBlockValue(type) {
+      switch (type) {
+        case 'one': return 1;
+        case 'ten': return 10;
+        case 'hundred': return 100;
+      }
+    }
+
+    // ===== Add Block =====
+    function addBlock(type, x, y, color) {
+      const size = getBlockSize(type);
+      const wsRect = workspace.getBoundingClientRect();
+
+      if (x === undefined) {
+        // Place in a nice default position with some randomness
+        const pad = 30;
+        const maxX = Math.max(wsRect.width - size.w - pad, pad);
+        const maxY = Math.max(wsRect.height - size.h - pad, pad);
+        x = pad + Math.random() * (maxX - pad);
+        y = pad + Math.random() * Math.min(maxY - pad, 400);
+      }
+
+      const block = {
+        id: nextId++,
+        type: type,
+        x: x,
+        y: y,
+        color: color || currentColor,
+        selected: false
+      };
+
+      blocks.push(block);
+      renderBlock(block);
+      updateTotal();
+      updateButtons();
+    }
+
+    // ===== Render a Block Element =====
+    function renderBlock(block) {
+      const size = getBlockSize(block.type);
+      const el = document.createElement('div');
+      el.className = 'block block-' + block.type;
+      el.dataset.id = block.id;
+      el.style.left = block.x + 'px';
+      el.style.top = block.y + 'px';
+      el.style.width = size.w + 'px';
+      el.style.height = size.h + 'px';
+      el.style.background = block.color;
+
+      if (block.selected) {
+        el.classList.add('selected');
+      }
+
+      // Draw grid lines using SVG overlay
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', size.w);
+      svg.setAttribute('height', size.h);
+      svg.style.position = 'absolute';
+      svg.style.top = '0';
+      svg.style.left = '0';
+      svg.style.pointerEvents = 'none';
+
+      // Border
+      const border = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      border.setAttribute('x', '0.5');
+      border.setAttribute('y', '0.5');
+      border.setAttribute('width', size.w - 1);
+      border.setAttribute('height', size.h - 1);
+      border.setAttribute('rx', '3');
+      border.setAttribute('fill', 'none');
+      border.setAttribute('stroke', 'rgba(0,0,0,0.2)');
+      border.setAttribute('stroke-width', '1');
+      svg.appendChild(border);
+
+      if (block.type === 'ten') {
+        // Draw 9 horizontal divider lines for 10 segments
+        const segH = size.h / 10;
+        for (let i = 1; i < 10; i++) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', '1');
+          line.setAttribute('y1', Math.round(i * segH));
+          line.setAttribute('x2', size.w - 1);
+          line.setAttribute('y2', Math.round(i * segH));
+          line.setAttribute('stroke', 'rgba(0,0,0,0.15)');
+          line.setAttribute('stroke-width', '1');
+          svg.appendChild(line);
+        }
+      } else if (block.type === 'hundred') {
+        // Draw 10x10 grid lines
+        const segW = size.w / 10;
+        const segH = size.h / 10;
+        for (let i = 1; i < 10; i++) {
+          // Vertical
+          const vline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          vline.setAttribute('x1', Math.round(i * segW));
+          vline.setAttribute('y1', '1');
+          vline.setAttribute('x2', Math.round(i * segW));
+          vline.setAttribute('y2', size.h - 1);
+          vline.setAttribute('stroke', 'rgba(0,0,0,0.12)');
+          vline.setAttribute('stroke-width', '1');
+          svg.appendChild(vline);
+
+          // Horizontal
+          const hline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          hline.setAttribute('x1', '1');
+          hline.setAttribute('y1', Math.round(i * segH));
+          hline.setAttribute('x2', size.w - 1);
+          hline.setAttribute('y2', Math.round(i * segH));
+          hline.setAttribute('stroke', 'rgba(0,0,0,0.12)');
+          hline.setAttribute('stroke-width', '1');
+          svg.appendChild(hline);
+        }
+      }
+
+      el.appendChild(svg);
+
+      // Pointer events for drag and select
+      el.addEventListener('pointerdown', onBlockPointerDown);
+
+      workspaceInner.appendChild(el);
+    }
+
+    // ===== Drag Logic =====
+    function onBlockPointerDown(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const el = e.currentTarget;
+      const blockId = parseInt(el.dataset.id);
+      const block = blocks.find(b => b.id === blockId);
+      if (!block) return;
+
+      // Track start to distinguish click from drag
+      const startX = e.clientX;
+      const startY = e.clientY;
+      let hasMoved = false;
+
+      const wsRect = workspace.getBoundingClientRect();
+      const offsetX = e.clientX - el.getBoundingClientRect().left;
+      const offsetY = e.clientY - el.getBoundingClientRect().top;
+
+      el.setPointerCapture(e.pointerId);
+      el.classList.add('dragging');
+
+      const size = getBlockSize(block.type);
+
+      function onMove(ev) {
+        const dx = ev.clientX - startX;
+        const dy = ev.clientY - startY;
+        if (!hasMoved && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+        hasMoved = true;
+
+        let newX = ev.clientX - wsRect.left + workspace.scrollLeft - offsetX;
+        let newY = ev.clientY - wsRect.top + workspace.scrollTop - offsetY;
+
+        // Keep within bounds (allow some overflow for scroll)
+        newX = Math.max(0, newX);
+        newY = Math.max(0, newY);
+
+        block.x = newX;
+        block.y = newY;
+        el.style.left = newX + 'px';
+        el.style.top = newY + 'px';
+
+        // Expand workspace if block is near edge
+        expandWorkspace();
+      }
+
+      function onUp(ev) {
+        el.releasePointerCapture(ev.pointerId);
+        el.classList.remove('dragging');
+        el.removeEventListener('pointermove', onMove);
+        el.removeEventListener('pointerup', onUp);
+
+        if (!hasMoved) {
+          // It was a click - toggle selection
+          if (e.shiftKey || e.ctrlKey || e.metaKey) {
+            block.selected = !block.selected;
+          } else {
+            // Deselect all, then select this one
+            blocks.forEach(b => b.selected = false);
+            block.selected = true;
+          }
+          refreshAllBlocks();
+        }
+
+        updateButtons();
+      }
+
+      el.addEventListener('pointermove', onMove);
+      el.addEventListener('pointerup', onUp);
+    }
+
+    // Workspace click to deselect
+    workspace.addEventListener('pointerdown', function(e) {
+      if (e.target === workspace || e.target === workspaceInner) {
+        blocks.forEach(b => b.selected = false);
+        refreshAllBlocks();
+        updateButtons();
+      }
+    });
+
+    // ===== Expand workspace if blocks go beyond =====
+    function expandWorkspace() {
+      let maxX = workspace.clientWidth;
+      let maxY = workspace.clientHeight;
+      blocks.forEach(b => {
+        const size = getBlockSize(b.type);
+        maxX = Math.max(maxX, b.x + size.w + 40);
+        maxY = Math.max(maxY, b.y + size.h + 40);
+      });
+      workspaceInner.style.minWidth = maxX + 'px';
+      workspaceInner.style.minHeight = maxY + 'px';
+    }
+
+    // ===== Re-render all blocks =====
+    function refreshAllBlocks() {
+      workspaceInner.innerHTML = '';
+      blocks.forEach(b => renderBlock(b));
+      expandWorkspace();
+    }
+
+    // ===== Update total =====
+    function updateTotal() {
+      let total = 0;
+      blocks.forEach(b => {
+        total += getBlockValue(b.type);
+      });
+      totalValue.textContent = total;
+    }
+
+    // ===== Update button states =====
+    function updateButtons() {
+      const selected = blocks.filter(b => b.selected);
+      const hasSelection = selected.length > 0;
+
+      // Delete is enabled if anything is selected
+      btnDelete.disabled = !hasSelection;
+
+      // Group: need 10 ones of same color, or 10 tens of same color
+      let canGroup = false;
+      if (selected.length >= 10) {
+        const onesByColor = {};
+        const tensByColor = {};
+        selected.forEach(b => {
+          if (b.type === 'one') {
+            onesByColor[b.color] = (onesByColor[b.color] || 0) + 1;
+          } else if (b.type === 'ten') {
+            tensByColor[b.color] = (tensByColor[b.color] || 0) + 1;
+          }
+        });
+        for (const c in onesByColor) {
+          if (onesByColor[c] >= 10) canGroup = true;
+        }
+        for (const c in tensByColor) {
+          if (tensByColor[c] >= 10) canGroup = true;
+        }
+      }
+      btnGroup.disabled = !canGroup;
+
+      // Break apart: need exactly 1 selected ten or hundred
+      let canBreak = false;
+      if (selected.length === 1) {
+        const b = selected[0];
+        if (b.type === 'ten' || b.type === 'hundred') canBreak = true;
+      }
+      btnBreak.disabled = !canBreak;
+
+      // Update group button label
+      if (canGroup) {
+        const selected = blocks.filter(b => b.selected);
+        const tensByColor = {};
+        selected.forEach(b => {
+          if (b.type === 'ten') {
+            tensByColor[b.color] = (tensByColor[b.color] || 0) + 1;
+          }
+        });
+        let groupToHundred = false;
+        for (const c in tensByColor) {
+          if (tensByColor[c] >= 10) groupToHundred = true;
+        }
+        btnGroup.textContent = groupToHundred ? 'Group into Hundred' : 'Group into Ten';
+      } else {
+        btnGroup.textContent = 'Group into Next';
+      }
+
+      // Update break button label
+      if (canBreak) {
+        const b = blocks.filter(b => b.selected)[0];
+        btnBreak.textContent = b.type === 'hundred' ? 'Break into Tens' : 'Break into Ones';
+      } else {
+        btnBreak.textContent = 'Break Apart';
+      }
+    }
+
+    // ===== Group Blocks =====
+    function groupBlocks() {
+      const selected = blocks.filter(b => b.selected);
+
+      // Try grouping tens into hundred first
+      const tensByColor = {};
+      selected.forEach(b => {
+        if (b.type === 'ten') {
+          if (!tensByColor[b.color]) tensByColor[b.color] = [];
+          tensByColor[b.color].push(b);
+        }
+      });
+
+      for (const color in tensByColor) {
+        if (tensByColor[color].length >= 10) {
+          const toRemove = tensByColor[color].slice(0, 10);
+          const avgX = toRemove.reduce((s, b) => s + b.x, 0) / 10;
+          const avgY = toRemove.reduce((s, b) => s + b.y, 0) / 10;
+
+          toRemove.forEach(b => {
+            blocks = blocks.filter(bl => bl.id !== b.id);
+          });
+
+          addBlock('hundred', avgX, avgY, color);
+          // Select the new block
+          blocks[blocks.length - 1].selected = true;
+          refreshAllBlocks();
+          updateTotal();
+          updateButtons();
+          return;
+        }
+      }
+
+      // Try grouping ones into ten
+      const onesByColor = {};
+      selected.forEach(b => {
+        if (b.type === 'one') {
+          if (!onesByColor[b.color]) onesByColor[b.color] = [];
+          onesByColor[b.color].push(b);
+        }
+      });
+
+      for (const color in onesByColor) {
+        if (onesByColor[color].length >= 10) {
+          const toRemove = onesByColor[color].slice(0, 10);
+          const avgX = toRemove.reduce((s, b) => s + b.x, 0) / 10;
+          const avgY = toRemove.reduce((s, b) => s + b.y, 0) / 10;
+
+          toRemove.forEach(b => {
+            blocks = blocks.filter(bl => bl.id !== b.id);
+          });
+
+          addBlock('ten', avgX, avgY, color);
+          blocks[blocks.length - 1].selected = true;
+          refreshAllBlocks();
+          updateTotal();
+          updateButtons();
+          return;
+        }
+      }
+    }
+
+    // ===== Break Apart =====
+    function breakApart() {
+      const selected = blocks.filter(b => b.selected);
+      if (selected.length !== 1) return;
+
+      const block = selected[0];
+
+      if (block.type === 'hundred') {
+        // Replace with 10 tens
+        const baseX = block.x;
+        const baseY = block.y;
+        const color = block.color;
+        blocks = blocks.filter(b => b.id !== block.id);
+
+        for (let i = 0; i < 10; i++) {
+          const x = baseX + (i % 5) * 50;
+          const y = baseY + Math.floor(i / 5) * 230;
+          addBlock('ten', x, y, color);
+        }
+      } else if (block.type === 'ten') {
+        // Replace with 10 ones
+        const baseX = block.x;
+        const baseY = block.y;
+        const color = block.color;
+        blocks = blocks.filter(b => b.id !== block.id);
+
+        for (let i = 0; i < 10; i++) {
+          const x = baseX + (i % 5) * 50;
+          const y = baseY + Math.floor(i / 5) * 50;
+          addBlock('one', x, y, color);
+        }
+      }
+
+      refreshAllBlocks();
+      updateTotal();
+      updateButtons();
+    }
+
+    // ===== Delete Selected =====
+    function deleteSelected() {
+      blocks = blocks.filter(b => !b.selected);
+      refreshAllBlocks();
+      updateTotal();
+      updateButtons();
+    }
+
+    // ===== Clear All =====
+    function clearAll() {
+      blocks = [];
+      nextId = 1;
+      refreshAllBlocks();
+      updateTotal();
+      updateButtons();
+    }
+
+    // ===== Keyboard shortcuts =====
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        // Don't delete if user is typing in an input
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        e.preventDefault();
+        deleteSelected();
+      }
+      if (e.key === 'Escape') {
+        blocks.forEach(b => b.selected = false);
+        refreshAllBlocks();
+        updateButtons();
+      }
+      // Select all with Ctrl/Cmd+A
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        e.preventDefault();
+        blocks.forEach(b => b.selected = true);
+        refreshAllBlocks();
+        updateButtons();
+      }
+    });
+
+    // Initialize
+    updateTotal();
+    updateButtons();
+  </script>
+</body>
+</html>

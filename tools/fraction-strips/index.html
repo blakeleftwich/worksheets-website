@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fraction Strips — Interactive Math Tool</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #2d3748;
+      overflow: hidden;
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      background: white;
+      padding: 32px 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
+      position: relative;
+      z-index: 10;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #667eea;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 20px;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: #764ba2;
+    }
+
+    .back-link svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #718096;
+      margin-bottom: 24px;
+    }
+
+    /* ===== Fraction Bank ===== */
+    .bank-section {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 16px;
+    }
+
+    .bank-group {
+      margin-bottom: 16px;
+    }
+
+    .bank-group-header {
+      font-size: 11px;
+      font-weight: 700;
+      color: #a0aec0;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 8px;
+    }
+
+    .bank-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .bank-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      cursor: pointer;
+      background: white;
+      transition: all 0.2s;
+      user-select: none;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .bank-item:hover {
+      border-color: #cbd5e0;
+      background: #f7fafc;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .bank-item:active {
+      transform: translateY(0);
+    }
+
+    .bank-swatch {
+      width: 32px;
+      height: 18px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .bank-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    /* ===== Actions ===== */
+    .actions {
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .btn-clear {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #718096;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn-clear:hover {
+      border-color: #e53e3e;
+      color: #e53e3e;
+      background: #fff5f5;
+    }
+
+    /* ===== Workspace ===== */
+    .workspace-wrapper {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .workspace-header {
+      padding: 20px 32px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .workspace-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+    }
+
+    .workspace-hint {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .workspace {
+      flex: 1;
+      margin: 0 32px 32px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      position: relative;
+      overflow: hidden;
+      min-height: 400px;
+    }
+
+    .workspace-inner {
+      padding: 24px 32px;
+      position: relative;
+      min-height: 100%;
+    }
+
+    /* ===== Reference Lines ===== */
+    .reference-lines {
+      position: absolute;
+      top: 0;
+      left: 32px;
+      right: 32px;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ref-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      border-left: 1px dashed #e2e8f0;
+    }
+
+    .ref-line-label {
+      position: absolute;
+      bottom: 8px;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: #cbd5e0;
+      font-weight: 500;
+      background: white;
+      padding: 0 3px;
+    }
+
+    /* ===== Reference Whole Strip ===== */
+    .reference-strip {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 8px;
+    }
+
+    .reference-strip-bar {
+      height: 48px;
+      background: #4a5568;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .reference-label {
+      font-size: 11px;
+      color: #a0aec0;
+      text-align: right;
+      margin-bottom: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    /* ===== Strip Rows ===== */
+    .strip-rows {
+      position: relative;
+      z-index: 2;
+    }
+
+    .strip-row {
+      position: relative;
+      height: 60px;
+      margin-bottom: 4px;
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+
+    .strip-row.drag-over {
+      background: rgba(102, 126, 234, 0.06);
+    }
+
+    .strip-row.empty-placeholder {
+      border: 2px dashed #e2e8f0;
+      background: rgba(102, 126, 234, 0.02);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .strip-row.empty-placeholder .placeholder-text {
+      font-size: 13px;
+      color: #cbd5e0;
+      font-weight: 500;
+    }
+
+    /* ===== Fraction Strip Piece ===== */
+    .fraction-strip {
+      position: absolute;
+      height: 48px;
+      top: 6px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      transition: box-shadow 0.15s, transform 0.15s;
+      z-index: 5;
+    }
+
+    .fraction-strip:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+      transform: translateY(-1px);
+    }
+
+    .fraction-strip.dragging {
+      cursor: grabbing;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      transform: translateY(-2px);
+      z-index: 100;
+      opacity: 0.92;
+    }
+
+    .fraction-strip .strip-label {
+      pointer-events: none;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .fraction-strip .strip-remove {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 18px;
+      height: 18px;
+      background: #e53e3e;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .fraction-strip:hover .strip-remove {
+      display: flex;
+    }
+
+    /* ===== Empty State ===== */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 40px;
+      text-align: center;
+    }
+
+    .empty-state-icon {
+      width: 64px;
+      height: 64px;
+      background: #f7fafc;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .empty-state-icon svg {
+      width: 32px;
+      height: 32px;
+      color: #cbd5e0;
+    }
+
+    .empty-state h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #a0aec0;
+      margin-bottom: 6px;
+    }
+
+    .empty-state p {
+      font-size: 13px;
+      color: #cbd5e0;
+      max-width: 280px;
+      line-height: 1.5;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1024px) {
+      body {
+        overflow: auto;
+      }
+
+      .main-container {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .sidebar {
+        position: relative;
+        height: auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .bank-section {
+        max-height: 300px;
+      }
+
+      .workspace-wrapper {
+        min-height: 500px;
+      }
+
+      .workspace {
+        margin: 0 16px 16px;
+      }
+
+      .workspace-header {
+        padding: 16px 16px 8px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .sidebar {
+        padding: 24px 16px;
+      }
+
+      .workspace {
+        margin: 0 12px 12px;
+      }
+
+      .workspace-inner {
+        padding: 16px;
+      }
+
+      .workspace-header {
+        padding: 12px 12px 8px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      .bank-item {
+        min-width: 100px;
+        padding: 6px 10px;
+      }
+    }
+
+    /* ===== Snap Indicator ===== */
+    .snap-indicator {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #667eea;
+      z-index: 50;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .snap-indicator.visible {
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main-container">
+
+    <!-- ===== Sidebar ===== -->
+    <div class="sidebar">
+      <a href="../index.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        All Tools
+      </a>
+
+      <h2>Fraction Strips</h2>
+      <div class="subtitle">Compare fractions visually</div>
+
+      <div class="bank-section" id="fractionBank">
+        <!-- Populated by JS -->
+      </div>
+
+      <div class="actions">
+        <button class="btn-clear" id="btnClear">Clear Workspace</button>
+      </div>
+    </div>
+
+    <!-- ===== Workspace ===== -->
+    <div class="workspace-wrapper">
+      <div class="workspace-header">
+        <div class="workspace-title">Workspace</div>
+        <div class="workspace-hint">Click strips to add, drag to arrange, double-click to remove</div>
+      </div>
+
+      <div class="workspace" id="workspace">
+        <div class="reference-lines" id="referenceLines"></div>
+        <div class="workspace-inner" id="workspaceInner">
+          <!-- Reference strip -->
+          <div class="reference-strip">
+            <div class="reference-label">Reference</div>
+            <div class="reference-strip-bar" id="referenceBar">1 Whole</div>
+          </div>
+
+          <!-- Strip rows container -->
+          <div class="strip-rows" id="stripRows"></div>
+
+          <!-- Empty state -->
+          <div class="empty-state" id="emptyState">
+            <div class="empty-state-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="4" rx="1"/>
+                <rect x="3" y="10" width="9" height="4" rx="1"/>
+                <rect x="3" y="17" width="6" height="4" rx="1"/>
+              </svg>
+            </div>
+            <h3>Add fraction strips</h3>
+            <p>Click fraction strips in the bank on the left to add them here. Drag strips to compare and align.</p>
+          </div>
+        </div>
+
+        <div class="snap-indicator" id="snapIndicator"></div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ===== Configuration =====
+  const STRIP_HEIGHT = 48;
+  const ROW_HEIGHT = 60;
+  const ROW_MARGIN = 4;
+  const SNAP_THRESHOLD = 10;
+
+  const FRACTION_DEFS = [
+    { denominator: 1,  label: '1',    name: 'Whole',   color: '#4a5568' },
+    { denominator: 2,  label: '1/2',  name: 'Halves',  color: '#e53e3e' },
+    { denominator: 3,  label: '1/3',  name: 'Thirds',  color: '#3182ce' },
+    { denominator: 4,  label: '1/4',  name: 'Fourths', color: '#38a169' },
+    { denominator: 5,  label: '1/5',  name: 'Fifths',  color: '#d69e2e' },
+    { denominator: 6,  label: '1/6',  name: 'Sixths',  color: '#805ad5' },
+    { denominator: 8,  label: '1/8',  name: 'Eighths', color: '#dd6b20' },
+    { denominator: 10, label: '1/10', name: 'Tenths',  color: '#d53f8c' },
+    { denominator: 12, label: '1/12', name: 'Twelfths',color: '#319795' },
+  ];
+
+  // ===== State =====
+  let strips = [];  // { id, denominator, label, color, row, x }
+  let nextId = 1;
+  let referenceWidth = 600;
+
+  // ===== DOM References =====
+  const fractionBank = document.getElementById('fractionBank');
+  const stripRows = document.getElementById('stripRows');
+  const emptyState = document.getElementById('emptyState');
+  const btnClear = document.getElementById('btnClear');
+  const workspaceInner = document.getElementById('workspaceInner');
+  const referenceBar = document.getElementById('referenceBar');
+  const referenceLines = document.getElementById('referenceLines');
+  const snapIndicator = document.getElementById('snapIndicator');
+  const workspace = document.getElementById('workspace');
+
+  // ===== Build Fraction Bank =====
+  function buildBank() {
+    fractionBank.innerHTML = '';
+    FRACTION_DEFS.forEach(def => {
+      const group = document.createElement('div');
+      group.className = 'bank-group';
+
+      const header = document.createElement('div');
+      header.className = 'bank-group-header';
+      header.textContent = def.denominator === 1 ? 'Whole' : def.name;
+      group.appendChild(header);
+
+      const items = document.createElement('div');
+      items.className = 'bank-items';
+
+      const item = document.createElement('div');
+      item.className = 'bank-item';
+      item.innerHTML = `
+        <div class="bank-swatch" style="background: ${def.color};"></div>
+        <span class="bank-label">${def.denominator === 1 ? '1 Whole' : def.label}</span>
+      `;
+      item.addEventListener('click', () => addStrip(def));
+      items.appendChild(item);
+
+      group.appendChild(items);
+      fractionBank.appendChild(group);
+    });
+  }
+
+  // ===== Calculate Reference Width =====
+  function updateReferenceWidth() {
+    const innerRect = workspaceInner.getBoundingClientRect();
+    referenceWidth = innerRect.width - 64; // 32px padding each side
+    if (referenceWidth < 200) referenceWidth = 200;
+    referenceBar.style.width = referenceWidth + 'px';
+    updateReferenceLines();
+    renderStrips();
+  }
+
+  // ===== Reference Lines =====
+  function updateReferenceLines() {
+    referenceLines.innerHTML = '';
+    const refLeft = 32; // padding
+    const fractions = [
+      { value: 1/4, label: '1/4' },
+      { value: 1/3, label: '1/3' },
+      { value: 1/2, label: '1/2' },
+      { value: 2/3, label: '2/3' },
+      { value: 3/4, label: '3/4' },
+    ];
+
+    fractions.forEach(f => {
+      const x = refLeft + f.value * referenceWidth;
+      const line = document.createElement('div');
+      line.className = 'ref-line';
+      line.style.left = x + 'px';
+
+      const label = document.createElement('div');
+      label.className = 'ref-line-label';
+      label.textContent = f.label;
+      label.style.left = x + 'px';
+
+      referenceLines.appendChild(line);
+      referenceLines.appendChild(label);
+    });
+
+    // End line
+    const endLine = document.createElement('div');
+    endLine.className = 'ref-line';
+    endLine.style.left = (refLeft + referenceWidth) + 'px';
+    referenceLines.appendChild(endLine);
+  }
+
+  // ===== Add Strip =====
+  function addStrip(def) {
+    const strip = {
+      id: nextId++,
+      denominator: def.denominator,
+      label: def.label,
+      color: def.color,
+      row: getNextAvailableRow(),
+      x: 0,
+    };
+    strips.push(strip);
+    renderStrips();
+  }
+
+  function getNextAvailableRow() {
+    if (strips.length === 0) return 0;
+    const usedRows = strips.map(s => s.row);
+    const maxRow = Math.max(...usedRows);
+    // Try to find a row with space
+    return maxRow + 1;
+  }
+
+  // ===== Remove Strip =====
+  function removeStrip(id) {
+    strips = strips.filter(s => s.id !== id);
+    compactRows();
+    renderStrips();
+  }
+
+  // ===== Compact Rows =====
+  function compactRows() {
+    const usedRows = [...new Set(strips.map(s => s.row))].sort((a, b) => a - b);
+    const rowMap = {};
+    usedRows.forEach((r, i) => { rowMap[r] = i; });
+    strips.forEach(s => { s.row = rowMap[s.row]; });
+  }
+
+  // ===== Clear Workspace =====
+  btnClear.addEventListener('click', () => {
+    strips = [];
+    renderStrips();
+  });
+
+  // ===== Render Strips =====
+  function renderStrips() {
+    // Show/hide empty state
+    emptyState.style.display = strips.length === 0 ? 'flex' : 'none';
+
+    // Determine row count
+    const rowCount = strips.length === 0 ? 0 : Math.max(...strips.map(s => s.row)) + 1;
+    const totalRows = Math.max(rowCount + 1, 3); // always at least a few empty rows
+
+    stripRows.innerHTML = '';
+
+    for (let r = 0; r < totalRows; r++) {
+      const rowEl = document.createElement('div');
+      rowEl.className = 'strip-row';
+      if (strips.filter(s => s.row === r).length === 0 && strips.length > 0) {
+        rowEl.classList.add('empty-placeholder');
+        const ph = document.createElement('div');
+        ph.className = 'placeholder-text';
+        ph.textContent = '';
+        rowEl.appendChild(ph);
+      }
+      rowEl.style.height = ROW_HEIGHT + 'px';
+      rowEl.dataset.row = r;
+
+      // Render strips in this row
+      const rowStrips = strips.filter(s => s.row === r);
+      rowStrips.forEach(strip => {
+        const el = createStripElement(strip);
+        rowEl.appendChild(el);
+      });
+
+      stripRows.appendChild(rowEl);
+    }
+  }
+
+  function createStripElement(strip) {
+    const width = (1 / strip.denominator) * referenceWidth;
+    const el = document.createElement('div');
+    el.className = 'fraction-strip';
+    el.style.width = width + 'px';
+    el.style.background = strip.color;
+    el.style.left = strip.x + 'px';
+    el.dataset.id = strip.id;
+
+    const label = document.createElement('span');
+    label.className = 'strip-label';
+    label.textContent = strip.denominator === 1 ? '1 Whole' : strip.label;
+    // Adjust font size for small strips
+    if (width < 50) {
+      label.style.fontSize = '10px';
+    } else if (width < 80) {
+      label.style.fontSize = '12px';
+    }
+    el.appendChild(label);
+
+    // Remove button
+    const removeBtn = document.createElement('div');
+    removeBtn.className = 'strip-remove';
+    removeBtn.innerHTML = '&times;';
+    removeBtn.addEventListener('pointerdown', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      removeStrip(strip.id);
+    });
+    el.appendChild(removeBtn);
+
+    // Double-click to remove
+    el.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      removeStrip(strip.id);
+    });
+
+    // Right-click to remove
+    el.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      removeStrip(strip.id);
+    });
+
+    // Drag
+    setupDrag(el, strip);
+
+    return el;
+  }
+
+  // ===== Drag Logic =====
+  function setupDrag(el, strip) {
+    let isDragging = false;
+    let startX, startY;
+    let startStripX, startStripRow;
+    let dragEl = null;
+    let currentSnapX = null;
+
+    el.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return; // only left-click
+      e.preventDefault();
+      el.setPointerCapture(e.pointerId);
+
+      isDragging = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      startStripX = strip.x;
+      startStripRow = strip.row;
+      dragEl = el;
+
+      el.addEventListener('pointermove', onPointerMove);
+      el.addEventListener('pointerup', onPointerUp);
+      el.addEventListener('pointercancel', onPointerUp);
+    });
+
+    function onPointerMove(e) {
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      if (!isDragging && Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
+      isDragging = true;
+      el.classList.add('dragging');
+
+      // Calculate new X position
+      let newX = startStripX + dx;
+      const stripWidth = (1 / strip.denominator) * referenceWidth;
+
+      // Clamp X within workspace
+      newX = Math.max(0, Math.min(newX, referenceWidth - stripWidth));
+
+      // Snap logic
+      const snapPoints = getSnapPoints(strip.id, strip.row);
+      let snapped = false;
+      currentSnapX = null;
+
+      for (const sp of snapPoints) {
+        // Snap left edge of strip to snap point
+        if (Math.abs(newX - sp) < SNAP_THRESHOLD) {
+          newX = sp;
+          currentSnapX = sp;
+          snapped = true;
+          break;
+        }
+        // Snap right edge of strip to snap point
+        if (Math.abs((newX + stripWidth) - sp) < SNAP_THRESHOLD) {
+          newX = sp - stripWidth;
+          currentSnapX = sp;
+          snapped = true;
+          break;
+        }
+      }
+
+      // Show snap indicator
+      if (snapped && currentSnapX !== null) {
+        showSnapIndicator(currentSnapX);
+      } else {
+        hideSnapIndicator();
+      }
+
+      // Determine row from Y offset
+      const rowsRect = stripRows.getBoundingClientRect();
+      const relativeY = e.clientY - rowsRect.top;
+      let newRow = Math.floor(relativeY / (ROW_HEIGHT + ROW_MARGIN));
+      const maxRow = strips.length === 0 ? 0 : Math.max(...strips.map(s => s.row)) + 1;
+      newRow = Math.max(0, Math.min(newRow, maxRow));
+
+      strip.x = newX;
+      strip.row = newRow;
+
+      el.style.left = newX + 'px';
+
+      // Move element to correct row visually
+      const targetRow = stripRows.querySelector(`[data-row="${newRow}"]`);
+      if (targetRow && el.parentElement !== targetRow) {
+        targetRow.appendChild(el);
+      }
+
+      // Highlight target row
+      document.querySelectorAll('.strip-row').forEach(r => r.classList.remove('drag-over'));
+      if (targetRow) targetRow.classList.add('drag-over');
+    }
+
+    function onPointerUp(e) {
+      el.removeEventListener('pointermove', onPointerMove);
+      el.removeEventListener('pointerup', onPointerUp);
+      el.removeEventListener('pointercancel', onPointerUp);
+
+      el.classList.remove('dragging');
+      document.querySelectorAll('.strip-row').forEach(r => r.classList.remove('drag-over'));
+      hideSnapIndicator();
+
+      if (isDragging) {
+        compactRows();
+        renderStrips();
+      }
+
+      isDragging = false;
+    }
+  }
+
+  // ===== Snap Points =====
+  function getSnapPoints(excludeId, row) {
+    const points = new Set();
+
+    // Origin
+    points.add(0);
+
+    // Right edge of reference
+    points.add(referenceWidth);
+
+    // Edges of other strips in the same row
+    strips.forEach(s => {
+      if (s.id === excludeId) return;
+      if (s.row !== row) return;
+      const w = (1 / s.denominator) * referenceWidth;
+      points.add(s.x);
+      points.add(s.x + w);
+    });
+
+    // Key fraction positions
+    const keyFractions = [1/2, 1/3, 2/3, 1/4, 3/4, 1/5, 2/5, 3/5, 4/5, 1/6, 5/6, 1/8, 3/8, 5/8, 7/8, 1/10, 1/12];
+    keyFractions.forEach(f => {
+      points.add(Math.round(f * referenceWidth));
+    });
+
+    return Array.from(points);
+  }
+
+  // ===== Snap Indicator =====
+  function showSnapIndicator(x) {
+    const innerRect = workspaceInner.getBoundingClientRect();
+    const wsRect = workspace.getBoundingClientRect();
+    const offsetX = innerRect.left - wsRect.left + 32; // + padding
+    snapIndicator.style.left = (x + offsetX) + 'px';
+    snapIndicator.classList.add('visible');
+  }
+
+  function hideSnapIndicator() {
+    snapIndicator.classList.remove('visible');
+  }
+
+  // ===== Resize Observer =====
+  const resizeObserver = new ResizeObserver(() => {
+    updateReferenceWidth();
+  });
+  resizeObserver.observe(workspaceInner);
+
+  // ===== Init =====
+  buildBank();
+  // Defer initial sizing to after first paint
+  requestAnimationFrame(() => {
+    updateReferenceWidth();
+    renderStrips();
+  });
+
+})();
+</script>
+
+</body>
+</html>

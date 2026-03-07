@@ -426,6 +426,18 @@
             </select>
           </div>
 
+          <!-- Numbered -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="numbered" checked />
+            <label for="numbered">Numbered</label>
+          </div>
+
+          <!-- Include example -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="includeExample" />
+            <label for="includeExample">Include example</label>
+          </div>
+
           <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
@@ -514,6 +526,8 @@
     const elHeaderMode = document.getElementById("headerMode");
     const elHeaderModeOptions = document.getElementById("headerModeOptions");
     const elBranded = document.getElementById("branded");
+    const elNumbered = document.getElementById("numbered");
+    const elIncludeExample = document.getElementById("includeExample");
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
     const advArrow = document.getElementById("advArrow");
@@ -606,19 +620,21 @@
         numDigits: parseInt(elNumDigits.value, 10),
         rowsPerPage: parseInt(elRowsPerPage.value, 10),
         numWorksheets: parseInt(elNumSheets.value, 10),
-        showExample: elShowExample.checked,
+        showExample: elShowExample.checked || elIncludeExample.checked,
+        includeExample: elIncludeExample.checked,
         answerKey: elAnswerKey.checked,
         colorTheme: elColorTheme.value,
         showHeader,
         title,
         subtitle,
         branded: elBranded.checked,
+        numbered: elNumbered.checked,
       };
     }
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(numbers, options) {
-      const { numDigits, rowsPerPage, showExample, colorTheme, showHeader, title, subtitle, branded, showAnswers } = options;
+      const { numDigits, rowsPerPage, showExample, colorTheme, showHeader, title, subtitle, branded, showAnswers, numbered } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
@@ -786,6 +802,14 @@
             x: tableLeft, y: rowY, width: tableWidth, height: dataRowH,
             fill: "#fffbeb"
           }));
+        }
+
+        // Problem number
+        if (numbered !== false) {
+          const probNumSize = 10;
+          const numLabelEl = svgEl("text", { x: tableLeft - 4, y: rowY + dataRowH / 2 + 4, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0", "text-anchor": "end" });
+          numLabelEl.textContent = (r + 1) + ".";
+          svg.appendChild(numLabelEl);
         }
 
         // Row border
@@ -997,6 +1021,7 @@
     elRowsPerPage.addEventListener("change", () => renderWithNewRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elShowExample.addEventListener("change", () => renderWithoutRandomization());
+    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     elColorTheme.addEventListener("change", () => renderWithoutRandomization());
     elAnswerKey.addEventListener("change", () => {});
     elShowHeaderEnabled.addEventListener("change", () => {
@@ -1005,6 +1030,7 @@
     });
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
     elBranded.addEventListener("change", () => renderWithoutRandomization());
+    elNumbered.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
       renderWithoutRandomization();

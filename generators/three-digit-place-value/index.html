@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three-Digit Place Value Worksheet Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      background: white;
+      padding: 32px 24px;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-group > label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 6px;
+    }
+
+    .control-group input[type="number"],
+    .control-group input[type="text"],
+    .control-group select {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .control-group input:focus,
+    .control-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .control-group input:hover,
+    .control-group select:hover {
+      border-color: #cbd5e0;
+    }
+
+    /* ===== Advanced Options Toggle ===== */
+    .advanced-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 10px 0;
+      margin-bottom: 4px;
+      user-select: none;
+    }
+
+    .advanced-toggle .toggle-arrow {
+      font-size: 12px;
+      transition: transform 0.2s;
+      color: #667eea;
+    }
+
+    .advanced-toggle .toggle-arrow.open {
+      transform: rotate(90deg);
+    }
+
+    .advanced-toggle span:last-child {
+      font-size: 13px;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .advanced-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background: #f7fafc;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .advanced-panel.open {
+      max-height: 600px;
+    }
+
+    .advanced-panel-inner {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .advanced-panel-inner .control-group {
+      margin-bottom: 0;
+    }
+
+    .adv-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .adv-checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .adv-checkbox-row label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      cursor: pointer;
+    }
+
+    .adv-sub {
+      padding-left: 26px;
+    }
+
+    .adv-sub select,
+    .adv-sub input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 13px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #2d3748;
+    }
+
+    .adv-sub label {
+      font-size: 12px;
+      color: #718096;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .adv-separator {
+      height: 1px;
+      background: #e2e8f0;
+      margin: 6px 0 10px;
+    }
+
+    .adv-section-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #4a5568;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    /* ===== Checkboxes ===== */
+    .checkbox-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .checkbox-row label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .checkbox-row span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    /* ===== Buttons ===== */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .button-group button {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .button-group button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-generate {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-print {
+      background: #ed8936;
+      color: white;
+    }
+
+    /* ===== Preview ===== */
+    .preview-area {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px;
+      overflow: auto;
+    }
+
+    #sheetWrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    #sheetWrap.grid-view {
+      display: grid;
+      justify-items: center;
+    }
+
+    .worksheet-page {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      padding: 12px;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 900px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: relative;
+        height: auto;
+      }
+      .preview-area {
+        padding: 12px;
+      }
+      #sheetWrap {
+        gap: 16px;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        padding: 0 !important;
+      }
+      #sheetWrap.grid-view {
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: none !important;
+        padding: 0 !important;
+      }
+      .worksheet-page {
+        padding: 8px;
+        width: 100%;
+        max-width: 100%;
+      }
+      .worksheet-page svg {
+        width: 100% !important;
+        height: auto !important;
+      }
+    }
+
+    /* ===== Print ===== */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+      .main-container {
+        display: block;
+      }
+      .sidebar {
+        display: none !important;
+      }
+      .preview-area {
+        padding: 0;
+        margin: 0;
+      }
+      #sheetWrap {
+        gap: 0;
+        display: block !important;
+        padding: 0 !important;
+        flex-direction: unset !important;
+      }
+      .worksheet-page {
+        box-shadow: none;
+        border-radius: 0;
+        page-break-after: always;
+        break-after: page;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+      }
+      .worksheet-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+      .worksheet-page svg {
+        width: 100% !important;
+        height: 100% !important;
+      }
+    }
+    @page {
+      size: letter;
+      margin: 0.5in 0.4in 0in 0.4in;
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="main-container">
+    <!-- Left sidebar controls -->
+    <div class="sidebar">
+      <a href="../../index.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #667eea; text-decoration: none; margin-bottom: 16px; transition: gap 0.2s;"
+         onmouseover="this.style.gap='10px'" onmouseout="this.style.gap='6px'">
+        &larr; All Worksheets
+      </a>
+      <h2>Three-Digit Place Value Worksheet Generator</h2>
+
+      <!-- Mode -->
+      <div class="control-group">
+        <label for="modeSelect">Worksheet Type</label>
+        <select id="modeSelect">
+          <option value="decompose" selected>Write Hundreds, Tens, Ones</option>
+          <option value="build">Build the Number</option>
+          <option value="identify">Identify the Place Value</option>
+        </select>
+      </div>
+
+      <!-- Number range -->
+      <div class="control-group">
+        <label for="rangeSelect">Number Range</label>
+        <select id="rangeSelect">
+          <option value="low" selected>100&ndash;500</option>
+          <option value="mid">100&ndash;999</option>
+          <option value="round">Multiples of 10</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="problemsPerSheet">Problems per Sheet</label>
+        <select id="problemsPerSheet">
+          <option value="8">8</option>
+          <option value="12" selected>12</option>
+          <option value="16">16</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="numWorksheets">Number of Worksheets</label>
+        <select id="numWorksheets">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+
+      <div class="checkbox-row" style="margin-bottom:12px;">
+        <label>
+          <input type="checkbox" id="answerKey">
+          <span>Include Answer Key Sheets</span>
+        </label>
+      </div>
+
+      <!-- Advanced Options -->
+      <div class="advanced-toggle" id="advToggle">
+        <span class="toggle-arrow" id="advArrow">&#9658;</span>
+        <span>Advanced Options</span>
+      </div>
+      <div class="advanced-panel" id="advPanel">
+        <div class="advanced-panel-inner">
+
+          <!-- Include example -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="includeExample" />
+            <label for="includeExample">Include example</label>
+          </div>
+
+          <!-- Customize worksheet titles -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="customTitleEnabled" />
+            <label for="customTitleEnabled">Customize worksheet titles</label>
+          </div>
+          <div class="adv-sub" id="customTitleOptions" style="display:none;">
+            <div class="adv-checkbox-row" style="margin-bottom:8px;">
+              <input type="checkbox" id="showTitle" checked />
+              <label for="showTitle">Show title</label>
+            </div>
+            <div id="titleInputWrap">
+              <label for="headerText">Title</label>
+              <input type="text" id="headerText" value="Three-Digit Place Value" />
+            </div>
+            <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
+              <input type="checkbox" id="showSubtitle" checked />
+              <label for="showSubtitle">Show subtitle</label>
+            </div>
+            <div id="subtitleInputWrap">
+              <label for="subtitleText">Subtitle</label>
+              <input type="text" id="subtitleText" value="" />
+            </div>
+          </div>
+
+          <!-- Name / Date -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="showHeaderEnabled" checked />
+            <label for="showHeaderEnabled">Name / Date</label>
+          </div>
+          <div class="adv-sub" id="headerModeOptions">
+            <label for="headerMode">Show</label>
+            <select id="headerMode">
+              <option value="both" selected>Name &amp; Date</option>
+              <option value="name">Name Only</option>
+            </select>
+          </div>
+
+          <!-- Numbered -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="numbered" checked />
+            <label for="numbered">Numbered</label>
+          </div>
+
+          <!-- Branding -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="branded" checked />
+            <label for="branded">Branding</label>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
+        <button class="btn-print" id="btnPrint">&#128424;&#65039; Print</button>
+      </div>
+    </div>
+
+    <!-- Preview area -->
+    <div class="preview-area">
+      <div id="sheetWrap"></div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Helpers =====
+    function svgEl(tag, attrs, children) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      if (children) children.forEach(c => el.appendChild(c));
+      return el;
+    }
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+    function isMobile() { return window.innerWidth <= 900; }
+
+    // ===== Element refs =====
+    const sheetWrap = document.getElementById("sheetWrap");
+    const elMode = document.getElementById("modeSelect");
+    const elRange = document.getElementById("rangeSelect");
+    const elProblems = document.getElementById("problemsPerSheet");
+    const elNumSheets = document.getElementById("numWorksheets");
+    const elAnswerKey = document.getElementById("answerKey");
+    const elIncludeExample = document.getElementById("includeExample");
+    const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
+    const elCustomTitleOptions = document.getElementById("customTitleOptions");
+    const elShowTitle = document.getElementById("showTitle");
+    const elShowSubtitle = document.getElementById("showSubtitle");
+    const elTitleInputWrap = document.getElementById("titleInputWrap");
+    const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
+    const elHeaderText = document.getElementById("headerText");
+    const elSubtitleText = document.getElementById("subtitleText");
+    const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
+    const elHeaderMode = document.getElementById("headerMode");
+    const elHeaderModeOptions = document.getElementById("headerModeOptions");
+    const elNumbered = document.getElementById("numbered");
+    const elBranded = document.getElementById("branded");
+    const advToggle = document.getElementById("advToggle");
+    const advPanel = document.getElementById("advPanel");
+    const advArrow = document.getElementById("advArrow");
+
+    // ===== Advanced panel toggle =====
+    advToggle.addEventListener("click", () => {
+      advPanel.classList.toggle("open");
+      advArrow.classList.toggle("open");
+    });
+
+    // ===== Default subtitles per mode =====
+    const defaultSubtitles = {
+      decompose: "Break each number into hundreds, tens, and ones.",
+      build: "Write the number shown by the hundreds, tens, and ones.",
+      identify: "What is the value of the underlined digit?"
+    };
+
+    // ===== Auto titles per mode =====
+    const autoTitles = {
+      decompose: "Decompose Three-Digit Numbers",
+      build: "Build Three-Digit Numbers",
+      identify: "Identify Place Value"
+    };
+
+    function getHeaderMode() {
+      return elShowHeaderEnabled.checked ? elHeaderMode.value : "none";
+    }
+
+    function getTitle() {
+      if (elCustomTitleEnabled.checked) {
+        return elShowTitle.checked ? elHeaderText.value : "";
+      }
+      return autoTitles[elMode.value] || "Three-Digit Place Value";
+    }
+
+    function getSubtitle() {
+      if (elCustomTitleEnabled.checked) {
+        return elShowSubtitle.checked ? elSubtitleText.value : "";
+      }
+      return defaultSubtitles[elMode.value] || "";
+    }
+
+    // When mode changes, update the subtitle placeholder
+    elMode.addEventListener("change", () => {
+      if (!elCustomTitleEnabled.checked) {
+        elSubtitleText.value = defaultSubtitles[elMode.value] || "";
+      }
+      renderWithNewRandomization();
+    });
+
+    // ===== State =====
+    let currentState = { sheets: [] };
+
+    // ===== Problem generation =====
+    function generateNumber(range) {
+      if (range === "low") {
+        return 100 + Math.floor(Math.random() * 401); // 100-500
+      } else if (range === "mid") {
+        return 100 + Math.floor(Math.random() * 900); // 100-999
+      } else {
+        // Multiples of 10: 100, 110, 120, ... 990
+        const choices = [];
+        for (let n = 100; n <= 990; n += 10) choices.push(n);
+        return choices[Math.floor(Math.random() * choices.length)];
+      }
+    }
+
+    function generateProblems(count, opts) {
+      const { mode, range } = opts;
+      const problems = [];
+      const seen = new Set();
+      let attempts = 0;
+
+      while (problems.length < count && attempts < count * 500) {
+        attempts++;
+        const num = generateNumber(range);
+        const key = String(num);
+        if (seen.has(key)) continue;
+        seen.add(key);
+
+        const hundreds = Math.floor(num / 100);
+        const tens = Math.floor((num % 100) / 10);
+        const ones = num % 10;
+
+        if (mode === "decompose") {
+          problems.push({ number: num, hundreds, tens, ones });
+        } else if (mode === "build") {
+          problems.push({ number: num, hundreds, tens, ones });
+        } else if (mode === "identify") {
+          // Pick a random digit position to ask about
+          // For multiples of 10, don't ask about ones (it's always 0 — not interesting)
+          let targetIndex;
+          if (range === "round") {
+            targetIndex = Math.floor(Math.random() * 2); // 0 = hundreds, 1 = tens
+          } else {
+            targetIndex = Math.floor(Math.random() * 3); // 0, 1, or 2
+          }
+          problems.push({ number: num, hundreds, tens, ones, targetIndex });
+        }
+      }
+
+      // Fill up if needed (shouldn't happen often)
+      while (problems.length < count) {
+        const num = generateNumber(range);
+        const hundreds = Math.floor(num / 100);
+        const tens = Math.floor((num % 100) / 10);
+        const ones = num % 10;
+        const targetIndex = Math.floor(Math.random() * 3);
+        if (mode === "decompose" || mode === "build") {
+          problems.push({ number: num, hundreds, tens, ones });
+        } else {
+          problems.push({ number: num, hundreds, tens, ones, targetIndex });
+        }
+      }
+
+      return problems;
+    }
+
+    // ===== SVG Rendering =====
+    function renderWorksheetSVG(problems, options) {
+      const { showHeader, title, subtitle, branded, showAnswers, numbered, includeExample, mode } = options;
+      const pageW = 612, pageH = 792, margin = 36;
+      const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
+      svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
+
+      const midX = pageW / 2;
+      let topGridY;
+      {
+        let curY = 10;
+        if (showHeader === "both") {
+          svg.appendChild(svgEl("text", {
+            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#000000"
+          }, [document.createTextNode("Name")]));
+          svg.appendChild(svgEl("line", {
+            x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18,
+            stroke: "#000000", "stroke-width": 0.75
+          }));
+          svg.appendChild(svgEl("text", {
+            x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#000000"
+          }, [document.createTextNode("Date")]));
+          svg.appendChild(svgEl("line", {
+            x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
+            stroke: "#000000", "stroke-width": 0.75
+          }));
+          curY += 28;
+        } else if (showHeader === "name") {
+          svg.appendChild(svgEl("text", {
+            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#000000"
+          }, [document.createTextNode("Name")]));
+          svg.appendChild(svgEl("line", {
+            x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
+            stroke: "#000000", "stroke-width": 0.75
+          }));
+          curY += 28;
+        }
+        if (title) {
+          svg.appendChild(svgEl("text", {
+            x: margin, y: curY + 38, "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af"
+          }, [document.createTextNode(title)]));
+          curY += 46;
+        }
+        if (subtitle) {
+          svg.appendChild(svgEl("text", {
+            x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#000000"
+          }, [document.createTextNode(subtitle)]));
+          curY += 20;
+        }
+        topGridY = curY + 6;
+      }
+
+      // Branding
+      if (branded) {
+        const brandY = pageH - 48;
+        const logoH = 38;
+        const logoW = Math.round(logoH * 2.79);
+        svg.appendChild(svgEl("image", {
+          href: "../branding/emma-logo.png",
+          x: margin, y: brandY,
+          width: logoW, height: logoH
+        }));
+        const bLine1 = svgEl("text", {
+          x: pageW - margin, y: brandY + 14,
+          "font-family": "Fredoka, sans-serif", "font-size": 11,
+          fill: "#4a5568", "text-anchor": "end"
+        });
+        bLine1.textContent = "Find worksheets, teacher tools, and more at animalmath.com";
+        svg.appendChild(bLine1);
+        const bLine2 = svgEl("text", {
+          x: pageW - margin, y: brandY + 26,
+          "font-family": "Fredoka, sans-serif", "font-size": 9.5,
+          fill: "#a0aec0", "text-anchor": "end"
+        });
+        bLine2.textContent = "\u00A9 2026 Eggroll Games";
+        svg.appendChild(bLine2);
+      }
+
+      // Grid layout: 2 columns
+      const count = problems.length;
+      const bottomMargin = branded ? 56 : 24;
+      const gridTop = topGridY;
+      const availH = pageH - bottomMargin - gridTop;
+      const availW = pageW - margin * 2;
+
+      const cols = 2;
+      const rows = Math.ceil(count / cols);
+      const colW = availW / cols;
+      const rowH = availH / rows;
+
+      const cardPad = 6;
+
+      for (let i = 0; i < problems.length; i++) {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const prob = problems[i];
+        const isExample = (i === 0 && includeExample && !showAnswers);
+
+        const cellLeft = margin + col * colW;
+        const cellTop = gridTop + row * rowH;
+
+        const cardLeft = cellLeft + cardPad;
+        const cardTop = cellTop + cardPad;
+        const cardW = colW - cardPad * 2;
+        const cardH = rowH - cardPad * 2;
+        const cx = cardLeft + cardW / 2;
+
+        // Card background
+        svg.appendChild(svgEl("rect", {
+          x: cardLeft, y: cardTop, width: cardW, height: cardH,
+          rx: 6, ry: 6,
+          fill: isExample ? "#f0fdf4" : "#f7fafc",
+          stroke: isExample ? "#22c55e" : "#e2e8f0",
+          "stroke-width": isExample ? 1.5 : 1
+        }));
+
+        // Problem number (top-left)
+        if (numbered !== false) {
+          const numLbl = svgEl("text", {
+            x: cardLeft + 8, y: cardTop + 14,
+            "font-family": "Fredoka, sans-serif", "font-size": "10",
+            "font-weight": "600", fill: "#a0aec0"
+          });
+          numLbl.textContent = (i + 1) + ".";
+          svg.appendChild(numLbl);
+        }
+
+        // Example badge (top-right of card)
+        if (isExample) {
+          const badgeW = 46, badgeH = 14;
+          const badgeX = cardLeft + cardW - badgeW - 4;
+          const badgeY = cardTop + 4;
+          svg.appendChild(svgEl("rect", {
+            x: badgeX, y: badgeY, width: badgeW, height: badgeH,
+            rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75"
+          }));
+          const badgeText = svgEl("text", {
+            x: badgeX + badgeW / 2, y: badgeY + 10,
+            "text-anchor": "middle", "font-family": "Fredoka, sans-serif",
+            "font-size": "8", "font-weight": "600", fill: "#16a34a"
+          });
+          badgeText.textContent = "Example";
+          svg.appendChild(badgeText);
+        }
+
+        // ===== Mode: decompose =====
+        if (mode === "decompose") {
+          // Number (large, centered upper portion)
+          const numEl = svgEl("text", {
+            x: cx, y: cardTop + cardH * 0.38,
+            "text-anchor": "middle",
+            "font-family": "'Google Sans Flex', sans-serif",
+            "font-size": "26", "font-weight": "700", fill: "#1a202c"
+          });
+          numEl.textContent = String(prob.number);
+          svg.appendChild(numEl);
+
+          // H: ___ T: ___ O: ___
+          const labels = ["H:", "T:", "O:"];
+          const answers = [prob.hundreds, prob.tens, prob.ones];
+          const labelSpacing = colW * 0.28;
+          const startX = cx - labelSpacing;
+
+          for (let k = 0; k < 3; k++) {
+            const lx = startX + k * labelSpacing;
+            const ly = cardTop + cardH * 0.72;
+
+            const labelEl = svgEl("text", {
+              x: lx - 2, y: ly,
+              "text-anchor": "end",
+              "font-family": "Fredoka, sans-serif",
+              "font-size": "13", "font-weight": "600", fill: "#64748b"
+            });
+            labelEl.textContent = labels[k];
+            svg.appendChild(labelEl);
+
+            // Underline blank
+            svg.appendChild(svgEl("line", {
+              x1: lx + 2, y1: ly + 1, x2: lx + 26, y2: ly + 1,
+              stroke: "#2d3748", "stroke-width": 1.2
+            }));
+
+            if (showAnswers || isExample) {
+              const fill = isExample ? "#16a34a" : "#3182ce";
+              const aEl = svgEl("text", {
+                x: lx + 14, y: ly - 2,
+                "text-anchor": "middle",
+                "font-family": "'Google Sans Flex', sans-serif",
+                "font-size": "13", "font-weight": "700", fill
+              });
+              aEl.textContent = String(answers[k]);
+              svg.appendChild(aEl);
+            }
+          }
+        }
+
+        // ===== Mode: build =====
+        else if (mode === "build") {
+          // Show H: 3  T: 2  O: 5   Number: ___
+          const labels = ["H:", "T:", "O:"];
+          const values = [prob.hundreds, prob.tens, prob.ones];
+          const labelSpacing = colW * 0.24;
+          const startX = cx - labelSpacing * 1.1;
+
+          const labelY = cardTop + cardH * 0.40;
+
+          for (let k = 0; k < 3; k++) {
+            const lx = startX + k * labelSpacing;
+
+            // Label (H:, T:, O:)
+            const labelEl = svgEl("text", {
+              x: lx, y: labelY,
+              "text-anchor": "end",
+              "font-family": "Fredoka, sans-serif",
+              "font-size": "13", "font-weight": "600", fill: "#64748b"
+            });
+            labelEl.textContent = labels[k];
+            svg.appendChild(labelEl);
+
+            // Value
+            const valEl = svgEl("text", {
+              x: lx + 6, y: labelY,
+              "text-anchor": "start",
+              "font-family": "'Google Sans Flex', sans-serif",
+              "font-size": "22", "font-weight": "700", fill: "#1a202c"
+            });
+            valEl.textContent = String(values[k]);
+            svg.appendChild(valEl);
+          }
+
+          // "Number:" label + blank line
+          const numLabelY = cardTop + cardH * 0.72;
+          const numLabelX = cx - 36;
+
+          const numLabelEl = svgEl("text", {
+            x: numLabelX, y: numLabelY,
+            "text-anchor": "end",
+            "font-family": "Fredoka, sans-serif",
+            "font-size": "13", "font-weight": "600", fill: "#64748b"
+          });
+          numLabelEl.textContent = "Number:";
+          svg.appendChild(numLabelEl);
+
+          // Blank line
+          svg.appendChild(svgEl("line", {
+            x1: numLabelX + 4, y1: numLabelY + 1, x2: numLabelX + 52, y2: numLabelY + 1,
+            stroke: "#2d3748", "stroke-width": 1.2
+          }));
+
+          if (showAnswers || isExample) {
+            const fill = isExample ? "#16a34a" : "#3182ce";
+            const ansEl = svgEl("text", {
+              x: numLabelX + 28, y: numLabelY - 2,
+              "text-anchor": "middle",
+              "font-family": "'Google Sans Flex', sans-serif",
+              "font-size": "13", "font-weight": "700", fill
+            });
+            ansEl.textContent = String(prob.number);
+            svg.appendChild(ansEl);
+          }
+        }
+
+        // ===== Mode: identify =====
+        else if (mode === "identify") {
+          // Show the number with one digit underlined/colored
+          const digits = String(prob.number).split('');
+          const digitFontSize = 26;
+          const digitW = digitFontSize * 0.62;
+          const totalW = digits.length * digitW;
+          let dx = cx - totalW / 2;
+
+          digits.forEach((d, idx) => {
+            const isTarget = (idx === prob.targetIndex);
+            const digitEl = svgEl("text", {
+              x: dx + digitW / 2, y: cardTop + cardH * 0.38,
+              "text-anchor": "middle",
+              "font-family": "'Google Sans Flex', sans-serif",
+              "font-size": String(digitFontSize), "font-weight": "700",
+              fill: isTarget ? "#667eea" : "#1a202c"
+            });
+            digitEl.textContent = d;
+            svg.appendChild(digitEl);
+
+            if (isTarget) {
+              svg.appendChild(svgEl("line", {
+                x1: dx, y1: cardTop + cardH * 0.42,
+                x2: dx + digitW, y2: cardTop + cardH * 0.42,
+                stroke: "#667eea", "stroke-width": 2
+              }));
+            }
+            dx += digitW;
+          });
+
+          // "Place:" label and blank
+          const qY = cardTop + cardH * 0.62;
+          const qEl = svgEl("text", {
+            x: cx - 24, y: qY,
+            "text-anchor": "end",
+            "font-family": "Fredoka, sans-serif",
+            "font-size": "11", "font-weight": "600", fill: "#64748b"
+          });
+          qEl.textContent = "Place:";
+          svg.appendChild(qEl);
+
+          // Blank line
+          svg.appendChild(svgEl("line", {
+            x1: cx - 22, y1: qY + 1, x2: cx + 54, y2: qY + 1,
+            stroke: "#2d3748", "stroke-width": 1.2
+          }));
+
+          if (showAnswers || isExample) {
+            const fill = isExample ? "#16a34a" : "#3182ce";
+            const places = ["hundreds", "tens", "ones"];
+            const aEl = svgEl("text", {
+              x: cx + 16, y: qY - 2,
+              "text-anchor": "middle",
+              "font-family": "'Google Sans Flex', sans-serif",
+              "font-size": "11", "font-weight": "700", fill
+            });
+            aEl.textContent = places[prob.targetIndex];
+            svg.appendChild(aEl);
+          }
+        }
+      }
+
+      return svg;
+    }
+
+    // ===== Gather options =====
+    function gatherOptions() {
+      const showHeader = getHeaderMode();
+      const title = getTitle();
+      const subtitle = getSubtitle();
+      return {
+        mode: elMode.value,
+        range: elRange.value,
+        numWorksheets: parseInt(elNumSheets.value, 10),
+        problemsPerSheet: parseInt(elProblems.value, 10),
+        showHeader,
+        title,
+        subtitle,
+        branded: elBranded.checked,
+        answerKey: elAnswerKey.checked,
+        includeExample: elIncludeExample.checked,
+        numbered: elNumbered.checked,
+      };
+    }
+
+    function renderWithNewRandomization() {
+      const opts = gatherOptions();
+      currentState.sheets = [];
+      for (let s = 0; s < opts.numWorksheets; s++) {
+        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts));
+      }
+      renderWorksheet();
+    }
+
+    function renderWithoutRandomization() {
+      const opts = gatherOptions();
+      while (currentState.sheets.length < opts.numWorksheets) {
+        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts));
+      }
+      if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
+      renderWorksheet();
+    }
+
+    function renderWorksheet() {
+      const opts = gatherOptions();
+      const numSheets = currentState.sheets.length;
+      sheetWrap.innerHTML = "";
+      sheetWrap.className = "";
+      sheetWrap.style.cssText = "";
+      const sheetWidth = 612, sheetHeight = 792;
+
+      if (isMobile()) {
+        for (let s = 0; s < numSheets; s++) {
+          const p = document.createElement("div");
+          p.className = "worksheet-page";
+          const v = renderWorksheetSVG(currentState.sheets[s], {
+            showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle,
+            branded: opts.branded, showAnswers: false,
+            numbered: opts.numbered, includeExample: opts.includeExample, mode: opts.mode
+          });
+          p.appendChild(v);
+          sheetWrap.appendChild(p);
+        }
+        return;
+      }
+
+      // Desktop: grid layout with calculated sizing
+      if (numSheets > 1) {
+        sheetWrap.classList.add("grid-view");
+        const ep = numSheets >= 3 ? 12 : 0;
+        const aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
+        let cols;
+        if (numSheets <= 3) {
+          cols = numSheets;
+          if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap)));
+        } else {
+          cols = Math.min(3, numSheets);
+          if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap)));
+        }
+        const msw = (aw - (cols - 1) * gap) / cols, msh = numSheets <= 3 ? ah : ah * 0.8;
+        const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
+        const sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
+        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
+        sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
+        for (let s = 0; s < numSheets; s++) {
+          const p = document.createElement("div");
+          p.className = "worksheet-page";
+          const v = renderWorksheetSVG(currentState.sheets[s], {
+            showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle,
+            branded: opts.branded, showAnswers: false,
+            numbered: opts.numbered, includeExample: opts.includeExample, mode: opts.mode
+          });
+          v.setAttribute("width", sw);
+          v.setAttribute("height", sh);
+          p.appendChild(v);
+          sheetWrap.appendChild(p);
+        }
+      } else {
+        const p = document.createElement("div");
+        p.className = "worksheet-page";
+        const v = renderWorksheetSVG(currentState.sheets[0], {
+          showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle,
+          branded: opts.branded, showAnswers: false,
+          numbered: opts.numbered, includeExample: opts.includeExample, mode: opts.mode
+        });
+        p.appendChild(v);
+        sheetWrap.appendChild(p);
+      }
+    }
+
+    function handlePrint() {
+      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
+      const opts = gatherOptions();
+      const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
+      sheetWrap.innerHTML = "";
+      sheetWrap.className = "";
+      sheetWrap.style.cssText = "";
+      for (let i = 0; i < currentState.sheets.length; i++) {
+        const p = document.createElement("div");
+        p.className = "worksheet-page";
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
+          showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle,
+          branded: opts.branded, showAnswers: false,
+          numbered: opts.numbered, includeExample: opts.includeExample, mode: opts.mode
+        }));
+        sheetWrap.appendChild(p);
+      }
+      if (opts.answerKey) {
+        for (let i = 0; i < currentState.sheets.length; i++) {
+          const p = document.createElement("div");
+          p.className = "worksheet-page";
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
+            showHeader: "none",
+            title: opts.title + " \u2014 Answer Key",
+            subtitle: "",
+            branded: opts.branded,
+            showAnswers: true,
+            numbered: opts.numbered,
+            includeExample: false,
+            mode: opts.mode
+          }));
+          sheetWrap.appendChild(p);
+        }
+      }
+      setTimeout(() => {
+        window.print();
+        sheetWrap.innerHTML = sH;
+        sheetWrap.className = sC;
+        sheetWrap.style.cssText = sS;
+      }, 50);
+    }
+
+    // ===== Event Listeners =====
+    elRange.addEventListener("change", () => renderWithNewRandomization());
+    elProblems.addEventListener("change", () => renderWithNewRandomization());
+    elNumSheets.addEventListener("change", () => renderWithNewRandomization());
+    elShowHeaderEnabled.addEventListener("change", () => {
+      elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
+      renderWithoutRandomization();
+    });
+    elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
+    elBranded.addEventListener("change", () => renderWithoutRandomization());
+    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
+    elNumbered.addEventListener("change", () => renderWithoutRandomization());
+    elCustomTitleEnabled.addEventListener("change", () => {
+      elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
+      renderWithoutRandomization();
+    });
+    elShowTitle.addEventListener("change", () => {
+      elTitleInputWrap.style.display = elShowTitle.checked ? "" : "none";
+      renderWithoutRandomization();
+    });
+    elShowSubtitle.addEventListener("change", () => {
+      elSubtitleInputWrap.style.display = elShowSubtitle.checked ? "" : "none";
+      renderWithoutRandomization();
+    });
+    elHeaderText.addEventListener("input", () => renderWithoutRandomization());
+    elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
+    elAnswerKey.addEventListener("change", () => {});
+    document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
+    document.getElementById("btnPrint").addEventListener("click", handlePrint);
+
+    let resizeTimeout;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (currentState.sheets.length > 1) renderWorksheet();
+      }, 150);
+    });
+
+    // ===== Init =====
+    // Set initial subtitle text for custom title field
+    elSubtitleText.value = defaultSubtitles[elMode.value];
+    renderWithNewRandomization();
+  </script>
+</body>
+</html>

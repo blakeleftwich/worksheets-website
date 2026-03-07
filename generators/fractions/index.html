@@ -450,6 +450,18 @@
             </select>
           </div>
 
+          <!-- Numbered -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="numbered" checked />
+            <label for="numbered">Numbered</label>
+          </div>
+
+          <!-- Include example -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="includeExample" />
+            <label for="includeExample">Include example</label>
+          </div>
+
           <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
@@ -517,6 +529,8 @@
     const elHeaderMode = document.getElementById("headerMode");
     const elHeaderModeOptions = document.getElementById("headerModeOptions");
     const elBranded = document.getElementById("branded");
+    const elNumbered = document.getElementById("numbered");
+    const elIncludeExample = document.getElementById("includeExample");
     const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
     const elCustomTitleOptions = document.getElementById("customTitleOptions");
     const elHeaderText = document.getElementById("headerText");
@@ -573,6 +587,8 @@
         title: title,
         subtitle: subtitle,
         branded: elBranded.checked,
+        numbered: elNumbered.checked,
+        includeExample: elIncludeExample.checked,
       };
     }
 
@@ -654,7 +670,8 @@
     // ===== Shape Drawing =====
     // Draw a circle (pie) divided into `denom` equal slices, with specified slices shaded
     // shadedIndices: array of slice indices to shade (e.g. [0,2] for 1st and 3rd slice)
-    function drawCircle(g, cx, cy, r, denom, numer, shaded, shadedIndices) {
+    function drawCircle(g, cx, cy, r, denom, numer, shaded, shadedIndices, shadeColor) {
+      shadeColor = shadeColor || "#667eea";
       // Background circle
       g.appendChild(svgEl("circle", {
         cx: cx, cy: cy, r: r,
@@ -665,7 +682,7 @@
         if (shaded) {
           g.appendChild(svgEl("circle", {
             cx: cx, cy: cy, r: r,
-            fill: "#667eea", "fill-opacity": "0.35", stroke: "#2d3748", "stroke-width": "2"
+            fill: shadeColor, "fill-opacity": "0.35", stroke: "#2d3748", "stroke-width": "2"
           }));
         }
         return;
@@ -686,7 +703,7 @@
           const largeArc = (endAngle - startAngle > Math.PI) ? 1 : 0;
           const d = "M " + cx + " " + cy + " L " + x1 + " " + y1 + " A " + r + " " + r + " 0 " + largeArc + " 1 " + x2 + " " + y2 + " Z";
           g.appendChild(svgEl("path", {
-            d: d, fill: "#667eea", "fill-opacity": "0.35", stroke: "none"
+            d: d, fill: shadeColor, "fill-opacity": "0.35", stroke: "none"
           }));
         }
       }
@@ -710,7 +727,8 @@
     }
 
     // Draw a rectangle divided into `denom` equal vertical strips, with specified strips shaded
-    function drawRectangle(g, x, y, w, h, denom, numer, shaded, shadedIndices) {
+    function drawRectangle(g, x, y, w, h, denom, numer, shaded, shadedIndices, shadeColor) {
+      shadeColor = shadeColor || "#667eea";
       // Background
       g.appendChild(svgEl("rect", {
         x: x, y: y, width: w, height: h,
@@ -727,7 +745,7 @@
           if (!shadeSet.has(i)) continue;
           g.appendChild(svgEl("rect", {
             x: x + i * partW, y: y, width: partW, height: h,
-            fill: "#667eea", "fill-opacity": "0.35", stroke: "none"
+            fill: shadeColor, "fill-opacity": "0.35", stroke: "none"
           }));
         }
       }
@@ -748,7 +766,8 @@
     }
 
     // Draw a square divided into a grid, with specified cells shaded
-    function drawSquare(g, x, y, size, denom, numer, shaded, shadedIndices) {
+    function drawSquare(g, x, y, size, denom, numer, shaded, shadedIndices, shadeColor) {
+      shadeColor = shadeColor || "#667eea";
       // Determine grid layout
       let cols, rows;
       if (denom <= 4) {
@@ -791,7 +810,7 @@
             if (shadeSet.has(cellIndex)) {
               g.appendChild(svgEl("rect", {
                 x: x + c * cellW, y: y + r * cellH, width: cellW, height: cellH,
-                fill: "#667eea", "fill-opacity": "0.35", stroke: "none"
+                fill: shadeColor, "fill-opacity": "0.35", stroke: "none"
               }));
             }
             cellIndex++;
@@ -822,7 +841,7 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options) {
-      const { showHeader, title, subtitle, branded, showAnswers } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, numbered, includeExample } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", {
         width: pageW, height: pageH,
@@ -925,15 +944,18 @@
         const cellCenterX = cellLeft + cellW / 2;
         const cellCenterY = cellTop + cellH / 2;
         const prob = problems[i];
+        const isExample = (i === 0 && includeExample && !showAnswers);
 
         // Problem number
-        const probNumSize = 11;
-        const numEl = svgEl("text", {
-          x: cellLeft + 8, y: cellTop + 18,
-          "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0"
-        });
-        numEl.textContent = (i + 1) + ".";
-        svg.appendChild(numEl);
+        if (numbered !== false) {
+          const probNumSize = 11;
+          const numEl = svgEl("text", {
+            x: cellLeft + 8, y: cellTop + 18,
+            "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0"
+          });
+          numEl.textContent = (i + 1) + ".";
+          svg.appendChild(numEl);
+        }
 
         if (prob.type === "identify") {
           // Show shaded shape, student writes fraction
@@ -964,7 +986,32 @@
 
           // Fraction blank or answer
           const fracX = cellLeft + cellW * 0.76;
-          if (showAnswers) {
+          if (isExample) {
+            // Example: show fraction in green + badge
+            const ansColor = "#16a34a";
+            const numerEl = svgEl("text", {
+              x: fracX, y: cellCenterY - 6,
+              "font-family": "Fredoka, sans-serif", "font-size": "22", "font-weight": "700", fill: ansColor, "text-anchor": "middle"
+            });
+            numerEl.textContent = String(prob.numer);
+            svg.appendChild(numerEl);
+            const barW = 30;
+            svg.appendChild(svgEl("line", {
+              x1: fracX - barW / 2, y1: cellCenterY + 2,
+              x2: fracX + barW / 2, y2: cellCenterY + 2,
+              stroke: ansColor, "stroke-width": "2.5"
+            }));
+            const denomEl = svgEl("text", {
+              x: fracX, y: cellCenterY + 24,
+              "font-family": "Fredoka, sans-serif", "font-size": "22", "font-weight": "700", fill: ansColor, "text-anchor": "middle"
+            });
+            denomEl.textContent = String(prob.denom);
+            svg.appendChild(denomEl);
+            const badgeX = fracX - 21, badgeY = cellCenterY - 38;
+            svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
+            const badgeText = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
+            badgeText.textContent = "Example"; svg.appendChild(badgeText);
+          } else if (showAnswers) {
             // Show fraction answer
             const numerEl = svgEl("text", {
               x: fracX, y: cellCenterY - 6,
@@ -1030,22 +1077,31 @@
           instrEl.textContent = "Shade it!";
           svg.appendChild(instrEl);
 
-          // Shape on right side (empty or shaded for answer key)
+          // Shape on right side (empty or shaded for answer key / example)
           const shapeCX = cellLeft + cellW * 0.62;
           const shapeCY = cellCenterY;
-          const doShade = showAnswers;
+          const doShade = showAnswers || isExample;
+          const exShadeColor = isExample ? "#16a34a" : undefined;
 
           const shapeG = svgEl("g", {});
           if (prob.shape === "circle") {
-            drawCircle(shapeG, shapeCX, shapeCY, shapeSize * 0.45, prob.denom, prob.numer, doShade, prob.shadedIndices);
+            drawCircle(shapeG, shapeCX, shapeCY, shapeSize * 0.45, prob.denom, prob.numer, doShade, prob.shadedIndices, exShadeColor);
           } else if (prob.shape === "rectangle") {
             const rw = shapeSize * 0.95;
             const rh = shapeSize * 0.42;
-            drawRectangle(shapeG, shapeCX - rw / 2, shapeCY - rh / 2, rw, rh, prob.denom, prob.numer, doShade, prob.shadedIndices);
+            drawRectangle(shapeG, shapeCX - rw / 2, shapeCY - rh / 2, rw, rh, prob.denom, prob.numer, doShade, prob.shadedIndices, exShadeColor);
           } else {
-            drawSquare(shapeG, shapeCX - shapeSize * 0.4, shapeCY - shapeSize * 0.4, shapeSize * 0.8, prob.denom, prob.numer, doShade, prob.shadedIndices);
+            drawSquare(shapeG, shapeCX - shapeSize * 0.4, shapeCY - shapeSize * 0.4, shapeSize * 0.8, prob.denom, prob.numer, doShade, prob.shadedIndices, exShadeColor);
           }
           svg.appendChild(shapeG);
+          if (isExample) {
+            const shapeTopX = prob.shape === "circle" ? shapeCX - shapeSize * 0.45 : (prob.shape === "rectangle" ? shapeCX - shapeSize * 0.95 / 2 : shapeCX - shapeSize * 0.4);
+            const shapeTopY = prob.shape === "circle" ? shapeCY - shapeSize * 0.45 : (prob.shape === "rectangle" ? shapeCY - shapeSize * 0.42 / 2 : shapeCY - shapeSize * 0.4);
+            const badgeX = shapeTopX + (shapeSize * 0.9) - 42, badgeY = shapeTopY - 15;
+            svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
+            const badgeText = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
+            badgeText.textContent = "Example"; svg.appendChild(badgeText);
+          }
         }
       }
 
@@ -1087,7 +1143,7 @@
           p.className = "worksheet-page";
           const v = renderWorksheetSVG(currentState.sheets[s], {
             showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle,
-            branded: opts.branded, showAnswers: false
+            branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample
           });
           p.appendChild(v);
           sheetWrap.appendChild(p);
@@ -1122,7 +1178,7 @@
           p.className = "worksheet-page";
           const v = renderWorksheetSVG(currentState.sheets[s], {
             showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle,
-            branded: opts.branded, showAnswers: false
+            branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample
           });
           v.setAttribute("width", sw);
           v.setAttribute("height", sh);
@@ -1134,7 +1190,7 @@
         p.className = "worksheet-page";
         const v = renderWorksheetSVG(currentState.sheets[0], {
           showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle,
-          branded: opts.branded, showAnswers: false
+          branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample
         });
         p.appendChild(v);
         sheetWrap.appendChild(p);
@@ -1154,7 +1210,7 @@
         p.className = "worksheet-page";
         p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
           showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle,
-          branded: opts.branded, showAnswers: false
+          branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample
         }));
         sheetWrap.appendChild(p);
       }
@@ -1164,7 +1220,7 @@
           p.className = "worksheet-page";
           p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
             showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "",
-            branded: opts.branded, showAnswers: true
+            branded: opts.branded, showAnswers: true, numbered: opts.numbered
           }));
           sheetWrap.appendChild(p);
         }
@@ -1190,6 +1246,7 @@
     });
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
     elBranded.addEventListener("change", () => renderWithoutRandomization());
+    elNumbered.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
       renderWithoutRandomization();
@@ -1205,6 +1262,7 @@
     elHeaderText.addEventListener("input", () => renderWithoutRandomization());
     elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
     elAnswerKey.addEventListener("change", () => {});
+    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     elSplitShading.addEventListener("change", () => renderWithNewRandomization());
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
