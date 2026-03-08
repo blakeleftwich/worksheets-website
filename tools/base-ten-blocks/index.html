@@ -5,18 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Base-Ten Blocks - Interactive Math Tool</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
-      padding: 0;
-      margin: 0;
     }
 
     .main-container {
@@ -24,399 +18,206 @@
       grid-template-columns: 340px 1fr;
       min-height: 100vh;
     }
+    .main-container.sidebar-collapsed { grid-template-columns: 0 1fr; }
 
     /* ===== Sidebar ===== */
     .sidebar {
       background: #f7fafc;
       padding: 32px 24px;
-      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+      box-shadow: 4px 0 20px rgba(0,0,0,0.1);
       overflow-y: auto;
+      height: 100vh;
       position: sticky;
       top: 0;
-      height: 100vh;
-      position: relative;
       transition: width 0.25s, padding 0.25s, min-width 0.25s;
     }
+    .sidebar.collapsed { width: 0; padding: 0; overflow: hidden; min-width: 0; }
+    .sidebar h2 { font-size: 22px; font-weight: 700; color: #1a202c; margin-bottom: 4px; }
+    .sidebar .subtitle { font-size: 13px; color: #718096; margin-bottom: 24px; }
 
-    .sidebar h2 {
-      font-size: 22px;
-      font-weight: 700;
-      color: #1a202c;
-      margin-bottom: 4px;
-      text-align: left;
-    }
-
-    .sidebar .subtitle {
-      font-size: 13px;
-      color: #718096;
-      margin-bottom: 24px;
-    }
-
-    /* ===== Section Labels ===== */
     .section-label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: #2d3748;
-      margin-bottom: 10px;
+      display: block; font-size: 13px; font-weight: 600;
+      color: #2d3748; margin-bottom: 10px;
     }
 
     /* ===== Block Tray ===== */
-    .block-tray {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 24px;
-    }
-
+    .block-tray { display: flex; gap: 8px; margin-bottom: 24px; }
     .block-tile {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      padding: 12px 6px;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      background: white;
-      cursor: pointer;
-      transition: all 0.2s;
-      user-select: none;
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      gap: 6px; padding: 12px 6px; border: 2px solid #e2e8f0; border-radius: 8px;
+      background: white; cursor: pointer; transition: all 0.2s; user-select: none;
+      min-height: 90px; justify-content: center;
     }
-
     .block-tile:hover {
-      border-color: #667eea;
-      background: #f7f8ff;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+      border-color: #667eea; background: #f7f8ff;
+      transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.15);
     }
-
-    .block-tile:active {
-      transform: translateY(0);
-    }
-
-    .block-tile .tile-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .block-tile .tile-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: #2d3748;
-    }
-
-    .block-tile .tile-value {
-      font-size: 10px;
-      color: #a0aec0;
-      font-weight: 500;
-    }
+    .block-tile:active { transform: translateY(0); }
+    .block-tile .tile-label { font-size: 12px; font-weight: 600; color: #2d3748; }
+    .block-tile .tile-value { font-size: 10px; color: #a0aec0; font-weight: 500; }
 
     /* ===== Collapse Button ===== */
     .collapse-btn {
-      position: fixed;
-      top: 50%;
-      left: 324px;
-      transform: translateY(-50%);
-      width: 28px;
-      height: 28px;
-      background: white;
-      border: 2px solid #e2e8f0;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      color: #667eea;
-      box-shadow: 2px 0 8px rgba(0,0,0,0.15);
-      transition: left 0.25s, all 0.2s;
-      z-index: 100;
-      user-select: none;
-      line-height: 1;
+      position: fixed; top: 50%; left: 324px; transform: translateY(-50%);
+      width: 28px; height: 28px; background: white; border: 2px solid #e2e8f0;
+      border-radius: 50%; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; font-size: 12px; color: #667eea;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.15); transition: left 0.25s, all 0.2s;
+      z-index: 100; user-select: none; line-height: 1;
     }
-    .collapse-btn:hover {
-      background: #f7f8ff;
-      border-color: #667eea;
-      box-shadow: 2px 0 12px rgba(102,126,234,0.3);
-    }
-    .sidebar {
-      transition: width 0.25s, padding 0.25s, min-width 0.25s;
-    }
-    .sidebar.collapsed {
-      width: 0;
-      padding: 0;
-      overflow: hidden;
-      min-width: 0;
-    }
-    .main-container.sidebar-collapsed {
-      grid-template-columns: 0 1fr;
-    }
-    .main-container.sidebar-collapsed .collapse-btn {
-      left: 4px;
-    }
+    .collapse-btn:hover { background: #f7f8ff; border-color: #667eea; box-shadow: 2px 0 12px rgba(102,126,234,0.3); }
+    .main-container.sidebar-collapsed .collapse-btn { left: 4px; }
 
     /* ===== Action Buttons ===== */
-    .actions-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 24px;
-    }
-
+    .actions-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
     .btn-action {
-      width: 100%;
-      padding: 10px 14px;
-      font-size: 13px;
-      font-weight: 600;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      background: white;
-      color: #2d3748;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-align: center;
+      width: 100%; padding: 10px 14px; font-size: 13px; font-weight: 600;
+      border: 2px solid #e2e8f0; border-radius: 8px; background: white;
+      color: #2d3748; cursor: pointer; transition: all 0.2s; text-align: center;
     }
+    .btn-action:hover { border-color: #667eea; color: #667eea; background: #f7f8ff; }
+    .btn-action:disabled { opacity: 0.4; cursor: not-allowed; border-color: #e2e8f0; color: #a0aec0; background: #f7fafc; }
+    .btn-action:disabled:hover { border-color: #e2e8f0; color: #a0aec0; background: #f7fafc; }
+    .btn-action.danger { color: #e53e3e; border-color: #fed7d7; }
+    .btn-action.danger:hover { background: #fff5f5; border-color: #e53e3e; }
+    .btn-action.danger:disabled { color: #a0aec0; border-color: #e2e8f0; }
 
-    .btn-action:hover {
-      border-color: #667eea;
-      color: #667eea;
-      background: #f7f8ff;
-    }
-
-    .btn-action:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      border-color: #e2e8f0;
-      color: #a0aec0;
-      background: #f7fafc;
-    }
-
-    .btn-action:disabled:hover {
-      border-color: #e2e8f0;
-      color: #a0aec0;
-      background: #f7fafc;
-    }
-
-    .btn-action.danger {
-      color: #e53e3e;
-      border-color: #fed7d7;
-    }
-
-    .btn-action.danger:hover {
-      background: #fff5f5;
-      border-color: #e53e3e;
-    }
-
-    .btn-action.danger:disabled {
-      color: #a0aec0;
-      border-color: #e2e8f0;
-    }
-
-    .btn-action.danger:disabled:hover {
-      background: #f7fafc;
-      border-color: #e2e8f0;
-    }
-
-    /* ===== Primary Button ===== */
-    .button-group {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 28px;
-    }
-
+    .button-group { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; }
     .button-group button {
-      width: 100%;
-      padding: 12px 16px;
-      font-size: 14px;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
+      width: 100%; padding: 12px 16px; font-size: 14px; font-weight: 600;
+      border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s;
     }
-
-    .button-group button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .btn-generate {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
+    .button-group button:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .btn-generate { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
 
     /* ===== Total Counter ===== */
     .total-display {
-      margin-top: 20px;
-      padding: 16px;
+      margin-top: 20px; padding: 16px;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 10px;
-      text-align: center;
+      border-radius: 10px; text-align: center;
     }
-
-    .total-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.8);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 4px;
-    }
-
-    .total-value {
-      font-size: 32px;
-      font-weight: 700;
-      color: white;
-    }
+    .total-label { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .total-value { font-size: 32px; font-weight: 700; color: white; }
 
     /* ===== Workspace ===== */
-    .workspace {
-      position: relative;
-      overflow: auto;
-      min-height: 100vh;
-      cursor: default;
-      background: white;
-    }
-
-    .workspace-inner {
-      position: relative;
-      width: 100%;
-      min-height: 100vh;
-      min-width: 100%;
-    }
+    .workspace { position: relative; overflow: auto; min-height: 100vh; background: white; }
+    .workspace-inner { position: relative; width: 100%; min-height: 100vh; min-width: 100%; }
 
     /* ===== Blocks ===== */
     .block {
-      position: absolute;
-      cursor: grab;
-      user-select: none;
-      touch-action: none;
-      border-radius: 4px;
-      transition: box-shadow 0.15s;
+      position: absolute; cursor: grab; user-select: none;
+      touch-action: none; transition: filter 0.12s;
+    }
+    .block:hover { z-index: 50; }
+    .block.dragging { cursor: grabbing !important; z-index: 1000; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.28)); }
+    .block.locked { cursor: not-allowed; }
+
+    /* ===== Selection Rectangle ===== */
+    .lasso-rect {
+      position: absolute; border: 1.5px dashed #667eea;
+      background: rgba(102,126,234,0.07); pointer-events: none;
+      z-index: 500; border-radius: 2px;
     }
 
-    .block:hover {
-      z-index: 50;
+    /* ===== Context Menu ===== */
+    .ctx-menu {
+      position: fixed; background: white; border: 1px solid #e2e8f0;
+      border-radius: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      z-index: 9999; min-width: 176px; padding: 5px 0;
+    }
+    .ctx-item {
+      display: flex; align-items: center; gap: 9px; padding: 8px 14px;
+      font-size: 13px; cursor: pointer; color: #2d3748; transition: background 0.1s;
+      white-space: nowrap;
+    }
+    .ctx-item:hover { background: #f7f8ff; color: #667eea; }
+    .ctx-item.danger { color: #e53e3e; }
+    .ctx-item.danger:hover { background: #fff5f5; color: #c53030; }
+    .ctx-item.disabled { opacity: 0.38; cursor: not-allowed; pointer-events: none; }
+    .ctx-divider { border-top: 1px solid #e2e8f0; margin: 4px 0; }
+    .ctx-icon { width: 18px; text-align: center; font-size: 14px; flex-shrink: 0; }
+
+    /* ===== Help text ===== */
+    .help-text {
+      font-size: 11px; color: #a0aec0; margin-top: 16px;
+      line-height: 1.6; padding: 10px; background: white;
+      border-radius: 8px; border: 1px solid #e2e8f0;
     }
 
-    .block.dragging {
-      cursor: grabbing;
-      z-index: 1000;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
-    }
-
-    .block.selected {
-      outline: 2px dashed #1a202c;
-      outline-offset: 3px;
-    }
-
-    /* Block type: ONE */
-    .block-one {
-      width: 40px;
-      height: 40px;
-      border-radius: 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    /* Block type: TEN */
-    .block-ten {
-      width: 40px;
-      height: 220px;
-      border-radius: 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    /* Block type: HUNDRED */
-    .block-hundred {
-      width: 220px;
-      height: 220px;
-      border-radius: 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    /* ===== Responsive ===== */
     @media (max-width: 1024px) {
-      .main-container {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        position: relative;
-        height: auto;
-      }
-
-      .workspace {
-        min-height: 70vh;
-      }
+      .main-container { grid-template-columns: 1fr; }
+      .sidebar { position: relative; height: auto; }
+      .workspace { min-height: 70vh; }
     }
   </style>
 </head>
 <body>
   <div class="main-container" id="mainContainer">
     <button class="collapse-btn" id="collapseBtn" onclick="toggleSidebar()" title="Collapse sidebar">◀</button>
-    <!-- Left sidebar controls -->
+
     <div class="sidebar" id="sidebar">
-      <a href="../index.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #667eea; text-decoration: none; margin-bottom: 16px; transition: gap 0.2s;"
-         onmouseover="this.style.gap='10px'" onmouseout="this.style.gap='6px'">
-        &larr; All Tools
-      </a>
+      <a href="../index.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#667eea;text-decoration:none;margin-bottom:16px;transition:gap 0.2s;"
+         onmouseover="this.style.gap='10px'" onmouseout="this.style.gap='6px'">← All Tools</a>
       <h2>Base-Ten Blocks</h2>
       <div class="subtitle">Explore place value with blocks</div>
 
-      <!-- Add Blocks -->
       <span class="section-label">Add Blocks</span>
       <div class="block-tray">
-        <div class="block-tile" onclick="addBlock('one')" title="Add a unit cube (value: 1)">
+
+        <!-- Ones tile -->
+        <div class="block-tile" onclick="addBlock('one')" title="Add a unit (value: 1)">
           <div class="tile-icon">
-            <svg width="28" height="28" viewBox="0 0 28 28">
-              <rect x="4" y="4" width="20" height="20" rx="3" fill="#3b82f6" stroke="rgba(0,0,0,0.15)" stroke-width="1"/>
+            <svg width="22" height="22" viewBox="0 0 22 22">
+              <rect x="1" y="1" width="20" height="20" rx="3" fill="#3b82f6" stroke="rgba(0,0,0,0.18)" stroke-width="1"/>
             </svg>
           </div>
           <span class="tile-label">Ones</span>
           <span class="tile-value">= 1</span>
         </div>
+
+        <!-- Tens tile: narrow 1×10 stick, cells are square -->
         <div class="block-tile" onclick="addBlock('ten')" title="Add a tens rod (value: 10)">
           <div class="tile-icon">
-            <svg width="18" height="44" viewBox="0 0 18 44">
-              <rect x="1" y="1" width="16" height="42" rx="2" fill="#22c55e" stroke="rgba(0,0,0,0.15)" stroke-width="1"/>
-              <line x1="1" y1="5.2" x2="17" y2="5.2" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
-              <line x1="1" y1="9.4" x2="17" y2="9.4" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
-              <line x1="1" y1="13.6" x2="17" y2="13.6" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
-              <line x1="1" y1="17.8" x2="17" y2="17.8" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
-              <line x1="1" y1="22" x2="17" y2="22" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
-              <line x1="1" y1="26.2" x2="17" y2="26.2" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
-              <line x1="1" y1="30.4" x2="17" y2="30.4" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
-              <line x1="1" y1="34.6" x2="17" y2="34.6" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
-              <line x1="1" y1="38.8" x2="17" y2="38.8" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+            <svg width="11" height="51" viewBox="0 0 11 51">
+              <rect x="0.5" y="0.5" width="10" height="50" rx="2" fill="#22c55e" stroke="rgba(0,0,0,0.18)" stroke-width="0.8"/>
+              <line x1="0.5" y1="5.5"  x2="10.5" y2="5.5"  stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
+              <line x1="0.5" y1="10.5" x2="10.5" y2="10.5" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
+              <line x1="0.5" y1="15.5" x2="10.5" y2="15.5" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
+              <line x1="0.5" y1="20.5" x2="10.5" y2="20.5" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
+              <line x1="0.5" y1="25.5" x2="10.5" y2="25.5" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
+              <line x1="0.5" y1="30.5" x2="10.5" y2="30.5" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
+              <line x1="0.5" y1="35.5" x2="10.5" y2="35.5" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
+              <line x1="0.5" y1="40.5" x2="10.5" y2="40.5" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
+              <line x1="0.5" y1="45.5" x2="10.5" y2="45.5" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
             </svg>
           </div>
           <span class="tile-label">Tens</span>
           <span class="tile-value">= 10</span>
         </div>
+
+        <!-- Hundreds tile: 10×10 grid of square cells -->
         <div class="block-tile" onclick="addBlock('hundred')" title="Add a hundreds flat (value: 100)">
           <div class="tile-icon">
-            <svg width="36" height="36" viewBox="0 0 36 36">
-              <rect x="1" y="1" width="34" height="34" rx="2" fill="#f97316" stroke="rgba(0,0,0,0.15)" stroke-width="1"/>
-              <line x1="1" y1="4.4" x2="35" y2="4.4" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="1" y1="7.8" x2="35" y2="7.8" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="1" y1="11.2" x2="35" y2="11.2" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="1" y1="14.6" x2="35" y2="14.6" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="1" y1="18" x2="35" y2="18" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="1" y1="21.4" x2="35" y2="21.4" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="1" y1="24.8" x2="35" y2="24.8" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="1" y1="28.2" x2="35" y2="28.2" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="1" y1="31.6" x2="35" y2="31.6" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="4.4" y1="1" x2="4.4" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="7.8" y1="1" x2="7.8" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="11.2" y1="1" x2="11.2" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="14.6" y1="1" x2="14.6" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="18" y1="1" x2="18" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="21.4" y1="1" x2="21.4" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="24.8" y1="1" x2="24.8" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="28.2" y1="1" x2="28.2" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
-              <line x1="31.6" y1="1" x2="31.6" y2="35" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+            <svg width="46" height="46" viewBox="0 0 46 46">
+              <rect x="0.5" y="0.5" width="45" height="45" rx="2" fill="#f97316" stroke="rgba(0,0,0,0.18)" stroke-width="0.8"/>
+              <line x1="5.1" y1="0.5" x2="5.1" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="9.7" y1="0.5" x2="9.7" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="14.3" y1="0.5" x2="14.3" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="18.9" y1="0.5" x2="18.9" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="23" y1="0.5" x2="23" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="27.6" y1="0.5" x2="27.6" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="32.2" y1="0.5" x2="32.2" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="36.8" y1="0.5" x2="36.8" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="41.4" y1="0.5" x2="41.4" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="0.5" y1="5.1" x2="45.5" y2="5.1" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="0.5" y1="9.7" x2="45.5" y2="9.7" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="0.5" y1="14.3" x2="45.5" y2="14.3" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="0.5" y1="18.9" x2="45.5" y2="18.9" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="0.5" y1="23" x2="45.5" y2="23" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="0.5" y1="27.6" x2="45.5" y2="27.6" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="0.5" y1="32.2" x2="45.5" y2="32.2" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="0.5" y1="36.8" x2="45.5" y2="36.8" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
+              <line x1="0.5" y1="41.4" x2="45.5" y2="41.4" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
             </svg>
           </div>
           <span class="tile-label">Hundreds</span>
@@ -424,457 +225,645 @@
         </div>
       </div>
 
-      <!-- Actions -->
       <span class="section-label">Actions</span>
       <div class="actions-group">
-        <button class="btn-action" id="btnGroup" onclick="groupBlocks()" disabled>Group into Next</button>
-        <button class="btn-action" id="btnBreak" onclick="breakApart()" disabled>Break Apart</button>
+        <button class="btn-action" id="btnGroup"  onclick="groupBlocks()"         disabled>Group into Next</button>
+        <button class="btn-action" id="btnBreak"  onclick="breakApartSelected()"  disabled>Break Apart</button>
+        <button class="btn-action" id="btnRotate" onclick="rotateSelected()"      disabled>Rotate</button>
         <button class="btn-action danger" id="btnDelete" onclick="deleteSelected()" disabled>Delete Selected</button>
       </div>
 
-      <!-- Clear All -->
       <div class="button-group">
         <button class="btn-generate" onclick="clearAll()">Clear All</button>
       </div>
 
-      <!-- Total -->
       <div class="total-display">
         <div class="total-label">Total</div>
         <div class="total-value" id="totalValue">0</div>
       </div>
+
+      <div class="help-text">
+        <strong>Tips:</strong><br>
+        • Click to select · Shift+click to add<br>
+        • Drag on canvas to lasso-select<br>
+        • Right-click for more options<br>
+        • Tens/hundreds snap to horizontal alignment<br>
+        • Del/Backspace to delete · Esc to deselect<br>
+        • Ctrl/⌘+A select all · Ctrl/⌘+D duplicate
+      </div>
     </div>
 
-    <!-- Right workspace -->
+    <!-- Workspace -->
     <div class="workspace" id="workspace">
       <div class="workspace-inner" id="workspaceInner"></div>
     </div>
   </div>
 
   <script>
+    // ===== Constants =====
+    const CELL = 22;           // px — every unit cell is CELL×CELL (ones, ten-segments, hundred-cells)
+    const SNAP_THRESHOLD = 14; // px — how close before snapping to horizontal alignment
+
     // ===== State =====
     let blocks = [];
-    let nextId = 1;
-    let dragState = null;
+    let nextId  = 1;
     let sidebarCollapsed = false;
+    let ctxMenuEl = null;
 
-    const workspace = document.getElementById('workspace');
+    // ===== DOM refs =====
+    const workspace      = document.getElementById('workspace');
     const workspaceInner = document.getElementById('workspaceInner');
-    const totalValue = document.getElementById('totalValue');
-    const btnGroup = document.getElementById('btnGroup');
-    const btnBreak = document.getElementById('btnBreak');
-    const btnDelete = document.getElementById('btnDelete');
-    const sidebar = document.getElementById('sidebar');
-    const collapseBtn = document.getElementById('collapseBtn');
-    const mainContainer = document.getElementById('mainContainer');
+    const totalValue     = document.getElementById('totalValue');
+    const btnGroup       = document.getElementById('btnGroup');
+    const btnBreak       = document.getElementById('btnBreak');
+    const btnRotate      = document.getElementById('btnRotate');
+    const btnDelete      = document.getElementById('btnDelete');
+    const sidebar        = document.getElementById('sidebar');
+    const collapseBtn    = document.getElementById('collapseBtn');
+    const mainContainer  = document.getElementById('mainContainer');
 
-    // ===== Fixed block colors by type =====
-    function getTypeColor(type) {
-      switch (type) {
-        case 'one':     return '#3b82f6'; // blue
-        case 'ten':     return '#22c55e'; // green
-        case 'hundred': return '#f97316'; // orange
-      }
+    // ===== Helpers =====
+    function typeColor(t) {
+      return t === 'one' ? '#3b82f6' : t === 'ten' ? '#22c55e' : '#f97316';
     }
 
-    // ===== Collapse sidebar =====
+    // Actual pixel dimensions of a block, accounting for rotation
+    function getDims(block) {
+      let w = CELL, h = CELL;
+      if (block.type === 'ten')     { w = CELL;       h = CELL * 10; }
+      if (block.type === 'hundred') { w = CELL * 10;  h = CELL * 10; }
+      const rot = (block.rotation || 0) % 360;
+      if (rot === 90 || rot === 270) return { w: h, h: w };
+      return { w, h };
+    }
+
+    function blockValue(t) { return t === 'one' ? 1 : t === 'ten' ? 10 : 100; }
+
+    // ===== Sidebar =====
     function toggleSidebar() {
       sidebarCollapsed = !sidebarCollapsed;
-      if (sidebarCollapsed) {
-        sidebar.classList.add('collapsed');
-        mainContainer.classList.add('sidebar-collapsed');
-        collapseBtn.textContent = '▶';
-        collapseBtn.title = 'Expand sidebar';
-      } else {
-        sidebar.classList.remove('collapsed');
-        mainContainer.classList.remove('sidebar-collapsed');
-        collapseBtn.textContent = '◀';
-        collapseBtn.title = 'Collapse sidebar';
-      }
+      sidebar.classList.toggle('collapsed', sidebarCollapsed);
+      mainContainer.classList.toggle('sidebar-collapsed', sidebarCollapsed);
+      collapseBtn.textContent = sidebarCollapsed ? '▶' : '◀';
+      collapseBtn.title = sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar';
     }
 
-    // ===== Block Dimensions =====
-    function getBlockSize(type) {
-      switch (type) {
-        case 'one': return { w: 40, h: 40 };
-        case 'ten': return { w: 40, h: 220 };
-        case 'hundred': return { w: 220, h: 220 };
-      }
-    }
-
-    function getBlockValue(type) {
-      switch (type) {
-        case 'one': return 1;
-        case 'ten': return 10;
-        case 'hundred': return 100;
-      }
-    }
-
-    // ===== Add Block =====
-    function addBlock(type, x, y) {
-      const size = getBlockSize(type);
-      const wsRect = workspace.getBoundingClientRect();
-
+    // ===== Add block =====
+    function addBlock(type, x, y, rotation) {
+      rotation = rotation || 0;
+      const dims = getDims({ type, rotation });
       if (x === undefined) {
-        // Place in a nice default position with some randomness
-        const pad = 30;
-        const maxX = Math.max(wsRect.width - size.w - pad, pad);
-        const maxY = Math.max(wsRect.height - size.h - pad, pad);
-        x = pad + Math.random() * (maxX - pad);
-        y = pad + Math.random() * Math.min(maxY - pad, 400);
+        const wsRect = workspace.getBoundingClientRect();
+        const pad = 40;
+        const maxX = Math.max(wsRect.width  - dims.w - pad, pad + 10);
+        const maxY = Math.max(wsRect.height - dims.h - pad, pad + 10);
+        x = pad + Math.random() * Math.max(0, maxX - pad);
+        y = pad + Math.random() * Math.min(Math.max(0, maxY - pad), 360);
       }
-
-      const block = {
-        id: nextId++,
-        type: type,
-        x: x,
-        y: y,
-        color: getTypeColor(type),
-        selected: false
-      };
-
+      const block = { id: nextId++, type, x, y, rotation, locked: false, selected: false };
       blocks.push(block);
       renderBlock(block);
       updateTotal();
       updateButtons();
+      return block;
     }
 
-    // ===== Render a Block Element =====
+    // ===== Render a single block element =====
     function renderBlock(block) {
-      const size = getBlockSize(block.type);
+      const { w, h } = getDims(block);
+      const color    = typeColor(block.type);
+
       const el = document.createElement('div');
-      el.className = 'block block-' + block.type;
+      el.className = 'block' + (block.selected ? ' selected' : '') + (block.locked ? ' locked' : '');
       el.dataset.id = block.id;
-      el.style.left = block.x + 'px';
-      el.style.top = block.y + 'px';
-      el.style.width = size.w + 'px';
-      el.style.height = size.h + 'px';
-      el.style.background = block.color;
+      el.style.cssText = `left:${block.x}px;top:${block.y}px;width:${w}px;height:${h}px;`;
 
-      if (block.selected) {
-        el.classList.add('selected');
-      }
-
-      // Draw grid lines using SVG overlay
+      // --- SVG visual ---
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      svg.setAttribute('width', size.w);
-      svg.setAttribute('height', size.h);
-      svg.style.position = 'absolute';
-      svg.style.top = '0';
-      svg.style.left = '0';
-      svg.style.pointerEvents = 'none';
+      svg.setAttribute('width', w);
+      svg.setAttribute('height', h);
+      svg.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;overflow:visible;';
 
-      // Border
-      const border = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      border.setAttribute('x', '0.5');
-      border.setAttribute('y', '0.5');
-      border.setAttribute('width', size.w - 1);
-      border.setAttribute('height', size.h - 1);
-      border.setAttribute('rx', '3');
-      border.setAttribute('fill', 'none');
-      border.setAttribute('stroke', 'rgba(0,0,0,0.2)');
-      border.setAttribute('stroke-width', '1');
-      svg.appendChild(border);
+      const mk = (tag, attrs) => {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+        return el;
+      };
 
+      // Background
+      svg.appendChild(mk('rect', { x:0, y:0, width:w, height:h, rx:2, fill:color }));
+
+      // Grid dividers — all dividers align to CELL boundaries so every cell is CELL×CELL
       if (block.type === 'ten') {
-        // Draw 9 horizontal divider lines for 10 segments
-        const segH = size.h / 10;
+        const isH = w > h;  // horizontal orientation after rotation
         for (let i = 1; i < 10; i++) {
-          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          line.setAttribute('x1', '1');
-          line.setAttribute('y1', Math.round(i * segH));
-          line.setAttribute('x2', size.w - 1);
-          line.setAttribute('y2', Math.round(i * segH));
-          line.setAttribute('stroke', 'rgba(0,0,0,0.15)');
-          line.setAttribute('stroke-width', '1');
-          svg.appendChild(line);
+          const p = i * CELL;
+          const attrs = isH
+            ? { x1:p, y1:1, x2:p, y2:h-1 }
+            : { x1:1, y1:p, x2:w-1, y2:p };
+          svg.appendChild(mk('line', { ...attrs, stroke:'rgba(0,0,0,0.22)', 'stroke-width':1 }));
         }
       } else if (block.type === 'hundred') {
-        // Draw 10x10 grid lines
-        const segW = size.w / 10;
-        const segH = size.h / 10;
         for (let i = 1; i < 10; i++) {
-          // Vertical
-          const vline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          vline.setAttribute('x1', Math.round(i * segW));
-          vline.setAttribute('y1', '1');
-          vline.setAttribute('x2', Math.round(i * segW));
-          vline.setAttribute('y2', size.h - 1);
-          vline.setAttribute('stroke', 'rgba(0,0,0,0.12)');
-          vline.setAttribute('stroke-width', '1');
-          svg.appendChild(vline);
-
-          // Horizontal
-          const hline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          hline.setAttribute('x1', '1');
-          hline.setAttribute('y1', Math.round(i * segH));
-          hline.setAttribute('x2', size.w - 1);
-          hline.setAttribute('y2', Math.round(i * segH));
-          hline.setAttribute('stroke', 'rgba(0,0,0,0.12)');
-          hline.setAttribute('stroke-width', '1');
-          svg.appendChild(hline);
+          const p = i * CELL;
+          svg.appendChild(mk('line', { x1:p, y1:1, x2:p, y2:h-1, stroke:'rgba(0,0,0,0.15)', 'stroke-width':1 }));
+          svg.appendChild(mk('line', { x1:1, y1:p, x2:w-1, y2:p, stroke:'rgba(0,0,0,0.15)', 'stroke-width':1 }));
         }
+      }
+
+      // Outer border
+      svg.appendChild(mk('rect', { x:0.5, y:0.5, width:w-1, height:h-1, rx:2, fill:'none', stroke:'rgba(0,0,0,0.25)', 'stroke-width':1.5 }));
+
+      // Selection ring (extends 4px outside; visible when selected)
+      const selRing = mk('rect', {
+        x:-4, y:-4, width:w+8, height:h+8, rx:4,
+        fill:'none', stroke:'#667eea', 'stroke-width':2, 'stroke-dasharray':'5,3'
+      });
+      selRing.style.display = block.selected ? 'block' : 'none';
+      selRing.dataset.role = 'selring';
+      svg.appendChild(selRing);
+
+      // Lock badge
+      if (block.locked) {
+        const lockBg = mk('rect', { x:w-14, y:0, width:14, height:14, rx:2, fill:'rgba(0,0,0,0.35)' });
+        const lockTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        lockTxt.setAttribute('x', w - 7);
+        lockTxt.setAttribute('y', 10.5);
+        lockTxt.setAttribute('text-anchor', 'middle');
+        lockTxt.setAttribute('font-size', '9');
+        lockTxt.textContent = '🔒';
+        svg.appendChild(lockBg);
+        svg.appendChild(lockTxt);
       }
 
       el.appendChild(svg);
 
-      // Pointer events for drag and select
-      el.addEventListener('pointerdown', onBlockPointerDown);
+      el.addEventListener('pointerdown',   onBlockPointerDown);
+      el.addEventListener('contextmenu',   onBlockContextMenu);
 
       workspaceInner.appendChild(el);
     }
 
-    // ===== Drag Logic =====
+    // ===== Drag logic =====
     function onBlockPointerDown(e) {
+      if (e.button !== 0) return;
       e.preventDefault();
       e.stopPropagation();
+      closeCtxMenu();
+
+      const blockId = parseInt(e.currentTarget.dataset.id);
+      const block   = blocks.find(b => b.id === blockId);
+      if (!block || block.locked) return;
 
       const el = e.currentTarget;
-      const blockId = parseInt(el.dataset.id);
-      const block = blocks.find(b => b.id === blockId);
-      if (!block) return;
 
-      // Track start to distinguish click from drag
-      const startX = e.clientX;
-      const startY = e.clientY;
-      let hasMoved = false;
+      // Click on unselected block without modifier → deselect all, select this
+      if (!block.selected && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+        blocks.forEach(b => b.selected = false);
+        block.selected = true;
+        syncSelectionDOM();
+        updateButtons();
+      }
 
-      const wsRect = workspace.getBoundingClientRect();
-      const offsetX = e.clientX - el.getBoundingClientRect().left;
-      const offsetY = e.clientY - el.getBoundingClientRect().top;
+      const wsRect     = workspace.getBoundingClientRect();
+      const startCX    = e.clientX, startCY = e.clientY;
+      const clickOffX  = e.clientX - wsRect.left + workspace.scrollLeft - block.x;
+      const clickOffY  = e.clientY - wsRect.top  + workspace.scrollTop  - block.y;
+      let   hasMoved   = false;
+
+      // All selected non-locked blocks move together
+      const moving = block.selected
+        ? blocks.filter(b => b.selected && !b.locked)
+        : [block];
+
+      const initPos = {};
+      moving.forEach(b => { initPos[b.id] = { x: b.x, y: b.y }; });
+      const initMainX = block.x, initMainY = block.y;
 
       el.setPointerCapture(e.pointerId);
-      el.classList.add('dragging');
-
-      const size = getBlockSize(block.type);
+      moving.forEach(b => {
+        const bEl = workspaceInner.querySelector(`[data-id="${b.id}"]`);
+        if (bEl) bEl.classList.add('dragging');
+      });
 
       function onMove(ev) {
-        const dx = ev.clientX - startX;
-        const dy = ev.clientY - startY;
-        if (!hasMoved && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+        const dx = ev.clientX - startCX, dy = ev.clientY - startCY;
+        if (!hasMoved && Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
         hasMoved = true;
 
-        let newX = ev.clientX - wsRect.left + workspace.scrollLeft - offsetX;
-        let newY = ev.clientY - wsRect.top + workspace.scrollTop - offsetY;
+        const newMainX = ev.clientX - wsRect.left + workspace.scrollLeft - clickOffX;
+        const newMainY = ev.clientY - wsRect.top  + workspace.scrollTop  - clickOffY;
+        const ddx = newMainX - initMainX;
+        const ddy = newMainY - initMainY;
 
-        // Keep within bounds (allow some overflow for scroll)
-        newX = Math.max(0, newX);
-        newY = Math.max(0, newY);
-
-        block.x = newX;
-        block.y = newY;
-        el.style.left = newX + 'px';
-        el.style.top = newY + 'px';
-
-        // Expand workspace if block is near edge
+        moving.forEach(b => {
+          b.x = Math.max(0, initPos[b.id].x + ddx);
+          b.y = Math.max(0, initPos[b.id].y + ddy);
+          const bEl = workspaceInner.querySelector(`[data-id="${b.id}"]`);
+          if (bEl) { bEl.style.left = b.x + 'px'; bEl.style.top = b.y + 'px'; }
+        });
         expandWorkspace();
       }
 
       function onUp(ev) {
         el.releasePointerCapture(ev.pointerId);
-        el.classList.remove('dragging');
         el.removeEventListener('pointermove', onMove);
-        el.removeEventListener('pointerup', onUp);
+        el.removeEventListener('pointerup',   onUp);
+        moving.forEach(b => {
+          const bEl = workspaceInner.querySelector(`[data-id="${b.id}"]`);
+          if (bEl) bEl.classList.remove('dragging');
+        });
 
         if (!hasMoved) {
-          // It was a click - toggle selection
+          // Was a click — toggle/set selection
           if (e.shiftKey || e.ctrlKey || e.metaKey) {
             block.selected = !block.selected;
           } else {
-            // Deselect all, then select this one
             blocks.forEach(b => b.selected = false);
             block.selected = true;
           }
-          refreshAllBlocks();
+          syncSelectionDOM();
+        } else {
+          // Apply snapping, then sync DOM positions
+          applySnap(moving.map(b => b.id));
+          moving.forEach(b => {
+            const bEl = workspaceInner.querySelector(`[data-id="${b.id}"]`);
+            if (bEl) { bEl.style.left = b.x + 'px'; bEl.style.top = b.y + 'px'; }
+          });
         }
-
         updateButtons();
       }
 
       el.addEventListener('pointermove', onMove);
-      el.addEventListener('pointerup', onUp);
+      el.addEventListener('pointerup',   onUp);
     }
 
-    // Workspace click to deselect
+    // ===== Lasso (rubber-band) selection =====
     workspace.addEventListener('pointerdown', function(e) {
-      if (e.target === workspace || e.target === workspaceInner) {
+      if (e.button !== 0) return;
+      if (e.target !== workspace && e.target !== workspaceInner) return;
+      closeCtxMenu();
+
+      if (!e.shiftKey && !e.ctrlKey && !e.metaKey) {
         blocks.forEach(b => b.selected = false);
-        refreshAllBlocks();
+        syncSelectionDOM();
         updateButtons();
       }
+
+      const wsRect = workspace.getBoundingClientRect();
+      const startX = e.clientX - wsRect.left + workspace.scrollLeft;
+      const startY = e.clientY - wsRect.top  + workspace.scrollTop;
+
+      // Snapshot of selection before lasso (for additive mode)
+      const baseSelected = {};
+      blocks.forEach(b => { baseSelected[b.id] = b.selected; });
+
+      const lassoEl = document.createElement('div');
+      lassoEl.className = 'lasso-rect';
+      lassoEl.style.cssText = `left:${startX}px;top:${startY}px;width:0;height:0;`;
+      workspaceInner.appendChild(lassoEl);
+
+      workspace.setPointerCapture(e.pointerId);
+
+      function onMove(ev) {
+        const curX = ev.clientX - wsRect.left + workspace.scrollLeft;
+        const curY = ev.clientY - wsRect.top  + workspace.scrollTop;
+        const rx = Math.min(startX, curX), ry = Math.min(startY, curY);
+        const rw = Math.abs(curX - startX), rh = Math.abs(curY - startY);
+
+        lassoEl.style.left   = rx + 'px';
+        lassoEl.style.top    = ry + 'px';
+        lassoEl.style.width  = rw + 'px';
+        lassoEl.style.height = rh + 'px';
+
+        blocks.forEach(b => {
+          const { w, h } = getDims(b);
+          const inside = rx < b.x + w && rx + rw > b.x && ry < b.y + h && ry + rh > b.y;
+          b.selected = (baseSelected[b.id] || inside);
+          const bEl = workspaceInner.querySelector(`[data-id="${b.id}"]`);
+          if (bEl) {
+            bEl.classList.toggle('selected', b.selected);
+            const ring = bEl.querySelector('[data-role="selring"]');
+            if (ring) ring.style.display = b.selected ? 'block' : 'none';
+          }
+        });
+        updateButtons();
+      }
+
+      function onUp() {
+        workspace.releasePointerCapture(e.pointerId);
+        lassoEl.remove();
+        workspace.removeEventListener('pointermove', onMove);
+        workspace.removeEventListener('pointerup',   onUp);
+        updateButtons();
+      }
+
+      workspace.addEventListener('pointermove', onMove);
+      workspace.addEventListener('pointerup',   onUp);
     });
 
-    // ===== Expand workspace if blocks go beyond =====
-    function expandWorkspace() {
-      let maxX = workspace.clientWidth;
-      let maxY = workspace.clientHeight;
+    // ===== Sync selection visual state without full re-render =====
+    function syncSelectionDOM() {
       blocks.forEach(b => {
-        const size = getBlockSize(b.type);
-        maxX = Math.max(maxX, b.x + size.w + 40);
-        maxY = Math.max(maxY, b.y + size.h + 40);
+        const bEl = workspaceInner.querySelector(`[data-id="${b.id}"]`);
+        if (!bEl) return;
+        bEl.classList.toggle('selected', b.selected);
+        const ring = bEl.querySelector('[data-role="selring"]');
+        if (ring) ring.style.display = b.selected ? 'block' : 'none';
       });
-      workspaceInner.style.minWidth = maxX + 'px';
+    }
+
+    // ===== Right-click Context Menu =====
+    function onBlockContextMenu(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const blockId = parseInt(e.currentTarget.dataset.id);
+      const block   = blocks.find(b => b.id === blockId);
+      if (!block) return;
+      // Ensure clicked block is selected
+      if (!block.selected) {
+        blocks.forEach(b => b.selected = false);
+        block.selected = true;
+        syncSelectionDOM();
+        updateButtons();
+      }
+      showCtxMenu(e.clientX, e.clientY);
+    }
+
+    workspace.addEventListener('contextmenu', e => { e.preventDefault(); closeCtxMenu(); });
+
+    function showCtxMenu(cx, cy) {
+      closeCtxMenu();
+      const sel = blocks.filter(b => b.selected);
+      if (sel.length === 0) return;
+
+      const onesSel  = sel.filter(b => b.type === 'one').length;
+      const tensSel  = sel.filter(b => b.type === 'ten').length;
+      const canBreak = sel.length === 1 && (sel[0].type === 'ten' || sel[0].type === 'hundred');
+      const canGroup = onesSel >= 10 || tensSel >= 10;
+      const canRotate = sel.some(b => b.type === 'ten');
+      const allLocked = sel.length > 0 && sel.every(b => b.locked);
+
+      const breakLabel = canBreak
+        ? (sel[0].type === 'hundred' ? 'Break into Tens' : 'Break into Ones')
+        : 'Break Apart';
+      const groupLabel = canGroup
+        ? (tensSel >= 10 ? 'Group into Hundred' : 'Group into Ten')
+        : 'Put Together';
+
+      const items = [
+        { icon:'✂️', label: breakLabel,    action: breakApartSelected,  disabled: !canBreak },
+        { icon:'🔗', label: groupLabel,    action: groupBlocks,          disabled: !canGroup },
+        null,
+        { icon:'↻',  label: 'Rotate',      action: rotateSelected,       disabled: !canRotate },
+        { icon:'⧉',  label: 'Duplicate',   action: duplicateSelected,    disabled: false },
+        { icon: allLocked ? '🔓' : '🔒',
+                     label: allLocked ? 'Unlock' : 'Lock',
+                                            action: toggleLockSelected,   disabled: false },
+        null,
+        { icon:'🗑', label: 'Delete',       action: deleteSelected,       disabled: false, danger: true },
+      ];
+
+      const menu = document.createElement('div');
+      menu.className = 'ctx-menu';
+
+      items.forEach(item => {
+        if (item === null) {
+          const d = document.createElement('div');
+          d.className = 'ctx-divider';
+          menu.appendChild(d);
+          return;
+        }
+        const row = document.createElement('div');
+        row.className = 'ctx-item' + (item.danger ? ' danger' : '') + (item.disabled ? ' disabled' : '');
+        row.innerHTML = `<span class="ctx-icon">${item.icon}</span>${item.label}`;
+        if (!item.disabled) {
+          row.addEventListener('click', () => { closeCtxMenu(); item.action(); });
+        }
+        menu.appendChild(row);
+      });
+
+      menu.style.left = cx + 'px';
+      menu.style.top  = cy + 'px';
+      document.body.appendChild(menu);
+      ctxMenuEl = menu;
+
+      // Reposition if clipped by viewport edges
+      requestAnimationFrame(() => {
+        const r = menu.getBoundingClientRect();
+        if (r.right  > window.innerWidth  - 8) menu.style.left = (cx - r.width)  + 'px';
+        if (r.bottom > window.innerHeight - 8) menu.style.top  = (cy - r.height) + 'px';
+      });
+    }
+
+    function closeCtxMenu() {
+      if (ctxMenuEl) { ctxMenuEl.remove(); ctxMenuEl = null; }
+    }
+
+    // Close menu on any outside click
+    document.addEventListener('pointerdown', e => {
+      if (ctxMenuEl && !ctxMenuEl.contains(e.target)) closeCtxMenu();
+    }, true);
+
+    // ===== Snapping =====
+    // Hundreds and tens snap to horizontal (y) alignment with other hundreds/tens.
+    // A group of ones (>1 selected) snaps as a whole to horizontal alignment with tens/hundreds.
+    // Individual ones never snap.
+    function applySnap(movingIds) {
+      const moved   = blocks.filter(b =>  movingIds.includes(b.id));
+      const anchors = blocks.filter(b => !movingIds.includes(b.id));
+      const anchorTH = anchors.filter(b => b.type === 'ten' || b.type === 'hundred');
+
+      // Tens and hundreds snap individually
+      moved.filter(b => b.type === 'ten' || b.type === 'hundred').forEach(mb => {
+        let bestY = null, bestD = SNAP_THRESHOLD;
+        anchorTH.forEach(ab => {
+          const d = Math.abs(mb.y - ab.y);
+          if (d < bestD) { bestD = d; bestY = ab.y; }
+        });
+        if (bestY !== null) mb.y = bestY;
+      });
+
+      // Group of ones snaps as a unit (by minimum y of the group)
+      const movedOnes = moved.filter(b => b.type === 'one');
+      if (movedOnes.length > 1) {
+        const minY = Math.min(...movedOnes.map(b => b.y));
+        let bestY = null, bestD = SNAP_THRESHOLD;
+        anchorTH.forEach(ab => {
+          const d = Math.abs(minY - ab.y);
+          if (d < bestD) { bestD = d; bestY = ab.y; }
+        });
+        if (bestY !== null) {
+          const dy = bestY - minY;
+          movedOnes.forEach(b => b.y += dy);
+        }
+      }
+    }
+
+    // ===== Expand workspace dynamically =====
+    function expandWorkspace() {
+      let maxX = workspace.clientWidth, maxY = workspace.clientHeight;
+      blocks.forEach(b => {
+        const { w, h } = getDims(b);
+        maxX = Math.max(maxX, b.x + w + 60);
+        maxY = Math.max(maxY, b.y + h + 60);
+      });
+      workspaceInner.style.minWidth  = maxX + 'px';
       workspaceInner.style.minHeight = maxY + 'px';
     }
 
-    // ===== Re-render all blocks =====
+    // ===== Full re-render =====
     function refreshAllBlocks() {
       workspaceInner.innerHTML = '';
       blocks.forEach(b => renderBlock(b));
       expandWorkspace();
     }
 
-    // ===== Update total =====
+    // ===== Total =====
     function updateTotal() {
-      let total = 0;
-      blocks.forEach(b => {
-        total += getBlockValue(b.type);
-      });
-      totalValue.textContent = total;
+      totalValue.textContent = blocks.reduce((s, b) => s + blockValue(b.type), 0);
     }
 
-    // ===== Update button states =====
+    // ===== Button states =====
     function updateButtons() {
-      const selected = blocks.filter(b => b.selected);
-      const hasSelection = selected.length > 0;
+      const sel  = blocks.filter(b => b.selected);
+      const ones = sel.filter(b => b.type === 'one');
+      const tens = sel.filter(b => b.type === 'ten');
 
-      // Delete is enabled if anything is selected
-      btnDelete.disabled = !hasSelection;
+      btnDelete.disabled = sel.length === 0;
 
-      // Group: need 10 ones OR 10 tens selected
-      let canGroup = false;
-      if (selected.length >= 10) {
-        const onesCount = selected.filter(b => b.type === 'one').length;
-        const tensCount = selected.filter(b => b.type === 'ten').length;
-        if (onesCount >= 10 || tensCount >= 10) canGroup = true;
-      }
+      const canGroup = ones.length >= 10 || tens.length >= 10;
       btnGroup.disabled = !canGroup;
+      btnGroup.textContent = canGroup
+        ? (tens.length >= 10 ? 'Group into Hundred' : 'Group into Ten')
+        : 'Group into Next';
 
-      // Break apart: need exactly 1 selected ten or hundred
-      let canBreak = false;
-      if (selected.length === 1) {
-        const b = selected[0];
-        if (b.type === 'ten' || b.type === 'hundred') canBreak = true;
-      }
+      const canBreak = sel.length === 1 && (sel[0].type === 'ten' || sel[0].type === 'hundred');
       btnBreak.disabled = !canBreak;
+      btnBreak.textContent = canBreak
+        ? (sel[0].type === 'hundred' ? 'Break into Tens' : 'Break into Ones')
+        : 'Break Apart';
 
-      // Update group button label
-      if (canGroup) {
-        const sel = blocks.filter(b => b.selected);
-        const groupToHundred = sel.filter(b => b.type === 'ten').length >= 10;
-        btnGroup.textContent = groupToHundred ? 'Group into Hundred' : 'Group into Ten';
-      } else {
-        btnGroup.textContent = 'Group into Next';
-      }
-
-      // Update break button label
-      if (canBreak) {
-        const b = blocks.filter(b => b.selected)[0];
-        btnBreak.textContent = b.type === 'hundred' ? 'Break into Tens' : 'Break into Ones';
-      } else {
-        btnBreak.textContent = 'Break Apart';
-      }
+      btnRotate.disabled = !sel.some(b => b.type === 'ten');
     }
 
-    // ===== Group Blocks =====
+    // ===== Group =====
     function groupBlocks() {
-      const selected = blocks.filter(b => b.selected);
+      const sel  = blocks.filter(b => b.selected);
+      const tens = sel.filter(b => b.type === 'ten');
+      const ones = sel.filter(b => b.type === 'one');
 
-      // Try grouping tens into hundred first
-      const tens = selected.filter(b => b.type === 'ten');
       if (tens.length >= 10) {
-        const toRemove = tens.slice(0, 10);
-        const avgX = toRemove.reduce((s, b) => s + b.x, 0) / 10;
-        const avgY = toRemove.reduce((s, b) => s + b.y, 0) / 10;
-        toRemove.forEach(b => { blocks = blocks.filter(bl => bl.id !== b.id); });
-        addBlock('hundred', avgX, avgY);
-        blocks[blocks.length - 1].selected = true;
-        refreshAllBlocks(); updateTotal(); updateButtons();
-        return;
+        const use = tens.slice(0, 10);
+        const cx  = use.reduce((s, b) => s + b.x, 0) / 10;
+        const cy  = use.reduce((s, b) => s + b.y, 0) / 10;
+        use.forEach(b => { blocks = blocks.filter(bl => bl.id !== b.id); });
+        const nb = addBlock('hundred', cx, cy);
+        nb.selected = true;
+      } else if (ones.length >= 10) {
+        const use = ones.slice(0, 10);
+        const cx  = use.reduce((s, b) => s + b.x, 0) / 10;
+        const cy  = use.reduce((s, b) => s + b.y, 0) / 10;
+        use.forEach(b => { blocks = blocks.filter(bl => bl.id !== b.id); });
+        const nb = addBlock('ten', cx, cy);
+        nb.selected = true;
       }
 
-      // Try grouping ones into ten
-      const ones = selected.filter(b => b.type === 'one');
-      if (ones.length >= 10) {
-        const toRemove = ones.slice(0, 10);
-        const avgX = toRemove.reduce((s, b) => s + b.x, 0) / 10;
-        const avgY = toRemove.reduce((s, b) => s + b.y, 0) / 10;
-        toRemove.forEach(b => { blocks = blocks.filter(bl => bl.id !== b.id); });
-        addBlock('ten', avgX, avgY);
-        blocks[blocks.length - 1].selected = true;
-        refreshAllBlocks(); updateTotal(); updateButtons();
-        return;
-      }
+      refreshAllBlocks(); updateTotal(); updateButtons();
     }
 
     // ===== Break Apart =====
-    function breakApart() {
-      const selected = blocks.filter(b => b.selected);
-      if (selected.length !== 1) return;
-
-      const block = selected[0];
+    function breakApartSelected() {
+      const sel = blocks.filter(b => b.selected);
+      if (sel.length !== 1) return;
+      const block = sel[0];
 
       if (block.type === 'hundred') {
-        // Replace with 10 tens (green)
-        const baseX = block.x, baseY = block.y;
+        // Break into 10 tens placed side by side (same width as hundred block)
+        const bx = block.x, by = block.y;
         blocks = blocks.filter(b => b.id !== block.id);
         for (let i = 0; i < 10; i++) {
-          addBlock('ten', baseX + (i % 5) * 50, baseY + Math.floor(i / 5) * 230);
+          addBlock('ten', bx + i * CELL, by, 0);
         }
       } else if (block.type === 'ten') {
-        // Replace with 10 ones (blue)
-        const baseX = block.x, baseY = block.y;
+        // Break into 10 ones in two rows of 5
+        const bx = block.x, by = block.y;
         blocks = blocks.filter(b => b.id !== block.id);
         for (let i = 0; i < 10; i++) {
-          addBlock('one', baseX + (i % 5) * 50, baseY + Math.floor(i / 5) * 50);
+          addBlock('one', bx + (i % 5) * (CELL + 2), by + Math.floor(i / 5) * (CELL + 2), 0);
         }
       }
 
-      refreshAllBlocks();
-      updateTotal();
-      updateButtons();
+      refreshAllBlocks(); updateTotal(); updateButtons();
     }
 
-    // ===== Delete Selected =====
+    // ===== Rotate (tens only — flips vertical ↔ horizontal) =====
+    function rotateSelected() {
+      blocks.filter(b => b.selected && b.type === 'ten').forEach(b => {
+        const old = getDims(b);
+        b.rotation = ((b.rotation || 0) + 90) % 360;
+        const nw  = getDims(b);
+        // Keep centre
+        b.x = Math.max(0, b.x + (old.w - nw.w) / 2);
+        b.y = Math.max(0, b.y + (old.h - nw.h) / 2);
+      });
+      refreshAllBlocks(); updateButtons();
+    }
+
+    // ===== Duplicate =====
+    function duplicateSelected() {
+      const sel = blocks.filter(b => b.selected);
+      sel.forEach(b => b.selected = false);
+      const newOnes = sel.map(b => ({
+        id: nextId++, type: b.type,
+        x: b.x + 20, y: b.y + 20,
+        rotation: b.rotation || 0,
+        locked: false, selected: true
+      }));
+      blocks.push(...newOnes);
+      refreshAllBlocks(); updateTotal(); updateButtons();
+    }
+
+    // ===== Lock / Unlock =====
+    function toggleLockSelected() {
+      const sel      = blocks.filter(b => b.selected);
+      const allLocked = sel.every(b => b.locked);
+      sel.forEach(b => b.locked = !allLocked);
+      refreshAllBlocks(); updateButtons();
+    }
+
+    // ===== Delete =====
     function deleteSelected() {
       blocks = blocks.filter(b => !b.selected);
-      refreshAllBlocks();
-      updateTotal();
-      updateButtons();
+      refreshAllBlocks(); updateTotal(); updateButtons();
     }
 
     // ===== Clear All =====
     function clearAll() {
-      blocks = [];
-      nextId = 1;
-      refreshAllBlocks();
-      updateTotal();
-      updateButtons();
+      blocks = []; nextId = 1;
+      refreshAllBlocks(); updateTotal(); updateButtons();
     }
 
     // ===== Keyboard shortcuts =====
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Delete' || e.key === 'Backspace') {
-        // Don't delete if user is typing in an input
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-        e.preventDefault();
-        deleteSelected();
-      }
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); deleteSelected(); }
       if (e.key === 'Escape') {
+        closeCtxMenu();
         blocks.forEach(b => b.selected = false);
-        refreshAllBlocks();
-        updateButtons();
+        syncSelectionDOM(); updateButtons();
       }
-      // Select all with Ctrl/Cmd+A
       if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         e.preventDefault();
         blocks.forEach(b => b.selected = true);
-        refreshAllBlocks();
-        updateButtons();
+        syncSelectionDOM(); updateButtons();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+        e.preventDefault(); duplicateSelected();
       }
     });
 
-    // Initialize
+    // ===== Init =====
     updateTotal();
     updateButtons();
   </script>
