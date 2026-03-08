@@ -6,7 +6,7 @@
   <title>Base-Ten Blocks - Interactive Math Tool</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; user-select: none; -webkit-user-select: none; }
     .main-container { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
     .main-container.sidebar-collapsed { grid-template-columns: 0 1fr; }
     .sidebar { background: #f7fafc; padding: 24px 20px; box-shadow: 4px 0 20px rgba(0,0,0,0.1); overflow-y: auto; height: 100vh; position: sticky; top: 0; transition: width 0.25s, padding 0.25s; }
@@ -27,14 +27,9 @@
     .action-btn { width: 100%; padding: 9px 12px; margin-bottom: 6px; border-radius: 8px; border: 2px solid #e2e8f0; background: white; cursor: pointer; font-size: 13px; font-weight: 600; color: #2d3748; transition: all 0.15s; display: flex; align-items: center; gap: 8px; text-align: left; }
     .action-btn:not(:disabled):hover { border-color: #667eea; color: #667eea; background: #f7f8ff; transform: translateY(-1px); }
     .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .action-btn.danger { color: #e53e3e; border-color: #fed7d7; }
-    .action-btn.danger:not(:disabled):hover { background: #fff5f5; border-color: #e53e3e; color: #e53e3e; }
-    .clear-btn { width: 100%; padding: 8px; border-radius: 8px; border: 2px solid #fc8181; background: white; color: #e53e3e; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 16px; }
-    .clear-btn:hover { background: #fff5f5; }
-    .total-display { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; color: white; }
-    .total-display .total-label { font-size: 11px; font-weight: 600; opacity: 0.85; margin-bottom: 4px; }
-    .total-display .total-value { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
-    .total-display .total-breakdown { font-size: 11px; opacity: 0.75; margin-top: 2px; }
+    .action-btn.danger:not(:disabled):hover { background: #fff5f5; border-color: #e53e3e; color: #e53e3e; transform: translateY(-1px); }
+    .floating-badge { position: fixed; right: 20px; background: white; border: 2px solid #667eea; border-radius: 8px; padding: 8px 14px; font-weight: 600; font-size: 14px; color: #667eea; z-index: 9998; box-shadow: 0 4px 12px rgba(102,126,234,0.2); display: none; }
+    .floating-badge .badge-sub { font-size: 10px; font-weight: 500; color: #a0aec0; margin-top: 2px; }
     .adv-section { margin-top: 16px; }
     .adv-toggle { background: none; border: none; cursor: pointer; font-size: 13px; font-weight: 600; color: #667eea; padding: 4px 0; transition: color 0.2s; }
     .adv-toggle:hover { color: #764ba2; }
@@ -114,16 +109,11 @@
       <button class="action-btn" id="btnGroup"  onclick="groupBlocks()"        disabled>&#8862; Put Together</button>
       <button class="action-btn danger" id="btnDelete" onclick="deleteSelected()" disabled>&#10005; Delete Selected</button>
     </div>
-    <button class="clear-btn" onclick="clearAll()">Clear All</button>
-    <div class="total-display" id="totalDisplay">
-      <div class="total-label">TOTAL VALUE</div>
-      <div class="total-value" id="totalVal">0</div>
-      <div class="total-breakdown" id="totalBreakdown">No blocks</div>
-    </div>
+    <button class="action-btn danger" onclick="clearAll()">&#10005; Clear All</button>
     <div class="adv-section">
       <button class="adv-toggle" id="advToggle" onclick="toggleAdv()">&#9658; Advanced Options</button>
       <div class="adv-panel" id="advPanel">
-        <label class="adv-checkbox-row"><input type="checkbox" id="chkShowTotal" checked onchange="showTotal=this.checked; applyShowTotal();"> Show total</label>
+        <label class="adv-checkbox-row"><input type="checkbox" id="chkShowTotal" onchange="showTotal=this.checked; applyShowTotal();"> Show total</label>
         <label class="adv-checkbox-row"><input type="checkbox" id="chkShowSelVal" onchange="showSelectedValues=this.checked; refreshAllBlocks();"> Show selected values</label>
         <label class="adv-checkbox-row"><input type="checkbox" id="chkValueCols" onchange="showValueColumns=this.checked; if(showValueColumns&&colDiv1===null) initColDividers(); renderColumnsBg();"> Value columns</label>
       </div>
@@ -142,7 +132,8 @@
     </div>
   </div>
 </div>
-<div id="selBadge" style="display:none;position:fixed;top:60px;right:20px;background:white;border:2px solid #667eea;border-radius:8px;padding:8px 14px;font-weight:600;font-size:14px;color:#667eea;z-index:9998;box-shadow:0 4px 12px rgba(102,126,234,0.2);">Selected: 0</div>
+<div id="totalBadge" class="floating-badge" style="top:20px;"></div>
+<div id="selBadge" class="floating-badge" style="top:20px;"></div>
 <div class="ctx-menu" id="ctxMenu">
   <div class="ctx-item" id="ctxBreak"     onclick="ctxBreak()">&#8863; Break Apart</div>
   <div class="ctx-item" id="ctxGroup"     onclick="ctxGroup()">&#8862; Put Together</div>
@@ -160,7 +151,7 @@ const BASE_Z = { hundred: 1, ten: 5, one: 10 };
 
 let blocks = [], nextId = 1, zoomLevel = 1.0;
 let addCursor = { x: 30, y: 30, rowH: 0 };
-let showTotal = true, showSelectedValues = false, showValueColumns = false;
+let showTotal = false, showSelectedValues = false, showValueColumns = false;
 let colDiv1 = null, colDiv2 = null;
 let dragging = false, dragBlocks = [], lassoActive = false;
 
@@ -275,26 +266,38 @@ function expandWorkspace() {
 }
 
 function updateTotal() {
+  const badge = document.getElementById("totalBadge");
+  if (!showTotal || blocks.length === 0) { badge.style.display = "none"; positionBadges(); return; }
   const hc = blocks.filter(function(b) { return b.type === "hundred"; }).length;
   const tc = blocks.filter(function(b) { return b.type === "ten";     }).length;
   const oc = blocks.filter(function(b) { return b.type === "one";     }).length;
-  document.getElementById("totalVal").textContent = hc * 100 + tc * 10 + oc;
+  const total = hc * 100 + tc * 10 + oc;
   const parts = [];
-  if (hc) parts.push(hc + " hundred" + (hc !== 1 ? "s" : ""));
-  if (tc) parts.push(tc + " ten"     + (tc !== 1 ? "s" : ""));
-  if (oc) parts.push(oc + " one"     + (oc !== 1 ? "s" : ""));
-  document.getElementById("totalBreakdown").textContent = parts.length ? parts.join(" + ") : "No blocks";
+  if (hc) parts.push(hc + "h");
+  if (tc) parts.push(tc + "t");
+  if (oc) parts.push(oc + "o");
+  badge.innerHTML = "Total: " + total + (parts.length ? '<div class="badge-sub">' + parts.join(" + ") + '</div>' : '');
+  badge.style.display = "block";
+  positionBadges();
 }
-function applyShowTotal() { document.getElementById("totalDisplay").style.display = showTotal ? "" : "none"; }
+function applyShowTotal() { updateTotal(); }
+function positionBadges() {
+  var top = 20;
+  var totalB = document.getElementById("totalBadge");
+  var selB   = document.getElementById("selBadge");
+  if (totalB.style.display !== "none") { totalB.style.top = top + "px"; top += totalB.offsetHeight + 8; }
+  selB.style.top = top + "px";
+}
 
 function updateSelectionBadge() {
   const badge = document.getElementById("selBadge");
-  if (!showSelectedValues) { badge.style.display = "none"; return; }
+  if (!showSelectedValues) { badge.style.display = "none"; positionBadges(); return; }
   const sel = blocks.filter(function(b) { return b.selected; });
-  if (sel.length < 2) { badge.style.display = "none"; return; }
+  if (sel.length < 2) { badge.style.display = "none"; positionBadges(); return; }
   const total = sel.reduce(function(s, b) { return s + blockValue(b.type); }, 0);
   badge.textContent = "Selected: " + total;
   badge.style.display = "block";
+  positionBadges();
 }
 
 function updateButtons() {
@@ -422,7 +425,7 @@ workspaceInner.addEventListener("mousedown", function(e) {
     lassoActive = false; lassoEl.style.display = "none";
     document.removeEventListener("mousemove", onMove);
     document.removeEventListener("mouseup",   onUp);
-    updateButtons();
+    refreshAllBlocks();
   }
   document.addEventListener("mousemove", onMove);
   document.addEventListener("mouseup",   onUp);
@@ -470,22 +473,29 @@ function rotateSelected() {
 }
 
 function groupBlocks() {
-  const sel = blocks.filter(function(b) { return b.selected; });
-  const ones = sel.filter(function(b) { return b.type === "one"; });
-  const tens  = sel.filter(function(b) { return b.type === "ten"; });
-  let changed = false;
-  if (ones.length >= 10) {
-    const toGroup = ones.slice(0, 10);
-    const px = toGroup[0].x, py = toGroup[0].y;
+  var sel = blocks.filter(function(b) { return b.selected; });
+  var ones = sel.filter(function(b) { return b.type === "one"; });
+  var tens = sel.filter(function(b) { return b.type === "ten"; });
+  var changed = false;
+  // Group ones into tens — as many groups of 10 as possible
+  while (ones.length >= 10) {
+    var toGroup = ones.slice(0, 10);
+    var px = toGroup[0].x, py = toGroup[0].y;
     toGroup.forEach(function(b) { removeBlockEl(b); blocks = blocks.filter(function(x) { return x.id !== b.id; }); });
-    addBlock("ten", px, py);
+    var nb = { id: nextId++, type: "ten", x: px, y: py, rotation: 0, selected: true };
+    blocks.push(nb); renderBlock(nb);
+    tens.push(nb);
+    ones = ones.slice(10);
     changed = true;
   }
-  if (tens.length >= 10) {
-    const toGroup = tens.slice(0, 10);
-    const px = toGroup[0].x, py = toGroup[0].y;
-    toGroup.forEach(function(b) { removeBlockEl(b); blocks = blocks.filter(function(x) { return x.id !== b.id; }); });
-    addBlock("hundred", px, py);
+  // Group tens into hundreds — as many groups of 10 as possible
+  while (tens.length >= 10) {
+    var toGroup2 = tens.slice(0, 10);
+    var px2 = toGroup2[0].x, py2 = toGroup2[0].y;
+    toGroup2.forEach(function(b) { removeBlockEl(b); blocks = blocks.filter(function(x) { return x.id !== b.id; }); });
+    var nb2 = { id: nextId++, type: "hundred", x: px2, y: py2, rotation: 0, selected: true };
+    blocks.push(nb2); renderBlock(nb2);
+    tens = tens.slice(10);
     changed = true;
   }
   if (changed) refreshAllBlocks();
