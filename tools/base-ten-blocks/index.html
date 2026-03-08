@@ -395,7 +395,7 @@ workspaceInner.addEventListener("mousedown", function(e) {
   if (e.button !== 0) return;
   if (e.target !== workspaceInner && !e.target.closest("#columnsBg")) return;
   hideCtxMenu();
-  if (!e.ctrlKey && !e.metaKey) blocks.forEach(function(b) { b.selected = false; });
+  if (!e.ctrlKey && !e.metaKey) { blocks.forEach(function(b) { b.selected = false; }); refreshAllBlocks(); }
   const wsRect = workspace.getBoundingClientRect();
   const sx = (e.clientX - wsRect.left + workspace.scrollLeft) / zoomLevel;
   const sy = (e.clientY - wsRect.top  + workspace.scrollTop)  / zoomLevel;
