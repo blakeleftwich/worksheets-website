@@ -24,14 +24,11 @@
     .reset-zoom-btn { width: 100%; padding: 5px 0; font-size: 11px; font-weight: 600; color: #718096; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; margin-bottom: 16px; transition: all 0.2s; }
     .reset-zoom-btn:hover { border-color: #667eea; color: #667eea; background: #f7f8ff; }
     .actions-section { margin-bottom: 16px; }
-    .action-btn { width: 100%; padding: 9px 12px; margin-bottom: 6px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.15s; display: flex; align-items: center; gap: 8px; }
+    .action-btn { width: 100%; padding: 9px 12px; margin-bottom: 6px; border-radius: 8px; border: 2px solid #e2e8f0; background: white; cursor: pointer; font-size: 13px; font-weight: 600; color: #2d3748; transition: all 0.15s; display: flex; align-items: center; gap: 8px; text-align: left; }
+    .action-btn:not(:disabled):hover { border-color: #667eea; color: #667eea; background: #f7f8ff; transform: translateY(-1px); }
     .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .action-btn.green { background: linear-gradient(135deg, #48bb78, #38a169); color: white; }
-    .action-btn.green:not(:disabled):hover { opacity: 0.9; transform: translateY(-1px); }
-    .action-btn.blue { background: linear-gradient(135deg, #4299e1, #3182ce); color: white; }
-    .action-btn.blue:not(:disabled):hover { opacity: 0.9; transform: translateY(-1px); }
-    .action-btn.red { background: linear-gradient(135deg, #fc8181, #e53e3e); color: white; }
-    .action-btn.red:not(:disabled):hover { opacity: 0.9; transform: translateY(-1px); }
+    .action-btn.danger { color: #e53e3e; border-color: #fed7d7; }
+    .action-btn.danger:not(:disabled):hover { background: #fff5f5; border-color: #e53e3e; color: #e53e3e; }
     .clear-btn { width: 100%; padding: 8px; border-radius: 8px; border: 2px solid #fc8181; background: white; color: #e53e3e; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 16px; }
     .clear-btn:hover { background: #fff5f5; }
     .total-display { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; color: white; }
@@ -57,7 +54,7 @@
     .col-hdr-ones { border-right: none; flex: 1; }
     .block { position: absolute; cursor: grab; user-select: none; touch-action: none; }
     .block:active { cursor: grabbing; }
-    .block.selected { outline: 2px solid #667eea; outline-offset: 2px; }
+    .block.selected { outline: 2px dashed #667eea; outline-offset: 3px; }
     #lasso { position: absolute; border: 2px dashed #667eea; background: rgba(102,126,234,0.08); pointer-events: none; display: none; z-index: 2000; }
     .ctx-menu { position: fixed; z-index: 9999; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); padding: 4px 0; min-width: 160px; display: none; }
     .ctx-item { padding: 9px 16px; font-size: 13px; cursor: pointer; color: #2d3748; display: flex; align-items: center; gap: 8px; }
@@ -113,9 +110,9 @@
     <button class="reset-zoom-btn" onclick="resetZoom()">Reset Zoom (100%)</button>
     <div class="actions-section">
       <span class="section-label">Actions</span>
-      <button class="action-btn green" id="btnBreak"  onclick="breakApartSelected()" disabled>&#8863; Break Apart</button>
-      <button class="action-btn blue"  id="btnRotate" onclick="rotateSelected()"     disabled>&#8635; Rotate Tens</button>
-      <button class="action-btn red"   id="btnDelete" onclick="deleteSelected()"     disabled>&#10005; Delete Selected</button>
+      <button class="action-btn" id="btnBreak"  onclick="breakApartSelected()" disabled>&#8863; Break Apart</button>
+      <button class="action-btn" id="btnGroup"  onclick="groupBlocks()"        disabled>&#8862; Put Together</button>
+      <button class="action-btn danger" id="btnDelete" onclick="deleteSelected()" disabled>&#10005; Delete Selected</button>
     </div>
     <button class="clear-btn" onclick="clearAll()">Clear All</button>
     <div class="total-display" id="totalDisplay">
@@ -147,8 +144,12 @@
 </div>
 <div id="selBadge" style="display:none;position:fixed;top:60px;right:20px;background:white;border:2px solid #667eea;border-radius:8px;padding:8px 14px;font-weight:600;font-size:14px;color:#667eea;z-index:9998;box-shadow:0 4px 12px rgba(102,126,234,0.2);">Selected: 0</div>
 <div class="ctx-menu" id="ctxMenu">
-  <div class="ctx-item" id="ctxBreak"  onclick="ctxBreak()">&#8863; Break Apart</div>
-  <div class="ctx-item" id="ctxRotate" onclick="ctxRotate()">&#8635; Rotate</div>
+  <div class="ctx-item" id="ctxBreak"     onclick="ctxBreak()">&#8863; Break Apart</div>
+  <div class="ctx-item" id="ctxGroup"     onclick="ctxGroup()">&#8862; Put Together</div>
+  <div class="ctx-item" id="ctxRotate"    onclick="ctxRotate()">&#8635; Rotate</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" id="ctxDuplicate" onclick="ctxDuplicate()">&#10064; Duplicate</div>
+  <div class="ctx-item" id="ctxLock"      onclick="ctxLock()">&#128274; Lock</div>
   <div class="ctx-sep"></div>
   <div class="ctx-item danger" id="ctxDelete" onclick="ctxDelete()">&#10005; Delete</div>
 </div>
@@ -199,6 +200,10 @@ function makeSVG(block) {
     const val = blockValue(block.type);
     const fs  = (block.type === "hundred" ? 16 : block.type === "ten" ? 11 : 10) * zoomLevel;
     vt = '<text x="' + (w/2) + '" y="' + (h/2) + '" text-anchor="middle" dominant-baseline="central" font-size="' + fs + '" font-weight="700" fill="white" font-family="system-ui" pointer-events="none">' + val + '</text>';
+  }
+  if (block.locked) {
+    const lfs = Math.max(8, 9 * zoomLevel);
+    vt += '<text x="' + (w - lfs * 0.7) + '" y="' + (lfs * 0.8) + '" text-anchor="middle" dominant-baseline="central" font-size="' + lfs + '" fill="white" opacity="0.9" pointer-events="none">\uD83D\uDD12</text>';
   }
   return '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" style="display:block;border-radius:3px;">'
        + '<rect x="0" y="0" width="' + w + '" height="' + h + '" fill="' + col + '" rx="3"/>'
@@ -293,15 +298,26 @@ function updateSelectionBadge() {
 }
 
 function updateButtons() {
-  const sel  = blocks.filter(function(b) { return b.selected; });
-  const hasB = sel.some(function(b) { return b.type === "ten" || b.type === "hundred"; });
-  const hasT = sel.some(function(b) { return b.type === "ten"; });
-  const hasS = sel.length > 0;
+  const sel      = blocks.filter(function(b) { return b.selected; });
+  const hasB     = sel.some(function(b) { return b.type === "ten" || b.type === "hundred"; });
+  const hasT     = sel.some(function(b) { return b.type === "ten"; });
+  const hasS     = sel.length > 0;
+  const onesCount = sel.filter(function(b) { return b.type === "one"; }).length;
+  const tensCount = sel.filter(function(b) { return b.type === "ten"; }).length;
+  const canGrp   = onesCount >= 10 || tensCount >= 10;
+  const allLocked = hasS && sel.every(function(b) { return b.locked; });
   document.getElementById("btnBreak").disabled  = !hasB;
-  document.getElementById("btnRotate").disabled = !hasT;
+  document.getElementById("btnGroup").disabled  = !canGrp;
   document.getElementById("btnDelete").disabled = !hasS;
-  const cb = document.getElementById("ctxBreak");  if (cb) cb.classList.toggle("disabled", !hasB);
-  const cr = document.getElementById("ctxRotate"); if (cr) cr.classList.toggle("disabled", !hasT);
+  const cb = document.getElementById("ctxBreak");     if (cb) cb.classList.toggle("disabled", !hasB);
+  const cg = document.getElementById("ctxGroup");     if (cg) cg.classList.toggle("disabled", !canGrp);
+  const cr = document.getElementById("ctxRotate");    if (cr) cr.classList.toggle("disabled", !hasT);
+  const cd = document.getElementById("ctxDuplicate"); if (cd) cd.classList.toggle("disabled", !hasS);
+  const cl = document.getElementById("ctxLock");
+  if (cl) {
+    cl.classList.toggle("disabled", !hasS);
+    cl.innerHTML = allLocked ? "&#128275; Unlock" : "&#128274; Lock";
+  }
   updateSelectionBadge();
 }
 
@@ -342,9 +358,10 @@ function onBlockMouseDown(e, block) {
   const wsRect = workspace.getBoundingClientRect();
   const lmx = (e.clientX - wsRect.left + workspace.scrollLeft) / zoomLevel;
   const lmy = (e.clientY - wsRect.top  + workspace.scrollTop)  / zoomLevel;
-  dragBlocks = blocks.filter(function(b) { return b.selected; }).map(function(b) {
+  dragBlocks = blocks.filter(function(b) { return b.selected && !b.locked; }).map(function(b) {
     return { block: b, offX: lmx - b.x, offY: lmy - b.y };
   });
+  if (dragBlocks.length === 0) { dragging = false; return; }
   dragging = true;
   dragBlocks.forEach(function(d) {
     const el = document.getElementById("block-" + d.block.id); if (el) el.style.zIndex = 1000;
@@ -452,6 +469,48 @@ function rotateSelected() {
   refreshAllBlocks();
 }
 
+function groupBlocks() {
+  const sel = blocks.filter(function(b) { return b.selected; });
+  const ones = sel.filter(function(b) { return b.type === "one"; });
+  const tens  = sel.filter(function(b) { return b.type === "ten"; });
+  let changed = false;
+  if (ones.length >= 10) {
+    const toGroup = ones.slice(0, 10);
+    const px = toGroup[0].x, py = toGroup[0].y;
+    toGroup.forEach(function(b) { removeBlockEl(b); blocks = blocks.filter(function(x) { return x.id !== b.id; }); });
+    addBlock("ten", px, py);
+    changed = true;
+  }
+  if (tens.length >= 10) {
+    const toGroup = tens.slice(0, 10);
+    const px = toGroup[0].x, py = toGroup[0].y;
+    toGroup.forEach(function(b) { removeBlockEl(b); blocks = blocks.filter(function(x) { return x.id !== b.id; }); });
+    addBlock("hundred", px, py);
+    changed = true;
+  }
+  if (changed) refreshAllBlocks();
+}
+
+function duplicateSelected() {
+  const sel = blocks.filter(function(b) { return b.selected; });
+  if (!sel.length) return;
+  blocks.forEach(function(b) { b.selected = false; });
+  sel.forEach(function(b) {
+    const nb = { id: nextId++, type: b.type, x: b.x + 30, y: b.y + 30, rotation: b.rotation || 0, selected: true, locked: false };
+    blocks.push(nb);
+    renderBlock(nb);
+  });
+  expandWorkspace(); updateTotal(); updateButtons();
+}
+
+function toggleLockSelected() {
+  const sel = blocks.filter(function(b) { return b.selected; });
+  if (!sel.length) return;
+  const allLocked = sel.every(function(b) { return b.locked; });
+  sel.forEach(function(b) { b.locked = !allLocked; });
+  refreshAllBlocks();
+}
+
 function deleteSelected() {
   blocks.filter(function(b) { return b.selected; }).forEach(removeBlockEl);
   blocks = blocks.filter(function(b) { return !b.selected; });
@@ -488,9 +547,12 @@ function onBlockCtxMenu(e, block) {
   updateButtons();
 }
 function hideCtxMenu() { document.getElementById("ctxMenu").style.display = "none"; }
-function ctxBreak()  { if (document.getElementById("ctxBreak").classList.contains("disabled")) return; hideCtxMenu(); breakApartSelected(); }
-function ctxRotate() { if (document.getElementById("ctxRotate").classList.contains("disabled")) return; hideCtxMenu(); rotateSelected(); }
-function ctxDelete() { hideCtxMenu(); deleteSelected(); }
+function ctxBreak()     { if (document.getElementById("ctxBreak").classList.contains("disabled"))     return; hideCtxMenu(); breakApartSelected(); }
+function ctxGroup()     { if (document.getElementById("ctxGroup").classList.contains("disabled"))     return; hideCtxMenu(); groupBlocks(); }
+function ctxRotate()    { if (document.getElementById("ctxRotate").classList.contains("disabled"))    return; hideCtxMenu(); rotateSelected(); }
+function ctxDuplicate() { if (document.getElementById("ctxDuplicate").classList.contains("disabled")) return; hideCtxMenu(); duplicateSelected(); }
+function ctxLock()      { if (document.getElementById("ctxLock").classList.contains("disabled"))      return; hideCtxMenu(); toggleLockSelected(); }
+function ctxDelete()    { hideCtxMenu(); deleteSelected(); }
 document.addEventListener("click",       function(e) { if (!e.target.closest(".ctx-menu")) hideCtxMenu(); });
 document.addEventListener("contextmenu", function(e) { if (!e.target.closest(".block"))    hideCtxMenu(); });
 
