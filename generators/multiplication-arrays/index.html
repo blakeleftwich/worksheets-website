@@ -758,7 +758,7 @@
           const t = svgEl("text", {
             x: ex + blankW / 2, y: eqY - 3,
             "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(eqFontSize), "font-weight": "700", fill: fill1
+            "font-size": String(eqFontSize), "font-weight": "500", fill: fill1
           });
           t.textContent = String(prob.rows);
           svg.appendChild(t);
@@ -769,7 +769,7 @@
         const timesEl = svgEl("text", {
           x: ex, y: eqY - 3,
           "font-family": "'Google Sans Flex', sans-serif",
-          "font-size": String(eqFontSize), "font-weight": "700", fill: "#1a202c"
+          "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
         });
         timesEl.textContent = "\u00d7";
         svg.appendChild(timesEl);
@@ -785,7 +785,7 @@
           const t = svgEl("text", {
             x: ex + blankW / 2, y: eqY - 3,
             "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(eqFontSize), "font-weight": "700", fill: fill2
+            "font-size": String(eqFontSize), "font-weight": "500", fill: fill2
           });
           t.textContent = String(prob.cols);
           svg.appendChild(t);
@@ -796,7 +796,7 @@
         const eqSignEl = svgEl("text", {
           x: ex, y: eqY - 3,
           "font-family": "'Google Sans Flex', sans-serif",
-          "font-size": String(eqFontSize), "font-weight": "700", fill: "#1a202c"
+          "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
         });
         eqSignEl.textContent = "=";
         svg.appendChild(eqSignEl);
@@ -812,7 +812,7 @@
           const t = svgEl("text", {
             x: ex + blankW / 2, y: eqY - 3,
             "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(eqFontSize), "font-weight": "700", fill: fill3
+            "font-size": String(eqFontSize), "font-weight": "500", fill: fill3
           });
           t.textContent = String(prob.rows * prob.cols);
           svg.appendChild(t);

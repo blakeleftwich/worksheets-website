@@ -762,7 +762,7 @@
         x += count >= 10 ? probNumSize * 2.0 : probNumSize * 1.6;
 
         // The number digit(s)
-        const digitEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
+        const digitEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
         digitEl.textContent = String(num); svg.appendChild(digitEl);
 
         // Blank line for writing the word
@@ -781,10 +781,10 @@
 
         // Answer
         if (isExample) {
-          const ansEl = svgEl("text", { x: lineX1 + 8, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.75), "font-weight": "700", fill: "#16a34a" });
+          const ansEl = svgEl("text", { x: lineX1 + 8, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.75), "font-weight": "500", fill: "#16a34a" });
           ansEl.textContent = word; svg.appendChild(ansEl);
         } else if (showAnswers) {
-          const ansEl = svgEl("text", { x: lineX1 + 8, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.75), "font-weight": "700", fill: "#3182ce" });
+          const ansEl = svgEl("text", { x: lineX1 + 8, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.75), "font-weight": "500", fill: "#3182ce" });
           ansEl.textContent = word; svg.appendChild(ansEl);
         }
       }
@@ -815,7 +815,7 @@
         x += count >= 10 ? probNumSize * 2.0 : probNumSize * 1.6;
 
         // The word
-        const wordEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
+        const wordEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
         wordEl.textContent = word; svg.appendChild(wordEl);
 
         // Box for writing the number
@@ -835,10 +835,10 @@
 
         // Answer
         if (isExample) {
-          const ansEl = svgEl("text", { x: boxX + boxW / 2, y: cy + 2, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "700", fill: "#16a34a" });
+          const ansEl = svgEl("text", { x: boxX + boxW / 2, y: cy + 2, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#16a34a" });
           ansEl.textContent = String(num); svg.appendChild(ansEl);
         } else if (showAnswers) {
-          const ansEl = svgEl("text", { x: boxX + boxW / 2, y: cy + 2, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "700", fill: "#3182ce" });
+          const ansEl = svgEl("text", { x: boxX + boxW / 2, y: cy + 2, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
           ansEl.textContent = String(num); svg.appendChild(ansEl);
         }
       }
@@ -875,14 +875,14 @@
         }
 
         // Left side: the digit
-        const digitEl = svgEl("text", { x: leftColX, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
+        const digitEl = svgEl("text", { x: leftColX, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
         digitEl.textContent = String(num); svg.appendChild(digitEl);
 
         // Left dot
         svg.appendChild(svgEl("circle", { cx: dotLeftX, cy: cy - lineY_offset + 2, r: 3.5, fill: "#2d3748" }));
 
         // Right side: the shuffled word
-        const wordEl = svgEl("text", { x: rightColX, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
+        const wordEl = svgEl("text", { x: rightColX, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
         wordEl.textContent = word; svg.appendChild(wordEl);
 
         // Right dot

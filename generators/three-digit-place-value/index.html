@@ -813,7 +813,7 @@
             x: cx, y: cardTop + cardH * 0.38,
             "text-anchor": "middle",
             "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": "26", "font-weight": "700", fill: "#1a202c"
+            "font-size": "26", "font-weight": "500", fill: "#1a202c"
           });
           numEl.textContent = String(prob.number);
           svg.appendChild(numEl);
@@ -849,7 +849,7 @@
                 x: lx + 14, y: ly - 2,
                 "text-anchor": "middle",
                 "font-family": "'Google Sans Flex', sans-serif",
-                "font-size": "13", "font-weight": "700", fill
+                "font-size": "13", "font-weight": "500", fill
               });
               aEl.textContent = String(answers[k]);
               svg.appendChild(aEl);
@@ -885,7 +885,7 @@
               x: lx + 6, y: labelY,
               "text-anchor": "start",
               "font-family": "'Google Sans Flex', sans-serif",
-              "font-size": "22", "font-weight": "700", fill: "#1a202c"
+              "font-size": "22", "font-weight": "500", fill: "#1a202c"
             });
             valEl.textContent = String(values[k]);
             svg.appendChild(valEl);
@@ -916,7 +916,7 @@
               x: numLabelX + 28, y: numLabelY - 2,
               "text-anchor": "middle",
               "font-family": "'Google Sans Flex', sans-serif",
-              "font-size": "13", "font-weight": "700", fill
+              "font-size": "13", "font-weight": "500", fill
             });
             ansEl.textContent = String(prob.number);
             svg.appendChild(ansEl);
@@ -938,7 +938,7 @@
               x: dx + digitW / 2, y: cardTop + cardH * 0.38,
               "text-anchor": "middle",
               "font-family": "'Google Sans Flex', sans-serif",
-              "font-size": String(digitFontSize), "font-weight": "700",
+              "font-size": String(digitFontSize), "font-weight": "500",
               fill: isTarget ? "#667eea" : "#1a202c"
             });
             digitEl.textContent = d;
@@ -978,7 +978,7 @@
               x: cx + 16, y: qY - 2,
               "text-anchor": "middle",
               "font-family": "'Google Sans Flex', sans-serif",
-              "font-size": "11", "font-weight": "700", fill
+              "font-size": "11", "font-weight": "500", fill
             });
             aEl.textContent = places[prob.targetIndex];
             svg.appendChild(aEl);

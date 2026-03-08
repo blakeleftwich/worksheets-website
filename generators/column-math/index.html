@@ -1121,13 +1121,13 @@
           numEl.textContent = (i + 1) + "."; svg.appendChild(numEl);
         }
 
-        const topEl = svgEl("text", { x: rightX, y: numTop + lineHeight, "text-anchor": "end", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
+        const topEl = svgEl("text", { x: rightX, y: numTop + lineHeight, "text-anchor": "end", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
         topEl.textContent = aStr; svg.appendChild(topEl);
 
-        const opEl = svgEl("text", { x: plusX, y: numTop + lineHeight * 2, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
+        const opEl = svgEl("text", { x: plusX, y: numTop + lineHeight * 2, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
         opEl.textContent = opSymbol; svg.appendChild(opEl);
 
-        const botEl = svgEl("text", { x: rightX, y: numTop + lineHeight * 2, "text-anchor": "end", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
+        const botEl = svgEl("text", { x: rightX, y: numTop + lineHeight * 2, "text-anchor": "end", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
         botEl.textContent = bStr; svg.appendChild(botEl);
 
         const lineLeft = plusX - 2, lineRight = rightX + 4, lineY = numTop + lineHeight * 2 + 8;
@@ -1140,10 +1140,10 @@
           svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: badgeW, height: badgeH, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
           const bt = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
           bt.textContent = "Example"; svg.appendChild(bt);
-          const ansEl = svgEl("text", { x: rightX, y: lineY + lineHeight + 2, "text-anchor": "end", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#16a34a" });
+          const ansEl = svgEl("text", { x: rightX, y: lineY + lineHeight + 2, "text-anchor": "end", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#16a34a" });
           ansEl.textContent = ansStr; svg.appendChild(ansEl);
         } else if (showAnswers) {
-          const ansEl = svgEl("text", { x: rightX, y: lineY + lineHeight + 2, "text-anchor": "end", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#3182ce" });
+          const ansEl = svgEl("text", { x: rightX, y: lineY + lineHeight + 2, "text-anchor": "end", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#3182ce" });
           ansEl.textContent = ansStr; svg.appendChild(ansEl);
         }
       }

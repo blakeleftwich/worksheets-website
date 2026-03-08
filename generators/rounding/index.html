@@ -817,11 +817,11 @@
         // Answer blank or answer value
         const blankX = x + promptWidth + charW * 1.5;
         if (isExample) {
-          const ansEl = svgEl("text", { x: blankX, y: textCenterY, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#16a34a" });
+          const ansEl = svgEl("text", { x: blankX, y: textCenterY, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#16a34a" });
           ansEl.textContent = answer.toLocaleString();
           svg.appendChild(ansEl);
         } else if (showAnswers) {
-          const ansEl = svgEl("text", { x: blankX, y: textCenterY, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#3182ce" });
+          const ansEl = svgEl("text", { x: blankX, y: textCenterY, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#3182ce" });
           ansEl.textContent = answer.toLocaleString();
           svg.appendChild(ansEl);
         } else {

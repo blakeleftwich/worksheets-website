@@ -839,7 +839,7 @@
         const plusEl = svgEl("text", {
           x: plusX, y: plusY + symbolSize * 0.35,
           "font-family": "'Google Sans Flex', sans-serif",
-          "font-size": String(symbolSize), "font-weight": "700",
+          "font-size": String(symbolSize), "font-weight": "500",
           fill: "#2d3748", "text-anchor": "middle"
         });
         plusEl.textContent = "+";
@@ -856,7 +856,7 @@
         const eqEl = svgEl("text", {
           x: eqX, y: plusY + symbolSize * 0.35,
           "font-family": "'Google Sans Flex', sans-serif",
-          "font-size": String(symbolSize), "font-weight": "700",
+          "font-size": String(symbolSize), "font-weight": "500",
           fill: "#2d3748", "text-anchor": "middle"
         });
         eqEl.textContent = "=";
@@ -885,7 +885,7 @@
             x: blankX + blankW / 2, y: plusY + symbolSize * 0.35,
             "text-anchor": "middle",
             "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(symbolSize * 0.9), "font-weight": "700",
+            "font-size": String(symbolSize * 0.9), "font-weight": "500",
             fill: "#16a34a"
           });
           ansEl.textContent = String(answer);
@@ -895,7 +895,7 @@
             x: blankX + blankW / 2, y: plusY + symbolSize * 0.35,
             "text-anchor": "middle",
             "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(symbolSize * 0.9), "font-weight": "700",
+            "font-size": String(symbolSize * 0.9), "font-weight": "500",
             fill: "#3182ce"
           });
           ansEl.textContent = String(answer);
@@ -925,7 +925,7 @@
               x: b1X + blankLineW / 2, y: eqLineY + eqFontSize * 0.15,
               "text-anchor": "middle",
               "font-family": "'Google Sans Flex', sans-serif",
-              "font-size": String(eqFontSize), "font-weight": "700",
+              "font-size": String(eqFontSize), "font-weight": "500",
               fill: "#3182ce"
             });
             t.textContent = String(a); svg.appendChild(t);
@@ -936,7 +936,7 @@
           const pEl = svgEl("text", {
             x: pX, y: eqLineY + eqFontSize * 0.15,
             "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(eqFontSize), "font-weight": "700",
+            "font-size": String(eqFontSize), "font-weight": "500",
             fill: "#2d3748"
           });
           pEl.textContent = "+"; svg.appendChild(pEl);
@@ -952,7 +952,7 @@
               x: b2X + blankLineW / 2, y: eqLineY + eqFontSize * 0.15,
               "text-anchor": "middle",
               "font-family": "'Google Sans Flex', sans-serif",
-              "font-size": String(eqFontSize), "font-weight": "700",
+              "font-size": String(eqFontSize), "font-weight": "500",
               fill: "#3182ce"
             });
             t2.textContent = String(b); svg.appendChild(t2);
@@ -963,7 +963,7 @@
           const eEl = svgEl("text", {
             x: eX, y: eqLineY + eqFontSize * 0.15,
             "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(eqFontSize), "font-weight": "700",
+            "font-size": String(eqFontSize), "font-weight": "500",
             fill: "#2d3748"
           });
           eEl.textContent = "="; svg.appendChild(eEl);
@@ -979,7 +979,7 @@
               x: b3X + blankLineW / 2, y: eqLineY + eqFontSize * 0.15,
               "text-anchor": "middle",
               "font-family": "'Google Sans Flex', sans-serif",
-              "font-size": String(eqFontSize), "font-weight": "700",
+              "font-size": String(eqFontSize), "font-weight": "500",
               fill: "#3182ce"
             });
             t3.textContent = String(answer); svg.appendChild(t3);
