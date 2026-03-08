@@ -6,866 +6,566 @@
   <title>Base-Ten Blocks - Interactive Math Tool</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-    }
-
-    .main-container {
-      display: grid;
-      grid-template-columns: 340px 1fr;
-      min-height: 100vh;
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+    .main-container { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
     .main-container.sidebar-collapsed { grid-template-columns: 0 1fr; }
-
-    /* ===== Sidebar ===== */
-    .sidebar {
-      background: #f7fafc;
-      padding: 32px 24px;
-      box-shadow: 4px 0 20px rgba(0,0,0,0.1);
-      overflow-y: auto;
-      height: 100vh;
-      position: sticky;
-      top: 0;
-      transition: width 0.25s, padding 0.25s, min-width 0.25s;
-    }
+    .sidebar { background: #f7fafc; padding: 24px 20px; box-shadow: 4px 0 20px rgba(0,0,0,0.1); overflow-y: auto; height: 100vh; position: sticky; top: 0; transition: width 0.25s, padding 0.25s; }
     .sidebar.collapsed { width: 0; padding: 0; overflow: hidden; min-width: 0; }
-    .sidebar h2 { font-size: 22px; font-weight: 700; color: #1a202c; margin-bottom: 4px; }
-    .sidebar .subtitle { font-size: 13px; color: #718096; margin-bottom: 24px; }
-
-    .section-label {
-      display: block; font-size: 13px; font-weight: 600;
-      color: #2d3748; margin-bottom: 10px;
-    }
-
-    /* ===== Block Tray ===== */
-    .block-tray { display: flex; gap: 8px; margin-bottom: 24px; }
-    .block-tile {
-      flex: 1; display: flex; flex-direction: column; align-items: center;
-      gap: 6px; padding: 12px 6px; border: 2px solid #e2e8f0; border-radius: 8px;
-      background: white; cursor: pointer; transition: all 0.2s; user-select: none;
-      min-height: 90px; justify-content: center;
-    }
-    .block-tile:hover {
-      border-color: #667eea; background: #f7f8ff;
-      transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.15);
-    }
-    .block-tile:active { transform: translateY(0); }
-    .block-tile .tile-label { font-size: 12px; font-weight: 600; color: #2d3748; }
-    .block-tile .tile-value { font-size: 10px; color: #a0aec0; font-weight: 500; }
-
-    /* ===== Collapse Button ===== */
-    .collapse-btn {
-      position: fixed; top: 50%; left: 324px; transform: translateY(-50%);
-      width: 28px; height: 28px; background: white; border: 2px solid #e2e8f0;
-      border-radius: 50%; cursor: pointer; display: flex; align-items: center;
-      justify-content: center; font-size: 12px; color: #667eea;
-      box-shadow: 2px 0 8px rgba(0,0,0,0.15); transition: left 0.25s, all 0.2s;
-      z-index: 100; user-select: none; line-height: 1;
-    }
-    .collapse-btn:hover { background: #f7f8ff; border-color: #667eea; box-shadow: 2px 0 12px rgba(102,126,234,0.3); }
-    .main-container.sidebar-collapsed .collapse-btn { left: 4px; }
-
-    /* ===== Action Buttons ===== */
-    .actions-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
-    .btn-action {
-      width: 100%; padding: 10px 14px; font-size: 13px; font-weight: 600;
-      border: 2px solid #e2e8f0; border-radius: 8px; background: white;
-      color: #2d3748; cursor: pointer; transition: all 0.2s; text-align: center;
-    }
-    .btn-action:hover { border-color: #667eea; color: #667eea; background: #f7f8ff; }
-    .btn-action:disabled { opacity: 0.4; cursor: not-allowed; border-color: #e2e8f0; color: #a0aec0; background: #f7fafc; }
-    .btn-action:disabled:hover { border-color: #e2e8f0; color: #a0aec0; background: #f7fafc; }
-    .btn-action.danger { color: #e53e3e; border-color: #fed7d7; }
-    .btn-action.danger:hover { background: #fff5f5; border-color: #e53e3e; }
-    .btn-action.danger:disabled { color: #a0aec0; border-color: #e2e8f0; }
-
-    .button-group { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; }
-    .button-group button {
-      width: 100%; padding: 12px 16px; font-size: 14px; font-weight: 600;
-      border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s;
-    }
-    .button-group button:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-    .btn-generate { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-
-    /* ===== Total Counter ===== */
-    .total-display {
-      margin-top: 20px; padding: 16px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 10px; text-align: center;
-    }
-    .total-label { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-    .total-value { font-size: 32px; font-weight: 700; color: white; }
-
-    /* ===== Workspace ===== */
-    .workspace { position: relative; overflow: auto; min-height: 100vh; background: white; }
-    .workspace-inner { position: relative; width: 100%; min-height: 100vh; min-width: 100%; }
-
-    /* ===== Blocks ===== */
-    .block {
-      position: absolute; cursor: grab; user-select: none;
-      touch-action: none; transition: filter 0.12s;
-    }
-    .block:hover { z-index: 50; }
-    .block.dragging { cursor: grabbing !important; z-index: 1000; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.28)); }
-    .block.locked { cursor: not-allowed; }
-
-    /* ===== Selection Rectangle ===== */
-    .lasso-rect {
-      position: absolute; border: 1.5px dashed #667eea;
-      background: rgba(102,126,234,0.07); pointer-events: none;
-      z-index: 500; border-radius: 2px;
-    }
-
-    /* ===== Context Menu ===== */
-    .ctx-menu {
-      position: fixed; background: white; border: 1px solid #e2e8f0;
-      border-radius: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-      z-index: 9999; min-width: 176px; padding: 5px 0;
-    }
-    .ctx-item {
-      display: flex; align-items: center; gap: 9px; padding: 8px 14px;
-      font-size: 13px; cursor: pointer; color: #2d3748; transition: background 0.1s;
-      white-space: nowrap;
-    }
-    .ctx-item:hover { background: #f7f8ff; color: #667eea; }
+    .sidebar h2 { font-size: 20px; font-weight: 700; color: #1a202c; margin-bottom: 4px; }
+    .sidebar .subtitle { font-size: 12px; color: #718096; margin-bottom: 20px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #667eea; text-decoration: none; margin-bottom: 16px; }
+    .back-link:hover { color: #764ba2; }
+    .section-label { display: block; font-size: 12px; font-weight: 600; color: #2d3748; margin-bottom: 8px; }
+    .block-tray { display: flex; gap: 6px; margin-bottom: 10px; }
+    .block-tile { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 10px 4px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; user-select: none; min-height: 80px; justify-content: center; }
+    .block-tile:hover { border-color: #667eea; background: #f7f8ff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.15); }
+    .block-tile-label { font-size: 11px; font-weight: 600; color: #4a5568; }
+    .block-tile-count { font-size: 10px; color: #a0aec0; }
+    .reset-zoom-btn { width: 100%; padding: 5px 0; font-size: 11px; font-weight: 600; color: #718096; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; margin-bottom: 16px; transition: all 0.2s; }
+    .reset-zoom-btn:hover { border-color: #667eea; color: #667eea; background: #f7f8ff; }
+    .actions-section { margin-bottom: 16px; }
+    .action-btn { width: 100%; padding: 9px 12px; margin-bottom: 6px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.15s; display: flex; align-items: center; gap: 8px; }
+    .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .action-btn.green { background: linear-gradient(135deg, #48bb78, #38a169); color: white; }
+    .action-btn.green:not(:disabled):hover { opacity: 0.9; transform: translateY(-1px); }
+    .action-btn.blue { background: linear-gradient(135deg, #4299e1, #3182ce); color: white; }
+    .action-btn.blue:not(:disabled):hover { opacity: 0.9; transform: translateY(-1px); }
+    .action-btn.red { background: linear-gradient(135deg, #fc8181, #e53e3e); color: white; }
+    .action-btn.red:not(:disabled):hover { opacity: 0.9; transform: translateY(-1px); }
+    .clear-btn { width: 100%; padding: 8px; border-radius: 8px; border: 2px solid #fc8181; background: white; color: #e53e3e; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 16px; }
+    .clear-btn:hover { background: #fff5f5; }
+    .total-display { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; color: white; }
+    .total-display .total-label { font-size: 11px; font-weight: 600; opacity: 0.85; margin-bottom: 4px; }
+    .total-display .total-value { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+    .total-display .total-breakdown { font-size: 11px; opacity: 0.75; margin-top: 2px; }
+    .adv-section { margin-top: 16px; }
+    .adv-toggle { background: none; border: none; cursor: pointer; font-size: 13px; font-weight: 600; color: #667eea; padding: 4px 0; transition: color 0.2s; }
+    .adv-toggle:hover { color: #764ba2; }
+    .adv-panel { display: none; padding: 12px 0 4px; }
+    .adv-panel.open { display: block; }
+    .adv-checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 13px; color: #2d3748; cursor: pointer; }
+    .adv-checkbox-row input[type=checkbox] { cursor: pointer; width: 14px; height: 14px; }
+    .help-text { font-size: 11px; color: #a0aec0; line-height: 1.6; margin-top: 16px; }
+    .help-text strong { color: #718096; }
+    .collapse-btn { position: fixed; top: 50%; left: 300px; transform: translateY(-50%); z-index: 500; background: white; border: 1px solid #e2e8f0; border-radius: 0 8px 8px 0; padding: 10px 6px; cursor: pointer; font-size: 12px; color: #718096; box-shadow: 2px 0 8px rgba(0,0,0,0.08); transition: left 0.25s; line-height: 1; }
+    .collapse-btn:hover { color: #667eea; }
+    .collapse-btn.collapsed-pos { left: 0; }
+    .workspace { overflow: auto; position: relative; background: white; height: 100vh; }
+    .workspace-inner { position: relative; min-width: 2000px; min-height: 1600px; }
+    .col-header { position: sticky; top: 0; z-index: 200; display: flex; border-bottom: 1px solid #e2e8f0; background: white; height: 32px; }
+    .col-hdr-hundreds, .col-hdr-tens, .col-hdr-ones { display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; border-right: 1px solid #e2e8f0; flex-shrink: 0; }
+    .col-hdr-ones { border-right: none; flex: 1; }
+    .block { position: absolute; cursor: grab; user-select: none; touch-action: none; }
+    .block:active { cursor: grabbing; }
+    .block.selected { outline: 2px solid #667eea; outline-offset: 2px; }
+    #lasso { position: absolute; border: 2px dashed #667eea; background: rgba(102,126,234,0.08); pointer-events: none; display: none; z-index: 2000; }
+    .ctx-menu { position: fixed; z-index: 9999; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); padding: 4px 0; min-width: 160px; display: none; }
+    .ctx-item { padding: 9px 16px; font-size: 13px; cursor: pointer; color: #2d3748; display: flex; align-items: center; gap: 8px; }
+    .ctx-item:hover { background: #f7fafc; }
+    .ctx-item.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
     .ctx-item.danger { color: #e53e3e; }
-    .ctx-item.danger:hover { background: #fff5f5; color: #c53030; }
-    .ctx-item.disabled { opacity: 0.38; cursor: not-allowed; pointer-events: none; }
-    .ctx-divider { border-top: 1px solid #e2e8f0; margin: 4px 0; }
-    .ctx-icon { width: 18px; text-align: center; font-size: 14px; flex-shrink: 0; }
-
-    /* ===== Help text ===== */
-    .help-text {
-      font-size: 11px; color: #a0aec0; margin-top: 16px;
-      line-height: 1.6; padding: 10px; background: white;
-      border-radius: 8px; border: 1px solid #e2e8f0;
-    }
-
-    @media (max-width: 1024px) {
-      .main-container { grid-template-columns: 1fr; }
-      .sidebar { position: relative; height: auto; }
-      .workspace { min-height: 70vh; }
-    }
+    .ctx-sep { height: 1px; background: #e2e8f0; margin: 4px 0; }
   </style>
 </head>
 <body>
-  <div class="main-container" id="mainContainer">
-    <button class="collapse-btn" id="collapseBtn" onclick="toggleSidebar()" title="Collapse sidebar">◀</button>
-
-    <div class="sidebar" id="sidebar">
-      <a href="../index.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#667eea;text-decoration:none;margin-bottom:16px;transition:gap 0.2s;"
-         onmouseover="this.style.gap='10px'" onmouseout="this.style.gap='6px'">← All Tools</a>
-      <h2>Base-Ten Blocks</h2>
-      <div class="subtitle">Explore place value with blocks</div>
-
-      <span class="section-label">Add Blocks</span>
-      <div class="block-tray">
-
-        <!-- Ones tile -->
-        <div class="block-tile" onclick="addBlock('one')" title="Add a unit (value: 1)">
-          <div class="tile-icon">
-            <svg width="22" height="22" viewBox="0 0 22 22">
-              <rect x="1" y="1" width="20" height="20" rx="3" fill="#3b82f6" stroke="rgba(0,0,0,0.18)" stroke-width="1"/>
-            </svg>
-          </div>
-          <span class="tile-label">Ones</span>
-          <span class="tile-value">= 1</span>
-        </div>
-
-        <!-- Tens tile: narrow 1×10 stick, cells are square -->
-        <div class="block-tile" onclick="addBlock('ten')" title="Add a tens rod (value: 10)">
-          <div class="tile-icon">
-            <svg width="11" height="51" viewBox="0 0 11 51">
-              <rect x="0.5" y="0.5" width="10" height="50" rx="2" fill="#22c55e" stroke="rgba(0,0,0,0.18)" stroke-width="0.8"/>
-              <line x1="0.5" y1="5.5"  x2="10.5" y2="5.5"  stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
-              <line x1="0.5" y1="10.5" x2="10.5" y2="10.5" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
-              <line x1="0.5" y1="15.5" x2="10.5" y2="15.5" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
-              <line x1="0.5" y1="20.5" x2="10.5" y2="20.5" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
-              <line x1="0.5" y1="25.5" x2="10.5" y2="25.5" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
-              <line x1="0.5" y1="30.5" x2="10.5" y2="30.5" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
-              <line x1="0.5" y1="35.5" x2="10.5" y2="35.5" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
-              <line x1="0.5" y1="40.5" x2="10.5" y2="40.5" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
-              <line x1="0.5" y1="45.5" x2="10.5" y2="45.5" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>
-            </svg>
-          </div>
-          <span class="tile-label">Tens</span>
-          <span class="tile-value">= 10</span>
-        </div>
-
-        <!-- Hundreds tile: 10×10 grid of square cells -->
-        <div class="block-tile" onclick="addBlock('hundred')" title="Add a hundreds flat (value: 100)">
-          <div class="tile-icon">
-            <svg width="46" height="46" viewBox="0 0 46 46">
-              <rect x="0.5" y="0.5" width="45" height="45" rx="2" fill="#f97316" stroke="rgba(0,0,0,0.18)" stroke-width="0.8"/>
-              <line x1="5.1" y1="0.5" x2="5.1" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="9.7" y1="0.5" x2="9.7" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="14.3" y1="0.5" x2="14.3" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="18.9" y1="0.5" x2="18.9" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="23" y1="0.5" x2="23" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="27.6" y1="0.5" x2="27.6" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="32.2" y1="0.5" x2="32.2" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="36.8" y1="0.5" x2="36.8" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="41.4" y1="0.5" x2="41.4" y2="45.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="0.5" y1="5.1" x2="45.5" y2="5.1" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="0.5" y1="9.7" x2="45.5" y2="9.7" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="0.5" y1="14.3" x2="45.5" y2="14.3" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="0.5" y1="18.9" x2="45.5" y2="18.9" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="0.5" y1="23" x2="45.5" y2="23" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="0.5" y1="27.6" x2="45.5" y2="27.6" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="0.5" y1="32.2" x2="45.5" y2="32.2" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="0.5" y1="36.8" x2="45.5" y2="36.8" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-              <line x1="0.5" y1="41.4" x2="45.5" y2="41.4" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
-            </svg>
-          </div>
-          <span class="tile-label">Hundreds</span>
-          <span class="tile-value">= 100</span>
-        </div>
+<div class="main-container" id="mainContainer">
+  <button class="collapse-btn" id="collapseBtn" onclick="toggleSidebar()">&#9664;</button>
+  <div class="sidebar" id="sidebar">
+    <a href="../../index.html" class="back-link">&#8592; Back to Tools</a>
+    <h2>Base-Ten Blocks</h2>
+    <p class="subtitle">Build numbers with hundreds, tens, and ones.</p>
+    <span class="section-label">Add Blocks</span>
+    <div class="block-tray">
+      <div class="block-tile" onclick="addBlock('hundred')">
+        <svg width="44" height="44" viewBox="0 0 44 44">
+          <rect width="44" height="44" fill="#f97316" rx="3"/>
+          <line x1="8.8" y1="0" x2="8.8" y2="44" stroke="white" stroke-width="0.7" opacity="0.5"/>
+          <line x1="17.6" y1="0" x2="17.6" y2="44" stroke="white" stroke-width="0.7" opacity="0.5"/>
+          <line x1="26.4" y1="0" x2="26.4" y2="44" stroke="white" stroke-width="0.7" opacity="0.5"/>
+          <line x1="35.2" y1="0" x2="35.2" y2="44" stroke="white" stroke-width="0.7" opacity="0.5"/>
+          <line x1="0" y1="8.8" x2="44" y2="8.8" stroke="white" stroke-width="0.7" opacity="0.5"/>
+          <line x1="0" y1="17.6" x2="44" y2="17.6" stroke="white" stroke-width="0.7" opacity="0.5"/>
+          <line x1="0" y1="26.4" x2="44" y2="26.4" stroke="white" stroke-width="0.7" opacity="0.5"/>
+          <line x1="0" y1="35.2" x2="44" y2="35.2" stroke="white" stroke-width="0.7" opacity="0.5"/>
+        </svg>
+        <span class="block-tile-label">Hundreds</span>
+        <span class="block-tile-count">= 100</span>
       </div>
-
-      <span class="section-label">Actions</span>
-      <div class="actions-group">
-        <button class="btn-action" id="btnGroup"  onclick="groupBlocks()"         disabled>Group into Next</button>
-        <button class="btn-action" id="btnBreak"  onclick="breakApartSelected()"  disabled>Break Apart</button>
-        <button class="btn-action" id="btnRotate" onclick="rotateSelected()"      disabled>Rotate</button>
-        <button class="btn-action danger" id="btnDelete" onclick="deleteSelected()" disabled>Delete Selected</button>
+      <div class="block-tile" onclick="addBlock('ten')">
+        <svg width="12" height="44" viewBox="0 0 12 44">
+          <rect width="12" height="44" fill="#22c55e" rx="2"/>
+          <line x1="0" y1="8.8" x2="12" y2="8.8" stroke="white" stroke-width="0.7" opacity="0.5"/>
+          <line x1="0" y1="17.6" x2="12" y2="17.6" stroke="white" stroke-width="0.7" opacity="0.5"/>
+          <line x1="0" y1="26.4" x2="12" y2="26.4" stroke="white" stroke-width="0.7" opacity="0.5"/>
+          <line x1="0" y1="35.2" x2="12" y2="35.2" stroke="white" stroke-width="0.7" opacity="0.5"/>
+        </svg>
+        <span class="block-tile-label">Tens</span>
+        <span class="block-tile-count">= 10</span>
       </div>
-
-      <div class="button-group">
-        <button class="btn-generate" onclick="clearAll()">Clear All</button>
-      </div>
-
-      <div class="total-display">
-        <div class="total-label">Total</div>
-        <div class="total-value" id="totalValue">0</div>
-      </div>
-
-      <div class="help-text">
-        <strong>Tips:</strong><br>
-        • Click to select · Shift+click to add<br>
-        • Drag on canvas to lasso-select<br>
-        • Right-click for more options<br>
-        • Tens/hundreds snap to horizontal alignment<br>
-        • Del/Backspace to delete · Esc to deselect<br>
-        • Ctrl/⌘+A select all · Ctrl/⌘+D duplicate
+      <div class="block-tile" onclick="addBlock('one')">
+        <svg width="22" height="22" viewBox="0 0 22 22">
+          <rect width="22" height="22" fill="#3b82f6" rx="3"/>
+        </svg>
+        <span class="block-tile-label">Ones</span>
+        <span class="block-tile-count">= 1</span>
       </div>
     </div>
-
-    <!-- Workspace -->
-    <div class="workspace" id="workspace">
-      <div class="workspace-inner" id="workspaceInner"></div>
+    <button class="reset-zoom-btn" onclick="resetZoom()">Reset Zoom (100%)</button>
+    <div class="actions-section">
+      <span class="section-label">Actions</span>
+      <button class="action-btn green" id="btnBreak"  onclick="breakApartSelected()" disabled>&#8863; Break Apart</button>
+      <button class="action-btn blue"  id="btnRotate" onclick="rotateSelected()"     disabled>&#8635; Rotate Tens</button>
+      <button class="action-btn red"   id="btnDelete" onclick="deleteSelected()"     disabled>&#10005; Delete Selected</button>
+    </div>
+    <button class="clear-btn" onclick="clearAll()">Clear All</button>
+    <div class="total-display" id="totalDisplay">
+      <div class="total-label">TOTAL VALUE</div>
+      <div class="total-value" id="totalVal">0</div>
+      <div class="total-breakdown" id="totalBreakdown">No blocks</div>
+    </div>
+    <div class="adv-section">
+      <button class="adv-toggle" id="advToggle" onclick="toggleAdv()">&#9658; Advanced Options</button>
+      <div class="adv-panel" id="advPanel">
+        <label class="adv-checkbox-row"><input type="checkbox" id="chkShowTotal" checked onchange="showTotal=this.checked; applyShowTotal();"> Show total</label>
+        <label class="adv-checkbox-row"><input type="checkbox" id="chkShowSelVal" onchange="showSelectedValues=this.checked; refreshAllBlocks();"> Show selected values</label>
+        <label class="adv-checkbox-row"><input type="checkbox" id="chkValueCols" onchange="showValueColumns=this.checked; if(showValueColumns&&colDiv1===null) initColDividers(); renderColumnsBg();"> Value columns</label>
+      </div>
+    </div>
+    <div class="help-text"><strong>Tips:</strong><br>Click tiles to add blocks.<br>Drag to move. Lasso-drag empty space to multi-select.<br><strong>Scroll</strong> to zoom. <strong>Right-click</strong> for options.<br><strong>Del</strong> removes selected. <strong>Ctrl+A</strong> selects all. <strong>Esc</strong> deselects.</div>
+  </div>
+  <div class="workspace" id="workspace">
+    <div id="colHeader" class="col-header" style="display:none;">
+      <div class="col-hdr-hundreds">Hundreds</div>
+      <div class="col-hdr-tens">Tens</div>
+      <div class="col-hdr-ones">Ones</div>
+    </div>
+    <div class="workspace-inner" id="workspaceInner">
+      <div id="columnsBg" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;display:none;"></div>
+      <div id="lasso"></div>
     </div>
   </div>
+</div>
+<div id="selBadge" style="display:none;position:fixed;top:60px;right:20px;background:white;border:2px solid #667eea;border-radius:8px;padding:8px 14px;font-weight:600;font-size:14px;color:#667eea;z-index:9998;box-shadow:0 4px 12px rgba(102,126,234,0.2);">Selected: 0</div>
+<div class="ctx-menu" id="ctxMenu">
+  <div class="ctx-item" id="ctxBreak"  onclick="ctxBreak()">&#8863; Break Apart</div>
+  <div class="ctx-item" id="ctxRotate" onclick="ctxRotate()">&#8635; Rotate</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item danger" id="ctxDelete" onclick="ctxDelete()">&#10005; Delete</div>
+</div>
+<script>
+const CELL = 22, BREAK_GAP = 6, SNAP_THRESHOLD = 14;
+const COLOR  = { one: "#3b82f6", ten: "#22c55e", hundred: "#f97316" };
+const BASE_Z = { hundred: 1, ten: 5, one: 10 };
 
-  <script>
-    // ===== Constants =====
-    const CELL = 22;           // px — every unit cell is CELL×CELL (ones, ten-segments, hundred-cells)
-    const SNAP_THRESHOLD = 14; // px — how close before snapping to horizontal alignment
+let blocks = [], nextId = 1, zoomLevel = 1.0;
+let addCursor = { x: 30, y: 30, rowH: 0 };
+let showTotal = true, showSelectedValues = false, showValueColumns = false;
+let colDiv1 = null, colDiv2 = null;
+let dragging = false, dragBlocks = [], lassoActive = false;
 
-    // ===== State =====
-    let blocks = [];
-    let nextId  = 1;
-    let sidebarCollapsed = false;
-    let ctxMenuEl = null;
+const workspace      = document.getElementById("workspace");
+const workspaceInner = document.getElementById("workspaceInner");
+const lassoEl        = document.getElementById("lasso");
 
-    // ===== DOM refs =====
-    const workspace      = document.getElementById('workspace');
-    const workspaceInner = document.getElementById('workspaceInner');
-    const totalValue     = document.getElementById('totalValue');
-    const btnGroup       = document.getElementById('btnGroup');
-    const btnBreak       = document.getElementById('btnBreak');
-    const btnRotate      = document.getElementById('btnRotate');
-    const btnDelete      = document.getElementById('btnDelete');
-    const sidebar        = document.getElementById('sidebar');
-    const collapseBtn    = document.getElementById('collapseBtn');
-    const mainContainer  = document.getElementById('mainContainer');
+function getDims(block) {
+  if (block.type === "one")     return { w: CELL,      h: CELL };
+  if (block.type === "hundred") return { w: CELL * 10, h: CELL * 10 };
+  return (block.rotation || 0) % 180 !== 0 ? { w: CELL * 10, h: CELL } : { w: CELL, h: CELL * 10 };
+}
+function getDimsScaled(b) { const d = getDims(b); return { w: d.w * zoomLevel, h: d.h * zoomLevel }; }
+function blockValue(t)  { return t === "hundred" ? 100 : t === "ten" ? 10 : 1; }
+function blockZIndex(b) { return (BASE_Z[b.type] || 1) + (b.selected ? 100 : 0); }
 
-    // ===== Helpers =====
-    function typeColor(t) {
-      return t === 'one' ? '#3b82f6' : t === 'ten' ? '#22c55e' : '#f97316';
+function makeSVG(block) {
+  const ds = getDimsScaled(block), w = ds.w, h = ds.h;
+  const col = COLOR[block.type], cp = CELL * zoomLevel;
+  let lines = "";
+  if (block.type === "ten") {
+    const isH = (block.rotation || 0) % 180 !== 0;
+    for (let i = 1; i < 10; i++) {
+      const p = i * cp;
+      if (isH) lines += '<line x1="' + p + '" y1="0" x2="' + p + '" y2="' + h + '" stroke="white" stroke-width="0.8" opacity="0.5"/>';
+      else     lines += '<line x1="0" y1="' + p + '" x2="' + w + '" y2="' + p + '" stroke="white" stroke-width="0.8" opacity="0.5"/>';
     }
-
-    // Actual pixel dimensions of a block, accounting for rotation
-    function getDims(block) {
-      let w = CELL, h = CELL;
-      if (block.type === 'ten')     { w = CELL;       h = CELL * 10; }
-      if (block.type === 'hundred') { w = CELL * 10;  h = CELL * 10; }
-      const rot = (block.rotation || 0) % 360;
-      if (rot === 90 || rot === 270) return { w: h, h: w };
-      return { w, h };
+  } else if (block.type === "hundred") {
+    for (let i = 1; i < 10; i++) {
+      const p = i * cp;
+      lines += '<line x1="' + p + '" y1="0" x2="' + p + '" y2="' + h + '" stroke="white" stroke-width="0.6" opacity="0.45"/>';
+      lines += '<line x1="0" y1="' + p + '" x2="' + w + '" y2="' + p + '" stroke="white" stroke-width="0.6" opacity="0.45"/>';
     }
+  }
+  let vt = "";
+  if (showSelectedValues && block.selected) {
+    const val = blockValue(block.type);
+    const fs  = (block.type === "hundred" ? 16 : block.type === "ten" ? 11 : 10) * zoomLevel;
+    vt = '<text x="' + (w/2) + '" y="' + (h/2) + '" text-anchor="middle" dominant-baseline="central" font-size="' + fs + '" font-weight="700" fill="white" font-family="system-ui" pointer-events="none">' + val + '</text>';
+  }
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" style="display:block;border-radius:3px;">'
+       + '<rect x="0" y="0" width="' + w + '" height="' + h + '" fill="' + col + '" rx="3"/>'
+       + lines + vt + '</svg>';
+}
 
-    function blockValue(t) { return t === 'one' ? 1 : t === 'ten' ? 10 : 100; }
+function renderBlock(block) {
+  let el = document.getElementById("block-" + block.id);
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "block-" + block.id;
+    el.className = "block";
+    workspaceInner.appendChild(el);
+    el.addEventListener("mousedown",   function(e) { onBlockMouseDown(e, block); });
+    el.addEventListener("contextmenu", function(e) { onBlockCtxMenu(e, block); });
+  }
+  const ds = getDimsScaled(block);
+  el.style.left    = (block.x * zoomLevel) + "px";
+  el.style.top     = (block.y * zoomLevel) + "px";
+  el.style.width   = ds.w + "px";
+  el.style.height  = ds.h + "px";
+  el.style.zIndex  = blockZIndex(block);
+  el.classList.toggle("selected", !!block.selected);
+  el.innerHTML = makeSVG(block);
+}
+function removeBlockEl(b) { const e = document.getElementById("block-" + b.id); if (e) e.remove(); }
 
-    // ===== Sidebar =====
-    function toggleSidebar() {
-      sidebarCollapsed = !sidebarCollapsed;
-      sidebar.classList.toggle('collapsed', sidebarCollapsed);
-      mainContainer.classList.toggle('sidebar-collapsed', sidebarCollapsed);
-      collapseBtn.textContent = sidebarCollapsed ? '▶' : '◀';
-      collapseBtn.title = sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar';
+function refreshAllBlocks() {
+  workspaceInner.querySelectorAll(".block").forEach(function(el) {
+    const id = parseInt(el.id.replace("block-", ""));
+    if (!blocks.find(function(b) { return b.id === id; })) el.remove();
+  });
+  blocks.forEach(renderBlock);
+  expandWorkspace();
+  updateTotal();
+  updateButtons();
+  renderColumnsBg();
+  updateSelectionBadge();
+}
+
+function addBlock(type, x, y) {
+  const dims = getDims({ type: type, rotation: 0 });
+  if (x === undefined || y === undefined) {
+    const wsLogW = workspace.clientWidth / zoomLevel;
+    if (addCursor.x + dims.w > wsLogW - 30) {
+      addCursor.x = 30; addCursor.y += addCursor.rowH + 10; addCursor.rowH = 0;
     }
+    x = addCursor.x; y = addCursor.y;
+    addCursor.x += dims.w + 10;
+    addCursor.rowH = Math.max(addCursor.rowH, dims.h);
+  }
+  const block = { id: nextId++, type: type, x: x, y: y, rotation: 0, selected: false };
+  blocks.push(block);
+  renderBlock(block);
+  expandWorkspace();
+  updateTotal();
+  updateButtons();
+}
 
-    // ===== Add block =====
-    function addBlock(type, x, y, rotation) {
-      rotation = rotation || 0;
-      const dims = getDims({ type, rotation });
-      if (x === undefined) {
-        const wsRect = workspace.getBoundingClientRect();
-        const pad = 40;
-        const maxX = Math.max(wsRect.width  - dims.w - pad, pad + 10);
-        const maxY = Math.max(wsRect.height - dims.h - pad, pad + 10);
-        x = pad + Math.random() * Math.max(0, maxX - pad);
-        y = pad + Math.random() * Math.min(Math.max(0, maxY - pad), 360);
-      }
-      const block = { id: nextId++, type, x, y, rotation, locked: false, selected: false };
-      blocks.push(block);
-      renderBlock(block);
-      updateTotal();
-      updateButtons();
-      return block;
+function expandWorkspace() {
+  let maxX = 2000, maxY = 1600;
+  blocks.forEach(function(b) {
+    const ds = getDimsScaled(b);
+    maxX = Math.max(maxX, b.x * zoomLevel + ds.w + 100);
+    maxY = Math.max(maxY, b.y * zoomLevel + ds.h + 100);
+  });
+  workspaceInner.style.minWidth  = maxX + "px";
+  workspaceInner.style.minHeight = maxY + "px";
+}
+
+function updateTotal() {
+  const hc = blocks.filter(function(b) { return b.type === "hundred"; }).length;
+  const tc = blocks.filter(function(b) { return b.type === "ten";     }).length;
+  const oc = blocks.filter(function(b) { return b.type === "one";     }).length;
+  document.getElementById("totalVal").textContent = hc * 100 + tc * 10 + oc;
+  const parts = [];
+  if (hc) parts.push(hc + " hundred" + (hc !== 1 ? "s" : ""));
+  if (tc) parts.push(tc + " ten"     + (tc !== 1 ? "s" : ""));
+  if (oc) parts.push(oc + " one"     + (oc !== 1 ? "s" : ""));
+  document.getElementById("totalBreakdown").textContent = parts.length ? parts.join(" + ") : "No blocks";
+}
+function applyShowTotal() { document.getElementById("totalDisplay").style.display = showTotal ? "" : "none"; }
+
+function updateSelectionBadge() {
+  const badge = document.getElementById("selBadge");
+  if (!showSelectedValues) { badge.style.display = "none"; return; }
+  const sel = blocks.filter(function(b) { return b.selected; });
+  if (sel.length < 2) { badge.style.display = "none"; return; }
+  const total = sel.reduce(function(s, b) { return s + blockValue(b.type); }, 0);
+  badge.textContent = "Selected: " + total;
+  badge.style.display = "block";
+}
+
+function updateButtons() {
+  const sel  = blocks.filter(function(b) { return b.selected; });
+  const hasB = sel.some(function(b) { return b.type === "ten" || b.type === "hundred"; });
+  const hasT = sel.some(function(b) { return b.type === "ten"; });
+  const hasS = sel.length > 0;
+  document.getElementById("btnBreak").disabled  = !hasB;
+  document.getElementById("btnRotate").disabled = !hasT;
+  document.getElementById("btnDelete").disabled = !hasS;
+  const cb = document.getElementById("ctxBreak");  if (cb) cb.classList.toggle("disabled", !hasB);
+  const cr = document.getElementById("ctxRotate"); if (cr) cr.classList.toggle("disabled", !hasT);
+  updateSelectionBadge();
+}
+
+function snapBlock(mb, movingIds) {
+  if (mb.type === "one") return;
+  const anchors = blocks.filter(function(b) {
+    return !movingIds.includes(b.id) && (b.type === "ten" || b.type === "hundred");
+  });
+  anchors.forEach(function(a) {
+    if (Math.abs(mb.y - a.y) < SNAP_THRESHOLD) mb.y = a.y;
+    if (Math.abs(mb.x - a.x) < SNAP_THRESHOLD) mb.x = a.x;
+  });
+}
+function snapOnesGroup(onesArr, movingIds) {
+  if (onesArr.length < 2) return;
+  const anchors = blocks.filter(function(b) {
+    return !movingIds.includes(b.id) && (b.type === "ten" || b.type === "hundred");
+  });
+  const minY = Math.min.apply(null, onesArr.map(function(b) { return b.y; }));
+  const minX = Math.min.apply(null, onesArr.map(function(b) { return b.x; }));
+  anchors.forEach(function(a) {
+    if (Math.abs(minY - a.y) < SNAP_THRESHOLD) {
+      const dy = a.y - minY; onesArr.forEach(function(b) { b.y += dy; });
     }
-
-    // ===== Render a single block element =====
-    function renderBlock(block) {
-      const { w, h } = getDims(block);
-      const color    = typeColor(block.type);
-
-      const el = document.createElement('div');
-      el.className = 'block' + (block.selected ? ' selected' : '') + (block.locked ? ' locked' : '');
-      el.dataset.id = block.id;
-      el.style.cssText = `left:${block.x}px;top:${block.y}px;width:${w}px;height:${h}px;`;
-
-      // --- SVG visual ---
-      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      svg.setAttribute('width', w);
-      svg.setAttribute('height', h);
-      svg.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;overflow:visible;';
-
-      const mk = (tag, attrs) => {
-        const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
-        for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
-        return el;
-      };
-
-      // Background
-      svg.appendChild(mk('rect', { x:0, y:0, width:w, height:h, rx:2, fill:color }));
-
-      // Grid dividers — all dividers align to CELL boundaries so every cell is CELL×CELL
-      if (block.type === 'ten') {
-        const isH = w > h;  // horizontal orientation after rotation
-        for (let i = 1; i < 10; i++) {
-          const p = i * CELL;
-          const attrs = isH
-            ? { x1:p, y1:1, x2:p, y2:h-1 }
-            : { x1:1, y1:p, x2:w-1, y2:p };
-          svg.appendChild(mk('line', { ...attrs, stroke:'rgba(0,0,0,0.22)', 'stroke-width':1 }));
-        }
-      } else if (block.type === 'hundred') {
-        for (let i = 1; i < 10; i++) {
-          const p = i * CELL;
-          svg.appendChild(mk('line', { x1:p, y1:1, x2:p, y2:h-1, stroke:'rgba(0,0,0,0.15)', 'stroke-width':1 }));
-          svg.appendChild(mk('line', { x1:1, y1:p, x2:w-1, y2:p, stroke:'rgba(0,0,0,0.15)', 'stroke-width':1 }));
-        }
-      }
-
-      // Outer border
-      svg.appendChild(mk('rect', { x:0.5, y:0.5, width:w-1, height:h-1, rx:2, fill:'none', stroke:'rgba(0,0,0,0.25)', 'stroke-width':1.5 }));
-
-      // Selection ring (extends 4px outside; visible when selected)
-      const selRing = mk('rect', {
-        x:-4, y:-4, width:w+8, height:h+8, rx:4,
-        fill:'none', stroke:'#667eea', 'stroke-width':2, 'stroke-dasharray':'5,3'
-      });
-      selRing.style.display = block.selected ? 'block' : 'none';
-      selRing.dataset.role = 'selring';
-      svg.appendChild(selRing);
-
-      // Lock badge
-      if (block.locked) {
-        const lockBg = mk('rect', { x:w-14, y:0, width:14, height:14, rx:2, fill:'rgba(0,0,0,0.35)' });
-        const lockTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        lockTxt.setAttribute('x', w - 7);
-        lockTxt.setAttribute('y', 10.5);
-        lockTxt.setAttribute('text-anchor', 'middle');
-        lockTxt.setAttribute('font-size', '9');
-        lockTxt.textContent = '🔒';
-        svg.appendChild(lockBg);
-        svg.appendChild(lockTxt);
-      }
-
-      el.appendChild(svg);
-
-      el.addEventListener('pointerdown',   onBlockPointerDown);
-      el.addEventListener('contextmenu',   onBlockContextMenu);
-
-      workspaceInner.appendChild(el);
+    if (Math.abs(minX - a.x) < SNAP_THRESHOLD) {
+      const dx = a.x - minX; onesArr.forEach(function(b) { b.x += dx; });
     }
+  });
+}
 
-    // ===== Drag logic =====
-    function onBlockPointerDown(e) {
-      if (e.button !== 0) return;
-      e.preventDefault();
-      e.stopPropagation();
-      closeCtxMenu();
+function onBlockMouseDown(e, block) {
+  if (e.button !== 0) return;
+  e.preventDefault(); e.stopPropagation(); hideCtxMenu();
+  if (!block.selected) {
+    if (!e.ctrlKey && !e.metaKey) blocks.forEach(function(b) { b.selected = false; });
+    block.selected = true; refreshAllBlocks();
+  }
+  const wsRect = workspace.getBoundingClientRect();
+  const lmx = (e.clientX - wsRect.left + workspace.scrollLeft) / zoomLevel;
+  const lmy = (e.clientY - wsRect.top  + workspace.scrollTop)  / zoomLevel;
+  dragBlocks = blocks.filter(function(b) { return b.selected; }).map(function(b) {
+    return { block: b, offX: lmx - b.x, offY: lmy - b.y };
+  });
+  dragging = true;
+  dragBlocks.forEach(function(d) {
+    const el = document.getElementById("block-" + d.block.id); if (el) el.style.zIndex = 1000;
+  });
+  function onMove(ev) {
+    if (!dragging) return;
+    const nx = (ev.clientX - wsRect.left + workspace.scrollLeft) / zoomLevel;
+    const ny = (ev.clientY - wsRect.top  + workspace.scrollTop)  / zoomLevel;
+    dragBlocks.forEach(function(d) { d.block.x = nx - d.offX; d.block.y = ny - d.offY; });
+    dragBlocks.forEach(function(d) { renderBlock(d.block); });
+    expandWorkspace();
+  }
+  function onUp() {
+    if (!dragging) return; dragging = false;
+    document.removeEventListener("mousemove", onMove);
+    document.removeEventListener("mouseup",   onUp);
+    const mids = dragBlocks.map(function(d) { return d.block.id; });
+    const ones = dragBlocks.filter(function(d) { return d.block.type === "one"; }).map(function(d) { return d.block; });
+    dragBlocks.filter(function(d) { return d.block.type !== "one"; }).forEach(function(d) { snapBlock(d.block, mids); });
+    if (ones.length >= 2) snapOnesGroup(ones, mids);
+    refreshAllBlocks();
+  }
+  document.addEventListener("mousemove", onMove);
+  document.addEventListener("mouseup",   onUp);
+}
 
-      const blockId = parseInt(e.currentTarget.dataset.id);
-      const block   = blocks.find(b => b.id === blockId);
-      if (!block || block.locked) return;
-
-      const el = e.currentTarget;
-
-      // Click on unselected block without modifier → deselect all, select this
-      if (!block.selected && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
-        blocks.forEach(b => b.selected = false);
-        block.selected = true;
-        syncSelectionDOM();
-        updateButtons();
-      }
-
-      const wsRect     = workspace.getBoundingClientRect();
-      const startCX    = e.clientX, startCY = e.clientY;
-      const clickOffX  = e.clientX - wsRect.left + workspace.scrollLeft - block.x;
-      const clickOffY  = e.clientY - wsRect.top  + workspace.scrollTop  - block.y;
-      let   hasMoved   = false;
-
-      // All selected non-locked blocks move together
-      const moving = block.selected
-        ? blocks.filter(b => b.selected && !b.locked)
-        : [block];
-
-      const initPos = {};
-      moving.forEach(b => { initPos[b.id] = { x: b.x, y: b.y }; });
-      const initMainX = block.x, initMainY = block.y;
-
-      el.setPointerCapture(e.pointerId);
-      moving.forEach(b => {
-        const bEl = workspaceInner.querySelector(`[data-id="${b.id}"]`);
-        if (bEl) bEl.classList.add('dragging');
-      });
-
-      function onMove(ev) {
-        const dx = ev.clientX - startCX, dy = ev.clientY - startCY;
-        if (!hasMoved && Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
-        hasMoved = true;
-
-        const newMainX = ev.clientX - wsRect.left + workspace.scrollLeft - clickOffX;
-        const newMainY = ev.clientY - wsRect.top  + workspace.scrollTop  - clickOffY;
-        const ddx = newMainX - initMainX;
-        const ddy = newMainY - initMainY;
-
-        moving.forEach(b => {
-          b.x = Math.max(0, initPos[b.id].x + ddx);
-          b.y = Math.max(0, initPos[b.id].y + ddy);
-          const bEl = workspaceInner.querySelector(`[data-id="${b.id}"]`);
-          if (bEl) { bEl.style.left = b.x + 'px'; bEl.style.top = b.y + 'px'; }
-        });
-        expandWorkspace();
-      }
-
-      function onUp(ev) {
-        el.releasePointerCapture(ev.pointerId);
-        el.removeEventListener('pointermove', onMove);
-        el.removeEventListener('pointerup',   onUp);
-        moving.forEach(b => {
-          const bEl = workspaceInner.querySelector(`[data-id="${b.id}"]`);
-          if (bEl) bEl.classList.remove('dragging');
-        });
-
-        if (!hasMoved) {
-          // Was a click — toggle/set selection
-          if (e.shiftKey || e.ctrlKey || e.metaKey) {
-            block.selected = !block.selected;
-          } else {
-            blocks.forEach(b => b.selected = false);
-            block.selected = true;
-          }
-          syncSelectionDOM();
-        } else {
-          // Apply snapping, then sync DOM positions
-          applySnap(moving.map(b => b.id));
-          moving.forEach(b => {
-            const bEl = workspaceInner.querySelector(`[data-id="${b.id}"]`);
-            if (bEl) { bEl.style.left = b.x + 'px'; bEl.style.top = b.y + 'px'; }
-          });
-        }
-        updateButtons();
-      }
-
-      el.addEventListener('pointermove', onMove);
-      el.addEventListener('pointerup',   onUp);
-    }
-
-    // ===== Lasso (rubber-band) selection =====
-    workspace.addEventListener('pointerdown', function(e) {
-      if (e.button !== 0) return;
-      if (e.target !== workspace && e.target !== workspaceInner) return;
-      closeCtxMenu();
-
-      if (!e.shiftKey && !e.ctrlKey && !e.metaKey) {
-        blocks.forEach(b => b.selected = false);
-        syncSelectionDOM();
-        updateButtons();
-      }
-
-      const wsRect = workspace.getBoundingClientRect();
-      const startX = e.clientX - wsRect.left + workspace.scrollLeft;
-      const startY = e.clientY - wsRect.top  + workspace.scrollTop;
-
-      // Snapshot of selection before lasso (for additive mode)
-      const baseSelected = {};
-      blocks.forEach(b => { baseSelected[b.id] = b.selected; });
-
-      const lassoEl = document.createElement('div');
-      lassoEl.className = 'lasso-rect';
-      lassoEl.style.cssText = `left:${startX}px;top:${startY}px;width:0;height:0;`;
-      workspaceInner.appendChild(lassoEl);
-
-      workspace.setPointerCapture(e.pointerId);
-
-      function onMove(ev) {
-        const curX = ev.clientX - wsRect.left + workspace.scrollLeft;
-        const curY = ev.clientY - wsRect.top  + workspace.scrollTop;
-        const rx = Math.min(startX, curX), ry = Math.min(startY, curY);
-        const rw = Math.abs(curX - startX), rh = Math.abs(curY - startY);
-
-        lassoEl.style.left   = rx + 'px';
-        lassoEl.style.top    = ry + 'px';
-        lassoEl.style.width  = rw + 'px';
-        lassoEl.style.height = rh + 'px';
-
-        blocks.forEach(b => {
-          const { w, h } = getDims(b);
-          const inside = rx < b.x + w && rx + rw > b.x && ry < b.y + h && ry + rh > b.y;
-          b.selected = (baseSelected[b.id] || inside);
-          const bEl = workspaceInner.querySelector(`[data-id="${b.id}"]`);
-          if (bEl) {
-            bEl.classList.toggle('selected', b.selected);
-            const ring = bEl.querySelector('[data-role="selring"]');
-            if (ring) ring.style.display = b.selected ? 'block' : 'none';
-          }
-        });
-        updateButtons();
-      }
-
-      function onUp() {
-        workspace.releasePointerCapture(e.pointerId);
-        lassoEl.remove();
-        workspace.removeEventListener('pointermove', onMove);
-        workspace.removeEventListener('pointerup',   onUp);
-        updateButtons();
-      }
-
-      workspace.addEventListener('pointermove', onMove);
-      workspace.addEventListener('pointerup',   onUp);
+workspaceInner.addEventListener("mousedown", function(e) {
+  if (e.button !== 0) return;
+  if (e.target !== workspaceInner && !e.target.closest("#columnsBg")) return;
+  hideCtxMenu();
+  if (!e.ctrlKey && !e.metaKey) blocks.forEach(function(b) { b.selected = false; });
+  const wsRect = workspace.getBoundingClientRect();
+  const sx = (e.clientX - wsRect.left + workspace.scrollLeft) / zoomLevel;
+  const sy = (e.clientY - wsRect.top  + workspace.scrollTop)  / zoomLevel;
+  lassoActive = true;
+  lassoEl.style.display = "block";
+  lassoEl.style.left    = (sx * zoomLevel) + "px";
+  lassoEl.style.top     = (sy * zoomLevel) + "px";
+  lassoEl.style.width   = "0px"; lassoEl.style.height = "0px";
+  function onMove(ev) {
+    if (!lassoActive) return;
+    const cx = (ev.clientX - wsRect.left + workspace.scrollLeft) / zoomLevel;
+    const cy = (ev.clientY - wsRect.top  + workspace.scrollTop)  / zoomLevel;
+    const rx = Math.min(sx, cx), ry = Math.min(sy, cy);
+    const rw = Math.abs(cx - sx), rh = Math.abs(cy - sy);
+    lassoEl.style.left   = (rx * zoomLevel) + "px";
+    lassoEl.style.top    = (ry * zoomLevel) + "px";
+    lassoEl.style.width  = (rw * zoomLevel) + "px";
+    lassoEl.style.height = (rh * zoomLevel) + "px";
+    blocks.forEach(function(b) {
+      const d   = getDims(b);
+      const hit = (b.x < rx + rw) && (b.x + d.w > rx) && (b.y < ry + rh) && (b.y + d.h > ry);
+      if (hit !== b.selected) { b.selected = hit; renderBlock(b); }
     });
-
-    // ===== Sync selection visual state without full re-render =====
-    function syncSelectionDOM() {
-      blocks.forEach(b => {
-        const bEl = workspaceInner.querySelector(`[data-id="${b.id}"]`);
-        if (!bEl) return;
-        bEl.classList.toggle('selected', b.selected);
-        const ring = bEl.querySelector('[data-role="selring"]');
-        if (ring) ring.style.display = b.selected ? 'block' : 'none';
-      });
-    }
-
-    // ===== Right-click Context Menu =====
-    function onBlockContextMenu(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      const blockId = parseInt(e.currentTarget.dataset.id);
-      const block   = blocks.find(b => b.id === blockId);
-      if (!block) return;
-      // Ensure clicked block is selected
-      if (!block.selected) {
-        blocks.forEach(b => b.selected = false);
-        block.selected = true;
-        syncSelectionDOM();
-        updateButtons();
-      }
-      showCtxMenu(e.clientX, e.clientY);
-    }
-
-    workspace.addEventListener('contextmenu', e => { e.preventDefault(); closeCtxMenu(); });
-
-    function showCtxMenu(cx, cy) {
-      closeCtxMenu();
-      const sel = blocks.filter(b => b.selected);
-      if (sel.length === 0) return;
-
-      const onesSel  = sel.filter(b => b.type === 'one').length;
-      const tensSel  = sel.filter(b => b.type === 'ten').length;
-      const canBreak = sel.length === 1 && (sel[0].type === 'ten' || sel[0].type === 'hundred');
-      const canGroup = onesSel >= 10 || tensSel >= 10;
-      const canRotate = sel.some(b => b.type === 'ten');
-      const allLocked = sel.length > 0 && sel.every(b => b.locked);
-
-      const breakLabel = canBreak
-        ? (sel[0].type === 'hundred' ? 'Break into Tens' : 'Break into Ones')
-        : 'Break Apart';
-      const groupLabel = canGroup
-        ? (tensSel >= 10 ? 'Group into Hundred' : 'Group into Ten')
-        : 'Put Together';
-
-      const items = [
-        { icon:'✂️', label: breakLabel,    action: breakApartSelected,  disabled: !canBreak },
-        { icon:'🔗', label: groupLabel,    action: groupBlocks,          disabled: !canGroup },
-        null,
-        { icon:'↻',  label: 'Rotate',      action: rotateSelected,       disabled: !canRotate },
-        { icon:'⧉',  label: 'Duplicate',   action: duplicateSelected,    disabled: false },
-        { icon: allLocked ? '🔓' : '🔒',
-                     label: allLocked ? 'Unlock' : 'Lock',
-                                            action: toggleLockSelected,   disabled: false },
-        null,
-        { icon:'🗑', label: 'Delete',       action: deleteSelected,       disabled: false, danger: true },
-      ];
-
-      const menu = document.createElement('div');
-      menu.className = 'ctx-menu';
-
-      items.forEach(item => {
-        if (item === null) {
-          const d = document.createElement('div');
-          d.className = 'ctx-divider';
-          menu.appendChild(d);
-          return;
-        }
-        const row = document.createElement('div');
-        row.className = 'ctx-item' + (item.danger ? ' danger' : '') + (item.disabled ? ' disabled' : '');
-        row.innerHTML = `<span class="ctx-icon">${item.icon}</span>${item.label}`;
-        if (!item.disabled) {
-          row.addEventListener('click', () => { closeCtxMenu(); item.action(); });
-        }
-        menu.appendChild(row);
-      });
-
-      menu.style.left = cx + 'px';
-      menu.style.top  = cy + 'px';
-      document.body.appendChild(menu);
-      ctxMenuEl = menu;
-
-      // Reposition if clipped by viewport edges
-      requestAnimationFrame(() => {
-        const r = menu.getBoundingClientRect();
-        if (r.right  > window.innerWidth  - 8) menu.style.left = (cx - r.width)  + 'px';
-        if (r.bottom > window.innerHeight - 8) menu.style.top  = (cy - r.height) + 'px';
-      });
-    }
-
-    function closeCtxMenu() {
-      if (ctxMenuEl) { ctxMenuEl.remove(); ctxMenuEl = null; }
-    }
-
-    // Close menu on any outside click
-    document.addEventListener('pointerdown', e => {
-      if (ctxMenuEl && !ctxMenuEl.contains(e.target)) closeCtxMenu();
-    }, true);
-
-    // ===== Snapping =====
-    // Hundreds and tens snap to horizontal (y) alignment with other hundreds/tens.
-    // A group of ones (>1 selected) snaps as a whole to horizontal alignment with tens/hundreds.
-    // Individual ones never snap.
-    function applySnap(movingIds) {
-      const moved   = blocks.filter(b =>  movingIds.includes(b.id));
-      const anchors = blocks.filter(b => !movingIds.includes(b.id));
-      const anchorTH = anchors.filter(b => b.type === 'ten' || b.type === 'hundred');
-
-      // Tens and hundreds snap individually
-      moved.filter(b => b.type === 'ten' || b.type === 'hundred').forEach(mb => {
-        let bestY = null, bestD = SNAP_THRESHOLD;
-        anchorTH.forEach(ab => {
-          const d = Math.abs(mb.y - ab.y);
-          if (d < bestD) { bestD = d; bestY = ab.y; }
-        });
-        if (bestY !== null) mb.y = bestY;
-      });
-
-      // Group of ones snaps as a unit (by minimum y of the group)
-      const movedOnes = moved.filter(b => b.type === 'one');
-      if (movedOnes.length > 1) {
-        const minY = Math.min(...movedOnes.map(b => b.y));
-        let bestY = null, bestD = SNAP_THRESHOLD;
-        anchorTH.forEach(ab => {
-          const d = Math.abs(minY - ab.y);
-          if (d < bestD) { bestD = d; bestY = ab.y; }
-        });
-        if (bestY !== null) {
-          const dy = bestY - minY;
-          movedOnes.forEach(b => b.y += dy);
-        }
-      }
-    }
-
-    // ===== Expand workspace dynamically =====
-    function expandWorkspace() {
-      let maxX = workspace.clientWidth, maxY = workspace.clientHeight;
-      blocks.forEach(b => {
-        const { w, h } = getDims(b);
-        maxX = Math.max(maxX, b.x + w + 60);
-        maxY = Math.max(maxY, b.y + h + 60);
-      });
-      workspaceInner.style.minWidth  = maxX + 'px';
-      workspaceInner.style.minHeight = maxY + 'px';
-    }
-
-    // ===== Full re-render =====
-    function refreshAllBlocks() {
-      workspaceInner.innerHTML = '';
-      blocks.forEach(b => renderBlock(b));
-      expandWorkspace();
-    }
-
-    // ===== Total =====
-    function updateTotal() {
-      totalValue.textContent = blocks.reduce((s, b) => s + blockValue(b.type), 0);
-    }
-
-    // ===== Button states =====
-    function updateButtons() {
-      const sel  = blocks.filter(b => b.selected);
-      const ones = sel.filter(b => b.type === 'one');
-      const tens = sel.filter(b => b.type === 'ten');
-
-      btnDelete.disabled = sel.length === 0;
-
-      const canGroup = ones.length >= 10 || tens.length >= 10;
-      btnGroup.disabled = !canGroup;
-      btnGroup.textContent = canGroup
-        ? (tens.length >= 10 ? 'Group into Hundred' : 'Group into Ten')
-        : 'Group into Next';
-
-      const canBreak = sel.length === 1 && (sel[0].type === 'ten' || sel[0].type === 'hundred');
-      btnBreak.disabled = !canBreak;
-      btnBreak.textContent = canBreak
-        ? (sel[0].type === 'hundred' ? 'Break into Tens' : 'Break into Ones')
-        : 'Break Apart';
-
-      btnRotate.disabled = !sel.some(b => b.type === 'ten');
-    }
-
-    // ===== Group =====
-    function groupBlocks() {
-      const sel  = blocks.filter(b => b.selected);
-      const tens = sel.filter(b => b.type === 'ten');
-      const ones = sel.filter(b => b.type === 'one');
-
-      if (tens.length >= 10) {
-        const use = tens.slice(0, 10);
-        const cx  = use.reduce((s, b) => s + b.x, 0) / 10;
-        const cy  = use.reduce((s, b) => s + b.y, 0) / 10;
-        use.forEach(b => { blocks = blocks.filter(bl => bl.id !== b.id); });
-        const nb = addBlock('hundred', cx, cy);
-        nb.selected = true;
-      } else if (ones.length >= 10) {
-        const use = ones.slice(0, 10);
-        const cx  = use.reduce((s, b) => s + b.x, 0) / 10;
-        const cy  = use.reduce((s, b) => s + b.y, 0) / 10;
-        use.forEach(b => { blocks = blocks.filter(bl => bl.id !== b.id); });
-        const nb = addBlock('ten', cx, cy);
-        nb.selected = true;
-      }
-
-      refreshAllBlocks(); updateTotal(); updateButtons();
-    }
-
-    // ===== Break Apart =====
-    function breakApartSelected() {
-      const sel = blocks.filter(b => b.selected);
-      if (sel.length !== 1) return;
-      const block = sel[0];
-
-      if (block.type === 'hundred') {
-        // Break into 10 tens placed side by side (same width as hundred block)
-        const bx = block.x, by = block.y;
-        blocks = blocks.filter(b => b.id !== block.id);
-        for (let i = 0; i < 10; i++) {
-          addBlock('ten', bx + i * CELL, by, 0);
-        }
-      } else if (block.type === 'ten') {
-        // Break into 10 ones in two rows of 5
-        const bx = block.x, by = block.y;
-        blocks = blocks.filter(b => b.id !== block.id);
-        for (let i = 0; i < 10; i++) {
-          addBlock('one', bx + (i % 5) * (CELL + 2), by + Math.floor(i / 5) * (CELL + 2), 0);
-        }
-      }
-
-      refreshAllBlocks(); updateTotal(); updateButtons();
-    }
-
-    // ===== Rotate (tens only — flips vertical ↔ horizontal) =====
-    function rotateSelected() {
-      blocks.filter(b => b.selected && b.type === 'ten').forEach(b => {
-        const old = getDims(b);
-        b.rotation = ((b.rotation || 0) + 90) % 360;
-        const nw  = getDims(b);
-        // Keep centre
-        b.x = Math.max(0, b.x + (old.w - nw.w) / 2);
-        b.y = Math.max(0, b.y + (old.h - nw.h) / 2);
-      });
-      refreshAllBlocks(); updateButtons();
-    }
-
-    // ===== Duplicate =====
-    function duplicateSelected() {
-      const sel = blocks.filter(b => b.selected);
-      sel.forEach(b => b.selected = false);
-      const newOnes = sel.map(b => ({
-        id: nextId++, type: b.type,
-        x: b.x + 20, y: b.y + 20,
-        rotation: b.rotation || 0,
-        locked: false, selected: true
-      }));
-      blocks.push(...newOnes);
-      refreshAllBlocks(); updateTotal(); updateButtons();
-    }
-
-    // ===== Lock / Unlock =====
-    function toggleLockSelected() {
-      const sel      = blocks.filter(b => b.selected);
-      const allLocked = sel.every(b => b.locked);
-      sel.forEach(b => b.locked = !allLocked);
-      refreshAllBlocks(); updateButtons();
-    }
-
-    // ===== Delete =====
-    function deleteSelected() {
-      blocks = blocks.filter(b => !b.selected);
-      refreshAllBlocks(); updateTotal(); updateButtons();
-    }
-
-    // ===== Clear All =====
-    function clearAll() {
-      blocks = []; nextId = 1;
-      refreshAllBlocks(); updateTotal(); updateButtons();
-    }
-
-    // ===== Keyboard shortcuts =====
-    document.addEventListener('keydown', e => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-      if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); deleteSelected(); }
-      if (e.key === 'Escape') {
-        closeCtxMenu();
-        blocks.forEach(b => b.selected = false);
-        syncSelectionDOM(); updateButtons();
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
-        e.preventDefault();
-        blocks.forEach(b => b.selected = true);
-        syncSelectionDOM(); updateButtons();
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
-        e.preventDefault(); duplicateSelected();
-      }
-    });
-
-    // ===== Init =====
-    updateTotal();
     updateButtons();
-  </script>
+  }
+  function onUp() {
+    lassoActive = false; lassoEl.style.display = "none";
+    document.removeEventListener("mousemove", onMove);
+    document.removeEventListener("mouseup",   onUp);
+    updateButtons();
+  }
+  document.addEventListener("mousemove", onMove);
+  document.addEventListener("mouseup",   onUp);
+});
+
+workspace.addEventListener("wheel", function(e) {
+  e.preventDefault();
+  const wsRect = workspace.getBoundingClientRect();
+  const mx = e.clientX - wsRect.left, my = e.clientY - wsRect.top;
+  const logX = (mx + workspace.scrollLeft) / zoomLevel;
+  const logY = (my + workspace.scrollTop)  / zoomLevel;
+  const factor = e.deltaY < 0 ? 1.12 : (1 / 1.12);
+  zoomLevel = Math.max(0.2, Math.min(4.0, zoomLevel * factor));
+  refreshAllBlocks();
+  workspace.scrollLeft = logX * zoomLevel - mx;
+  workspace.scrollTop  = logY * zoomLevel - my;
+}, { passive: false });
+
+function resetZoom() { zoomLevel = 1.0; addCursor = { x: 30, y: 30, rowH: 0 }; refreshAllBlocks(); }
+
+function breakApartSelected() {
+  const sel = blocks.filter(function(b) { return b.selected && (b.type === "ten" || b.type === "hundred"); });
+  if (!sel.length) return;
+  sel.forEach(function(b) {
+    const bx = b.x, by = b.y, btype = b.type, brot = b.rotation || 0;
+    removeBlockEl(b);
+    blocks = blocks.filter(function(x) { return x.id !== b.id; });
+    if (btype === "hundred") {
+      for (let i = 0; i < 10; i++) addBlock("ten", bx + i * (CELL + BREAK_GAP), by);
+    } else {
+      const isH = brot % 180 !== 0;
+      for (let i = 0; i < 10; i++) {
+        if (isH) addBlock("one", bx + i * (CELL + BREAK_GAP), by);
+        else     addBlock("one", bx, by + i * (CELL + BREAK_GAP));
+      }
+    }
+  });
+  refreshAllBlocks();
+}
+
+function rotateSelected() {
+  blocks.filter(function(b) { return b.selected && b.type === "ten"; })
+        .forEach(function(b) { b.rotation = ((b.rotation || 0) + 90) % 360; });
+  refreshAllBlocks();
+}
+
+function deleteSelected() {
+  blocks.filter(function(b) { return b.selected; }).forEach(removeBlockEl);
+  blocks = blocks.filter(function(b) { return !b.selected; });
+  updateTotal(); updateButtons(); expandWorkspace();
+}
+
+function clearAll() {
+  blocks.forEach(removeBlockEl); blocks = [];
+  addCursor = { x: 30, y: 30, rowH: 0 };
+  updateTotal(); updateButtons(); expandWorkspace();
+}
+
+function toggleSidebar() {
+  const mc  = document.getElementById("mainContainer");
+  const sb  = document.getElementById("sidebar");
+  const btn = document.getElementById("collapseBtn");
+  const coll = sb.classList.toggle("collapsed");
+  mc.classList.toggle("sidebar-collapsed", coll);
+  btn.innerHTML = coll ? "&#9654;" : "&#9664;";
+  btn.classList.toggle("collapsed-pos", coll);
+  btn.style.left = coll ? "0" : "300px";
+}
+
+function onBlockCtxMenu(e, block) {
+  e.preventDefault(); e.stopPropagation();
+  if (!block.selected) {
+    blocks.forEach(function(b) { b.selected = false; });
+    block.selected = true; refreshAllBlocks();
+  }
+  const menu = document.getElementById("ctxMenu");
+  menu.style.display = "block";
+  menu.style.left = e.clientX + "px";
+  menu.style.top  = e.clientY + "px";
+  updateButtons();
+}
+function hideCtxMenu() { document.getElementById("ctxMenu").style.display = "none"; }
+function ctxBreak()  { if (document.getElementById("ctxBreak").classList.contains("disabled")) return; hideCtxMenu(); breakApartSelected(); }
+function ctxRotate() { if (document.getElementById("ctxRotate").classList.contains("disabled")) return; hideCtxMenu(); rotateSelected(); }
+function ctxDelete() { hideCtxMenu(); deleteSelected(); }
+document.addEventListener("click",       function(e) { if (!e.target.closest(".ctx-menu")) hideCtxMenu(); });
+document.addEventListener("contextmenu", function(e) { if (!e.target.closest(".block"))    hideCtxMenu(); });
+
+document.addEventListener("keydown", function(e) {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+  if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); deleteSelected(); }
+  else if (e.key === "Escape") {
+    blocks.forEach(function(b) { b.selected = false; }); refreshAllBlocks(); hideCtxMenu();
+  } else if ((e.ctrlKey || e.metaKey) && e.key === "a") {
+    e.preventDefault(); blocks.forEach(function(b) { b.selected = true; }); refreshAllBlocks();
+  }
+});
+
+function toggleAdv() {
+  const panel = document.getElementById("advPanel");
+  const btn   = document.getElementById("advToggle");
+  panel.classList.toggle("open");
+  btn.innerHTML = panel.classList.contains("open") ? "&#9662; Advanced Options" : "&#9658; Advanced Options";
+}
+
+function initColDividers() {
+  const wsW = workspace.clientWidth / zoomLevel;
+  colDiv1 = wsW / 3; colDiv2 = 2 * wsW / 3;
+}
+
+function renderColumnsBg() {
+  const bg     = document.getElementById("columnsBg");
+  const header = document.getElementById("colHeader");
+  if (!showValueColumns) { bg.style.display = "none"; header.style.display = "none"; return; }
+  if (colDiv1 === null) initColDividers();
+  bg.style.display = "block"; header.style.display = "flex";
+  const d1 = colDiv1 * zoomLevel, d2 = colDiv2 * zoomLevel;
+  bg.innerHTML
+    = '<div style="position:absolute;top:0;left:0;width:' + d1 + 'px;height:100%;background:rgba(249,115,22,0.05);pointer-events:none;"></div>'
+    + '<div style="position:absolute;top:0;left:' + d1 + 'px;width:' + (d2-d1) + 'px;height:100%;background:rgba(34,197,94,0.05);pointer-events:none;"></div>'
+    + '<div style="position:absolute;top:0;left:' + d2 + 'px;right:0;height:100%;background:rgba(59,130,246,0.05);pointer-events:none;"></div>'
+    + '<div id="colDivHandle1" style="position:absolute;top:0;left:' + (d1-3) + 'px;width:6px;height:100%;cursor:col-resize;z-index:10;pointer-events:all;">'
+    +   '<div style="position:absolute;left:2.5px;top:0;bottom:0;width:1px;background:rgba(0,0,0,0.15);pointer-events:none;"></div></div>'
+    + '<div id="colDivHandle2" style="position:absolute;top:0;left:' + (d2-3) + 'px;width:6px;height:100%;cursor:col-resize;z-index:10;pointer-events:all;">'
+    +   '<div style="position:absolute;left:2.5px;top:0;bottom:0;width:1px;background:rgba(0,0,0,0.15);pointer-events:none;"></div></div>';
+  const hdrH = header.querySelector(".col-hdr-hundreds");
+  const hdrT = header.querySelector(".col-hdr-tens");
+  if (hdrH) hdrH.style.width = d1 + "px";
+  if (hdrT) hdrT.style.width = (d2 - d1) + "px";
+  attachDividerHandlers();
+}
+
+function attachDividerHandlers() {
+  [1, 2].forEach(function(n) {
+    const handle = document.getElementById("colDivHandle" + n);
+    if (!handle) return;
+    handle.addEventListener("mousedown", function(e) {
+      e.preventDefault(); e.stopPropagation();
+      const startX   = e.clientX;
+      const startDiv = n === 1 ? colDiv1 : colDiv2;
+      const wsW      = workspace.clientWidth / zoomLevel;
+      function onMove(ev) {
+        const dx = (ev.clientX - startX) / zoomLevel;
+        if (n === 1) colDiv1 = Math.max(80, Math.min(colDiv2 - 80, startDiv + dx));
+        else         colDiv2 = Math.max(colDiv1 + 80, Math.min(wsW - 80, startDiv + dx));
+        renderColumnsBg();
+      }
+      function onUp() {
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup",   onUp);
+      }
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup",   onUp);
+    });
+  });
+}
+
+updateTotal();
+updateButtons();
+applyShowTotal();
+</script>
 </body>
 </html>
