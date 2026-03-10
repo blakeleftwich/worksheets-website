@@ -449,11 +449,11 @@
       <div class="control-group">
         <label for="withinSelect">Range</label>
         <select id="withinSelect">
-          <option value="5" selected>Within 5</option>
-          <option value="10">Within 10</option>
-          <option value="20">Within 20</option>
-          <option value="50">Within 50</option>
-          <option value="100">Within 100</option>
+          <option value="5" selected>1 to 5</option>
+          <option value="10">1 to 10</option>
+          <option value="20">1 to 20</option>
+          <option value="50">1 to 50</option>
+          <option value="100">1 to 100</option>
           <option value="custom">Custom</option>
         </select>
       </div>
@@ -746,7 +746,13 @@
     });
 
     // ===== Allow Zero =====
-    elUseZero.addEventListener("change", () => { syncAdvancedFromWithin(); renderWithNewRandomization(); });
+    function updateRangeLabels() {
+      const lo = elUseZero.checked ? '0' : '1';
+      const vals = [5, 10, 20, 50, 100];
+      const opts = elWithin.querySelectorAll('option[value]:not([value="custom"])');
+      opts.forEach((o, i) => { o.text = lo + ' to ' + vals[i]; });
+    }
+    elUseZero.addEventListener("change", () => { updateRangeLabels(); syncAdvancedFromWithin(); renderWithNewRandomization(); });
 
     // ===== Digit Lock =====
     elDigitLockEnabled.addEventListener("change", () => {
@@ -880,10 +886,10 @@
     let currentState = { sheets: [] };
 
     // ===== Problem generation =====
-    function generateProblems(count, opts) {
+    function generateProblems(count, opts, globalSeen) {
       const { min1, max1, min2, max2, maxAnswer, operations, regroupEnabled, regroupMode, noRemainders, randomMix } = opts;
       const problems = [];
-      const seen = new Set();
+      const seen = globalSeen ? new Set(globalSeen) : new Set();
 
       // Determine how many problems per operation
       let opQuotas = null;
@@ -1206,7 +1212,8 @@
       else if (ops.length === 3) opLabel = ops.map(o => names[o]).join(", ");
       else if (ops.length === 2) opLabel = ops.map(o => names[o]).join(" & ");
       else opLabel = names[ops[0]] || "Math";
-      return opLabel + " Within " + w;
+      const lo = elUseZero.checked ? '0' : '1';
+      return opLabel + " " + lo + " to " + w;
     }
 
     // ===== Gather options =====
@@ -1242,7 +1249,12 @@
     function renderWithNewRandomization() {
       const opts = gatherOptions();
       currentState.sheets = [];
-      for (let s = 0; s < opts.numWorksheets; s++) { currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts)); }
+      const sharedSeen = new Set();
+      for (let s = 0; s < opts.numWorksheets; s++) {
+        const sheet = generateProblems(opts.problemsPerSheet, opts, sharedSeen);
+        for (const p of sheet) sharedSeen.add(p.op + ":" + p.top + "," + p.bottom);
+        currentState.sheets.push(sheet);
+      }
       renderWorksheet();
     }
     function renderWithoutRandomization() {
@@ -1356,6 +1368,7 @@
 
     // Init
     updateAdvancedVisibility();
+    updateRangeLabels();
     syncAdvancedFromWithin();
     renderWithNewRandomization();
   </script>

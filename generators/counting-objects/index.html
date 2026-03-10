@@ -418,6 +418,12 @@
       <div class="advanced-panel" id="advPanel">
         <div class="advanced-panel-inner">
 
+          <!-- Allow zero -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="allowZero" />
+            <label for="allowZero">Allow zero</label>
+          </div>
+
           <!-- Style -->
           <div class="control-group">
             <label for="style">Style</label>
@@ -519,6 +525,7 @@ const elShowTitle = document.getElementById("showTitle");
 const elShowSubtitle = document.getElementById("showSubtitle");
 const elTitleInputWrap = document.getElementById("titleInputWrap");
 const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
+const elAllowZero = document.getElementById("allowZero");
 const advToggle = document.getElementById("advToggle");
 const advPanel = document.getElementById("advPanel");
 const advArrow = document.getElementById("advArrow");
@@ -531,7 +538,15 @@ let currentState = {
 
 function getCountRange() {
   const parts = elCountRange.value.split("-");
-  return { min: parseInt(parts[0], 10), max: parseInt(parts[1], 10) };
+  const min = elAllowZero.checked ? 0 : parseInt(parts[0], 10);
+  return { min, max: parseInt(parts[1], 10) };
+}
+
+function updateCountRangeLabels() {
+  const lo = elAllowZero.checked ? '0' : '1';
+  elCountRange.options[0].text = lo + ' to 5';
+  elCountRange.options[1].text = lo + ' to 10';
+  elCountRange.options[2].text = lo + ' to 20';
 }
 
 function getHeaderMode() {
@@ -562,6 +577,9 @@ function showStatus(msg) {
 
 // ===== Advanced panel toggle =====
 advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
+
+// ===== Allow zero =====
+elAllowZero.addEventListener("change", () => { updateCountRangeLabels(); renderWithNewRandomization(); });
 
 // ===== Name/Date toggle =====
 elShowHeaderEnabled.addEventListener("change", () => {
@@ -1557,10 +1575,12 @@ function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, proble
 
   // Auto-calculate grid: try to make icons as large as possible
   // Try different row counts and pick the one giving the largest icon size
+  // Limit to 1 row if count <= 10 (only wrap to multiple rows for 11+)
   let bestSize = 0, bestCols = 1, bestRows = 1;
   const spacingRatio = 0.15;
+  const maxRows = count > 10 ? count : 1;
 
-  for (let r = 1; r <= count; r++) {
+  for (let r = 1; r <= maxRows; r++) {
     const c = Math.ceil(count / r);
     const sizeByW = aW / (c + (c - 1) * spacingRatio);
     const sizeByH = aH / (r + (r - 1) * spacingRatio);
