@@ -634,20 +634,22 @@ function handlePrint() {
   const title = getTitle();
   const subtitle = getSubtitle();
   const includeExample = elIncludeExample.checked;
+  const range = getCountRange();
+  const perRowMax = range.max > 10 ? 10 : 5;
   const icons = ["icon-apple-new", "icon-balloon", "icon-icecream", "icon-pepper", "icon-pizza", "icon-corn", "icon-broccoli", "icon-fish"];
 
   const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
   sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
   for (let i = 0; i < currentState.sheets.length; i++) {
     const p = document.createElement("div"); p.className = "worksheet-page";
-    p.appendChild(generateWorksheetSvg(currentState.sheets[i], style, headerMode, branded, numbered, icons, title, subtitle, includeExample));
+    p.appendChild(generateWorksheetSvg(currentState.sheets[i], style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax));
     sheetWrap.appendChild(p);
   }
   const answerKeyPages = [];
   if (elAnswerKey.checked) {
     for (let i = 0; i < currentState.sheets.length; i++) {
       const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
-      p.appendChild(generateAnswerKeySvg(currentState.sheets[i], style, "none", branded, numbered, title, subtitle, true));
+      p.appendChild(generateAnswerKeySvg(currentState.sheets[i], style, "none", branded, numbered, title, subtitle, true, perRowMax));
       sheetWrap.appendChild(p);
       answerKeyPages.push(p);
     }
@@ -722,6 +724,8 @@ function renderWorksheet() {
   const title = getTitle();
   const subtitle = getSubtitle();
   const numSheets = currentState.sheets.length;
+  const range = getCountRange();
+  const perRowMax = range.max > 10 ? 10 : 5;
 
   const icons = ["icon-apple-new", "icon-balloon", "icon-icecream", "icon-pepper", "icon-pizza", "icon-corn", "icon-broccoli", "icon-fish"];
   
@@ -795,7 +799,7 @@ function renderWorksheet() {
     // Render each sheet
     for (let s = 0; s < numSheets; s++) {
       const problems = currentState.sheets[s];
-      const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample);
+      const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax);
       svg.setAttribute('width', scaledWidth);
       svg.setAttribute('height', scaledHeight);
       
@@ -812,7 +816,7 @@ function renderWorksheet() {
     // Single sheet - render at full size
     if (currentState.sheets.length > 0) {
       const problems = currentState.sheets[0];
-      const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample);
+      const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax);
 
       const page = document.createElement("div");
       page.className = "worksheet-page";
@@ -825,22 +829,22 @@ function renderWorksheet() {
 }
 
 // Generate a worksheet SVG (without adding to DOM)
-function generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample) {
+function generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax) {
   if (style === 1) {
-    return generateStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample);
+    return generateStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, undefined, perRowMax);
   } else {
-    return generateStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample);
+    return generateStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, undefined, perRowMax);
   }
 }
 
 // Generate answer key SVG for PDF
-function generateAnswerKeySvg(problems, style, headerMode, branded, numbered, title, subtitle, isAnswerKey) {
+function generateAnswerKeySvg(problems, style, headerMode, branded, numbered, title, subtitle, isAnswerKey, perRowMax) {
   const icons = ["icon-apple-new", "icon-balloon", "icon-icecream", "icon-pepper", "icon-pizza", "icon-corn", "icon-broccoli", "icon-fish"];
 
   if (style === 1) {
-    return generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey);
+    return generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax);
   } else {
-    return generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey);
+    return generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax);
   }
 }
 
@@ -932,7 +936,7 @@ function makeSymbol(id, innerHTML) {
   return sym;
 }
 
-function renderStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey) {
+function renderStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -1051,7 +1055,8 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
       h: objectAreaH - 16,
       answerBox: { x: boxX, y: boxY, width: boxW, height: boxH },
       problemIndex: i,
-      problemCount: problems.length
+      problemCount: problems.length,
+      perRowMax
     });
 
     const isExample = (i === 0 && includeExample);
@@ -1121,11 +1126,11 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
 }
 
 // Renamed original function to generate SVG
-function generateStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey) {
-  return renderStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey);
+function generateStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5) {
+  return renderStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax);
 }
 
-function renderStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey) {
+function renderStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -1234,7 +1239,8 @@ function renderStyle2(problems, headerMode, branded, numbered, icons, title, sub
       y: y + 10,
       w: objectsW - 20,
       h: rowHeight - 20,
-      maxCount: maxCount
+      maxCount: maxCount,
+      perRowMax
     });
 
     const boxH = Math.min(45, rowHeight - 20);
@@ -1308,11 +1314,11 @@ function renderStyle2(problems, headerMode, branded, numbered, icons, title, sub
 }
 
 // Renamed original function to generate SVG
-function generateStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey) {
-  return renderStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey);
+function generateStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5) {
+  return renderStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax);
 }
 
-function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey) {
+function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax = 5) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -1429,7 +1435,8 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, t
       h: objectAreaH - 16,
       answerBox: { x: boxX, y: boxY, width: boxW, height: boxH },
       problemIndex: i,
-      problemCount: problems.length
+      problemCount: problems.length,
+      perRowMax
     });
 
     svg.appendChild(svgEl("rect", {
@@ -1481,11 +1488,11 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, t
   return svg;
 }
 
-function generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey) {
-  return renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey);
+function generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax) {
+  return renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax);
 }
 
-function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey) {
+function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax = 5) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -1589,7 +1596,8 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, t
       y: y + 10,
       w: objectsW - 20,
       h: rowHeight - 20,
-      maxCount: maxCount
+      maxCount: maxCount,
+      perRowMax
     });
 
     const boxH = Math.min(45, rowHeight - 20);
@@ -1645,11 +1653,11 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, t
   return svg;
 }
 
-function generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey) {
-  return renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey);
+function generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax) {
+  return renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax);
 }
 
-function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, problemIndex = 0, problemCount = 8 }) {
+function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, problemIndex = 0, problemCount = 8, perRowMax = 5 }) {
   const problemGroup = svgEl("g", { "data-problem": problemIndex });
   const pad = 10;
 
@@ -1666,24 +1674,20 @@ function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, proble
     if (maxH < aH) aH = maxH;
   }
 
-  // Auto-calculate grid: try to make icons as large as possible
-  // Try different row counts and pick the one giving the largest icon size
-  // Limit to 1 row if count <= 10 (only wrap to multiple rows for 11+)
-  let bestSize = 0, bestCols = 1, bestRows = 1;
-  const spacingRatio = 0.15;
-  const maxRows = count > 10 ? count : 1;
-
-  for (let r = 1; r <= maxRows; r++) {
-    const c = Math.ceil(count / r);
-    const sizeByW = aW / (c + (c - 1) * spacingRatio);
-    const sizeByH = aH / (r + (r - 1) * spacingRatio);
-    const sz = Math.min(sizeByW, sizeByH, 120);
-    if (sz > bestSize) {
-      bestSize = sz;
-      bestCols = c;
-      bestRows = r;
-    }
+  // Fixed row layout based on count range:
+  // Items <= perRowMax: single row; items > perRowMax: wrap to 2 rows
+  let bestCols, bestRows;
+  if (count <= perRowMax) {
+    bestCols = count;
+    bestRows = 1;
+  } else {
+    bestCols = perRowMax;
+    bestRows = Math.ceil(count / perRowMax);
   }
+  const spacingRatio = 0.15;
+  const sizeByW = aW / (bestCols + (bestCols - 1) * spacingRatio);
+  const sizeByH = aH / (bestRows + (bestRows - 1) * spacingRatio);
+  const bestSize = Math.min(sizeByW, sizeByH, 120);
 
   let iconSize = Math.max(18, bestSize);
   const spacing = iconSize * spacingRatio;
@@ -1734,14 +1738,14 @@ function placeObjectsRow(svg, { iconId, count, x, y, w, h }) {
   }
 }
 
-function placeObjectsRowLeftAligned(svg, { iconId, count, x, y, w, h, maxCount }) {
+function placeObjectsRowLeftAligned(svg, { iconId, count, x, y, w, h, maxCount, perRowMax = 5 }) {
   const spacing = 6;
   const startX = x + 5;
-  const needsWrap = count > 10;
+  const needsWrap = count > perRowMax;
 
   if (needsWrap) {
     // Two rows
-    const perRow = Math.ceil(count / 2);
+    const perRow = perRowMax;
     const itemsForSize = Math.max(perRow, maxCount ? Math.ceil(maxCount / 2) : perRow);
     const availW = w - 10;
     const sizeByW = (availW - (itemsForSize - 1) * spacing) / itemsForSize;
