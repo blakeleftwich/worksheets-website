@@ -632,18 +632,7 @@ document.getElementById("btnPrint").addEventListener("click", () => {
     return;
   }
 
-  // Store original dimensions and remove inline width/height for print
-  const originalDimensions = [];
-  svgs.forEach(svg => {
-    originalDimensions.push({
-      width: svg.getAttribute('width'),
-      height: svg.getAttribute('height')
-    });
-    svg.removeAttribute('width');
-    svg.removeAttribute('height');
-  });
-
-  // If answer key is checked, temporarily add answer key pages
+  // If answer key is checked, temporarily add answer key pages (hidden on screen via CSS)
   const answerKeyPages = [];
   if (elAnswerKey.checked) {
     const style = parseInt(elStyle.value, 10);
@@ -662,20 +651,12 @@ document.getElementById("btnPrint").addEventListener("click", () => {
     }
   }
 
-  // Print
+  // Print (CSS handles SVG sizing via .worksheet-page svg { width: 100% !important })
   window.print();
 
-  // Remove answer key pages and restore original dimensions after print dialog
+  // Remove answer key pages after print dialog
   setTimeout(() => {
     answerKeyPages.forEach(page => page.remove());
-    svgs.forEach((svg, i) => {
-      if (originalDimensions[i].width) {
-        svg.setAttribute('width', originalDimensions[i].width);
-      }
-      if (originalDimensions[i].height) {
-        svg.setAttribute('height', originalDimensions[i].height);
-      }
-    });
   }, 100);
 });
 
