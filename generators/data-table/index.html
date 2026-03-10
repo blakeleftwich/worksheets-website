@@ -304,8 +304,11 @@
       }
     }
 
+    .ak-print-only { display: none !important; }
+
     /* ===== Print ===== */
     @media print {
+      .ak-print-only { display: block !important; }
       body {
         background: white;
         padding: 0;
@@ -787,7 +790,7 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(sheetData, options) {
-      const { showHeader, title, subtitle, branded, showAnswers, numbered, includeExample } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, numbered, includeExample, isAnswerKey } = options;
       const { data, questions } = sheetData;
       const opts = gatherOptions();
       const mode = opts.mode;
@@ -801,7 +804,16 @@
       let topGridY;
       {
         let curY = 10;
-        if (showHeader === "both") {
+        if (isAnswerKey) {
+          const akLabel = svgEl("text", {
+            x: pageW - margin, y: curY + 16,
+            "font-family": "'Google Sans Flex', sans-serif", "font-size": 12, "font-weight": 700,
+            fill: "#000", "text-anchor": "end", "letter-spacing": "2"
+          });
+          akLabel.textContent = "ANSWER KEY";
+          svg.appendChild(akLabel);
+          curY += 28;
+        } else if (showHeader === "both") {
           svg.appendChild(svgEl("text", {
             x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Name")]));
@@ -1216,16 +1228,19 @@
         p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: t, subtitle: st, branded: opts.branded, numbered: opts.numbered, showAnswers: false, includeExample: opts.includeExample }));
         sheetWrap.appendChild(p);
       }
+      const answerKeyPages = [];
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
-          const p = document.createElement("div"); p.className = "worksheet-page";
+          const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
           const t = getTitle(currentState.sheets[i].data.title);
-          const akTitle = t ? t + " \u2014 Answer Key" : "Answer Key";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: akTitle, subtitle: "", branded: opts.branded, numbered: opts.numbered, showAnswers: true }));
+          const st = getSubtitle();
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: t, subtitle: st, branded: opts.branded, numbered: opts.numbered, showAnswers: true, isAnswerKey: true, includeExample: false }));
           sheetWrap.appendChild(p);
+          answerKeyPages.push(p);
         }
       }
-      setTimeout(() => { window.print(); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 50);
+      window.print();
+      setTimeout(() => { answerKeyPages.forEach(p => p.remove()); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 500);
     }
 
     // ===== Mode-dependent UI =====

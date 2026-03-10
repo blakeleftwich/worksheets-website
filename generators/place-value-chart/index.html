@@ -304,8 +304,11 @@
       }
     }
 
+    .ak-print-only { display: none !important; }
+
     /* ===== Print ===== */
     @media print {
+      .ak-print-only { display: block !important; }
       body {
         background: white;
         padding: 0;
@@ -633,7 +636,7 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(numbers, options) {
-      const { numDigits, rowsPerPage, showExample, colorTheme, showHeader, title, subtitle, branded, showAnswers, numbered } = options;
+      const { numDigits, rowsPerPage, showExample, colorTheme, showHeader, title, subtitle, branded, showAnswers, numbered, isAnswerKey } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
@@ -642,7 +645,16 @@
       let topY;
       {
         let curY = 10;
-        if (showHeader === "both") {
+        if (isAnswerKey) {
+          const akLabel = svgEl("text", {
+            x: pageW - margin, y: curY + 16,
+            "font-family": "'Google Sans Flex', sans-serif", "font-size": 12, "font-weight": 700,
+            fill: "#000", "text-anchor": "end", "letter-spacing": "2"
+          });
+          akLabel.textContent = "ANSWER KEY";
+          svg.appendChild(akLabel);
+          curY += 28;
+        } else if (showHeader === "both") {
           svg.appendChild(svgEl("text", {
             x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Name")]));
@@ -1001,17 +1013,17 @@
         p.appendChild(renderWorksheetSVG(currentState.sheets[i], { ...opts, showAnswers: false }));
         sheetWrap.appendChild(p);
       }
+      const answerKeyPages = [];
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
-          const p = document.createElement("div"); p.className = "worksheet-page";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { ...opts, showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", showAnswers: true }));
+          const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { ...opts, showHeader: "none", showAnswers: true, isAnswerKey: true, includeExample: false }));
           sheetWrap.appendChild(p);
+          answerKeyPages.push(p);
         }
       }
-      setTimeout(() => {
-        window.print();
-        sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS;
-      }, 50);
+      window.print();
+      setTimeout(() => { answerKeyPages.forEach(p => p.remove()); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 500);
     }
 
 

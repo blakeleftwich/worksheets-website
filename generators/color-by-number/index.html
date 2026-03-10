@@ -309,8 +309,11 @@
       margin: 0.5in 0.4in 0in 0.4in;
     }
 
+    .ak-print-only { display: none !important; }
+
     /* ===== Print ===== */
     @media print {
+      .ak-print-only { display: block !important; }
       body {
         background: white;
         padding: 0;
@@ -836,7 +839,7 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(sheetData, options) {
-      const { headerMode, branded, showAnswers, title, subtitle, numColors } = options;
+      const { headerMode, branded, showAnswers, title, subtitle, numColors, isAnswerKey } = options;
       const colors = COLOR_PALETTE.slice(0, numColors);
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", {
@@ -851,7 +854,16 @@
       let contentTopY;
       {
         let curY = 10;
-        if (headerMode === "both") {
+        if (isAnswerKey) {
+          const akLabel = svgEl("text", {
+            x: pageW - margin, y: curY + 16,
+            "font-family": "'Google Sans Flex', sans-serif", "font-size": 12, "font-weight": 700,
+            fill: "#000", "text-anchor": "end", "letter-spacing": "2"
+          });
+          akLabel.textContent = "ANSWER KEY";
+          svg.appendChild(akLabel);
+          curY += 28;
+        } else if (headerMode === "both") {
           svg.appendChild(svgEl("text", {
             x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Name")]));
@@ -1193,23 +1205,21 @@
         }));
         sheetWrap.appendChild(p);
       }
+      const answerKeyPages = [];
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div");
-          p.className = "worksheet-page";
+          p.className = "worksheet-page ak-print-only";
           p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
             headerMode: "none", title: title, branded: opts.branded,
-            showAnswers: true, numColors: opts.numColors
+            showAnswers: true, numColors: opts.numColors, isAnswerKey: true, includeExample: false
           }));
           sheetWrap.appendChild(p);
+          answerKeyPages.push(p);
         }
       }
-      setTimeout(() => {
-        window.print();
-        sheetWrap.innerHTML = sH;
-        sheetWrap.className = sC;
-        sheetWrap.style.cssText = sS;
-      }, 50);
+      window.print();
+      setTimeout(() => { answerKeyPages.forEach(p => p.remove()); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 500);
     }
 
 
