@@ -584,7 +584,7 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options) {
-      const { showHeader, title, subtitle, branded, showAnswers, numbered, includeExample } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, numbered, includeExample, isAnswerKey } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", {
         width: pageW, height: pageH,
@@ -629,10 +629,21 @@
           }, [document.createTextNode(title)]));
           curY += 46;
         }
-        if (subtitle) {
-          svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568"
-          }, [document.createTextNode(subtitle)]));
+        if (subtitle || isAnswerKey) {
+          if (subtitle) {
+            svg.appendChild(svgEl("text", {
+              x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568"
+            }, [document.createTextNode(subtitle)]));
+          }
+          if (isAnswerKey) {
+            const akLabel = svgEl("text", {
+              x: pageW - margin, y: curY + 14,
+              "font-family": "'Google Sans Flex', sans-serif", "font-size": 13, "font-weight": 700,
+              fill: "#e53e3e", "text-anchor": "end", "letter-spacing": "1.5"
+            });
+            akLabel.textContent = "ANSWER KEY";
+            svg.appendChild(akLabel);
+          }
           curY += 20;
         }
         topGridY = curY + 6;
@@ -903,7 +914,18 @@
       sheetWrap.style.cssText = "";
       const sheetWidth = 612, sheetHeight = 792;
 
-      const svgOptions = s => ({
+      const akOpts = {
+        showHeader: "none",
+        title: opts.title,
+        subtitle: opts.subtitle,
+        branded: opts.branded,
+        showAnswers: true,
+        numbered: opts.numbered,
+        includeExample: false,
+        isAnswerKey: true
+      };
+
+      const normalOpts = s => ({
         showHeader: opts.showHeader,
         title: opts.title,
         subtitle: opts.subtitle,
@@ -913,37 +935,54 @@
         includeExample: opts.includeExample
       });
 
+      const totalSheets = numSheets + (opts.answerKey ? numSheets : 0);
+
       if (isMobile()) {
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], svgOptions(s));
-          p.appendChild(v); sheetWrap.appendChild(p);
+          p.appendChild(renderWorksheetSVG(currentState.sheets[s], normalOpts(s)));
+          sheetWrap.appendChild(p);
+        }
+        if (opts.answerKey) {
+          for (let s = 0; s < numSheets; s++) {
+            const p = document.createElement("div"); p.className = "worksheet-page";
+            p.appendChild(renderWorksheetSVG(currentState.sheets[s], akOpts));
+            sheetWrap.appendChild(p);
+          }
         }
         return;
       }
 
-      if (numSheets > 1) {
+      if (totalSheets > 1) {
         sheetWrap.classList.add("grid-view");
-        const ep = numSheets >= 3 ? 12 : 0;
+        const ep = totalSheets >= 3 ? 12 : 0;
         const aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
         let cols;
-        if (numSheets <= 3) { cols = numSheets; if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        else { cols = Math.min(3, numSheets); if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        const msw = (aw - (cols - 1) * gap) / cols, msh = numSheets <= 3 ? ah : ah * 0.8;
+        if (totalSheets <= 3) { cols = totalSheets; if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        else { cols = Math.min(3, totalSheets); if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        const msw = (aw - (cols - 1) * gap) / cols, msh = totalSheets <= 3 ? ah : ah * 0.8;
         const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
         const sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
         sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
-        sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
+        sheetWrap.style.padding = totalSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], svgOptions(s));
+          const v = renderWorksheetSVG(currentState.sheets[s], normalOpts(s));
           v.setAttribute("width", sw); v.setAttribute("height", sh);
           p.appendChild(v); sheetWrap.appendChild(p);
         }
+        if (opts.answerKey) {
+          for (let s = 0; s < numSheets; s++) {
+            const p = document.createElement("div"); p.className = "worksheet-page";
+            const v = renderWorksheetSVG(currentState.sheets[s], akOpts);
+            v.setAttribute("width", sw); v.setAttribute("height", sh);
+            p.appendChild(v); sheetWrap.appendChild(p);
+          }
+        }
       } else {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], svgOptions(0));
-        p.appendChild(v); sheetWrap.appendChild(p);
+        p.appendChild(renderWorksheetSVG(currentState.sheets[0], normalOpts(0)));
+        sheetWrap.appendChild(p);
       }
     }
 
@@ -966,8 +1005,8 @@
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
           p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
-            showHeader: "none", title: opts.title + " \u2014 Answer Key", subtitle: "", branded: opts.branded,
-            showAnswers: true, numbered: opts.numbered, includeExample: false
+            showHeader: "none", title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
+            showAnswers: true, numbered: opts.numbered, includeExample: false, isAnswerKey: true
           }));
           sheetWrap.appendChild(p);
         }
@@ -1002,7 +1041,7 @@
     });
     elHeaderText.addEventListener("input", () => renderWithoutRandomization());
     elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
-    elAnswerKey.addEventListener("change", () => {});
+    elAnswerKey.addEventListener("change", () => renderWithoutRandomization());
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
 
