@@ -1334,10 +1334,10 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, t
     let curY = 10;
     // Replace Name/Date row with centered "ANSWER KEY" label (same y and advance)
     const akLabel = svgEl("text", {
-      x: midX, y: curY + 16,
+      x: pageW - margin, y: curY + 16,
       "font-family": "'Google Sans Flex', sans-serif",
       "font-size": 12, "font-weight": 700,
-      fill: "#000", "text-anchor": "middle", "letter-spacing": "2"
+      fill: "#000", "text-anchor": "end", "letter-spacing": "2"
     });
     akLabel.textContent = "ANSWER KEY";
     svg.appendChild(akLabel);

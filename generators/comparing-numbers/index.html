@@ -748,9 +748,9 @@
         let curY = 10;
         if (isAnswerKey) {
           const akLabel = svgEl("text", {
-            x: midX, y: curY + 16,
+            x: pageW - margin, y: curY + 16,
             "font-family": "'Google Sans Flex', sans-serif", "font-size": 12, "font-weight": 700,
-            fill: "#000", "text-anchor": "middle", "letter-spacing": "2"
+            fill: "#000", "text-anchor": "end", "letter-spacing": "2"
           });
           akLabel.textContent = "ANSWER KEY";
           svg.appendChild(akLabel);
