@@ -584,7 +584,10 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options) {
-      const { showHeader, title, subtitle, branded, showAnswers, numbered, includeExample, isAnswerKey } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, numbered, includeExample, isAnswerKey, answerKeyPosition } = options;
+      // answerKeyPosition: 'subtitle' (right of subtitle) | 'header' (center, replacing Name/Date)
+      const akPos = answerKeyPosition || 'subtitle';
+      const AK_COLOR = "#3182ce";
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", {
         width: pageW, height: pageH,
@@ -597,7 +600,17 @@
       let topGridY;
       {
         let curY = 10;
-        if (showHeader === "both") {
+        if (isAnswerKey && akPos === 'header') {
+          // "ANSWER KEY" centered at exactly the same y as "Name" text — no vertical shift
+          const akTop = svgEl("text", {
+            x: midX, y: curY + 16,
+            "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 700,
+            fill: AK_COLOR, "text-anchor": "middle", "letter-spacing": "2"
+          });
+          akTop.textContent = "ANSWER KEY";
+          svg.appendChild(akTop);
+          curY += 28; // identical advance to the Name/Date row
+        } else if (showHeader === "both") {
           svg.appendChild(svgEl("text", {
             x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Name")]));
@@ -629,17 +642,17 @@
           }, [document.createTextNode(title)]));
           curY += 46;
         }
-        if (subtitle || isAnswerKey) {
+        if (subtitle || (isAnswerKey && akPos === 'subtitle')) {
           if (subtitle) {
             svg.appendChild(svgEl("text", {
               x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568"
             }, [document.createTextNode(subtitle)]));
           }
-          if (isAnswerKey) {
+          if (isAnswerKey && akPos === 'subtitle') {
             const akLabel = svgEl("text", {
               x: pageW - margin, y: curY + 14,
-              "font-family": "'Google Sans Flex', sans-serif", "font-size": 13, "font-weight": 700,
-              fill: "#e53e3e", "text-anchor": "end", "letter-spacing": "1.5"
+              "font-family": "Fredoka, sans-serif", "font-size": 13, "font-weight": 700,
+              fill: AK_COLOR, "text-anchor": "end", "letter-spacing": "1.5"
             });
             akLabel.textContent = "ANSWER KEY";
             svg.appendChild(akLabel);
@@ -914,7 +927,7 @@
       sheetWrap.style.cssText = "";
       const sheetWidth = 612, sheetHeight = 792;
 
-      const akOpts = {
+      const akSubtitleOpts = {
         showHeader: "none",
         title: opts.title,
         subtitle: opts.subtitle,
@@ -922,7 +935,20 @@
         showAnswers: true,
         numbered: opts.numbered,
         includeExample: false,
-        isAnswerKey: true
+        isAnswerKey: true,
+        answerKeyPosition: 'subtitle'
+      };
+
+      const akHeaderOpts = {
+        showHeader: "none",
+        title: opts.title,
+        subtitle: opts.subtitle,
+        branded: opts.branded,
+        showAnswers: true,
+        numbered: opts.numbered,
+        includeExample: false,
+        isAnswerKey: true,
+        answerKeyPosition: 'header'
       };
 
       const normalOpts = s => ({
@@ -935,7 +961,8 @@
         includeExample: opts.includeExample
       });
 
-      const totalSheets = numSheets + (opts.answerKey ? numSheets : 0);
+      // For preview: show normal sheet + both AK variants side by side
+      const previewSheets = numSheets + (opts.answerKey ? numSheets * 2 : 0);
 
       if (isMobile()) {
         for (let s = 0; s < numSheets; s++) {
@@ -946,25 +973,30 @@
         if (opts.answerKey) {
           for (let s = 0; s < numSheets; s++) {
             const p = document.createElement("div"); p.className = "worksheet-page";
-            p.appendChild(renderWorksheetSVG(currentState.sheets[s], akOpts));
+            p.appendChild(renderWorksheetSVG(currentState.sheets[s], akSubtitleOpts));
+            sheetWrap.appendChild(p);
+          }
+          for (let s = 0; s < numSheets; s++) {
+            const p = document.createElement("div"); p.className = "worksheet-page";
+            p.appendChild(renderWorksheetSVG(currentState.sheets[s], akHeaderOpts));
             sheetWrap.appendChild(p);
           }
         }
         return;
       }
 
-      if (totalSheets > 1) {
+      if (previewSheets > 1) {
         sheetWrap.classList.add("grid-view");
-        const ep = totalSheets >= 3 ? 12 : 0;
+        const ep = previewSheets >= 3 ? 12 : 0;
         const aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
         let cols;
-        if (totalSheets <= 3) { cols = totalSheets; if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        else { cols = Math.min(3, totalSheets); if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        const msw = (aw - (cols - 1) * gap) / cols, msh = totalSheets <= 3 ? ah : ah * 0.8;
+        if (previewSheets <= 3) { cols = previewSheets; if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        else { cols = Math.min(3, previewSheets); if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        const msw = (aw - (cols - 1) * gap) / cols, msh = previewSheets <= 3 ? ah : ah * 0.8;
         const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
         const sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
         sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
-        sheetWrap.style.padding = totalSheets >= 3 ? "0 " + ep + "px" : "0";
+        sheetWrap.style.padding = previewSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
           const v = renderWorksheetSVG(currentState.sheets[s], normalOpts(s));
@@ -974,7 +1006,13 @@
         if (opts.answerKey) {
           for (let s = 0; s < numSheets; s++) {
             const p = document.createElement("div"); p.className = "worksheet-page";
-            const v = renderWorksheetSVG(currentState.sheets[s], akOpts);
+            const v = renderWorksheetSVG(currentState.sheets[s], akSubtitleOpts);
+            v.setAttribute("width", sw); v.setAttribute("height", sh);
+            p.appendChild(v); sheetWrap.appendChild(p);
+          }
+          for (let s = 0; s < numSheets; s++) {
+            const p = document.createElement("div"); p.className = "worksheet-page";
+            const v = renderWorksheetSVG(currentState.sheets[s], akHeaderOpts);
             v.setAttribute("width", sw); v.setAttribute("height", sh);
             p.appendChild(v); sheetWrap.appendChild(p);
           }
@@ -1006,7 +1044,8 @@
           const p = document.createElement("div"); p.className = "worksheet-page";
           p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
             showHeader: "none", title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
-            showAnswers: true, numbered: opts.numbered, includeExample: false, isAnswerKey: true
+            showAnswers: true, numbered: opts.numbered, includeExample: false, isAnswerKey: true,
+            answerKeyPosition: 'subtitle'
           }));
           sheetWrap.appendChild(p);
         }

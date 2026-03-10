@@ -647,8 +647,10 @@ document.getElementById("btnPrint").addEventListener("click", () => {
     const headerMode = getHeaderMode();
     const branded = elBranded.checked;
     const numbered = elNumbered.checked;
+    const title = getTitle();
+    const subtitle = getSubtitle();
     for (let s = 0; s < currentState.sheets.length; s++) {
-      const akSvg = generateAnswerKeySvg(currentState.sheets[s], style, headerMode, branded, numbered);
+      const akSvg = generateAnswerKeySvg(currentState.sheets[s], style, headerMode, branded, numbered, title, subtitle);
       const page = document.createElement("div");
       page.className = "worksheet-page";
       page.appendChild(akSvg);
@@ -850,13 +852,13 @@ function generateWorksheetSvg(problems, style, headerMode, branded, numbered, ic
 }
 
 // Generate answer key SVG for PDF
-function generateAnswerKeySvg(problems, style, headerMode, branded, numbered) {
+function generateAnswerKeySvg(problems, style, headerMode, branded, numbered, title, subtitle) {
   const icons = ["icon-apple-new", "icon-balloon", "icon-icecream", "icon-pepper", "icon-pizza", "icon-corn", "icon-broccoli", "icon-fish"];
 
   if (style === 1) {
-    return generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons);
+    return generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle);
   } else {
-    return generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons);
+    return generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle);
   }
 }
 
@@ -1310,7 +1312,7 @@ function generateStyle2Svg(problems, headerMode, branded, numbered, icons, title
   return renderStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample);
 }
 
-function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons) {
+function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, title, subtitle) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -1326,12 +1328,34 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons) {
   svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
 
   let topGridY;
+  const midX = pageW / 2;
 
-  // Answer key has no Name/Date lines, only title
-  svg.appendChild(svgEl("text", {
-    x: pageW / 2, y: 50, "font-family": "Fredoka, sans-serif", "font-size": 20, "font-weight": 700, "text-anchor": "middle"
-  }, [document.createTextNode("ANSWER KEY")]));
-  topGridY = 68;
+  {
+    let curY = 10;
+    // Replace Name/Date row with centered "ANSWER KEY" label (same y and advance)
+    const akLabel = svgEl("text", {
+      x: midX, y: curY + 16,
+      "font-family": "'Google Sans Flex', sans-serif",
+      "font-size": 12, "font-weight": 700,
+      fill: "#3182ce", "text-anchor": "middle", "letter-spacing": "2"
+    });
+    akLabel.textContent = "ANSWER KEY";
+    svg.appendChild(akLabel);
+    curY += 28;
+    if (title) {
+      svg.appendChild(svgEl("text", {
+        x: margin, y: curY + 38, "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af"
+      }, [document.createTextNode(title)]));
+      curY += 46;
+    }
+    if (subtitle) {
+      svg.appendChild(svgEl("text", {
+        x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568"
+      }, [document.createTextNode(subtitle)]));
+      curY += 20;
+    }
+    topGridY = curY + 6;
+  }
 
   const gridH = pageH - topGridY - margin - (branded ? 56 : 0);
   const cols = 2;
@@ -1432,11 +1456,11 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons) {
   return svg;
 }
 
-function generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons) {
-  return renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons);
+function generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle) {
+  return renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, title, subtitle);
 }
 
-function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons) {
+function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, title, subtitle) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -1451,12 +1475,31 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons) {
   svg.appendChild(buildDefs());
   svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
 
-  // Answer key: same layout as worksheet but "ANSWER KEY" title and no Name/Date
-  svg.appendChild(svgEl("text", {
-    x: pageW / 2, y: 45, "font-family": "Fredoka, sans-serif", "font-size": 22, "font-weight": 700, "text-anchor": "middle"
-  }, [document.createTextNode("ANSWER KEY")]));
-  
-  const topGridY = 65;
+  const midX = pageW / 2;
+  let curY = 10;
+  // Replace Name/Date row with centered "ANSWER KEY" label (same y and advance)
+  const akLabel = svgEl("text", {
+    x: midX, y: curY + 16,
+    "font-family": "'Google Sans Flex', sans-serif",
+    "font-size": 12, "font-weight": 700,
+    fill: "#3182ce", "text-anchor": "middle", "letter-spacing": "2"
+  });
+  akLabel.textContent = "ANSWER KEY";
+  svg.appendChild(akLabel);
+  curY += 28;
+  if (title) {
+    svg.appendChild(svgEl("text", {
+      x: margin, y: curY + 38, "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af"
+    }, [document.createTextNode(title)]));
+    curY += 46;
+  }
+  if (subtitle) {
+    svg.appendChild(svgEl("text", {
+      x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568"
+    }, [document.createTextNode(subtitle)]));
+    curY += 20;
+  }
+  const topGridY = curY + 6;
   const bottomMargin = branded ? 56 : 24;
   const gutter = 8;
   const gridH = pageH - topGridY - bottomMargin;
@@ -1552,8 +1595,8 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons) {
   return svg;
 }
 
-function generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons) {
-  return renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons);
+function generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle) {
+  return renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, title, subtitle);
 }
 
 function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, problemIndex = 0, problemCount = 8 }) {
