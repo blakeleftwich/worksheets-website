@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <rect width="200" height="140" fill="#f7f8fc"/>
+  <circle cx="78" cy="70" r="42" fill="#667eea" opacity="0.12" stroke="#667eea" stroke-width="1.5"/>
+  <circle cx="122" cy="70" r="42" fill="#764ba2" opacity="0.12" stroke="#764ba2" stroke-width="1.5"/>
+  <text x="60" y="55" text-anchor="middle" font-size="10" font-weight="600" fill="#667eea" font-family="Arial">Odd</text>
+  <text x="140" y="55" text-anchor="middle" font-size="10" font-weight="600" fill="#764ba2" font-family="Arial">Even</text>
+  <text x="100" y="75" text-anchor="middle" font-size="10" font-weight="600" fill="#4a5568" font-family="Arial">Both</text>
+</svg>

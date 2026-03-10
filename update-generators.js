@@ -22,10 +22,13 @@ for (const cfg of configs) {
   const filePath = path.join(BASE, cfg.dir, 'index.html');
   let content = fs.readFileSync(filePath, 'utf8');
 
-  // CHANGE 1: Update Google Fonts link
+  // CHANGE 1: Ensure local fonts.css is used (not Google Fonts CDN)
+  // Remove any remaining Google Fonts preconnect/link tags
+  content = content.replace(/\s*<link rel="preconnect" href="https:\/\/fonts\.googleapis\.com">\s*\n?/g, '');
+  content = content.replace(/\s*<link rel="preconnect" href="https:\/\/fonts\.gstatic\.com" crossorigin>\s*\n?/g, '');
   content = content.replace(
-    '<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">',
-    '<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">'
+    /\s*<link href="https:\/\/fonts\.googleapis\.com\/css2\?family=[^"]*" rel="stylesheet">\s*/g,
+    '\n  <link rel="stylesheet" href="../../fonts/fonts.css">\n'
   );
 
   // CHANGE 3: Update .adv-sub CSS to include input[type="text"]

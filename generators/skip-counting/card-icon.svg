@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <rect width="200" height="140" fill="#f7f8fc"/>
+  <g transform="translate(10,45)">
+    <rect x="0" y="0" width="32" height="32" rx="4" fill="none" stroke="#667eea" stroke-width="1.5"/><text x="16" y="22" text-anchor="middle" font-size="15" font-weight="700" fill="#2d3748" font-family="Arial">2</text>
+    <rect x="38" y="0" width="32" height="32" rx="4" fill="none" stroke="#667eea" stroke-width="1.5"/><text x="54" y="22" text-anchor="middle" font-size="15" font-weight="700" fill="#2d3748" font-family="Arial">4</text>
+    <rect x="76" y="0" width="32" height="32" rx="4" fill="#f7fafc" stroke="#a0aec0" stroke-width="1.5" stroke-dasharray="4,3"/><text x="92" y="22" text-anchor="middle" font-size="15" fill="#a0aec0" font-family="Arial">?</text>
+    <rect x="114" y="0" width="32" height="32" rx="4" fill="none" stroke="#667eea" stroke-width="1.5"/><text x="130" y="22" text-anchor="middle" font-size="15" font-weight="700" fill="#2d3748" font-family="Arial">8</text>
+    <rect x="152" y="0" width="32" height="32" rx="4" fill="#f7fafc" stroke="#a0aec0" stroke-width="1.5" stroke-dasharray="4,3"/><text x="168" y="22" text-anchor="middle" font-size="15" fill="#a0aec0" font-family="Arial">?</text>
+  </g>
+</svg>

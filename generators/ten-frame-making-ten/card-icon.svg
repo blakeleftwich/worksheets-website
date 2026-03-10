@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <rect width="200" height="140" fill="#f7f8fc"/>
+  <g transform="translate(30,20)">
+    <rect x="0" y="0" width="140" height="60" rx="4" fill="none" stroke="#cbd5e0" stroke-width="1.5"/>
+    <line x1="28" y1="0" x2="28" y2="60" stroke="#cbd5e0" stroke-width="1"/><line x1="56" y1="0" x2="56" y2="60" stroke="#cbd5e0" stroke-width="1"/>
+    <line x1="84" y1="0" x2="84" y2="60" stroke="#cbd5e0" stroke-width="1"/><line x1="112" y1="0" x2="112" y2="60" stroke="#cbd5e0" stroke-width="1"/>
+    <line x1="0" y1="30" x2="140" y2="30" stroke="#cbd5e0" stroke-width="1"/>
+    <circle cx="14" cy="15" r="8" fill="#667eea" opacity="0.6"/><circle cx="42" cy="15" r="8" fill="#667eea" opacity="0.6"/>
+    <circle cx="70" cy="15" r="8" fill="#667eea" opacity="0.6"/><circle cx="98" cy="15" r="8" fill="#667eea" opacity="0.6"/>
+    <circle cx="126" cy="15" r="8" fill="#667eea" opacity="0.6"/>
+    <circle cx="14" cy="45" r="8" fill="#667eea" opacity="0.6"/><circle cx="42" cy="45" r="8" fill="#667eea" opacity="0.6"/>
+    <circle cx="70" cy="45" r="8" fill="none" stroke="#a0aec0" stroke-width="1.5" stroke-dasharray="3,2"/>
+  </g>
+  <text x="100" y="112" text-anchor="middle" font-size="16" font-weight="600" fill="#2d3748" font-family="Arial">7 + __ = 10</text>
+</svg>

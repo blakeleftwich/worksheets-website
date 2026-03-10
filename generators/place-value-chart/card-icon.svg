@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <rect width="200" height="140" fill="#f7f8fc"/>
+  <rect x="20" y="20" width="55" height="25" rx="3" fill="#f97316" opacity="0.15"/><text x="47" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#f97316" font-family="Arial">Hundreds</text>
+  <rect x="75" y="20" width="50" height="25" rx="3" fill="#22c55e" opacity="0.15"/><text x="100" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#22c55e" font-family="Arial">Tens</text>
+  <rect x="125" y="20" width="55" height="25" rx="3" fill="#3b82f6" opacity="0.15"/><text x="152" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#3b82f6" font-family="Arial">Ones</text>
+  <text x="47" y="75" text-anchor="middle" font-size="30" font-weight="700" fill="#2d3748" font-family="Arial">3</text>
+  <text x="100" y="75" text-anchor="middle" font-size="30" font-weight="700" fill="#2d3748" font-family="Arial">4</text>
+  <text x="152" y="75" text-anchor="middle" font-size="30" font-weight="700" fill="#2d3748" font-family="Arial">7</text>
+  <text x="100" y="115" text-anchor="middle" font-size="14" font-weight="600" fill="#a0aec0" font-family="Arial">= 347</text>
+</svg>

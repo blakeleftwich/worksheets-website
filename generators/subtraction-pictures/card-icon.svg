@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <rect width="200" height="140" fill="#f7f8fc"/>
+  <circle cx="35" cy="45" r="10" fill="#667eea" opacity="0.5"/><circle cx="60" cy="45" r="10" fill="#667eea" opacity="0.5"/><circle cx="85" cy="45" r="10" fill="#667eea" opacity="0.5"/>
+  <circle cx="110" cy="45" r="10" fill="#667eea" opacity="0.5"/><circle cx="135" cy="45" r="10" fill="#667eea" opacity="0.15" stroke="#e53e3e" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <line x1="127" y1="37" x2="143" y2="53" stroke="#e53e3e" stroke-width="2"/>
+  <text x="100" y="105" text-anchor="middle" font-size="22" font-weight="700" fill="#2d3748" font-family="Arial">5 − 1 = __</text>
+</svg>

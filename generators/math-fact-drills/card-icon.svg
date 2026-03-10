@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <rect width="200" height="140" fill="#f7f8fc"/>
+  <text x="55" y="38" text-anchor="middle" font-size="14" font-weight="600" fill="#2d3748" font-family="Arial">3 + 4 = __</text>
+  <text x="150" y="38" text-anchor="middle" font-size="14" font-weight="600" fill="#2d3748" font-family="Arial">8 − 5 = __</text>
+  <text x="55" y="62" text-anchor="middle" font-size="14" font-weight="600" fill="#2d3748" font-family="Arial">6 + 7 = __</text>
+  <text x="150" y="62" text-anchor="middle" font-size="14" font-weight="600" fill="#2d3748" font-family="Arial">9 − 3 = __</text>
+  <text x="55" y="86" text-anchor="middle" font-size="14" font-weight="600" fill="#2d3748" font-family="Arial">2 + 9 = __</text>
+  <text x="150" y="86" text-anchor="middle" font-size="14" font-weight="600" fill="#2d3748" font-family="Arial">7 − 4 = __</text>
+  <text x="55" y="110" text-anchor="middle" font-size="14" font-weight="600" fill="#2d3748" font-family="Arial">5 + 8 = __</text>
+  <text x="150" y="110" text-anchor="middle" font-size="14" font-weight="600" fill="#2d3748" font-family="Arial">10 − 6 = __</text>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <rect width="200" height="140" fill="#f7f8fc"/>
+  <text x="40" y="55" text-anchor="middle" font-size="14" font-weight="700" fill="#667eea" font-family="Arial">1st</text>
+  <text x="80" y="55" text-anchor="middle" font-size="14" font-weight="700" fill="#764ba2" font-family="Arial">2nd</text>
+  <text x="120" y="55" text-anchor="middle" font-size="14" font-weight="700" fill="#48bb78" font-family="Arial">3rd</text>
+  <text x="160" y="55" text-anchor="middle" font-size="14" font-weight="700" fill="#f6ad55" font-family="Arial">4th</text>
+  <circle cx="40" cy="85" r="12" fill="#667eea" opacity="0.3"/><circle cx="80" cy="85" r="12" fill="#764ba2" opacity="0.3"/>
+  <circle cx="120" cy="85" r="12" fill="#48bb78" opacity="0.3"/><circle cx="160" cy="85" r="12" fill="#f6ad55" opacity="0.3"/>
+</svg>

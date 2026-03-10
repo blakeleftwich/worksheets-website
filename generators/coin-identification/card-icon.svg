@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <rect width="200" height="140" fill="#f7f8fc"/>
+  <circle cx="55" cy="55" r="25" fill="#f6e05e" opacity="0.4" stroke="#d69e2e" stroke-width="1.5"/>
+  <text x="55" y="60" text-anchor="middle" font-size="13" font-weight="700" fill="#975a16" font-family="Arial">25¢</text>
+  <circle cx="120" cy="55" r="20" fill="#e2e8f0" stroke="#a0aec0" stroke-width="1.5"/>
+  <text x="120" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#4a5568" font-family="Arial">10¢</text>
+  <circle cx="165" cy="55" r="15" fill="#fed7aa" stroke="#dd6b20" stroke-width="1.5"/>
+  <text x="165" y="60" text-anchor="middle" font-size="10" font-weight="700" fill="#9c4221" font-family="Arial">1¢</text>
+  <text x="100" y="110" text-anchor="middle" font-size="14" font-weight="600" fill="#a0aec0" font-family="Arial">Name each coin</text>
+</svg>
