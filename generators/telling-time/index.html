@@ -760,7 +760,7 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(sheetTimes, options) {
-      const { showHeader, title, subtitle, branded, showAnswers, tickStyle, showArrows, numbered, includeExample } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, tickStyle, showArrows, numbered, includeExample, isAnswerKey } = options;
       const color = "#2d3748";
       const pageW = 612, pageH = 792, margin = 36;
 
@@ -772,7 +772,16 @@
       let topGridY;
       {
         let curY = 10;
-        if (showHeader === "both") {
+        if (isAnswerKey) {
+          const akLabel = svgEl("text", {
+            x: midX, y: curY + 16,
+            "font-family": "'Google Sans Flex', sans-serif", "font-size": 12, "font-weight": 700,
+            fill: "#000", "text-anchor": "middle", "letter-spacing": "2"
+          });
+          akLabel.textContent = "ANSWER KEY";
+          svg.appendChild(akLabel);
+          curY += 28;
+        } else if (showHeader === "both") {
           svg.appendChild(svgEl("text", {
             x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Name")]));
@@ -903,11 +912,12 @@
     // ===== Render helpers =====
     function buildRenderOptions(opts, showAnswers) {
       return {
-        showHeader: showAnswers ? "none" : opts.showHeader,
-        title: showAnswers ? opts.title + " \u2014 Answer Key" : opts.title,
-        subtitle: showAnswers ? "" : opts.subtitle,
+        showHeader: opts.showHeader,
+        title: opts.title,
+        subtitle: opts.subtitle,
         branded: opts.branded,
         showAnswers: !!showAnswers,
+        isAnswerKey: !!showAnswers,
         tickStyle: opts.tickStyle,
         showArrows: opts.showArrows,
         numbered: opts.numbered,
