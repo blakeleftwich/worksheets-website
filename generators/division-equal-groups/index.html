@@ -308,8 +308,11 @@
       margin: 0.5in 0.4in 0in 0.4in;
     }
 
+    .ak-print-only { display: none !important; }
+
     /* ===== Print ===== */
     @media print {
+      .ak-print-only { display: block !important; }
       body {
         background: white;
         padding: 0;
@@ -990,7 +993,7 @@
       }
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
-          const p = document.createElement("div"); p.className = "worksheet-page";
+          const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
           p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
             showHeader: "none", title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
             showAnswers: true, numbered: opts.numbered, includeExample: false, isAnswerKey: true,

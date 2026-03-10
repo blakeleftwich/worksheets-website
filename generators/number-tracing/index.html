@@ -318,8 +318,11 @@
       }
     }
 
+    .ak-print-only { display: none !important; }
+
     /* ===== Print ===== */
     @media print {
+      .ak-print-only { display: block !important; }
       body {
         background: white;
         padding: 0;
@@ -984,7 +987,7 @@
       }
       if (opts.answerKey) {
         for (let i = 0; i < currentState.pages.length; i++) {
-          const p = document.createElement("div"); p.className = "worksheet-page";
+          const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
           p.appendChild(renderWorksheetSVG(currentState.pages[i], {
             showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
             traceStyle: opts.traceStyle, repetitions: opts.repetitions,

@@ -288,7 +288,10 @@
       border: 1px solid #c3e6cb;
     }
     
+    .ak-print-only { display: none !important; }
+
     @media print {
+      .ak-print-only { display: block !important; }
       .sidebar {
         display: none !important;
       }
@@ -652,7 +655,7 @@ document.getElementById("btnPrint").addEventListener("click", () => {
     for (let s = 0; s < currentState.sheets.length; s++) {
       const akSvg = generateAnswerKeySvg(currentState.sheets[s], style, headerMode, branded, numbered, title, subtitle);
       const page = document.createElement("div");
-      page.className = "worksheet-page";
+      page.className = "worksheet-page ak-print-only";
       page.appendChild(akSvg);
       sheetWrap.appendChild(page);
       answerKeyPages.push(page);

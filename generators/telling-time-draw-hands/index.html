@@ -304,8 +304,11 @@
       }
     }
 
+    .ak-print-only { display: none !important; }
+
     /* ===== Print ===== */
     @media print {
+      .ak-print-only { display: block !important; }
       body {
         background: white;
         padding: 0;
@@ -1079,7 +1082,7 @@
       if (opts.answerKey) {
         const roAns = buildRenderOptions(opts, true);
         for (let i = 0; i < currentState.sheets.length; i++) {
-          const p = document.createElement("div"); p.className = "worksheet-page";
+          const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
           p.appendChild(renderWorksheetSVG(currentState.sheets[i], roAns));
           sheetWrap.appendChild(p);
         }
