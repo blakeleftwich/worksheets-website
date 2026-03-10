@@ -298,51 +298,54 @@ function findOpenPosition(type, startX, startY) {
 
 /* ===== Auto-sort blocks into value columns ===== */
 function autoSortColumns() {
-  if (!showValueColumns) return;
+  if (!showValueColumns || colDiv1 === null) return;
 
-  var pad = 15, gap = 8;
+  var pad = 12, gap = 6;
   var hundreds = blocks.filter(function(b) { return b.type === "hundred"; });
   var tens     = blocks.filter(function(b) { return b.type === "ten"; });
   var ones     = blocks.filter(function(b) { return b.type === "one"; });
 
-  /* Hundreds column: stack vertically */
-  var y = pad;
+  /* Column boundaries in logical coords */
+  var c1 = colDiv1;   /* end of hundreds col */
+  var c2 = colDiv2;   /* end of tens col */
+
+  /* --- Hundreds column: 0 to c1 --- */
+  var hColW = c1 - pad * 2;
+  var hBlockW = CELL * 10, hBlockH = CELL * 10;
+  var hPerRow = Math.max(1, Math.floor(hColW / (hBlockW + gap)));
   for (var i = 0; i < hundreds.length; i++) {
-    hundreds[i].x = pad;
-    hundreds[i].y = y;
+    var hCol = i % hPerRow;
+    var hRow = Math.floor(i / hPerRow);
+    hundreds[i].x = pad + hCol * (hBlockW + gap);
+    hundreds[i].y = pad + hRow * (hBlockH + gap);
     hundreds[i].rotation = 0;
-    y += CELL * 10 + gap;
   }
 
-  /* Tens column: vertical rods side by side, wrapping */
-  var tensX0 = CELL * 10 + pad * 3;
-  var tensSlot = CELL + gap;
-  var tensPerRow = 10;
+  /* --- Tens column: c1 to c2 --- */
+  var tColW = c2 - c1 - pad * 2;
+  var tBlockW = CELL, tBlockH = CELL * 10;
+  var tPerRow = Math.max(1, Math.floor(tColW / (tBlockW + gap)));
   for (var j = 0; j < tens.length; j++) {
-    var row = Math.floor(j / tensPerRow);
-    var col = j % tensPerRow;
+    var tCol = j % tPerRow;
+    var tRow = Math.floor(j / tPerRow);
     tens[j].rotation = 0;
-    tens[j].x = tensX0 + col * tensSlot;
-    tens[j].y = pad + row * (CELL * 10 + gap);
+    tens[j].x = c1 + pad + tCol * (tBlockW + gap);
+    tens[j].y = pad + tRow * (tBlockH + gap);
   }
 
-  /* Ones column: grid layout, 10 per row */
-  var onesX0 = tensX0 + tensPerRow * tensSlot + pad * 2;
-  if (tens.length === 0) onesX0 = tensX0;
-  else if (tens.length < tensPerRow) onesX0 = tensX0 + Math.min(tens.length, tensPerRow) * tensSlot + pad * 2;
-  var onesPerRow = 10;
-  var onesSlot = CELL + 4;
+  /* --- Ones column: c2 to end --- */
+  var wsLogW = workspaceInner.clientWidth / zoomLevel;
+  if (wsLogW < 100) wsLogW = 900;
+  var oColW = Math.max(wsLogW - c2 - pad * 2, CELL * 10 + pad * 2);
+  var oBlockW = CELL;
+  var oPerRow = Math.max(1, Math.floor(oColW / (oBlockW + gap)));
   for (var k = 0; k < ones.length; k++) {
-    var oRow = Math.floor(k / onesPerRow);
-    var oCol = k % onesPerRow;
-    ones[k].x = onesX0 + oCol * onesSlot;
-    ones[k].y = pad + oRow * onesSlot;
+    var oCol = k % oPerRow;
+    var oRow = Math.floor(k / oPerRow);
+    ones[k].x = c2 + pad + oCol * (oBlockW + gap);
+    ones[k].y = pad + oRow * (oBlockW + gap);
     ones[k].rotation = 0;
   }
-
-  /* Update column divider positions */
-  colDiv1 = CELL * 10 + pad * 2;
-  colDiv2 = onesX0 - pad;
 }
 
 /* ===== Master refresh ===== */
@@ -784,12 +787,15 @@ function toggleValueColumns(checked) {
   showValueColumns = checked;
   if (showValueColumns) {
     initColDividers();
-    autoSortColumns();
   }
   refreshAllBlocks();
 }
 function initColDividers() {
+  /* Equal thirds – ensure each column is at least wide enough for one hundred block */
   var wsW = workspaceInner.clientWidth / zoomLevel;
+  var minCol = CELL * 10 + 30;          /* 250: one hundred-block + padding  */
+  var minWsW = minCol * 3;              /* 750: three equal columns          */
+  if (wsW < minWsW) wsW = minWsW;
   colDiv1 = wsW / 3;
   colDiv2 = 2 * wsW / 3;
 }
@@ -802,16 +808,56 @@ function renderColumnsBg() {
   if (colDiv1 === null) initColDividers();
   bg.style.display = "block"; header.style.display = "flex";
   var d1 = colDiv1 * zoomLevel, d2 = colDiv2 * zoomLevel;
+  var handleW = 8;
   bg.innerHTML
     = '<div style="position:absolute;top:0;left:0;width:' + d1 + 'px;height:100%;background:rgba(249,115,22,0.05);pointer-events:none;"></div>'
     + '<div style="position:absolute;top:0;left:' + d1 + 'px;width:' + (d2-d1) + 'px;height:100%;background:rgba(34,197,94,0.05);pointer-events:none;"></div>'
     + '<div style="position:absolute;top:0;left:' + d2 + 'px;right:0;height:100%;background:rgba(59,130,246,0.05);pointer-events:none;"></div>'
-    + '<div style="position:absolute;top:0;left:' + d1 + 'px;width:1px;height:100%;background:rgba(0,0,0,0.12);pointer-events:none;"></div>'
-    + '<div style="position:absolute;top:0;left:' + d2 + 'px;width:1px;height:100%;background:rgba(0,0,0,0.12);pointer-events:none;"></div>';
+    + '<div id="colDivHandle1" style="position:absolute;top:0;left:' + (d1 - handleW/2) + 'px;width:' + handleW + 'px;height:100%;cursor:col-resize;z-index:10;pointer-events:all;touch-action:none;">'
+    +   '<div style="position:absolute;left:' + (handleW/2 - 0.5) + 'px;top:0;bottom:0;width:1px;background:rgba(0,0,0,0.18);pointer-events:none;"></div></div>'
+    + '<div id="colDivHandle2" style="position:absolute;top:0;left:' + (d2 - handleW/2) + 'px;width:' + handleW + 'px;height:100%;cursor:col-resize;z-index:10;pointer-events:all;touch-action:none;">'
+    +   '<div style="position:absolute;left:' + (handleW/2 - 0.5) + 'px;top:0;bottom:0;width:1px;background:rgba(0,0,0,0.18);pointer-events:none;"></div></div>';
   var hdrH = header.querySelector(".col-hdr-hundreds");
   var hdrT = header.querySelector(".col-hdr-tens");
   if (hdrH) hdrH.style.width = d1 + "px";
   if (hdrT) hdrT.style.width = (d2 - d1) + "px";
+  attachDividerHandlers();
+}
+
+/* ===== Draggable column dividers ===== */
+function attachDividerHandlers() {
+  [1, 2].forEach(function(n) {
+    var handle = document.getElementById("colDivHandle" + n);
+    if (!handle) return;
+    handle.addEventListener("pointerdown", function(e) {
+      e.preventDefault(); e.stopPropagation();
+      handle.setPointerCapture(e.pointerId);
+      var startX   = e.clientX;
+      var startDiv = n === 1 ? colDiv1 : colDiv2;
+      var minCol   = 60;  /* minimum logical column width */
+
+      function onMove(ev) {
+        var dx = (ev.clientX - startX) / zoomLevel;
+        if (n === 1) {
+          colDiv1 = Math.max(minCol, Math.min(colDiv2 - minCol, startDiv + dx));
+        } else {
+          var wsLogW = workspaceInner.clientWidth / zoomLevel;
+          colDiv2 = Math.max(colDiv1 + minCol, Math.min(wsLogW - minCol, startDiv + dx));
+        }
+        /* Live re-sort and re-render */
+        autoSortColumns();
+        autoZoom();
+        blocks.forEach(renderBlock);
+        renderColumnsBg();
+      }
+      function onUp() {
+        handle.removeEventListener("pointermove", onMove);
+        handle.removeEventListener("pointerup",   onUp);
+      }
+      handle.addEventListener("pointermove", onMove);
+      handle.addEventListener("pointerup",   onUp);
+    });
+  });
 }
 
 /* ===== Drag from tray into workspace ===== */
