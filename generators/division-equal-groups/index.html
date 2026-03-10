@@ -604,7 +604,7 @@
           // "ANSWER KEY" centered at exactly the same y as "Name" text — no vertical shift
           const akTop = svgEl("text", {
             x: midX, y: curY + 16,
-            "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 700,
+            "font-family": "'Google Sans Flex', sans-serif", "font-size": 12, "font-weight": 700,
             fill: AK_COLOR, "text-anchor": "middle", "letter-spacing": "2"
           });
           akTop.textContent = "ANSWER KEY";
@@ -1045,7 +1045,7 @@
           p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
             showHeader: "none", title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
             showAnswers: true, numbered: opts.numbered, includeExample: false, isAnswerKey: true,
-            answerKeyPosition: 'subtitle'
+            answerKeyPosition: 'header'
           }));
           sheetWrap.appendChild(p);
         }

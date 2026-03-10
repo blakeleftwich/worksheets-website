@@ -827,7 +827,16 @@
       let topGridY;
       {
         let curY = 10;
-        if (showHeader === "both") {
+        if (isAnswerKey) {
+          const akLabel = svgEl("text", {
+            x: midX, y: curY + 16,
+            "font-family": "'Google Sans Flex', sans-serif", "font-size": 12, "font-weight": 700,
+            fill: "#3182ce", "text-anchor": "middle", "letter-spacing": "2"
+          });
+          akLabel.textContent = "ANSWER KEY";
+          svg.appendChild(akLabel);
+          curY += 28;
+        } else if (showHeader === "both") {
           svg.appendChild(svgEl("text", {
             x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Name")]));
@@ -985,8 +994,8 @@
     function buildRenderOptions(opts, isAnswerKey) {
       return {
         showHeader: isAnswerKey ? "none" : opts.showHeader,
-        title: isAnswerKey ? opts.title + " \u2014 Answer Key" : opts.title,
-        subtitle: isAnswerKey ? "" : opts.subtitle,
+        title: opts.title,
+        subtitle: opts.subtitle,
         branded: opts.branded,
         isAnswerKey: !!isAnswerKey,
         tickStyle: opts.tickStyle,
