@@ -699,14 +699,41 @@ function generateRandomProblems(min, max, numProblems) {
     shuffleArray(batch);
     availableIcons = availableIcons.concat(batch);
   }
-  // Cap zero-count problems at 20% when range includes zero
-  const maxZeros = (min === 0) ? Math.floor(numProblems * 0.2) : 0;
-  let zeroCount = 0;
+
+  // When range includes zero, randomly place exactly 1 or 2 zeros
+  const targetZeros = (min === 0) ? randInt(1, 2) : 0;
+  // Pick random non-adjacent positions for zeros
+  const zeroPositions = new Set();
+  if (targetZeros > 0) {
+    const candidates = Array.from({length: numProblems}, (_, i) => i);
+    shuffleArray(candidates);
+    for (const pos of candidates) {
+      if (zeroPositions.size >= targetZeros) break;
+      // Ensure not adjacent to another zero position
+      let adjacent = false;
+      for (const zp of zeroPositions) {
+        if (Math.abs(pos - zp) === 1) { adjacent = true; break; }
+      }
+      if (!adjacent) zeroPositions.add(pos);
+    }
+  }
+
+  // Generate counts ensuring no two adjacent problems share the same answer
   for (let i = 0; i < numProblems; i++) {
-    let count = randInt(min, max);
-    if (count === 0) {
-      zeroCount++;
-      if (zeroCount > maxZeros) count = randInt(1, max);
+    let count;
+    if (zeroPositions.has(i)) {
+      count = 0;
+    } else {
+      const nonZeroMin = (min === 0) ? 1 : min;
+      count = randInt(nonZeroMin, max);
+    }
+    // Avoid matching the previous problem's count
+    if (i > 0 && count === problems[i - 1].count) {
+      // Re-roll up to 20 times to find a different value
+      for (let attempt = 0; attempt < 20; attempt++) {
+        const newCount = zeroPositions.has(i) ? 0 : randInt((min === 0) ? 1 : min, max);
+        if (newCount !== problems[i - 1].count) { count = newCount; break; }
+      }
     }
     problems.push({ count, iconIndex: availableIcons[i] });
   }
