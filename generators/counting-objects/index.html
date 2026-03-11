@@ -1672,7 +1672,7 @@ function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, proble
   const spacingRatio = 0.15;
   const sizeByW = aW / (bestCols + (bestCols - 1) * spacingRatio);
   const sizeByH = aH / (bestRows + (bestRows - 1) * spacingRatio);
-  const bestSize = Math.min(sizeByW, sizeByH, 120);
+  const bestSize = Math.min(sizeByW, sizeByH);
 
   let iconSize = Math.max(18, bestSize);
   const spacing = iconSize * spacingRatio;
@@ -1731,11 +1731,10 @@ function placeObjectsRowLeftAligned(svg, { iconId, count, x, y, w, h, maxCount, 
   if (needsWrap) {
     // Two rows
     const perRow = perRowMax;
-    const itemsForSize = Math.max(perRow, maxCount ? Math.ceil(maxCount / 2) : perRow);
     const availW = w - 10;
-    const sizeByW = (availW - (itemsForSize - 1) * spacing) / itemsForSize;
+    const sizeByW = (availW - (perRow - 1) * spacing) / perRow;
     const sizeByH = (h - spacing) / 2 * 0.9;
-    let size = Math.min(sizeByW, sizeByH, 50);
+    let size = Math.min(sizeByW, sizeByH);
     size = Math.max(20, size);
 
     const rowH = size + spacing;
@@ -1754,12 +1753,11 @@ function placeObjectsRowLeftAligned(svg, { iconId, count, x, y, w, h, maxCount, 
       }));
     }
   } else {
-    // Single row
-    const itemsForSize = maxCount || count;
+    // Single row - size based on actual count to fill the space
     const availW = w - 10;
-    const sizeByW = (availW - (itemsForSize - 1) * spacing) / itemsForSize;
+    const sizeByW = (availW - (count - 1) * spacing) / count;
     const sizeByH = h * 0.85;
-    let size = Math.min(sizeByW, sizeByH, 50);
+    let size = Math.min(sizeByW, sizeByH);
     size = Math.max(20, size);
 
     for (let i = 0; i < count; i++) {
