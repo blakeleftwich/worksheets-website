@@ -377,8 +377,10 @@
       <div class="control-group">
         <label for="countRange">Count Range</label>
         <select id="countRange">
-          <option value="1-5">1 to 5</option>
-          <option value="1-10" selected>1 to 10</option>
+          <option value="1-5" selected>1 to 5</option>
+          <option value="5-10">5 to 10</option>
+          <option value="1-10">1 to 10</option>
+          <option value="10-20">10 to 20</option>
           <option value="1-20">1 to 20</option>
         </select>
       </div>
@@ -473,7 +475,7 @@
             </div>
             <div id="titleInputWrap">
               <label for="headerText">Title</label>
-              <input type="text" id="headerText" value="Counting Fun" />
+              <input type="text" id="headerText" value="Count & Write 1 to 5" />
             </div>
             <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
               <input type="checkbox" id="showSubtitle" checked />
@@ -541,26 +543,39 @@ let currentState = {
 
 function getCountRange() {
   const parts = elCountRange.value.split("-");
-  const min = elAllowZero.checked ? 0 : parseInt(parts[0], 10);
+  const rawMin = parseInt(parts[0], 10);
+  const min = (elAllowZero.checked && rawMin === 1) ? 0 : rawMin;
   return { min, max: parseInt(parts[1], 10) };
 }
 
 function updateCountRangeLabels() {
   const lo = elAllowZero.checked ? '0' : '1';
-  elCountRange.options[0].text = lo + ' to 5';
-  elCountRange.options[1].text = lo + ' to 10';
-  elCountRange.options[2].text = lo + ' to 20';
+  for (const opt of elCountRange.options) {
+    const parts = opt.value.split('-');
+    const minLabel = parts[0] === '1' ? lo : parts[0];
+    opt.text = minLabel + ' to ' + parts[1];
+  }
+}
+
+function updateTitleFromSettings() {
+  const title = buildDefaultTitle();
+  elHeaderText.value = title;
 }
 
 function getHeaderMode() {
   return elShowHeaderEnabled.checked ? elShowHeader.value : "none";
 }
 
+function buildDefaultTitle() {
+  const range = getCountRange();
+  return `Count & Write ${range.min} to ${range.max}`;
+}
+
 function getTitle() {
   if (elCustomTitleEnabled.checked) {
     return elShowTitle.checked ? elHeaderText.value : "";
   }
-  return "Counting Fun";
+  return buildDefaultTitle();
 }
 
 function getSubtitle() {
@@ -582,7 +597,7 @@ function showStatus(msg) {
 advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
 
 // ===== Allow zero =====
-elAllowZero.addEventListener("change", () => { updateCountRangeLabels(); renderWithNewRandomization(); });
+elAllowZero.addEventListener("change", () => { updateCountRangeLabels(); updateTitleFromSettings(); renderWithNewRandomization(); });
 
 // ===== Name/Date toggle =====
 elShowHeaderEnabled.addEventListener("change", () => {
@@ -607,7 +622,7 @@ elShowSubtitle.addEventListener("change", () => {
 // Add event listeners for real-time updates
 elNumSheets.addEventListener("change", () => renderWithNewRandomization());
 elProblems.addEventListener("change", () => renderWithNewRandomization());
-elCountRange.addEventListener("change", () => renderWithNewRandomization());
+elCountRange.addEventListener("change", () => { updateTitleFromSettings(); renderWithNewRandomization(); });
 elStyle.addEventListener("change", () => renderWithoutRandomization());
 elShowHeader.addEventListener("change", () => renderWithoutRandomization());
 elNumbered.addEventListener("change", () => renderWithoutRandomization());
@@ -1725,13 +1740,16 @@ function placeObjectsRow(svg, { iconId, count, x, y, w, h }) {
 
 function placeObjectsRowLeftAligned(svg, { iconId, count, x, y, w, h, maxCount, perRowMax = 5 }) {
   const spacing = 6;
-  const startX = x + 5;
+  const startX = x + 18;
   const needsWrap = count > perRowMax;
+
+  const leftPad = 18;
+  const rightPad = 5;
+  const availW = w - leftPad - rightPad;
 
   if (needsWrap) {
     // Two rows
     const perRow = perRowMax;
-    const availW = w - 10;
     const sizeByW = (availW - (perRow - 1) * spacing) / perRow;
     const sizeByH = (h - spacing) / 2 * 0.9;
     let size = Math.min(sizeByW, sizeByH);
@@ -1754,7 +1772,6 @@ function placeObjectsRowLeftAligned(svg, { iconId, count, x, y, w, h, maxCount, 
     }
   } else {
     // Single row - size based on actual count to fill the space
-    const availW = w - 10;
     const sizeByW = (availW - (count - 1) * spacing) / count;
     const sizeByH = h * 0.85;
     let size = Math.min(sizeByW, sizeByH);
