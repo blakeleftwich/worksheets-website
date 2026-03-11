@@ -227,6 +227,18 @@
       box-shadow: 0 6px 16px rgba(237, 137, 54, 0.4);
     }
 
+    #btnVarietyPack {
+      background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(56, 161, 105, 0.3);
+    }
+
+    #btnVarietyPack:hover {
+      background: linear-gradient(135deg, #2f855a 0%, #276749 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(56, 161, 105, 0.4);
+    }
+
     .preview-area {
       padding: 40px;
       display: flex;
@@ -499,6 +511,7 @@
       <div class="button-group">
         <button id="btnGenerate">🔄 Generate New</button>
         <button id="btnPrint">🖨️ Print</button>
+        <button id="btnVarietyPack">📦 Print Variety Pack</button>
       </div>
 
       <div id="status"></div>
@@ -674,6 +687,75 @@ function handlePrint() {
 }
 
 document.getElementById("btnPrint").addEventListener("click", handlePrint);
+
+// ===== Variety Pack =====
+function handleVarietyPack() {
+  const icons = ["icon-apple-new", "icon-balloon", "icon-icecream", "icon-pepper", "icon-pizza", "icon-corn", "icon-broccoli", "icon-fish"];
+  const numIcons = icons.length;
+  const numProblems = 8; // always 8 problems per sheet
+  const headerMode = "both";
+  const branded = true;
+  const numbered = true;
+  const subtitle = "Count the objects and write the number.";
+  const includeExample = false;
+
+  // Define the variety pack: [count, minVal, maxVal, style]
+  // style: 1 = 2 Columns (Grid), 2 = 1 Column (Rows)
+  const packDef = [
+    { count: 4, min: 1, max: 5,  style: 1 },
+    { count: 4, min: 1, max: 5,  style: 2 },
+    { count: 2, min: 0, max: 5,  style: 1 },
+    { count: 2, min: 0, max: 5,  style: 2 },
+    { count: 4, min: 1, max: 10, style: 1 },
+    { count: 4, min: 1, max: 10, style: 2 },
+    { count: 2, min: 0, max: 10, style: 1 },
+    { count: 2, min: 0, max: 10, style: 2 },
+    { count: 3, min: 5, max: 10, style: 1 },
+    { count: 3, min: 5, max: 10, style: 2 },
+    { count: 3, min: 1, max: 20, style: 1 },
+    { count: 3, min: 1, max: 20, style: 2 },
+    { count: 3, min: 10, max: 20, style: 1 },
+    { count: 3, min: 10, max: 20, style: 2 },
+  ];
+
+  // Save current DOM
+  const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
+  sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
+
+  for (const group of packDef) {
+    const title = `Count & Write ${group.min} to ${group.max}`;
+    const perRowMax = group.max > 10 ? 10 : 5;
+
+    for (let s = 0; s < group.count; s++) {
+      // Generate random problems for this sheet
+      const problems = [];
+      let availableIcons = [];
+      for (let i = 0; i < Math.ceil(numProblems / numIcons); i++) {
+        const batch = Array.from({length: numIcons}, (_, idx) => idx);
+        shuffleArray(batch);
+        availableIcons = availableIcons.concat(batch);
+      }
+      for (let i = 0; i < numProblems; i++) {
+        problems.push({ count: randInt(group.min, group.max), iconIndex: availableIcons[i] });
+      }
+
+      // Worksheet page
+      const wp = document.createElement("div"); wp.className = "worksheet-page";
+      wp.appendChild(generateWorksheetSvg(problems, group.style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax));
+      sheetWrap.appendChild(wp);
+
+      // Answer key page
+      const ak = document.createElement("div"); ak.className = "worksheet-page";
+      ak.appendChild(generateAnswerKeySvg(problems, group.style, "none", branded, numbered, title, subtitle, true, perRowMax));
+      sheetWrap.appendChild(ak);
+    }
+  }
+
+  window.print();
+  setTimeout(() => { sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 500);
+}
+
+document.getElementById("btnVarietyPack").addEventListener("click", handleVarietyPack);
 
 function renderWithNewRandomization() {
   // Generate new random problems for each sheet
