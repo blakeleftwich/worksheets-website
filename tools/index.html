@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Interactive Math Tools — Virtual Manipulatives for K-5</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -12,18 +15,16 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f8fafc;
       min-height: 100vh;
-      color: #2d3748;
+      color: #1e293b;
     }
 
     /* ===== Header / Nav ===== */
     .site-header {
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
       padding: 0 32px;
       position: sticky;
       top: 0;
@@ -42,29 +43,23 @@
     .site-logo {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 0;
       text-decoration: none;
     }
 
-    .logo-text {
-      font-size: 20px;
-      font-weight: 700;
-      color: white;
-      letter-spacing: -0.3px;
-    }
-
-    .logo-text span {
-      font-weight: 400;
-      opacity: 0.85;
+    .site-logo-img {
+      height: 44px;
+      width: auto;
+      display: block;
     }
 
     .nav-links {
       display: flex;
-      gap: 8px;
+      gap: 4px;
     }
 
     .nav-links a {
-      color: rgba(255, 255, 255, 0.85);
+      color: #64748b;
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
@@ -73,13 +68,22 @@
       transition: all 0.2s;
     }
 
-    .nav-links a:hover,
+    .nav-links a:hover {
+      background: #f1f5f9;
+      color: #1a1a2e;
+    }
+
     .nav-links a.active {
-      background: rgba(255, 255, 255, 0.18);
-      color: white;
+      background: #fef3c7;
+      color: #92400e;
     }
 
     /* ===== Hero ===== */
+    .hero-wrapper {
+      background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+      border-bottom: 1px solid #fde68a;
+    }
+
     .hero {
       text-align: center;
       padding: 56px 32px 40px;
@@ -88,9 +92,10 @@
     }
 
     .hero h1 {
+      font-family: 'DM Sans', -apple-system, sans-serif;
       font-size: 42px;
-      font-weight: 800;
-      color: white;
+      font-weight: 700;
+      color: #1e293b;
       line-height: 1.15;
       margin-bottom: 16px;
       letter-spacing: -0.5px;
@@ -98,7 +103,7 @@
 
     .hero p {
       font-size: 18px;
-      color: rgba(255, 255, 255, 0.85);
+      color: #64748b;
       line-height: 1.6;
       max-width: 560px;
       margin: 0 auto;
@@ -108,13 +113,14 @@
     .section-container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 0 32px 48px;
+      padding: 40px 32px 48px;
     }
 
     .section-label {
+      font-family: 'DM Sans', sans-serif;
       font-size: 13px;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.6);
+      font-weight: 700;
+      color: #94a3b8;
       text-transform: uppercase;
       letter-spacing: 1.5px;
       margin-bottom: 20px;
@@ -130,8 +136,9 @@
       background: white;
       border-radius: 16px;
       padding: 0;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
       cursor: pointer;
       text-decoration: none;
       color: inherit;
@@ -142,7 +149,8 @@
 
     .generator-card:hover {
       transform: translateY(-6px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+      border-color: #fbbf24;
     }
 
     .card-preview {
@@ -164,6 +172,7 @@
     }
 
     .card-body h3 {
+      font-family: 'DM Sans', -apple-system, sans-serif;
       font-size: 18px;
       font-weight: 700;
       color: #1a202c;
@@ -188,8 +197,8 @@
     .grade-badge {
       font-size: 12px;
       font-weight: 600;
-      color: #667eea;
-      background: rgba(102, 126, 234, 0.1);
+      color: #92400e;
+      background: #fef3c7;
       padding: 4px 10px;
       border-radius: 20px;
     }
@@ -198,7 +207,7 @@
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -213,9 +222,8 @@
 
     /* ===== Footer ===== */
     .site-footer {
-      background: rgba(0, 0, 0, 0.15);
-      padding: 32px;
-      text-align: center;
+      background: #1e293b;
+      padding: 48px 32px 0;
     }
 
     .footer-inner {
@@ -223,28 +231,67 @@
       margin: 0 auto;
     }
 
-    .footer-inner p {
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 13px;
-      margin-top: 16px;
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid #334155;
     }
 
-    .footer-links {
+    .footer-brand {
       display: flex;
-      justify-content: center;
-      gap: 24px;
-      margin-top: 12px;
+      flex-direction: column;
+      gap: 12px;
     }
 
-    .footer-links a {
-      color: rgba(255, 255, 255, 0.5);
+    .footer-logo {
+      margin-bottom: 12px;
+    }
+
+    .footer-logo img {
+      height: 36px;
+      width: auto;
+      filter: brightness(0) invert(1);
+    }
+
+    .footer-brand p {
+      color: #94a3b8;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .footer-col h4 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .footer-col a {
+      display: block;
+      color: #94a3b8;
       text-decoration: none;
       font-size: 13px;
+      padding: 4px 0;
       transition: color 0.2s;
     }
 
-    .footer-links a:hover {
-      color: rgba(255, 255, 255, 0.8);
+    .footer-col a:hover {
+      color: #f59e0b;
+    }
+
+    .footer-bottom {
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    .footer-bottom p {
+      color: #64748b;
+      font-size: 12px;
     }
 
     /* ===== Responsive ===== */
@@ -254,6 +301,10 @@
       }
       .hero h1 {
         font-size: 32px;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
       }
     }
 
@@ -278,6 +329,10 @@
       }
       .nav-links {
         display: none;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
       }
     }
 
@@ -319,7 +374,7 @@
   <header class="site-header">
     <div class="header-inner">
       <a href="../index.html" class="site-logo">
-        <div class="logo-text">AnimalMath<span>.com</span></div>
+        <img src="../generators/branding/emma-logo-filled-no-stroke3.png" alt="Animal Math" class="site-logo-img">
       </a>
       <nav class="nav-links">
         <a href="../index.html">Worksheets</a>
@@ -331,10 +386,12 @@
   </header>
 
   <!-- ===== Hero ===== -->
-  <section class="hero">
-    <h1>Interactive Math Tools</h1>
-    <p>Hands-on virtual manipulatives for exploring numbers, fractions, and geometry. Perfect for classroom demonstrations and student practice.</p>
-  </section>
+  <div class="hero-wrapper">
+    <section class="hero">
+      <h1>Interactive Math Tools</h1>
+      <p>Hands-on virtual manipulatives for exploring numbers, fractions, and geometry. Perfect for classroom demonstrations and student practice.</p>
+    </section>
+  </div>
 
   <!-- ===== Tools Grid ===== -->
   <div class="section-container">
@@ -346,37 +403,37 @@
         <div class="card-preview">
           <svg width="180" height="140" viewBox="0 0 180 140" fill="none" xmlns="http://www.w3.org/2000/svg">
             <!-- Hundreds flat -->
-            <rect x="10" y="20" width="70" height="70" rx="4" fill="#667eea" opacity="0.2" stroke="#667eea" stroke-width="1.5"/>
-            <line x1="10" y1="34" x2="80" y2="34" stroke="#667eea" stroke-width="0.5" opacity="0.3"/>
-            <line x1="10" y1="48" x2="80" y2="48" stroke="#667eea" stroke-width="0.5" opacity="0.3"/>
-            <line x1="10" y1="62" x2="80" y2="62" stroke="#667eea" stroke-width="0.5" opacity="0.3"/>
-            <line x1="10" y1="76" x2="80" y2="76" stroke="#667eea" stroke-width="0.5" opacity="0.3"/>
-            <line x1="24" y1="20" x2="24" y2="90" stroke="#667eea" stroke-width="0.5" opacity="0.3"/>
-            <line x1="38" y1="20" x2="38" y2="90" stroke="#667eea" stroke-width="0.5" opacity="0.3"/>
-            <line x1="52" y1="20" x2="52" y2="90" stroke="#667eea" stroke-width="0.5" opacity="0.3"/>
-            <line x1="66" y1="20" x2="66" y2="90" stroke="#667eea" stroke-width="0.5" opacity="0.3"/>
+            <rect x="10" y="20" width="70" height="70" rx="4" fill="#f59e0b" opacity="0.2" stroke="#f59e0b" stroke-width="1.5"/>
+            <line x1="10" y1="34" x2="80" y2="34" stroke="#f59e0b" stroke-width="0.5" opacity="0.3"/>
+            <line x1="10" y1="48" x2="80" y2="48" stroke="#f59e0b" stroke-width="0.5" opacity="0.3"/>
+            <line x1="10" y1="62" x2="80" y2="62" stroke="#f59e0b" stroke-width="0.5" opacity="0.3"/>
+            <line x1="10" y1="76" x2="80" y2="76" stroke="#f59e0b" stroke-width="0.5" opacity="0.3"/>
+            <line x1="24" y1="20" x2="24" y2="90" stroke="#f59e0b" stroke-width="0.5" opacity="0.3"/>
+            <line x1="38" y1="20" x2="38" y2="90" stroke="#f59e0b" stroke-width="0.5" opacity="0.3"/>
+            <line x1="52" y1="20" x2="52" y2="90" stroke="#f59e0b" stroke-width="0.5" opacity="0.3"/>
+            <line x1="66" y1="20" x2="66" y2="90" stroke="#f59e0b" stroke-width="0.5" opacity="0.3"/>
             <!-- Tens rod -->
-            <rect x="95" y="20" width="14" height="70" rx="3" fill="#764ba2" opacity="0.25" stroke="#764ba2" stroke-width="1.5"/>
-            <line x1="95" y1="34" x2="109" y2="34" stroke="#764ba2" stroke-width="0.5" opacity="0.4"/>
-            <line x1="95" y1="48" x2="109" y2="48" stroke="#764ba2" stroke-width="0.5" opacity="0.4"/>
-            <line x1="95" y1="62" x2="109" y2="62" stroke="#764ba2" stroke-width="0.5" opacity="0.4"/>
-            <line x1="95" y1="76" x2="109" y2="76" stroke="#764ba2" stroke-width="0.5" opacity="0.4"/>
+            <rect x="95" y="20" width="14" height="70" rx="3" fill="#ea580c" opacity="0.25" stroke="#ea580c" stroke-width="1.5"/>
+            <line x1="95" y1="34" x2="109" y2="34" stroke="#ea580c" stroke-width="0.5" opacity="0.4"/>
+            <line x1="95" y1="48" x2="109" y2="48" stroke="#ea580c" stroke-width="0.5" opacity="0.4"/>
+            <line x1="95" y1="62" x2="109" y2="62" stroke="#ea580c" stroke-width="0.5" opacity="0.4"/>
+            <line x1="95" y1="76" x2="109" y2="76" stroke="#ea580c" stroke-width="0.5" opacity="0.4"/>
             <!-- Another tens rod -->
-            <rect x="115" y="20" width="14" height="70" rx="3" fill="#764ba2" opacity="0.25" stroke="#764ba2" stroke-width="1.5"/>
-            <line x1="115" y1="34" x2="129" y2="34" stroke="#764ba2" stroke-width="0.5" opacity="0.4"/>
-            <line x1="115" y1="48" x2="129" y2="48" stroke="#764ba2" stroke-width="0.5" opacity="0.4"/>
-            <line x1="115" y1="62" x2="129" y2="62" stroke="#764ba2" stroke-width="0.5" opacity="0.4"/>
-            <line x1="115" y1="76" x2="129" y2="76" stroke="#764ba2" stroke-width="0.5" opacity="0.4"/>
+            <rect x="115" y="20" width="14" height="70" rx="3" fill="#ea580c" opacity="0.25" stroke="#ea580c" stroke-width="1.5"/>
+            <line x1="115" y1="34" x2="129" y2="34" stroke="#ea580c" stroke-width="0.5" opacity="0.4"/>
+            <line x1="115" y1="48" x2="129" y2="48" stroke="#ea580c" stroke-width="0.5" opacity="0.4"/>
+            <line x1="115" y1="62" x2="129" y2="62" stroke="#ea580c" stroke-width="0.5" opacity="0.4"/>
+            <line x1="115" y1="76" x2="129" y2="76" stroke="#ea580c" stroke-width="0.5" opacity="0.4"/>
             <!-- Unit cubes -->
-            <rect x="143" y="76" width="12" height="12" rx="2" fill="#667eea" opacity="0.35" stroke="#667eea" stroke-width="1"/>
-            <rect x="159" y="76" width="12" height="12" rx="2" fill="#667eea" opacity="0.35" stroke="#667eea" stroke-width="1"/>
-            <rect x="143" y="60" width="12" height="12" rx="2" fill="#667eea" opacity="0.35" stroke="#667eea" stroke-width="1"/>
-            <rect x="159" y="60" width="12" height="12" rx="2" fill="#667eea" opacity="0.35" stroke="#667eea" stroke-width="1"/>
-            <rect x="143" y="44" width="12" height="12" rx="2" fill="#667eea" opacity="0.35" stroke="#667eea" stroke-width="1"/>
+            <rect x="143" y="76" width="12" height="12" rx="2" fill="#f59e0b" opacity="0.35" stroke="#f59e0b" stroke-width="1"/>
+            <rect x="159" y="76" width="12" height="12" rx="2" fill="#f59e0b" opacity="0.35" stroke="#f59e0b" stroke-width="1"/>
+            <rect x="143" y="60" width="12" height="12" rx="2" fill="#f59e0b" opacity="0.35" stroke="#f59e0b" stroke-width="1"/>
+            <rect x="159" y="60" width="12" height="12" rx="2" fill="#f59e0b" opacity="0.35" stroke="#f59e0b" stroke-width="1"/>
+            <rect x="143" y="44" width="12" height="12" rx="2" fill="#f59e0b" opacity="0.35" stroke="#f59e0b" stroke-width="1"/>
             <!-- Labels -->
-            <text x="45" y="110" text-anchor="middle" font-size="10" fill="#667eea" font-weight="600" font-family="sans-serif">100</text>
-            <text x="109" y="110" text-anchor="middle" font-size="10" fill="#764ba2" font-weight="600" font-family="sans-serif">10s</text>
-            <text x="157" y="110" text-anchor="middle" font-size="10" fill="#667eea" font-weight="600" font-family="sans-serif">1s</text>
+            <text x="45" y="110" text-anchor="middle" font-size="10" fill="#f59e0b" font-weight="600" font-family="sans-serif">100</text>
+            <text x="109" y="110" text-anchor="middle" font-size="10" fill="#ea580c" font-weight="600" font-family="sans-serif">10s</text>
+            <text x="157" y="110" text-anchor="middle" font-size="10" fill="#f59e0b" font-weight="600" font-family="sans-serif">1s</text>
           </svg>
         </div>
         <div class="card-body">
@@ -409,15 +466,15 @@
             <rect x="116" y="67" width="28" height="28" rx="4" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
             <rect x="148" y="67" width="28" height="28" rx="4" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
             <!-- Counters (7 filled) -->
-            <circle cx="34" cy="49" r="10" fill="#667eea" opacity="0.85"/>
-            <circle cx="66" cy="49" r="10" fill="#667eea" opacity="0.85"/>
-            <circle cx="98" cy="49" r="10" fill="#667eea" opacity="0.85"/>
-            <circle cx="130" cy="49" r="10" fill="#667eea" opacity="0.85"/>
-            <circle cx="162" cy="49" r="10" fill="#667eea" opacity="0.85"/>
-            <circle cx="34" cy="81" r="10" fill="#764ba2" opacity="0.75"/>
-            <circle cx="66" cy="81" r="10" fill="#764ba2" opacity="0.75"/>
+            <circle cx="34" cy="49" r="10" fill="#f59e0b" opacity="0.85"/>
+            <circle cx="66" cy="49" r="10" fill="#f59e0b" opacity="0.85"/>
+            <circle cx="98" cy="49" r="10" fill="#f59e0b" opacity="0.85"/>
+            <circle cx="130" cy="49" r="10" fill="#f59e0b" opacity="0.85"/>
+            <circle cx="162" cy="49" r="10" fill="#f59e0b" opacity="0.85"/>
+            <circle cx="34" cy="81" r="10" fill="#ea580c" opacity="0.75"/>
+            <circle cx="66" cy="81" r="10" fill="#ea580c" opacity="0.75"/>
             <!-- Number label -->
-            <text x="90" y="118" text-anchor="middle" font-size="12" fill="#667eea" font-weight="700" font-family="sans-serif">7</text>
+            <text x="90" y="118" text-anchor="middle" font-size="12" fill="#f59e0b" font-weight="700" font-family="sans-serif">7</text>
           </svg>
         </div>
         <div class="card-body">
@@ -437,27 +494,27 @@
         <div class="card-preview">
           <svg width="180" height="140" viewBox="0 0 180 140" fill="none" xmlns="http://www.w3.org/2000/svg">
             <!-- Main number line -->
-            <line x1="15" y1="85" x2="165" y2="85" stroke="#667eea" stroke-width="2" stroke-linecap="round"/>
+            <line x1="15" y1="85" x2="165" y2="85" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
             <!-- Tick marks and numbers -->
-            <line x1="25" y1="80" x2="25" y2="90" stroke="#667eea" stroke-width="1.5"/>
+            <line x1="25" y1="80" x2="25" y2="90" stroke="#f59e0b" stroke-width="1.5"/>
             <text x="25" y="102" text-anchor="middle" font-size="10" fill="#718096" font-family="sans-serif">0</text>
-            <line x1="50" y1="82" x2="50" y2="88" stroke="#667eea" stroke-width="1" opacity="0.5"/>
-            <line x1="75" y1="80" x2="75" y2="90" stroke="#667eea" stroke-width="1.5"/>
+            <line x1="50" y1="82" x2="50" y2="88" stroke="#f59e0b" stroke-width="1" opacity="0.5"/>
+            <line x1="75" y1="80" x2="75" y2="90" stroke="#f59e0b" stroke-width="1.5"/>
             <text x="75" y="102" text-anchor="middle" font-size="10" fill="#718096" font-family="sans-serif">2</text>
-            <line x1="100" y1="82" x2="100" y2="88" stroke="#667eea" stroke-width="1" opacity="0.5"/>
-            <line x1="125" y1="80" x2="125" y2="90" stroke="#667eea" stroke-width="1.5"/>
+            <line x1="100" y1="82" x2="100" y2="88" stroke="#f59e0b" stroke-width="1" opacity="0.5"/>
+            <line x1="125" y1="80" x2="125" y2="90" stroke="#f59e0b" stroke-width="1.5"/>
             <text x="125" y="102" text-anchor="middle" font-size="10" fill="#718096" font-family="sans-serif">4</text>
-            <line x1="150" y1="82" x2="150" y2="88" stroke="#667eea" stroke-width="1" opacity="0.5"/>
+            <line x1="150" y1="82" x2="150" y2="88" stroke="#f59e0b" stroke-width="1" opacity="0.5"/>
             <!-- Jump arc 1: 0 to 2 -->
-            <path d="M 25 80 Q 50 45 75 80" fill="none" stroke="#764ba2" stroke-width="2" stroke-linecap="round"/>
-            <polygon points="73,75 75,80 70,79" fill="#764ba2"/>
-            <text x="50" y="48" text-anchor="middle" font-size="10" fill="#764ba2" font-weight="600" font-family="sans-serif">+2</text>
+            <path d="M 25 80 Q 50 45 75 80" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round"/>
+            <polygon points="73,75 75,80 70,79" fill="#ea580c"/>
+            <text x="50" y="48" text-anchor="middle" font-size="10" fill="#ea580c" font-weight="600" font-family="sans-serif">+2</text>
             <!-- Jump arc 2: 2 to 4 -->
-            <path d="M 75 80 Q 100 50 125 80" fill="none" stroke="#667eea" stroke-width="2" stroke-linecap="round"/>
-            <polygon points="123,75 125,80 120,79" fill="#667eea"/>
-            <text x="100" y="53" text-anchor="middle" font-size="10" fill="#667eea" font-weight="600" font-family="sans-serif">+2</text>
+            <path d="M 75 80 Q 100 50 125 80" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+            <polygon points="123,75 125,80 120,79" fill="#f59e0b"/>
+            <text x="100" y="53" text-anchor="middle" font-size="10" fill="#f59e0b" font-weight="600" font-family="sans-serif">+2</text>
             <!-- Arrowheads on line -->
-            <polygon points="163,85 168,85 165,80" fill="#667eea" opacity="0"/>
+            <polygon points="163,85 168,85 165,80" fill="#f59e0b" opacity="0"/>
           </svg>
         </div>
         <div class="card-body">
@@ -477,29 +534,29 @@
         <div class="card-preview">
           <svg width="180" height="140" viewBox="0 0 180 140" fill="none" xmlns="http://www.w3.org/2000/svg">
             <!-- Whole strip -->
-            <rect x="15" y="18" width="150" height="20" rx="4" fill="#667eea" opacity="0.8"/>
+            <rect x="15" y="18" width="150" height="20" rx="4" fill="#f59e0b" opacity="0.8"/>
             <text x="90" y="32" text-anchor="middle" font-size="10" fill="white" font-weight="600" font-family="sans-serif">1</text>
             <!-- Halves -->
-            <rect x="15" y="42" width="73" height="20" rx="4" fill="#764ba2" opacity="0.7"/>
+            <rect x="15" y="42" width="73" height="20" rx="4" fill="#ea580c" opacity="0.7"/>
             <text x="51" y="56" text-anchor="middle" font-size="9" fill="white" font-weight="600" font-family="sans-serif">1/2</text>
-            <rect x="92" y="42" width="73" height="20" rx="4" fill="#764ba2" opacity="0.4"/>
-            <text x="128" y="56" text-anchor="middle" font-size="9" fill="#764ba2" font-weight="600" font-family="sans-serif">1/2</text>
+            <rect x="92" y="42" width="73" height="20" rx="4" fill="#ea580c" opacity="0.4"/>
+            <text x="128" y="56" text-anchor="middle" font-size="9" fill="#ea580c" font-weight="600" font-family="sans-serif">1/2</text>
             <!-- Thirds -->
-            <rect x="15" y="66" width="48" height="20" rx="4" fill="#667eea" opacity="0.6"/>
+            <rect x="15" y="66" width="48" height="20" rx="4" fill="#f59e0b" opacity="0.6"/>
             <text x="39" y="80" text-anchor="middle" font-size="9" fill="white" font-weight="600" font-family="sans-serif">1/3</text>
-            <rect x="66" y="66" width="48" height="20" rx="4" fill="#667eea" opacity="0.4"/>
-            <text x="90" y="80" text-anchor="middle" font-size="9" fill="#667eea" font-weight="600" font-family="sans-serif">1/3</text>
-            <rect x="117" y="66" width="48" height="20" rx="4" fill="#667eea" opacity="0.25"/>
-            <text x="141" y="80" text-anchor="middle" font-size="9" fill="#667eea" font-weight="600" font-family="sans-serif">1/3</text>
+            <rect x="66" y="66" width="48" height="20" rx="4" fill="#f59e0b" opacity="0.4"/>
+            <text x="90" y="80" text-anchor="middle" font-size="9" fill="#f59e0b" font-weight="600" font-family="sans-serif">1/3</text>
+            <rect x="117" y="66" width="48" height="20" rx="4" fill="#f59e0b" opacity="0.25"/>
+            <text x="141" y="80" text-anchor="middle" font-size="9" fill="#f59e0b" font-weight="600" font-family="sans-serif">1/3</text>
             <!-- Fourths -->
-            <rect x="15" y="90" width="35" height="20" rx="4" fill="#764ba2" opacity="0.55"/>
+            <rect x="15" y="90" width="35" height="20" rx="4" fill="#ea580c" opacity="0.55"/>
             <text x="32" y="104" text-anchor="middle" font-size="8" fill="white" font-weight="600" font-family="sans-serif">1/4</text>
-            <rect x="53" y="90" width="35" height="20" rx="4" fill="#764ba2" opacity="0.4"/>
-            <text x="70" y="104" text-anchor="middle" font-size="8" fill="#764ba2" font-weight="600" font-family="sans-serif">1/4</text>
-            <rect x="91" y="90" width="36" height="20" rx="4" fill="#764ba2" opacity="0.25"/>
-            <text x="109" y="104" text-anchor="middle" font-size="8" fill="#764ba2" font-weight="600" font-family="sans-serif">1/4</text>
-            <rect x="130" y="90" width="35" height="20" rx="4" fill="#764ba2" opacity="0.15"/>
-            <text x="147" y="104" text-anchor="middle" font-size="8" fill="#764ba2" font-weight="600" font-family="sans-serif">1/4</text>
+            <rect x="53" y="90" width="35" height="20" rx="4" fill="#ea580c" opacity="0.4"/>
+            <text x="70" y="104" text-anchor="middle" font-size="8" fill="#ea580c" font-weight="600" font-family="sans-serif">1/4</text>
+            <rect x="91" y="90" width="36" height="20" rx="4" fill="#ea580c" opacity="0.25"/>
+            <text x="109" y="104" text-anchor="middle" font-size="8" fill="#ea580c" font-weight="600" font-family="sans-serif">1/4</text>
+            <rect x="130" y="90" width="35" height="20" rx="4" fill="#ea580c" opacity="0.15"/>
+            <text x="147" y="104" text-anchor="middle" font-size="8" fill="#ea580c" font-weight="600" font-family="sans-serif">1/4</text>
           </svg>
         </div>
         <div class="card-body">
@@ -544,18 +601,18 @@
             <circle cx="150" cy="110" r="3" fill="#e2e8f0"/>
 
             <!-- Triangle shape (rubber band) -->
-            <polygon points="60,20 30,110 150,110" fill="#667eea" fill-opacity="0.12" stroke="#667eea" stroke-width="2.5" stroke-linejoin="round"/>
+            <polygon points="60,20 30,110 150,110" fill="#f59e0b" fill-opacity="0.12" stroke="#f59e0b" stroke-width="2.5" stroke-linejoin="round"/>
             <!-- Active pegs -->
-            <circle cx="60" cy="20" r="4.5" fill="#667eea"/>
-            <circle cx="30" cy="110" r="4.5" fill="#667eea"/>
-            <circle cx="150" cy="110" r="4.5" fill="#667eea"/>
+            <circle cx="60" cy="20" r="4.5" fill="#f59e0b"/>
+            <circle cx="30" cy="110" r="4.5" fill="#f59e0b"/>
+            <circle cx="150" cy="110" r="4.5" fill="#f59e0b"/>
 
             <!-- Square shape (rubber band) -->
-            <polygon points="90,20 120,20 120,50 90,50" fill="#764ba2" fill-opacity="0.1" stroke="#764ba2" stroke-width="2" stroke-linejoin="round"/>
-            <circle cx="90" cy="20" r="4" fill="#764ba2"/>
-            <circle cx="120" cy="20" r="4" fill="#764ba2"/>
-            <circle cx="120" cy="50" r="4" fill="#764ba2"/>
-            <circle cx="90" cy="50" r="4" fill="#764ba2"/>
+            <polygon points="90,20 120,20 120,50 90,50" fill="#ea580c" fill-opacity="0.1" stroke="#ea580c" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="90" cy="20" r="4" fill="#ea580c"/>
+            <circle cx="120" cy="20" r="4" fill="#ea580c"/>
+            <circle cx="120" cy="50" r="4" fill="#ea580c"/>
+            <circle cx="90" cy="50" r="4" fill="#ea580c"/>
           </svg>
         </div>
         <div class="card-body">
@@ -576,15 +633,40 @@
   <!-- ===== Footer ===== -->
   <footer class="site-footer">
     <div class="footer-inner">
-      <a href="../index.html" class="site-logo" style="justify-content:center;">
-        <div class="logo-text">AnimalMath<span>.com</span></div>
-      </a>
-      <div class="footer-links">
-        <a href="../index.html">Worksheets</a>
-        <a href="index.html">Tools</a>
-        <a href="../about.html">About</a>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <img src="../generators/branding/emma-logo-filled-no-stroke3.png" alt="Animal Math" style="height:36px;width:auto;">
+          </div>
+          <p>Free printable math worksheets and interactive tools for teachers and parents. Customize, preview, and print instantly.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Worksheets</h4>
+          <a href="../generators/horizontal-math/">Horizontal Math</a>
+          <a href="../generators/column-math/">Column Math</a>
+          <a href="../generators/counting-objects/">Count &amp; Write</a>
+          <a href="../generators/telling-time/">Telling Time</a>
+          <a href="../generators/ten-frames/">Ten Frames</a>
+        </div>
+        <div class="footer-col">
+          <h4>Tools</h4>
+          <a href="base-ten-blocks/">Base-Ten Blocks</a>
+          <a href="ten-frames/">Ten Frames</a>
+          <a href="number-line/">Number Line</a>
+          <a href="fraction-strips/">Fraction Strips</a>
+          <a href="geoboard/">Geoboard</a>
+        </div>
+        <div class="footer-col">
+          <h4>Info</h4>
+          <a href="../about.html">About</a>
+          <a href="../about.html#privacy">Privacy Policy</a>
+          <a href="../about.html#terms">Terms of Use</a>
+          <a href="../about.html#contact">Contact</a>
+        </div>
       </div>
-      <p>&copy; 2025 AnimalMath.com</p>
+      <div class="footer-bottom">
+        <p>&copy; 2026 AnimalMath.com. All rights reserved.</p>
+      </div>
     </div>
   </footer>
 
