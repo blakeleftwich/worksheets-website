@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>About — AnimalMath.com</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -12,18 +15,16 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f8fafc;
       min-height: 100vh;
-      color: #2d3748;
+      color: #1e293b;
     }
 
     /* ===== Header / Nav ===== */
     .site-header {
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
       padding: 0 32px;
       position: sticky;
       top: 0;
@@ -42,29 +43,23 @@
     .site-logo {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 0;
       text-decoration: none;
     }
 
-    .logo-text {
-      font-size: 20px;
-      font-weight: 700;
-      color: white;
-      letter-spacing: -0.3px;
-    }
-
-    .logo-text span {
-      font-weight: 400;
-      opacity: 0.85;
+    .site-logo-img {
+      height: 44px;
+      width: auto;
+      display: block;
     }
 
     .nav-links {
       display: flex;
-      gap: 8px;
+      gap: 4px;
     }
 
     .nav-links a {
-      color: rgba(255, 255, 255, 0.85);
+      color: #64748b;
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
@@ -73,10 +68,14 @@
       transition: all 0.2s;
     }
 
-    .nav-links a:hover,
+    .nav-links a:hover {
+      background: #f1f5f9;
+      color: #1a1a2e;
+    }
+
     .nav-links a.active {
-      background: rgba(255, 255, 255, 0.18);
-      color: white;
+      background: #fef3c7;
+      color: #92400e;
     }
 
     /* ===== Content ===== */
@@ -89,20 +88,23 @@
     .content-card {
       background: white;
       border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
       padding: 48px;
       margin-bottom: 32px;
     }
 
     .content-card h1 {
+      font-family: 'DM Sans', -apple-system, sans-serif;
       font-size: 32px;
-      font-weight: 800;
+      font-weight: 700;
       color: #1a202c;
       margin-bottom: 16px;
       letter-spacing: -0.3px;
     }
 
     .content-card h2 {
+      font-family: 'DM Sans', -apple-system, sans-serif;
       font-size: 22px;
       font-weight: 700;
       color: #1a202c;
@@ -118,6 +120,7 @@
     }
 
     .content-card h3 {
+      font-family: 'DM Sans', -apple-system, sans-serif;
       font-size: 17px;
       font-weight: 600;
       color: #2d3748;
@@ -143,11 +146,12 @@
     }
 
     .content-card a {
-      color: #667eea;
+      color: #f59e0b;
       text-decoration: none;
     }
 
     .content-card a:hover {
+      color: #ea580c;
       text-decoration: underline;
     }
 
@@ -170,8 +174,9 @@
     }
 
     .toc-title {
+      font-family: 'DM Sans', sans-serif;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
       color: #718096;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -180,7 +185,7 @@
 
     .toc a {
       display: block;
-      color: #667eea;
+      color: #f59e0b;
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
@@ -189,14 +194,13 @@
     }
 
     .toc a:hover {
-      color: #764ba2;
+      color: #ea580c;
     }
 
     /* ===== Footer ===== */
     .site-footer {
-      background: rgba(0, 0, 0, 0.15);
-      padding: 32px;
-      text-align: center;
+      background: #1e293b;
+      padding: 48px 32px 0;
     }
 
     .footer-inner {
@@ -204,30 +208,77 @@
       margin: 0 auto;
     }
 
-    .footer-inner p {
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 13px;
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid #334155;
     }
 
-    .footer-links {
+    .footer-brand {
       display: flex;
-      justify-content: center;
-      gap: 24px;
-      margin-top: 12px;
+      flex-direction: column;
+      gap: 12px;
     }
 
-    .footer-links a {
-      color: rgba(255, 255, 255, 0.5);
+    .footer-logo {
+      margin-bottom: 12px;
+    }
+
+    .footer-logo img {
+      height: 36px;
+      width: auto;
+      filter: brightness(0) invert(1);
+    }
+
+    .footer-brand p {
+      color: #94a3b8;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .footer-col h4 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .footer-col a {
+      display: block;
+      color: #94a3b8;
       text-decoration: none;
       font-size: 13px;
+      padding: 4px 0;
       transition: color 0.2s;
     }
 
-    .footer-links a:hover {
-      color: rgba(255, 255, 255, 0.8);
+    .footer-col a:hover {
+      color: #f59e0b;
+    }
+
+    .footer-bottom {
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    .footer-bottom p {
+      color: #64748b;
+      font-size: 12px;
     }
 
     /* ===== Responsive ===== */
+    @media (max-width: 900px) {
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+      }
+    }
+
     @media (max-width: 640px) {
       .content-wrapper {
         padding: 24px 16px 48px;
@@ -244,6 +295,10 @@
       .nav-links {
         display: none;
       }
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
     }
   </style>
 </head>
@@ -253,11 +308,12 @@
   <header class="site-header">
     <div class="header-inner">
       <a href="index.html" class="site-logo">
-        <div class="logo-text">AnimalMath<span>.com</span></div>
+        <img src="generators/branding/emma-logo-filled-no-stroke3.png" alt="Animal Math" class="site-logo-img">
       </a>
       <nav class="nav-links">
         <a href="index.html">Worksheets</a>
-        <a href="https://eggrollgames.com" target="_blank">App</a>
+        <a href="tools/index.html">Tools</a>
+        <a href="https://apps.apple.com/us/app/animal-math-games-for-kids/id799973028" target="_blank">Mobile App</a>
         <a href="about.html" class="active">About</a>
       </nav>
     </div>
@@ -369,12 +425,36 @@
   <!-- ===== Footer ===== -->
   <footer class="site-footer">
     <div class="footer-inner">
-      <p>&copy; 2026 AnimalMath.com — Free printable math worksheets for teachers and parents.</p>
-      <div class="footer-links">
-        <a href="about.html">About</a>
-        <a href="about.html#privacy">Privacy Policy</a>
-        <a href="about.html#terms">Terms of Use</a>
-        <a href="about.html#contact">Contact</a>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <img src="generators/branding/emma-logo-filled-no-stroke3.png" alt="Animal Math" style="height:36px;width:auto;">
+          </div>
+          <p>Free printable math worksheets and interactive tools for teachers and parents. Customize, preview, and print instantly.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Worksheets</h4>
+          <a href="generators/horizontal-math/">Horizontal Math</a>
+          <a href="generators/column-math/">Column Math</a>
+          <a href="generators/counting-objects/">Count &amp; Write</a>
+          <a href="generators/telling-time/">Telling Time</a>
+          <a href="generators/ten-frames/">Ten Frames</a>
+        </div>
+        <div class="footer-col">
+          <h4>Tools</h4>
+          <a href="tools/index.html">All Tools</a>
+          <a href="https://apps.apple.com/us/app/animal-math-games-for-kids/id799973028" target="_blank">Mobile App</a>
+        </div>
+        <div class="footer-col">
+          <h4>Info</h4>
+          <a href="about.html">About</a>
+          <a href="about.html#privacy">Privacy Policy</a>
+          <a href="about.html#terms">Terms of Use</a>
+          <a href="about.html#contact">Contact</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 AnimalMath.com. All rights reserved.</p>
       </div>
     </div>
   </footer>
