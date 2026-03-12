@@ -823,10 +823,14 @@ function generateRandomProblems(min, max, numProblems) {
   }
 
   // Step 2: Fill remaining slots with values from the range
+  // Never reuse the smallest number (min) as the repeated value
   const extraCount = numProblems - required.length;
   const extras = [];
+  const extraCandidates = rangeValues.filter(v => v !== min);
+  // If range is exactly 1 value, we have no choice but to reuse it
+  const extraPool = extraCandidates.length > 0 ? extraCandidates : rangeValues;
   for (let i = 0; i < extraCount; i++) {
-    extras.push(rangeValues[randInt(0, rangeSize - 1)]);
+    extras.push(extraPool[randInt(0, extraPool.length - 1)]);
   }
 
   // Combine and place using backtracking to satisfy adjacency constraints

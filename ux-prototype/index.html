@@ -9,8 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <!-- PDF.js for rendering PDF thumbnails -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <!-- jsPDF for generating sample worksheet PDFs -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -510,18 +508,18 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
     // ===== Worksheet Data =====
+    // Items with a `pdf` field load a real file from pdfs/; others show a placeholder
     const worksheets = {
       count: {
         title: 'Count & Write Worksheets',
         breadcrumb: 'Count & Write',
         desc: 'Count the objects and write the number. Each pack includes 5 unique worksheets with different objects and quantities, plus an answer key.',
         items: [
-          { title: 'Count Objects to 5', grade: 'Pre-K – K', variations: ['Count apples (1–5)', 'Count stars (1–5)', 'Count balloons (1–5)', 'Count fish (1–5)', 'Count flowers (1–5)'] },
-          { title: 'Count Objects to 10', grade: 'Pre-K – K', variations: ['Count birds (1–10)', 'Count hearts (1–10)', 'Count trees (1–10)', 'Count cars (1–10)', 'Count dogs (1–10)'] },
-          { title: 'Count Objects to 20', grade: 'K – 1st', variations: ['Count circles (1–20)', 'Count butterflies (1–20)', 'Count cookies (1–20)', 'Count leaves (1–20)', 'Count pencils (1–20)'] },
-          { title: 'Write Numbers After Counting', grade: 'K – 1st', variations: ['Groups of 1–5', 'Groups of 1–10', 'Mixed groups to 15', 'Scattered objects to 10', 'Ten-frame counting'] },
-          { title: 'Count & Color', grade: 'Pre-K', variations: ['Color 3 objects', 'Color 5 objects', 'Color 7 objects', 'Color matching numbers', 'Color by count'] },
-          { title: 'How Many? Circle the Number', grade: 'Pre-K – K', variations: ['Choose from 2 options', 'Choose from 3 options', 'Objects to 5', 'Objects to 10', 'Mixed layout'] },
+          { title: 'Count & Write 1 to 5',   grade: 'Pre-K – K', pdf: 'pdfs/count-and-write-1-to-5-pack.pdf' },
+          { title: 'Count & Write 1 to 10',  grade: 'Pre-K – K', pdf: 'pdfs/count-and-write-1-to-10-pack.pdf' },
+          { title: 'Count & Write 5 to 10',  grade: 'K – 1st',   pdf: 'pdfs/count-and-write-5-to-10-pack.pdf' },
+          { title: 'Count & Write 1 to 20',  grade: 'K – 1st',   pdf: 'pdfs/count-and-write-1-to-20-pack.pdf' },
+          { title: 'Count & Write 10 to 20', grade: '1st – 2nd', pdf: 'pdfs/count-and-write-10-to-20-pack.pdf' },
         ]
       },
       base10: {
@@ -529,10 +527,10 @@
         breadcrumb: 'Base Ten Blocks',
         desc: 'Practice place value with tens and ones blocks. Each pack includes 5 unique worksheets plus an answer key.',
         items: [
-          { title: 'Count the Blocks', grade: 'K – 1st', variations: ['Ones only (1–9)', 'Tens only (10–90)', 'Tens and ones (10–50)', 'Tens and ones (10–99)', 'Mixed review'] },
-          { title: 'Draw the Blocks', grade: '1st – 2nd', variations: ['Draw ones', 'Draw tens', 'Draw tens & ones', 'Numbers to 50', 'Numbers to 99'] },
-          { title: 'Match Blocks to Numbers', grade: 'K – 1st', variations: ['Match ones', 'Match tens', 'Match mixed', 'Draw lines', 'Multiple choice'] },
-          { title: 'Expanded Form with Blocks', grade: '1st – 2nd', variations: ['Two-digit numbers', 'Write the value', 'Fill in blanks', 'Hundreds blocks', 'Mixed review'] },
+          { title: 'Count the Blocks',          grade: 'K – 1st' },
+          { title: 'Draw the Blocks',            grade: '1st – 2nd' },
+          { title: 'Match Blocks to Numbers',    grade: 'K – 1st' },
+          { title: 'Expanded Form with Blocks',  grade: '1st – 2nd' },
         ]
       },
       time: {
@@ -540,11 +538,11 @@
         breadcrumb: 'Telling Time',
         desc: 'Read clocks and write the time. Each pack includes 5 unique worksheets plus an answer key.',
         items: [
-          { title: 'Read Clocks – Hours', grade: 'K – 1st', variations: ['Clocks 1–6', 'Clocks 7–12', 'Mixed hours', 'Write the time', 'Draw hands'] },
-          { title: 'Read Clocks – Half Hours', grade: '1st', variations: ['Half past (set A)', 'Half past (set B)', 'Hours & half hours', 'Write the time', 'Draw hands'] },
-          { title: 'Read Clocks – Quarter Hours', grade: '1st – 2nd', variations: ['Quarter past', 'Quarter to', 'Mixed quarters', 'Write the time', 'Draw hands'] },
-          { title: 'Time to 5 Minutes', grade: '2nd', variations: ['5 min intervals (A)', '5 min intervals (B)', 'Mixed intervals', 'Write digital time', 'Draw hands'] },
-          { title: 'Elapsed Time', grade: '2nd – 3rd', variations: ['30 min later', '1 hour later', 'How much time?', 'Before and after', 'Word problems'] },
+          { title: 'Read Clocks – Hours',         grade: 'K – 1st' },
+          { title: 'Read Clocks – Half Hours',     grade: '1st' },
+          { title: 'Read Clocks – Quarter Hours',  grade: '1st – 2nd' },
+          { title: 'Time to 5 Minutes',            grade: '2nd' },
+          { title: 'Elapsed Time',                 grade: '2nd – 3rd' },
         ]
       },
       add: {
@@ -552,11 +550,11 @@
         breadcrumb: 'Addition Within 10',
         desc: 'Practice adding numbers within 10. Each pack includes 5 unique worksheets plus an answer key.',
         items: [
-          { title: 'Add Within 5', grade: 'Pre-K – K', variations: ['Sums to 3', 'Sums to 4', 'Sums to 5', 'Mixed sums', 'Picture addition'] },
-          { title: 'Add Within 10', grade: 'K – 1st', variations: ['Sums 6–8', 'Sums 9–10', 'Mixed 1–10', 'Fill in blank', 'Vertical format'] },
-          { title: 'Addition with Pictures', grade: 'Pre-K – K', variations: ['Count and add fruit', 'Count and add animals', 'Count and add shapes', 'Mixed objects', 'Draw more to add'] },
-          { title: 'Missing Addend', grade: 'K – 1st', variations: ['_ + 2 = 5 style', '3 + _ = 7 style', 'Mixed position', 'With pictures', 'Challenge set'] },
-          { title: 'Doubles Facts', grade: 'K – 1st', variations: ['Doubles 1–5', 'Doubles 1–10', 'Doubles + 1', 'Mixed doubles', 'Word problems'] },
+          { title: 'Add Within 5',           grade: 'Pre-K – K' },
+          { title: 'Add Within 10',          grade: 'K – 1st' },
+          { title: 'Addition with Pictures', grade: 'Pre-K – K' },
+          { title: 'Missing Addend',         grade: 'K – 1st' },
+          { title: 'Doubles Facts',          grade: 'K – 1st' },
         ]
       },
       sub: {
@@ -564,10 +562,10 @@
         breadcrumb: 'Subtraction',
         desc: 'Practice subtracting within 10 and 20. Each pack includes 5 unique worksheets plus an answer key.',
         items: [
-          { title: 'Subtract Within 5', grade: 'K', variations: ['Basic facts', 'With pictures', 'Cross out objects', 'Fill in blank', 'Mixed'] },
-          { title: 'Subtract Within 10', grade: 'K – 1st', variations: ['Facts 6–8', 'Facts 9–10', 'Mixed', 'Vertical format', 'Number line'] },
-          { title: 'Subtraction with Pictures', grade: 'Pre-K – K', variations: ['Cross out animals', 'Cross out fruit', 'Cross out shapes', 'Mixed objects', 'How many left?'] },
-          { title: 'Missing Number Subtraction', grade: '1st', variations: ['_ − 3 = 4 style', '8 − _ = 5 style', 'Mixed blanks', 'With pictures', 'Challenge set'] },
+          { title: 'Subtract Within 5',            grade: 'K' },
+          { title: 'Subtract Within 10',           grade: 'K – 1st' },
+          { title: 'Subtraction with Pictures',    grade: 'Pre-K – K' },
+          { title: 'Missing Number Subtraction',   grade: '1st' },
         ]
       },
       pattern: {
@@ -575,174 +573,25 @@
         breadcrumb: 'Pattern Recognition',
         desc: 'Identify and extend patterns with shapes and colors. Each pack includes 5 unique worksheets plus an answer key.',
         items: [
-          { title: 'AB Patterns', grade: 'Pre-K – K', variations: ['Color patterns', 'Shape patterns', 'Size patterns', 'Mixed AB', 'Create your own'] },
-          { title: 'ABC Patterns', grade: 'K – 1st', variations: ['Color ABC', 'Shape ABC', 'Number ABC', 'Mixed', 'Extend the pattern'] },
-          { title: 'Growing Patterns', grade: '1st – 2nd', variations: ['Add 1 each time', 'Add 2 each time', 'Double pattern', 'Visual growing', 'Number patterns'] },
+          { title: 'AB Patterns',       grade: 'Pre-K – K' },
+          { title: 'ABC Patterns',      grade: 'K – 1st' },
+          { title: 'Growing Patterns',  grade: '1st – 2nd' },
         ]
       }
     };
 
-    // ===== PDF Generation with jsPDF =====
-    // Generates a realistic multi-page worksheet PDF and returns a blob URL
-    const pdfCache = {}; // { "count-0": { blobUrl, pdfDoc (from PDF.js) } }
+    // ===== PDF Cache & Loading =====
+    const pdfCache = {}; // key → { pdfUrl, pdfDoc }
 
-    const shapeDrawers = {
-      circle: (doc, x, y, r) => { doc.circle(x + r, y + r, r, 'F'); },
-      square: (doc, x, y, r) => { doc.rect(x, y, r * 2, r * 2, 'F'); },
-      triangle: (doc, x, y, r) => {
-        doc.triangle(x + r, y, x, y + r * 2, x + r * 2, y + r * 2, 'F');
-      },
-      star: (doc, x, y, r) => {
-        // Approximate star with a filled circle + text
-        doc.circle(x + r, y + r, r, 'F');
-        doc.setFontSize(r * 1.5);
-        doc.setTextColor(255, 255, 255);
-        doc.text('★', x + r * 0.35, y + r * 1.5);
-      },
-      heart: (doc, x, y, r) => {
-        doc.circle(x + r * 0.5, y + r * 0.5, r * 0.5, 'F');
-        doc.circle(x + r * 1.5, y + r * 0.5, r * 0.5, 'F');
-        doc.triangle(x, y + r * 0.5, x + r * 2, y + r * 0.5, x + r, y + r * 2, 'F');
-      }
-    };
-
-    const objectNames = ['circles', 'squares', 'triangles', 'stars', 'hearts'];
-    const objectKeys = ['circle', 'square', 'triangle', 'star', 'heart'];
-    const accentColors = [
-      [245, 158, 11],  // amber
-      [59, 130, 246],  // blue
-      [16, 185, 129],  // green
-      [239, 68, 68],   // red
-      [139, 92, 246],  // purple
-    ];
-
-    function seededRandom(seed) {
-      let s = seed;
-      return function() {
-        s = (s * 16807 + 0) % 2147483647;
-        return (s - 1) / 2147483646;
-      };
-    }
-
-    function generateWorksheetPDF(category, index) {
+    function loadPdf(category, index) {
       const key = `${category}-${index}`;
       if (pdfCache[key]) return Promise.resolve(pdfCache[key]);
 
-      const { jsPDF } = window.jspdf;
       const ws = worksheets[category].items[index];
-      const doc = new jsPDF({ unit: 'pt', format: 'letter' });
-      const W = 612, H = 792;
+      if (!ws.pdf) return Promise.resolve(null);
 
-      // Generate 5 worksheet pages + 1 answer key
-      for (let page = 0; page < 6; page++) {
-        if (page > 0) doc.addPage();
-        const isAnswerKey = page === 5;
-        const rng = seededRandom((index + 1) * 100 + page * 17 + category.charCodeAt(0));
-        const shapeIdx = (index + page) % objectKeys.length;
-        const colorIdx = (index + page) % accentColors.length;
-        const color = accentColors[colorIdx];
-        const shapeName = objectNames[shapeIdx];
-        const shapeKey = objectKeys[shapeIdx];
-
-        // Determine count range from title
-        let maxCount = 10;
-        if (ws.title.includes('to 5') || ws.title.includes('Within 5')) maxCount = 5;
-        else if (ws.title.includes('to 20') || ws.title.includes('Within 20')) maxCount = 20;
-        else if (ws.title.includes('to 10') || ws.title.includes('Within 10')) maxCount = 10;
-
-        // Title
-        doc.setFontSize(22);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(30, 41, 59);
-        const pageTitle = isAnswerKey ? `${ws.title} — Answer Key` : ws.title;
-        doc.text(pageTitle, W / 2, 48, { align: 'center' });
-
-        // Subtitle
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(148, 163, 184);
-        const subtitle = isAnswerKey
-          ? `Answers for Worksheet ${page === 5 ? 'Pack' : page + 1}`
-          : ws.variations[page] || `Worksheet ${page + 1}`;
-        doc.text(subtitle, W / 2, 68, { align: 'center' });
-
-        // Name / Date line
-        doc.setDrawColor(203, 213, 225);
-        doc.setFontSize(10);
-        doc.setTextColor(100, 116, 139);
-        doc.text('Name: ___________________________', 50, 96);
-        doc.text('Date: ______________', W - 50, 96, { align: 'right' });
-        doc.line(50, 108, W - 50, 108);
-
-        // Problems grid
-        const cols = maxCount <= 5 ? 2 : 3;
-        const rows = maxCount <= 5 ? 4 : 3;
-        const cellW = (W - 100) / cols;
-        const cellH = (H - 180) / rows;
-
-        for (let r = 0; r < rows; r++) {
-          for (let c = 0; c < cols; c++) {
-            const probNum = r * cols + c + 1;
-            if (probNum > (maxCount <= 5 ? 8 : 9)) continue;
-
-            const cx = 50 + c * cellW;
-            const cy = 126 + r * cellH;
-            const count = Math.floor(rng() * maxCount) + 1;
-
-            // Problem number
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(148, 163, 184);
-            doc.text(`${probNum}.`, cx + 4, cy + 14);
-
-            // Draw shapes
-            doc.setFillColor(color[0], color[1], color[2]);
-            const shapeSize = maxCount <= 10 ? 10 : 7;
-            const perRow = maxCount <= 10 ? 5 : 7;
-            for (let s = 0; s < count; s++) {
-              const sx = cx + 10 + (s % perRow) * (shapeSize * 2.2);
-              const sy = cy + 24 + Math.floor(s / perRow) * (shapeSize * 2.2);
-              if (shapeKey === 'circle') {
-                doc.circle(sx + shapeSize / 2, sy + shapeSize / 2, shapeSize / 2, 'F');
-              } else if (shapeKey === 'square') {
-                doc.rect(sx, sy, shapeSize, shapeSize, 'F');
-              } else if (shapeKey === 'triangle') {
-                doc.triangle(sx + shapeSize / 2, sy, sx, sy + shapeSize, sx + shapeSize, sy + shapeSize, 'F');
-              } else {
-                doc.circle(sx + shapeSize / 2, sy + shapeSize / 2, shapeSize / 2, 'F');
-              }
-            }
-
-            // Answer box
-            const boxY = cy + cellH - 36;
-            doc.setDrawColor(203, 213, 225);
-            doc.setLineWidth(1.5);
-            doc.roundedRect(cx + 10, boxY, 48, 24, 4, 4);
-
-            if (isAnswerKey) {
-              doc.setFontSize(16);
-              doc.setFont('helvetica', 'bold');
-              doc.setTextColor(22, 163, 74);
-              doc.text(`${count}`, cx + 34, boxY + 17, { align: 'center' });
-            }
-          }
-        }
-
-        // Footer
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(180, 180, 180);
-        doc.text('AnimalMath.com', W / 2, H - 20, { align: 'center' });
-        doc.text(`Page ${page + 1} of 6`, W - 50, H - 20, { align: 'right' });
-      }
-
-      // Convert to blob
-      const blob = doc.output('blob');
-      const blobUrl = URL.createObjectURL(blob);
-
-      // Load with PDF.js for rendering
-      return pdfjsLib.getDocument(blobUrl).promise.then(pdfDoc => {
-        pdfCache[key] = { blobUrl, pdfDoc };
+      return pdfjsLib.getDocument(ws.pdf).promise.then(pdfDoc => {
+        pdfCache[key] = { pdfUrl: ws.pdf, pdfDoc };
         return pdfCache[key];
       });
     }
@@ -772,36 +621,44 @@
         const card = document.createElement('div');
         card.className = 'ws-card';
         const cardId = `card-${category}-${i}`;
+        const hasPdf = !!ws.pdf;
+        const pageCount = hasPdf ? 5 : 0;
+
         card.innerHTML = `
           <div class="ws-preview" onmouseenter="showHover(event, '${category}', ${i})" onmouseleave="hideHover()">
             <div class="page-img" id="${cardId}">
-              <div class="preview-loading"><div class="spinner"></div>Generating PDF...</div>
+              ${hasPdf
+                ? '<div class="preview-loading"><div class="spinner"></div>Loading PDF...</div>'
+                : '<div class="preview-loading" style="color:#cbd5e0;">Coming soon</div>'}
             </div>
-            <div class="pack-badge">
+            ${hasPdf ? `<div class="pack-badge">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 8h20"/></svg>
               5 worksheets
-            </div>
+            </div>` : ''}
           </div>
           <div class="ws-body">
             <h3>${ws.title}</h3>
             <div class="ws-meta"><span class="grade">${ws.grade}</span></div>
-            <button class="download-btn" onclick="doDownload('${category}', ${i}, this)">
+            <button class="download-btn" onclick="doDownload('${category}', ${i}, this)" ${hasPdf ? '' : 'disabled style="opacity:0.4;cursor:default;"'}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Download 5 Worksheets
+              ${hasPdf ? 'Download 5 Worksheets' : 'Coming Soon'}
             </button>
           </div>
         `;
         grid.appendChild(card);
 
-        // Generate PDF and render page 1 as preview
-        generateWorksheetPDF(category, i).then(({ pdfDoc }) => {
-          const container = document.getElementById(cardId);
-          const canvas = document.createElement('canvas');
-          renderPdfPage(pdfDoc, 1, canvas, 600).then(() => {
-            container.innerHTML = '';
-            container.appendChild(canvas);
+        // Load real PDF and render page 1 as preview
+        if (hasPdf) {
+          loadPdf(category, i).then(result => {
+            if (!result) return;
+            const container = document.getElementById(cardId);
+            const canvas = document.createElement('canvas');
+            renderPdfPage(result.pdfDoc, 1, canvas, 600).then(() => {
+              container.innerHTML = '';
+              container.appendChild(canvas);
+            });
           });
-        });
+        }
       });
     }
 
@@ -843,17 +700,17 @@
     // ===== Direct PDF Download =====
     function doDownload(category, index, btn) {
       const ws = worksheets[category].items[index];
-      const key = `${category}-${index}`;
-      const orig = btn.innerHTML;
+      if (!ws.pdf) return;
 
-      // Show loading state
+      const orig = btn.innerHTML;
       btn.innerHTML = `<div class="spinner" style="width:14px;height:14px;border-width:2px;"></div> Preparing...`;
       btn.classList.add('downloading');
 
-      generateWorksheetPDF(category, index).then(({ blobUrl }) => {
+      loadPdf(category, index).then(result => {
+        if (!result) return;
         // Trigger real browser download
         const a = document.createElement('a');
-        a.href = blobUrl;
+        a.href = result.pdfUrl;
         a.download = ws.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-pack.pdf';
         document.body.appendChild(a);
         a.click();
