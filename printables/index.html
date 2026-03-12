@@ -36,14 +36,6 @@
       height: 64px;
       padding: 0 24px;
     }
-    .logo {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: #1e293b;
-      text-decoration: none;
-    }
-    .logo span { color: #f59e0b; }
     .nav-links { display: flex; gap: 4px; }
     .nav-links a {
       font-size: 14px;
@@ -400,36 +392,25 @@
       .cat-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
-    /* ===== UX label ===== */
-    .ux-label {
-      position: fixed;
-      bottom: 16px;
-      left: 16px;
-      background: #1e293b;
-      color: #94a3b8;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 8px;
-      z-index: 999;
-      letter-spacing: 0.5px;
-    }
-    .ux-label strong { color: #fbbf24; }
+    .site-logo { display: flex; align-items: center; text-decoration: none; }
+    .site-logo-img { height: 44px; width: auto; display: block; }
+    @media print { .site-header { display: none !important; } }
   </style>
 </head>
 <body class="page-home">
 
-  <div class="ux-label"><strong>UX PROTOTYPE</strong> &middot; PDF Preview from Real Files</div>
-
   <!-- ===== Header ===== -->
   <header class="site-header">
     <div class="header-inner">
-      <a href="#" class="logo" onclick="showHome(); return false;">Animal<span>Math</span></a>
+      <a href="../index.html" class="site-logo">
+        <img src="../generators/branding/emma-logo-filled-no-stroke3.png" alt="Animal Math" class="site-logo-img">
+      </a>
       <nav class="nav-links">
-        <a href="#" class="active" id="navWorksheets" onclick="showHome(); return false;">Worksheets</a>
-        <a href="#">Tools</a>
-        <a href="#">Mobile App</a>
-        <a href="#">About</a>
+        <a href="../index.html">Worksheets</a>
+        <a href="#" class="active" onclick="showHome(); return false;">Printables</a>
+        <a href="../tools/index.html">Tools</a>
+        <a href="https://apps.apple.com/us/app/animal-math-games-for-kids/id799973028" target="_blank">Mobile App</a>
+        <a href="../about.html">About</a>
       </nav>
     </div>
   </header>
@@ -446,7 +427,7 @@
         <a href="#" class="cat-card" onclick="showLesson('count'); return false;">
           <div class="cat-icon" style="background:#fef3c7;">🔢</div>
           <h3>Count &amp; Write</h3>
-          <div class="count">6 worksheet packs</div>
+          <div class="count">4 worksheet packs</div>
         </a>
         <a href="#" class="cat-card" onclick="showLesson('base10'); return false;">
           <div class="cat-icon" style="background:#dbeafe;">🧱</div>
@@ -481,7 +462,7 @@
   <div id="lessonPage" style="display:none;">
     <div class="lesson-header">
       <div class="lesson-header-inner">
-        <div class="breadcrumb"><a href="#" onclick="showHome(); return false;">Worksheets</a> &nbsp;/&nbsp; <span id="lessonBreadcrumb">Count &amp; Write</span></div>
+        <div class="breadcrumb"><a href="#" onclick="showHome(); return false;">Printables</a> &nbsp;/&nbsp; <span id="lessonBreadcrumb">Count &amp; Write</span></div>
         <h1 id="lessonTitle">Count &amp; Write Worksheets</h1>
         <p id="lessonDesc">Count the objects and write the number.</p>
         <a href="#" class="generator-link">Need something specific? Create your own worksheet <span class="arrow">→</span></a>
