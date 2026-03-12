@@ -197,7 +197,7 @@
     <div class="help-text"><strong>Tips:</strong><br>Click or drag tiles to add blocks.<br>Drag to move. Lasso-drag empty space to multi-select.<br><strong>Right-click</strong> for options.<br><strong>Del</strong> removes selected. <strong>Ctrl+A</strong> selects all. <strong>Esc</strong> deselects.</div>
   </div>
   <div class="workspace" id="workspace">
-    <div id="colHeader" class="col-header" style="display:none;">
+    <div id="colHeader" class="col-header" style="visibility:hidden;">
       <div class="col-hdr-hundreds">Hundreds</div>
       <div class="col-hdr-tens">Tens</div>
       <div class="col-hdr-ones">Ones</div>
@@ -370,6 +370,33 @@ function findOpenPosition(type, startX, startY) {
     }
   }
   return { x: x, y: y };
+}
+
+/* ===== Resolve all overlaps by pushing blocks apart ===== */
+function resolveOverlaps(pinnedIds) {
+  var gap = 4;
+  for (var iter = 0; iter < 100; iter++) {
+    var moved = false;
+    for (var i = 0; i < blocks.length; i++) {
+      var a = blocks[i], ad = getDims(a);
+      for (var j = i + 1; j < blocks.length; j++) {
+        var b = blocks[j], bd = getDims(b);
+        if (!(a.x < b.x + bd.w + gap && a.x + ad.w + gap > b.x &&
+              a.y < b.y + bd.h + gap && a.y + ad.h + gap > b.y)) continue;
+        /* Overlap – decide who moves */
+        var aPin = pinnedIds && pinnedIds.has(a.id);
+        var bPin = pinnedIds && pinnedIds.has(b.id);
+        if (aPin && bPin) continue;
+        if (bPin || (!aPin && !bPin && a.x > b.x)) {
+          a.x = b.x + bd.w + gap;
+        } else {
+          b.x = a.x + ad.w + gap;
+        }
+        moved = true;
+      }
+    }
+    if (!moved) break;
+  }
 }
 
 /* ===== Auto-sort blocks into value columns ===== */
@@ -705,26 +732,34 @@ workspace.addEventListener("wheel", function(e) { /* do nothing, allow natural p
 function breakApartSelected() {
   var sel = blocks.filter(function(b) { return b.selected && (b.type === "ten" || b.type === "hundred"); });
   if (!sel.length) return;
+
+  var newIds = new Set();
   sel.forEach(function(b) {
     var bx = b.x, by = b.y, btype = b.type, brot = b.rotation || 0;
     removeBlockEl(b);
     blocks = blocks.filter(function(x) { return x.id !== b.id; });
 
     if (btype === "hundred") {
+      /* Place 10 tens side-by-side at the original position */
       for (var i = 0; i < 10; i++) {
-        var pos = findOpenPosition("ten", bx + i * (CELL + BREAK_GAP), by);
-        blocks.push({ id: nextId++, type: "ten", x: pos.x, y: pos.y, rotation: 0, selected: false });
+        var nb = { id: nextId++, type: "ten", x: bx + i * (CELL + BREAK_GAP), y: by, rotation: 0, selected: false };
+        blocks.push(nb);
+        newIds.add(nb.id);
       }
     } else {
       var isH = brot % 180 !== 0;
       for (var j = 0; j < 10; j++) {
         var sx = isH ? bx + j * (CELL + BREAK_GAP) : bx;
         var sy = isH ? by : by + j * (CELL + BREAK_GAP);
-        var pos2 = findOpenPosition("one", sx, sy);
-        blocks.push({ id: nextId++, type: "one", x: pos2.x, y: pos2.y, rotation: 0, selected: false });
+        var nb2 = { id: nextId++, type: "one", x: sx, y: sy, rotation: 0, selected: false };
+        blocks.push(nb2);
+        newIds.add(nb2.id);
       }
     }
   });
+
+  /* Push other blocks out of the way of the new pieces */
+  resolveOverlaps(newIds);
   refreshAllBlocks();
 }
 
@@ -765,7 +800,7 @@ function groupBlocks() {
     changed = true;
   }
 
-  if (changed) refreshAllBlocks();
+  if (changed) { resolveOverlaps(null); refreshAllBlocks(); }
 }
 
 /* ===== Duplicate ===== */
@@ -880,9 +915,9 @@ function initColDividers() {
 function renderColumnsBg() {
   var bg     = document.getElementById("columnsBg");
   var header = document.getElementById("colHeader");
-  if (!showValueColumns) { bg.style.display = "none"; header.style.display = "none"; return; }
+  if (!showValueColumns) { bg.style.display = "none"; header.style.visibility = "hidden"; return; }
   if (colDiv1 === null) initColDividers();
-  bg.style.display = "block"; header.style.display = "flex";
+  bg.style.display = "block"; header.style.visibility = "visible";
   var d1 = colDiv1 * zoomLevel, d2 = colDiv2 * zoomLevel;
   var handleW = 8;
   bg.innerHTML
