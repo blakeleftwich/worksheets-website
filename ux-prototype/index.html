@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Printable Worksheets — UX Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- PDF.js for rendering PDF thumbnails -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- jsPDF for generating sample worksheet PDFs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+    }
+
+    /* ===== Header ===== */
+    .site-header {
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      padding: 0 24px;
+    }
+    .logo {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+      text-decoration: none;
+    }
+    .logo span { color: #f59e0b; }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: all 0.15s;
+    }
+    .nav-links a:hover { background: #f1f5f9; color: #1e293b; }
+    .nav-links a.active { background: #fef3c7; color: #92400e; }
+
+    /* ===== Hero ===== */
+    .hero {
+      background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+      border-bottom: 1px solid #fde68a;
+      padding: 48px 24px 40px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      font-size: 17px;
+      color: #64748b;
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ===== Category Grid ===== */
+    .section { max-width: 1200px; margin: 0 auto; padding: 40px 24px 60px; }
+    .section-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 20px;
+    }
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .cat-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 24px 20px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 12px;
+    }
+    .cat-card:hover {
+      border-color: #fbbf24;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+    .cat-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+    .cat-card h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .cat-card .count {
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    /* ===== Lesson Page Header ===== */
+    .lesson-header {
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 32px 24px;
+    }
+    .lesson-header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .breadcrumb {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 12px;
+    }
+    .breadcrumb a { color: #f59e0b; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .lesson-header h1 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .lesson-header p {
+      font-size: 15px;
+      color: #64748b;
+      max-width: 600px;
+      line-height: 1.6;
+    }
+    .generator-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #94a3b8;
+      text-decoration: none;
+      padding: 6px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      transition: all 0.15s;
+    }
+    .generator-link:hover { border-color: #f59e0b; color: #92400e; background: #fffbeb; }
+    .generator-link .arrow { font-size: 14px; transition: transform 0.15s; }
+    .generator-link:hover .arrow { transform: translateX(2px); }
+
+    /* ===== Layout Switcher ===== */
+    .toolbar {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .toolbar-left { font-size: 14px; color: #64748b; }
+    .layout-toggle {
+      display: flex;
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .layout-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .layout-btn.active { background: white; color: #1e293b; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+    /* ===== Worksheet Cards ===== */
+    .ws-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 24px 60px;
+      display: grid;
+      gap: 24px;
+    }
+    .ws-grid.layout-a { grid-template-columns: repeat(3, 1fr); }
+    .ws-grid.layout-b { grid-template-columns: repeat(4, 1fr); }
+
+    .ws-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      overflow: hidden;
+      transition: all 0.25s;
+      display: flex;
+      flex-direction: column;
+    }
+    .ws-card:hover {
+      border-color: #fbbf24;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      transform: translateY(-3px);
+    }
+
+    /* Preview area */
+    .ws-preview {
+      position: relative;
+      background: #f8fafc;
+      border-bottom: 1px solid #f1f5f9;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    /* Layout A: cropped top portion */
+    .layout-a .ws-preview { height: 220px; }
+    .layout-a .ws-preview canvas,
+    .layout-a .ws-preview .page-img {
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    /* Layout B: full page scaled down */
+    .layout-b .ws-preview {
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+    .layout-b .ws-preview canvas,
+    .layout-b .ws-preview .page-img {
+      width: auto;
+      height: 100%;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      border-radius: 4px;
+      transition: transform 0.3s;
+    }
+    .layout-b .ws-card:hover .ws-preview canvas,
+    .layout-b .ws-card:hover .ws-preview .page-img {
+      transform: scale(1.08);
+    }
+
+    /* Loading spinner */
+    .preview-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      color: #cbd5e0;
+      font-size: 13px;
+      font-weight: 500;
+      gap: 8px;
+    }
+    .preview-loading .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #e2e8f0;
+      border-top-color: #f59e0b;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Pack badge */
+    .pack-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #1e293b;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      z-index: 2;
+    }
+    .pack-badge svg { width: 12px; height: 12px; }
+
+    .ws-body {
+      padding: 16px 18px 18px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .ws-body h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 4px;
+      line-height: 1.35;
+    }
+    .ws-meta {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 14px;
+    }
+    .ws-meta .grade {
+      background: #fef3c7;
+      color: #92400e;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+
+    .download-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 16px;
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: auto;
+    }
+    .download-btn:hover {
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+      transform: translateY(-1px);
+    }
+    .download-btn.downloading { background: #16a34a; pointer-events: none; }
+    .download-btn svg { width: 16px; height: 16px; }
+
+
+    /* ===== Hover Preview Overlay (Layout B) ===== */
+    .hover-preview {
+      display: none;
+      position: fixed;
+      z-index: 150;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.18);
+      padding: 12px;
+      pointer-events: none;
+    }
+    .hover-preview.visible { display: block; }
+    .hover-preview canvas {
+      width: 280px;
+      height: auto;
+      border-radius: 6px;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 900px) {
+      .ws-grid.layout-a { grid-template-columns: repeat(2, 1fr); }
+      .ws-grid.layout-b { grid-template-columns: repeat(3, 1fr); }
+      .cat-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .ws-grid.layout-a, .ws-grid.layout-b { grid-template-columns: repeat(2, 1fr); }
+      .cat-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ===== UX label ===== */
+    .ux-label {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      background: #1e293b;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      z-index: 999;
+      letter-spacing: 0.5px;
+    }
+    .ux-label strong { color: #fbbf24; }
+  </style>
+</head>
+<body class="page-home">
+
+  <div class="ux-label"><strong>UX PROTOTYPE</strong> &middot; PDF Preview from Real Files</div>
+
+  <!-- ===== Header ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="#" class="logo" onclick="showHome(); return false;">Animal<span>Math</span></a>
+      <nav class="nav-links">
+        <a href="#" class="active" id="navWorksheets" onclick="showHome(); return false;">Worksheets</a>
+        <a href="#">Tools</a>
+        <a href="#">Mobile App</a>
+        <a href="#">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ==================== HOME PAGE ==================== -->
+  <div id="homePage">
+    <div class="hero">
+      <h1>Free Printable Math Worksheets</h1>
+      <p>Download ready-to-print worksheet packs. Each pack includes 5 unique worksheets plus an answer key.</p>
+    </div>
+    <div class="section">
+      <div class="section-title">Browse by Topic</div>
+      <div class="cat-grid">
+        <a href="#" class="cat-card" onclick="showLesson('count'); return false;">
+          <div class="cat-icon" style="background:#fef3c7;">🔢</div>
+          <h3>Count &amp; Write</h3>
+          <div class="count">6 worksheet packs</div>
+        </a>
+        <a href="#" class="cat-card" onclick="showLesson('base10'); return false;">
+          <div class="cat-icon" style="background:#dbeafe;">🧱</div>
+          <h3>Base Ten Blocks</h3>
+          <div class="count">4 worksheet packs</div>
+        </a>
+        <a href="#" class="cat-card" onclick="showLesson('time'); return false;">
+          <div class="cat-icon" style="background:#f3e8ff;">🕐</div>
+          <h3>Telling Time</h3>
+          <div class="count">5 worksheet packs</div>
+        </a>
+        <a href="#" class="cat-card" onclick="showLesson('add'); return false;">
+          <div class="cat-icon" style="background:#dcfce7;">➕</div>
+          <h3>Addition Within 10</h3>
+          <div class="count">5 worksheet packs</div>
+        </a>
+        <a href="#" class="cat-card" onclick="showLesson('sub'); return false;">
+          <div class="cat-icon" style="background:#fee2e2;">➖</div>
+          <h3>Subtraction</h3>
+          <div class="count">4 worksheet packs</div>
+        </a>
+        <a href="#" class="cat-card" onclick="showLesson('pattern'); return false;">
+          <div class="cat-icon" style="background:#e0f2fe;">🔷</div>
+          <h3>Pattern Recognition</h3>
+          <div class="count">3 worksheet packs</div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== LESSON PAGE ==================== -->
+  <div id="lessonPage" style="display:none;">
+    <div class="lesson-header">
+      <div class="lesson-header-inner">
+        <div class="breadcrumb"><a href="#" onclick="showHome(); return false;">Worksheets</a> &nbsp;/&nbsp; <span id="lessonBreadcrumb">Count &amp; Write</span></div>
+        <h1 id="lessonTitle">Count &amp; Write Worksheets</h1>
+        <p id="lessonDesc">Count the objects and write the number.</p>
+        <a href="#" class="generator-link">Need something specific? Create your own worksheet <span class="arrow">→</span></a>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="toolbar-left"><span id="wsCount">6</span> worksheet packs</div>
+      <div class="layout-toggle">
+        <button class="layout-btn active" onclick="setLayout('a')">Layout A — Large</button>
+        <button class="layout-btn" onclick="setLayout('b')">Layout B — Compact</button>
+      </div>
+    </div>
+    <div class="ws-grid layout-a" id="wsGrid"></div>
+  </div>
+
+
+  <!-- ===== Hover Preview (Layout B) ===== -->
+  <div class="hover-preview" id="hoverPreview">
+    <div id="hoverContent"></div>
+  </div>
+
+  <script>
+    // ===== Configure PDF.js worker =====
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    // ===== Worksheet Data =====
+    const worksheets = {
+      count: {
+        title: 'Count & Write Worksheets',
+        breadcrumb: 'Count & Write',
+        desc: 'Count the objects and write the number. Each pack includes 5 unique worksheets with different objects and quantities, plus an answer key.',
+        items: [
+          { title: 'Count Objects to 5', grade: 'Pre-K – K', variations: ['Count apples (1–5)', 'Count stars (1–5)', 'Count balloons (1–5)', 'Count fish (1–5)', 'Count flowers (1–5)'] },
+          { title: 'Count Objects to 10', grade: 'Pre-K – K', variations: ['Count birds (1–10)', 'Count hearts (1–10)', 'Count trees (1–10)', 'Count cars (1–10)', 'Count dogs (1–10)'] },
+          { title: 'Count Objects to 20', grade: 'K – 1st', variations: ['Count circles (1–20)', 'Count butterflies (1–20)', 'Count cookies (1–20)', 'Count leaves (1–20)', 'Count pencils (1–20)'] },
+          { title: 'Write Numbers After Counting', grade: 'K – 1st', variations: ['Groups of 1–5', 'Groups of 1–10', 'Mixed groups to 15', 'Scattered objects to 10', 'Ten-frame counting'] },
+          { title: 'Count & Color', grade: 'Pre-K', variations: ['Color 3 objects', 'Color 5 objects', 'Color 7 objects', 'Color matching numbers', 'Color by count'] },
+          { title: 'How Many? Circle the Number', grade: 'Pre-K – K', variations: ['Choose from 2 options', 'Choose from 3 options', 'Objects to 5', 'Objects to 10', 'Mixed layout'] },
+        ]
+      },
+      base10: {
+        title: 'Base Ten Blocks Worksheets',
+        breadcrumb: 'Base Ten Blocks',
+        desc: 'Practice place value with tens and ones blocks. Each pack includes 5 unique worksheets plus an answer key.',
+        items: [
+          { title: 'Count the Blocks', grade: 'K – 1st', variations: ['Ones only (1–9)', 'Tens only (10–90)', 'Tens and ones (10–50)', 'Tens and ones (10–99)', 'Mixed review'] },
+          { title: 'Draw the Blocks', grade: '1st – 2nd', variations: ['Draw ones', 'Draw tens', 'Draw tens & ones', 'Numbers to 50', 'Numbers to 99'] },
+          { title: 'Match Blocks to Numbers', grade: 'K – 1st', variations: ['Match ones', 'Match tens', 'Match mixed', 'Draw lines', 'Multiple choice'] },
+          { title: 'Expanded Form with Blocks', grade: '1st – 2nd', variations: ['Two-digit numbers', 'Write the value', 'Fill in blanks', 'Hundreds blocks', 'Mixed review'] },
+        ]
+      },
+      time: {
+        title: 'Telling Time Worksheets',
+        breadcrumb: 'Telling Time',
+        desc: 'Read clocks and write the time. Each pack includes 5 unique worksheets plus an answer key.',
+        items: [
+          { title: 'Read Clocks – Hours', grade: 'K – 1st', variations: ['Clocks 1–6', 'Clocks 7–12', 'Mixed hours', 'Write the time', 'Draw hands'] },
+          { title: 'Read Clocks – Half Hours', grade: '1st', variations: ['Half past (set A)', 'Half past (set B)', 'Hours & half hours', 'Write the time', 'Draw hands'] },
+          { title: 'Read Clocks – Quarter Hours', grade: '1st – 2nd', variations: ['Quarter past', 'Quarter to', 'Mixed quarters', 'Write the time', 'Draw hands'] },
+          { title: 'Time to 5 Minutes', grade: '2nd', variations: ['5 min intervals (A)', '5 min intervals (B)', 'Mixed intervals', 'Write digital time', 'Draw hands'] },
+          { title: 'Elapsed Time', grade: '2nd – 3rd', variations: ['30 min later', '1 hour later', 'How much time?', 'Before and after', 'Word problems'] },
+        ]
+      },
+      add: {
+        title: 'Addition Within 10 Worksheets',
+        breadcrumb: 'Addition Within 10',
+        desc: 'Practice adding numbers within 10. Each pack includes 5 unique worksheets plus an answer key.',
+        items: [
+          { title: 'Add Within 5', grade: 'Pre-K – K', variations: ['Sums to 3', 'Sums to 4', 'Sums to 5', 'Mixed sums', 'Picture addition'] },
+          { title: 'Add Within 10', grade: 'K – 1st', variations: ['Sums 6–8', 'Sums 9–10', 'Mixed 1–10', 'Fill in blank', 'Vertical format'] },
+          { title: 'Addition with Pictures', grade: 'Pre-K – K', variations: ['Count and add fruit', 'Count and add animals', 'Count and add shapes', 'Mixed objects', 'Draw more to add'] },
+          { title: 'Missing Addend', grade: 'K – 1st', variations: ['_ + 2 = 5 style', '3 + _ = 7 style', 'Mixed position', 'With pictures', 'Challenge set'] },
+          { title: 'Doubles Facts', grade: 'K – 1st', variations: ['Doubles 1–5', 'Doubles 1–10', 'Doubles + 1', 'Mixed doubles', 'Word problems'] },
+        ]
+      },
+      sub: {
+        title: 'Subtraction Worksheets',
+        breadcrumb: 'Subtraction',
+        desc: 'Practice subtracting within 10 and 20. Each pack includes 5 unique worksheets plus an answer key.',
+        items: [
+          { title: 'Subtract Within 5', grade: 'K', variations: ['Basic facts', 'With pictures', 'Cross out objects', 'Fill in blank', 'Mixed'] },
+          { title: 'Subtract Within 10', grade: 'K – 1st', variations: ['Facts 6–8', 'Facts 9–10', 'Mixed', 'Vertical format', 'Number line'] },
+          { title: 'Subtraction with Pictures', grade: 'Pre-K – K', variations: ['Cross out animals', 'Cross out fruit', 'Cross out shapes', 'Mixed objects', 'How many left?'] },
+          { title: 'Missing Number Subtraction', grade: '1st', variations: ['_ − 3 = 4 style', '8 − _ = 5 style', 'Mixed blanks', 'With pictures', 'Challenge set'] },
+        ]
+      },
+      pattern: {
+        title: 'Pattern Recognition Worksheets',
+        breadcrumb: 'Pattern Recognition',
+        desc: 'Identify and extend patterns with shapes and colors. Each pack includes 5 unique worksheets plus an answer key.',
+        items: [
+          { title: 'AB Patterns', grade: 'Pre-K – K', variations: ['Color patterns', 'Shape patterns', 'Size patterns', 'Mixed AB', 'Create your own'] },
+          { title: 'ABC Patterns', grade: 'K – 1st', variations: ['Color ABC', 'Shape ABC', 'Number ABC', 'Mixed', 'Extend the pattern'] },
+          { title: 'Growing Patterns', grade: '1st – 2nd', variations: ['Add 1 each time', 'Add 2 each time', 'Double pattern', 'Visual growing', 'Number patterns'] },
+        ]
+      }
+    };
+
+    // ===== PDF Generation with jsPDF =====
+    // Generates a realistic multi-page worksheet PDF and returns a blob URL
+    const pdfCache = {}; // { "count-0": { blobUrl, pdfDoc (from PDF.js) } }
+
+    const shapeDrawers = {
+      circle: (doc, x, y, r) => { doc.circle(x + r, y + r, r, 'F'); },
+      square: (doc, x, y, r) => { doc.rect(x, y, r * 2, r * 2, 'F'); },
+      triangle: (doc, x, y, r) => {
+        doc.triangle(x + r, y, x, y + r * 2, x + r * 2, y + r * 2, 'F');
+      },
+      star: (doc, x, y, r) => {
+        // Approximate star with a filled circle + text
+        doc.circle(x + r, y + r, r, 'F');
+        doc.setFontSize(r * 1.5);
+        doc.setTextColor(255, 255, 255);
+        doc.text('★', x + r * 0.35, y + r * 1.5);
+      },
+      heart: (doc, x, y, r) => {
+        doc.circle(x + r * 0.5, y + r * 0.5, r * 0.5, 'F');
+        doc.circle(x + r * 1.5, y + r * 0.5, r * 0.5, 'F');
+        doc.triangle(x, y + r * 0.5, x + r * 2, y + r * 0.5, x + r, y + r * 2, 'F');
+      }
+    };
+
+    const objectNames = ['circles', 'squares', 'triangles', 'stars', 'hearts'];
+    const objectKeys = ['circle', 'square', 'triangle', 'star', 'heart'];
+    const accentColors = [
+      [245, 158, 11],  // amber
+      [59, 130, 246],  // blue
+      [16, 185, 129],  // green
+      [239, 68, 68],   // red
+      [139, 92, 246],  // purple
+    ];
+
+    function seededRandom(seed) {
+      let s = seed;
+      return function() {
+        s = (s * 16807 + 0) % 2147483647;
+        return (s - 1) / 2147483646;
+      };
+    }
+
+    function generateWorksheetPDF(category, index) {
+      const key = `${category}-${index}`;
+      if (pdfCache[key]) return Promise.resolve(pdfCache[key]);
+
+      const { jsPDF } = window.jspdf;
+      const ws = worksheets[category].items[index];
+      const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+      const W = 612, H = 792;
+
+      // Generate 5 worksheet pages + 1 answer key
+      for (let page = 0; page < 6; page++) {
+        if (page > 0) doc.addPage();
+        const isAnswerKey = page === 5;
+        const rng = seededRandom((index + 1) * 100 + page * 17 + category.charCodeAt(0));
+        const shapeIdx = (index + page) % objectKeys.length;
+        const colorIdx = (index + page) % accentColors.length;
+        const color = accentColors[colorIdx];
+        const shapeName = objectNames[shapeIdx];
+        const shapeKey = objectKeys[shapeIdx];
+
+        // Determine count range from title
+        let maxCount = 10;
+        if (ws.title.includes('to 5') || ws.title.includes('Within 5')) maxCount = 5;
+        else if (ws.title.includes('to 20') || ws.title.includes('Within 20')) maxCount = 20;
+        else if (ws.title.includes('to 10') || ws.title.includes('Within 10')) maxCount = 10;
+
+        // Title
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(30, 41, 59);
+        const pageTitle = isAnswerKey ? `${ws.title} — Answer Key` : ws.title;
+        doc.text(pageTitle, W / 2, 48, { align: 'center' });
+
+        // Subtitle
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(148, 163, 184);
+        const subtitle = isAnswerKey
+          ? `Answers for Worksheet ${page === 5 ? 'Pack' : page + 1}`
+          : ws.variations[page] || `Worksheet ${page + 1}`;
+        doc.text(subtitle, W / 2, 68, { align: 'center' });
+
+        // Name / Date line
+        doc.setDrawColor(203, 213, 225);
+        doc.setFontSize(10);
+        doc.setTextColor(100, 116, 139);
+        doc.text('Name: ___________________________', 50, 96);
+        doc.text('Date: ______________', W - 50, 96, { align: 'right' });
+        doc.line(50, 108, W - 50, 108);
+
+        // Problems grid
+        const cols = maxCount <= 5 ? 2 : 3;
+        const rows = maxCount <= 5 ? 4 : 3;
+        const cellW = (W - 100) / cols;
+        const cellH = (H - 180) / rows;
+
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const probNum = r * cols + c + 1;
+            if (probNum > (maxCount <= 5 ? 8 : 9)) continue;
+
+            const cx = 50 + c * cellW;
+            const cy = 126 + r * cellH;
+            const count = Math.floor(rng() * maxCount) + 1;
+
+            // Problem number
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(148, 163, 184);
+            doc.text(`${probNum}.`, cx + 4, cy + 14);
+
+            // Draw shapes
+            doc.setFillColor(color[0], color[1], color[2]);
+            const shapeSize = maxCount <= 10 ? 10 : 7;
+            const perRow = maxCount <= 10 ? 5 : 7;
+            for (let s = 0; s < count; s++) {
+              const sx = cx + 10 + (s % perRow) * (shapeSize * 2.2);
+              const sy = cy + 24 + Math.floor(s / perRow) * (shapeSize * 2.2);
+              if (shapeKey === 'circle') {
+                doc.circle(sx + shapeSize / 2, sy + shapeSize / 2, shapeSize / 2, 'F');
+              } else if (shapeKey === 'square') {
+                doc.rect(sx, sy, shapeSize, shapeSize, 'F');
+              } else if (shapeKey === 'triangle') {
+                doc.triangle(sx + shapeSize / 2, sy, sx, sy + shapeSize, sx + shapeSize, sy + shapeSize, 'F');
+              } else {
+                doc.circle(sx + shapeSize / 2, sy + shapeSize / 2, shapeSize / 2, 'F');
+              }
+            }
+
+            // Answer box
+            const boxY = cy + cellH - 36;
+            doc.setDrawColor(203, 213, 225);
+            doc.setLineWidth(1.5);
+            doc.roundedRect(cx + 10, boxY, 48, 24, 4, 4);
+
+            if (isAnswerKey) {
+              doc.setFontSize(16);
+              doc.setFont('helvetica', 'bold');
+              doc.setTextColor(22, 163, 74);
+              doc.text(`${count}`, cx + 34, boxY + 17, { align: 'center' });
+            }
+          }
+        }
+
+        // Footer
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(180, 180, 180);
+        doc.text('AnimalMath.com', W / 2, H - 20, { align: 'center' });
+        doc.text(`Page ${page + 1} of 6`, W - 50, H - 20, { align: 'right' });
+      }
+
+      // Convert to blob
+      const blob = doc.output('blob');
+      const blobUrl = URL.createObjectURL(blob);
+
+      // Load with PDF.js for rendering
+      return pdfjsLib.getDocument(blobUrl).promise.then(pdfDoc => {
+        pdfCache[key] = { blobUrl, pdfDoc };
+        return pdfCache[key];
+      });
+    }
+
+    // ===== Render a PDF page to a canvas =====
+    function renderPdfPage(pdfDoc, pageNum, canvas, maxWidth) {
+      return pdfDoc.getPage(pageNum).then(page => {
+        const viewport = page.getViewport({ scale: 1 });
+        const scale = maxWidth / viewport.width;
+        const scaledViewport = page.getViewport({ scale });
+        canvas.width = scaledViewport.width;
+        canvas.height = scaledViewport.height;
+        return page.render({
+          canvasContext: canvas.getContext('2d'),
+          viewport: scaledViewport
+        }).promise.then(() => canvas);
+      });
+    }
+
+    // ===== Render Cards =====
+    function renderCards(category) {
+      const data = worksheets[category];
+      const grid = document.getElementById('wsGrid');
+      grid.innerHTML = '';
+
+      data.items.forEach((ws, i) => {
+        const card = document.createElement('div');
+        card.className = 'ws-card';
+        const cardId = `card-${category}-${i}`;
+        card.innerHTML = `
+          <div class="ws-preview" onmouseenter="showHover(event, '${category}', ${i})" onmouseleave="hideHover()">
+            <div class="page-img" id="${cardId}">
+              <div class="preview-loading"><div class="spinner"></div>Generating PDF...</div>
+            </div>
+            <div class="pack-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 8h20"/></svg>
+              5 worksheets
+            </div>
+          </div>
+          <div class="ws-body">
+            <h3>${ws.title}</h3>
+            <div class="ws-meta"><span class="grade">${ws.grade}</span></div>
+            <button class="download-btn" onclick="doDownload('${category}', ${i}, this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download 5 Worksheets
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+
+        // Generate PDF and render page 1 as preview
+        generateWorksheetPDF(category, i).then(({ pdfDoc }) => {
+          const container = document.getElementById(cardId);
+          const canvas = document.createElement('canvas');
+          renderPdfPage(pdfDoc, 1, canvas, 600).then(() => {
+            container.innerHTML = '';
+            container.appendChild(canvas);
+          });
+        });
+      });
+    }
+
+    // ===== Layout Toggle =====
+    let currentLayout = 'a';
+    function setLayout(layout) {
+      currentLayout = layout;
+      const grid = document.getElementById('wsGrid');
+      grid.className = `ws-grid layout-${layout}`;
+      document.querySelectorAll('.layout-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', (layout === 'a' && i === 0) || (layout === 'b' && i === 1));
+      });
+    }
+
+    // ===== Page Navigation =====
+    let currentCategory = 'count';
+
+    function showHome() {
+      document.getElementById('homePage').style.display = '';
+      document.getElementById('lessonPage').style.display = 'none';
+      document.body.className = 'page-home';
+      window.scrollTo(0, 0);
+    }
+
+    function showLesson(category) {
+      currentCategory = category;
+      const data = worksheets[category];
+      document.getElementById('homePage').style.display = 'none';
+      document.getElementById('lessonPage').style.display = '';
+      document.getElementById('lessonTitle').textContent = data.title;
+      document.getElementById('lessonBreadcrumb').textContent = data.breadcrumb;
+      document.getElementById('lessonDesc').textContent = data.desc;
+      document.getElementById('wsCount').textContent = data.items.length;
+      document.body.className = 'page-lesson';
+      renderCards(category);
+      window.scrollTo(0, 0);
+    }
+
+    // ===== Direct PDF Download =====
+    function doDownload(category, index, btn) {
+      const ws = worksheets[category].items[index];
+      const key = `${category}-${index}`;
+      const orig = btn.innerHTML;
+
+      // Show loading state
+      btn.innerHTML = `<div class="spinner" style="width:14px;height:14px;border-width:2px;"></div> Preparing...`;
+      btn.classList.add('downloading');
+
+      generateWorksheetPDF(category, index).then(({ blobUrl }) => {
+        // Trigger real browser download
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = ws.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-pack.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        // Show success feedback
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polyline points="20 6 9 17 4 12"/></svg> Downloaded!`;
+        btn.style.background = '#16a34a';
+        setTimeout(() => {
+          btn.innerHTML = orig;
+          btn.style.background = '';
+          btn.classList.remove('downloading');
+        }, 1500);
+      });
+    }
+
+    // ===== Hover Preview (Layout B) =====
+    function showHover(e, category, index) {
+      if (currentLayout !== 'b') return;
+      const key = `${category}-${index}`;
+      const cached = pdfCache[key];
+      if (!cached) return;
+
+      const preview = document.getElementById('hoverPreview');
+      const content = document.getElementById('hoverContent');
+      content.innerHTML = '';
+      const canvas = document.createElement('canvas');
+      content.appendChild(canvas);
+      renderPdfPage(cached.pdfDoc, 1, canvas, 560);
+
+      const rect = e.target.closest('.ws-preview').getBoundingClientRect();
+      let left = rect.right + 12;
+      let top = rect.top;
+      if (left + 310 > window.innerWidth) left = rect.left - 310;
+      if (top + 400 > window.innerHeight) top = window.innerHeight - 410;
+      preview.style.left = left + 'px';
+      preview.style.top = Math.max(8, top) + 'px';
+      preview.classList.add('visible');
+    }
+
+    function hideHover() {
+      document.getElementById('hoverPreview').classList.remove('visible');
+    }
+
+  </script>
+</body>
+</html>

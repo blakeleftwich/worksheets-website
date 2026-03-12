@@ -755,15 +755,17 @@ function handlePrint() {
   const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
   sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
   for (let i = 0; i < currentState.sheets.length; i++) {
+    const wsCode = "WS" + (i + 1);
     const p = document.createElement("div"); p.className = "worksheet-page";
-    p.appendChild(generateWorksheetSvg(currentState.sheets[i], style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax));
+    p.appendChild(generateWorksheetSvg(currentState.sheets[i], style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode));
     sheetWrap.appendChild(p);
   }
   const answerKeyPages = [];
   if (elAnswerKey.checked) {
     for (let i = 0; i < currentState.sheets.length; i++) {
+      const wsCode = "WS" + (i + 1);
       const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
-      p.appendChild(generateAnswerKeySvg(currentState.sheets[i], style, "none", branded, numbered, title, subtitle, true, perRowMax));
+      p.appendChild(generateAnswerKeySvg(currentState.sheets[i], style, "none", branded, numbered, title, subtitle, true, perRowMax, wsCode));
       sheetWrap.appendChild(p);
       answerKeyPages.push(p);
     }
@@ -777,7 +779,6 @@ document.getElementById("btnPrint").addEventListener("click", handlePrint);
 // ===== Shared helpers for variety packs =====
 function generateRandomProblems(min, max, numProblems) {
   const numIcons = 8;
-  const problems = [];
   let availableIcons = [];
   for (let i = 0; i < Math.ceil(numProblems / numIcons); i++) {
     const batch = Array.from({length: numIcons}, (_, idx) => idx);
@@ -785,42 +786,92 @@ function generateRandomProblems(min, max, numProblems) {
     availableIcons = availableIcons.concat(batch);
   }
 
-  // When range includes zero, randomly place exactly 1 or 2 zeros
-  const targetZeros = (min === 0) ? randInt(1, 2) : 0;
-  // Pick random non-adjacent positions for zeros
-  const zeroPositions = new Set();
-  if (targetZeros > 0) {
-    const candidates = Array.from({length: numProblems}, (_, i) => i);
-    shuffleArray(candidates);
-    for (const pos of candidates) {
-      if (zeroPositions.size >= targetZeros) break;
-      // Ensure not adjacent to another zero position
-      let adjacent = false;
-      for (const zp of zeroPositions) {
-        if (Math.abs(pos - zp) === 1) { adjacent = true; break; }
-      }
-      if (!adjacent) zeroPositions.add(pos);
+  // Build the range of possible values
+  const rangeValues = [];
+  for (let v = min; v <= max; v++) rangeValues.push(v);
+  const rangeSize = rangeValues.length;
+
+  // Grid adjacency check for 2-column layout compatibility
+  // In a 2-col grid, position i is adjacent to i-1 (left), i+1 (right), i-2 (above), i+2 (below)
+  // In a 1-col layout, position i is adjacent to i-1 and i+1
+  // We enforce the stricter 2-col constraint so problems work in both layouts
+  const cols = 2;
+  function isAdjacent(posA, posB) {
+    if (posA < 0 || posB < 0) return false;
+    const diff = Math.abs(posA - posB);
+    if (diff === 1) {
+      // Only adjacent left/right if on same row
+      return Math.floor(posA / cols) === Math.floor(posB / cols);
     }
+    return diff === cols; // above/below
   }
 
-  // Generate counts ensuring no two adjacent problems share the same answer
-  for (let i = 0; i < numProblems; i++) {
-    let count;
-    if (zeroPositions.has(i)) {
-      count = 0;
-    } else {
-      const nonZeroMin = (min === 0) ? 1 : min;
-      count = randInt(nonZeroMin, max);
+  function getAdjacentValues(counts, pos) {
+    const adj = new Set();
+    for (let p = 0; p < counts.length; p++) {
+      if (counts[p] !== null && isAdjacent(pos, p)) adj.add(counts[p]);
     }
-    // Avoid matching the previous problem's count
-    if (i > 0 && count === problems[i - 1].count) {
-      // Re-roll up to 20 times to find a different value
-      for (let attempt = 0; attempt < 20; attempt++) {
-        const newCount = zeroPositions.has(i) ? 0 : randInt((min === 0) ? 1 : min, max);
-        if (newCount !== problems[i - 1].count) { count = newCount; break; }
+    return adj;
+  }
+
+  // Step 1: Guarantee every value in the range appears at least once
+  // Start with one copy of each value (shuffled), truncate if range > numProblems
+  let required = [...rangeValues];
+  shuffleArray(required);
+  if (required.length > numProblems) {
+    required = required.slice(0, numProblems);
+  }
+
+  // Step 2: Fill remaining slots with values from the range
+  const extraCount = numProblems - required.length;
+  const extras = [];
+  for (let i = 0; i < extraCount; i++) {
+    extras.push(rangeValues[randInt(0, rangeSize - 1)]);
+  }
+
+  // Combine and place using backtracking to satisfy adjacency constraints
+  const allValues = required.concat(extras);
+  const counts = new Array(numProblems).fill(null);
+
+  // Try to place values with no-adjacency constraint using greedy + shuffle retry
+  function tryPlace(values) {
+    const pool = [...values];
+    const result = new Array(numProblems).fill(null);
+
+    for (let pos = 0; pos < numProblems; pos++) {
+      const adjVals = getAdjacentValues(result, pos);
+      // Find candidates in pool that don't conflict
+      const validIndices = [];
+      for (let j = 0; j < pool.length; j++) {
+        if (!adjVals.has(pool[j])) validIndices.push(j);
       }
+      if (validIndices.length === 0) return null; // Failed
+      // Pick a random valid candidate
+      const pick = validIndices[randInt(0, validIndices.length - 1)];
+      result[pos] = pool[pick];
+      pool.splice(pick, 1);
     }
-    problems.push({ count, iconIndex: availableIcons[i] });
+    return result;
+  }
+
+  // Try up to 50 times with reshuffled values
+  let placed = null;
+  for (let attempt = 0; attempt < 50; attempt++) {
+    shuffleArray(allValues);
+    placed = tryPlace(allValues);
+    if (placed) break;
+  }
+
+  // Fallback: if placement failed (very small range, many problems), relax constraint
+  if (!placed) {
+    placed = allValues;
+    shuffleArray(placed);
+  }
+
+  // Build final problems array
+  const problems = [];
+  for (let i = 0; i < numProblems; i++) {
+    problems.push({ count: placed[i], iconIndex: availableIcons[i] });
   }
   return problems;
 }
@@ -840,6 +891,7 @@ function printVarietyPack(packDef) {
   // Collect worksheet and answer key data separately so answer keys go at the end
   const worksheetPages = [];
   const answerKeyPages = [];
+  let wsNum = 1;
 
   for (const group of packDef) {
     const title = `Count & Write ${group.min} to ${group.max}`;
@@ -848,15 +900,17 @@ function printVarietyPack(packDef) {
 
     for (let s = 0; s < group.count; s++) {
       const problems = generateRandomProblems(group.min, group.max, numProblems);
+      const wsCode = "WS" + wsNum;
+      wsNum++;
 
       // Worksheet page
       const wp = document.createElement("div"); wp.className = "worksheet-page";
-      wp.appendChild(generateWorksheetSvg(problems, group.style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax));
+      wp.appendChild(generateWorksheetSvg(problems, group.style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode));
       worksheetPages.push(wp);
 
       // Answer key page
       const ak = document.createElement("div"); ak.className = "worksheet-page";
-      ak.appendChild(generateAnswerKeySvg(problems, group.style, "none", branded, numbered, title, subtitle, true, perRowMax));
+      ak.appendChild(generateAnswerKeySvg(problems, group.style, "none", branded, numbered, title, subtitle, true, perRowMax, wsCode));
       answerKeyPages.push(ak);
     }
   }
@@ -1029,11 +1083,12 @@ function renderWorksheet() {
     
     // Render each sheet
     for (let s = 0; s < numSheets; s++) {
+      const wsCode = "WS" + (s + 1);
       const problems = currentState.sheets[s];
-      const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax);
+      const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode);
       svg.setAttribute('width', scaledWidth);
       svg.setAttribute('height', scaledHeight);
-      
+
       const page = document.createElement("div");
       page.className = "worksheet-page scaled";
       page.appendChild(svg);
@@ -1043,11 +1098,12 @@ function renderWorksheet() {
     sheetWrap.classList.remove('grid-view');
     sheetWrap.style.gridTemplateColumns = '';
     sheetWrap.style.padding = '0';
-    
+
     // Single sheet - render at full size
     if (currentState.sheets.length > 0) {
       const problems = currentState.sheets[0];
-      const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax);
+      const wsCode = "WS1";
+      const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode);
 
       const page = document.createElement("div");
       page.className = "worksheet-page";
@@ -1060,22 +1116,22 @@ function renderWorksheet() {
 }
 
 // Generate a worksheet SVG (without adding to DOM)
-function generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax) {
+function generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode) {
   if (style === 1) {
-    return generateStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, undefined, perRowMax);
+    return generateStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, undefined, perRowMax, wsCode);
   } else {
-    return generateStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, undefined, perRowMax);
+    return generateStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, undefined, perRowMax, wsCode);
   }
 }
 
 // Generate answer key SVG for PDF
-function generateAnswerKeySvg(problems, style, headerMode, branded, numbered, title, subtitle, isAnswerKey, perRowMax) {
+function generateAnswerKeySvg(problems, style, headerMode, branded, numbered, title, subtitle, isAnswerKey, perRowMax, wsCode) {
   const icons = ["icon-apple-new", "icon-balloon", "icon-icecream", "icon-pepper", "icon-pizza", "icon-corn", "icon-broccoli", "icon-fish"];
 
   if (style === 1) {
-    return generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax);
+    return generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode);
   } else {
-    return generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax);
+    return generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode);
   }
 }
 
@@ -1152,7 +1208,7 @@ function makeSymbol(id, innerHTML) {
   return sym;
 }
 
-function renderStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5) {
+function renderStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5, wsCode) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -1338,15 +1394,24 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
     svg.appendChild(bLine2);
   }
 
+  // Worksheet code
+  if (wsCode) {
+    svg.appendChild(svgEl("text", {
+      x: pageW / 2, y: pageH - 4,
+      "font-family": "Fredoka, sans-serif", "font-size": 8,
+      fill: "#cbd5e1", "text-anchor": "middle"
+    })).textContent = wsCode;
+  }
+
   return svg;
 }
 
 // Renamed original function to generate SVG
-function generateStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5) {
-  return renderStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax);
+function generateStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5, wsCode) {
+  return renderStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax, wsCode);
 }
 
-function renderStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5) {
+function renderStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5, wsCode) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -1526,15 +1591,24 @@ function renderStyle2(problems, headerMode, branded, numbered, icons, title, sub
     svg.appendChild(bLine2);
   }
 
+  // Worksheet code
+  if (wsCode) {
+    svg.appendChild(svgEl("text", {
+      x: pageW / 2, y: pageH - 4,
+      "font-family": "Fredoka, sans-serif", "font-size": 8,
+      fill: "#cbd5e1", "text-anchor": "middle"
+    })).textContent = wsCode;
+  }
+
   return svg;
 }
 
 // Renamed original function to generate SVG
-function generateStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5) {
-  return renderStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax);
+function generateStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5, wsCode) {
+  return renderStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax, wsCode);
 }
 
-function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax = 5) {
+function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax = 5, wsCode) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -1701,14 +1775,23 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, t
     svg.appendChild(bLine2);
   }
 
+  // Worksheet code
+  if (wsCode) {
+    svg.appendChild(svgEl("text", {
+      x: pageW / 2, y: pageH - 4,
+      "font-family": "Fredoka, sans-serif", "font-size": 8,
+      fill: "#cbd5e1", "text-anchor": "middle"
+    })).textContent = wsCode;
+  }
+
   return svg;
 }
 
-function generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax) {
-  return renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax);
+function generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode) {
+  return renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode);
 }
 
-function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax = 5) {
+function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax = 5, wsCode) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -1866,11 +1949,20 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, t
     svg.appendChild(bLine2);
   }
 
+  // Worksheet code
+  if (wsCode) {
+    svg.appendChild(svgEl("text", {
+      x: pageW / 2, y: pageH - 4,
+      "font-family": "Fredoka, sans-serif", "font-size": 8,
+      fill: "#cbd5e1", "text-anchor": "middle"
+    })).textContent = wsCode;
+  }
+
   return svg;
 }
 
-function generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax) {
-  return renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax);
+function generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode) {
+  return renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode);
 }
 
 function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, problemIndex = 0, problemCount = 8, perRowMax = 5 }) {
