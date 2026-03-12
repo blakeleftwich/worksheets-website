@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Count & Write Worksheet Generator</title>
   <link rel="stylesheet" href="../../fonts/fonts.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
     * {
       margin: 0;
@@ -12,18 +15,75 @@
       box-sizing: border-box;
     }
 
-    body { 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f1f5f9;
       min-height: 100vh;
       padding: 0;
       margin: 0;
     }
 
+    /* ===== Site Header ===== */
+    .site-header {
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .site-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .site-logo-img {
+      height: 44px;
+      width: auto;
+      display: block;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748b;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .nav-links a:hover {
+      background: #f1f5f9;
+      color: #1a1a2e;
+    }
+
+    .nav-links a.active {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
     .main-container {
       display: grid;
       grid-template-columns: 340px 1fr;
-      min-height: 100vh;
     }
 
     .sidebar {
@@ -32,11 +92,12 @@
       box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
       overflow-y: auto;
       position: sticky;
-      top: 0;
-      height: 100vh;
+      top: 64px;
+      height: calc(100vh - 64px);
     }
 
     .sidebar h2 {
+      font-family: 'DM Sans', -apple-system, sans-serif;
       font-size: 24px;
       font-weight: 700;
       color: #1a202c;
@@ -77,8 +138,8 @@
     .control-group input[type="number"]:focus,
     .control-group select:focus {
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
     }
 
     .control-group input[type="number"]:hover,
@@ -100,7 +161,7 @@
     .advanced-toggle .toggle-arrow {
       font-size: 12px;
       transition: transform 0.2s;
-      color: #667eea;
+      color: #f59e0b;
     }
 
     .advanced-toggle .toggle-arrow.open {
@@ -110,7 +171,7 @@
     .advanced-toggle span:last-child {
       font-size: 13px;
       font-weight: 600;
-      color: #667eea;
+      color: #f59e0b;
     }
 
     .advanced-panel {
@@ -147,7 +208,7 @@
       width: 18px;
       height: 18px;
       cursor: pointer;
-      accent-color: #667eea;
+      accent-color: #f59e0b;
     }
 
     .adv-checkbox-row label {
@@ -201,14 +262,14 @@
     }
 
     #btnGenerate {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
       color: white;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
     }
 
     #btnGenerate:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+      box-shadow: 0 6px 16px rgba(245, 158, 11, 0.5);
     }
 
     #btnGenerate:active {
@@ -245,8 +306,7 @@
       justify-content: center;
       align-items: flex-start;
       overflow: auto;
-      min-height: 100vh;
-      padding: 40px;
+      min-height: calc(100vh - 64px);
     }
 
     #sheetWrap {
@@ -304,6 +364,9 @@
 
     @media print {
       .ak-print-only { display: block !important; }
+      .site-header {
+        display: none !important;
+      }
       .sidebar {
         display: none !important;
       }
@@ -367,19 +430,43 @@
 
       .sidebar {
         position: relative;
+        top: 0;
         height: auto;
       }
 
       .preview-area {
         padding: 20px;
+        min-height: auto;
+      }
+
+      .nav-links {
+        gap: 2px;
+      }
+
+      .nav-links a {
+        font-size: 13px;
+        padding: 6px 10px;
       }
     }
   </style>
 </head>
 <body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../../index.html" class="site-logo">
+        <img src="../branding/emma-logo-filled-no-stroke3.png" alt="Animal Math" class="site-logo-img">
+      </a>
+      <nav class="nav-links">
+        <a href="../../index.html" class="active">Worksheets</a>
+        <a href="../../tools/index.html">Tools</a>
+        <a href="https://apps.apple.com/us/app/animal-math-games-for-kids/id799973028" target="_blank">Mobile App</a>
+        <a href="../../about.html">About</a>
+      </nav>
+    </div>
+  </header>
   <div class="main-container">
     <div class="sidebar">
-	<a href="../../index.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #667eea; text-decoration: none; margin-bottom: 16px; transition: gap 0.2s;"
+	<a href="../../index.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #f59e0b; text-decoration: none; margin-bottom: 16px; transition: gap 0.2s;"
    onmouseover="this.style.gap='10px'" onmouseout="this.style.gap='6px'">
   ← All Worksheets
 </a>
@@ -422,7 +509,7 @@
 
       <div class="control-group" style="flex-direction: column; align-items: flex-start;">
         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
-          <input type="checkbox" id="answerKey" style="width: 18px; height: 18px; cursor: pointer; accent-color: #667eea;">
+          <input type="checkbox" id="answerKey" style="width: 18px; height: 18px; cursor: pointer; accent-color: #f59e0b;">
           <span style="font-size: 13px; font-weight: 600;">Answer Key</span>
         </label>
       </div>
