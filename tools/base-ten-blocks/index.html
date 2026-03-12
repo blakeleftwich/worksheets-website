@@ -436,12 +436,9 @@ function autoSortColumns() {
     tens[j].y = pad + tRow * (tBlockH + gap);
   }
 
-  /* --- Ones column: c2 to end --- */
-  var wsLogW = workspaceInner.clientWidth / zoomLevel;
-  if (wsLogW < 100) wsLogW = 900;
-  var oColW = Math.max(wsLogW - c2 - pad * 2, CELL * 10 + pad * 2);
+  /* --- Ones column: c2 to end, always 10 per row --- */
   var oBlockW = CELL;
-  var oPerRow = Math.max(1, Math.floor(oColW / (oBlockW + gap)));
+  var oPerRow = 10;
   for (var k = 0; k < ones.length; k++) {
     var oCol = k % oPerRow;
     var oRow = Math.floor(k / oPerRow);
