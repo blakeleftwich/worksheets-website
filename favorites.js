@@ -82,7 +82,7 @@
   // Converts relative image hrefs (e.g. "../branding/logo.jpg") to absolute URLs
   // so SVGs render correctly when displayed on any page (like My Packs).
   function fixSvgPaths(svgHtml) {
-    return svgHtml.replace(/(href=["'])(?!https?:\/\/|data:)([^"']+)(["'])/g, function(match, pre, path, post) {
+    return svgHtml.replace(/(href=["'])(?!https?:\/\/|data:|#)([^"']+)(["'])/g, function(match, pre, path, post) {
       try {
         var abs = new URL(path, window.location.href).href;
         return pre + abs + post;

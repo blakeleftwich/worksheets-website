@@ -6,7 +6,7 @@
   <title>My Packs — Animal Math</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fredoka:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', -apple-system, sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; }
@@ -94,7 +94,6 @@
     .print-pages-wrap { background: #e2e8f0; padding: 24px; border-radius: 0 0 12px 12px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
     .print-page-item { width: 100%; max-width: 595px; background: white; border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
     .print-page-item svg { width: 100%; height: auto; display: block; }
-    .print-page-label { font-size: 10px; color: #94a3b8; text-align: right; padding: 4px 12px 6px; }
 
     /* ===== Toast ===== */
     .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1e293b; color: white; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 500; transition: transform 0.3s ease; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
@@ -105,10 +104,20 @@
       .site-header, .page-header, .packs-list, .print-bar, .toast { display: none !important; }
       .print-overlay { position: static; background: none; display: block !important; }
       .print-container { margin: 0; padding: 0; max-width: none; }
-      .print-pages-wrap { background: none; padding: 0; }
-      .print-page-item { box-shadow: none; page-break-after: always; break-after: page; border-radius: 0; }
-      .print-page-label { display: none; }
-      body { background: white; }
+      .print-pages-wrap { background: none; padding: 0; gap: 0; }
+      .print-page-item {
+        box-shadow: none; border-radius: 0;
+        page-break-after: always; break-after: page;
+        width: 100vw; height: 100vh; padding: 0; margin: 0;
+        max-width: none;
+      }
+      .print-page-item:last-child { page-break-after: auto; break-after: auto; }
+      .print-page-item svg { width: 100% !important; height: 100% !important; }
+      body { background: white; margin: 0; padding: 0; }
+    }
+    @page {
+      size: letter;
+      margin: 0.5in 0.4in 0in 0.4in;
     }
 
     /* ===== Responsive ===== */
@@ -346,16 +355,14 @@
       const pagesWrap = document.getElementById('printPages');
       pagesWrap.innerHTML = '';
 
-      let pageNum = 0;
       pack.worksheets.forEach(ws => {
         // Worksheet pages
         const svgs = ws.svgData.split('|||SVGSEP|||');
         svgs.forEach(svg => {
           if (!svg.trim()) return;
-          pageNum++;
           const div = document.createElement('div');
           div.className = 'print-page-item';
-          div.innerHTML = svg + `<div class="print-page-label">Page ${pageNum}</div>`;
+          div.innerHTML = svg;
           pagesWrap.appendChild(div);
         });
 
@@ -363,10 +370,9 @@
         if (includeAnswerKeys && ws.answerKeySvgs && ws.answerKeySvgs.length > 0) {
           ws.answerKeySvgs.forEach(akSvg => {
             if (!akSvg.trim()) return;
-            pageNum++;
             const div = document.createElement('div');
             div.className = 'print-page-item';
-            div.innerHTML = akSvg + `<div class="print-page-label">Page ${pageNum} (Answer Key)</div>`;
+            div.innerHTML = akSvg;
             pagesWrap.appendChild(div);
           });
         }
