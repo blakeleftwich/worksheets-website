@@ -363,22 +363,50 @@
     .download-btn svg { width: 16px; height: 16px; }
 
 
-    /* ===== Hover Preview Overlay (Layout B) ===== */
+    /* ===== Hover Preview Overlay — 5-page grid ===== */
     .hover-preview {
       display: none;
       position: fixed;
       z-index: 150;
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 16px 48px rgba(0,0,0,0.18);
-      padding: 12px;
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.05);
+      padding: 14px;
       pointer-events: none;
     }
     .hover-preview.visible { display: block; }
-    .hover-preview canvas {
-      width: 280px;
+    .hover-preview-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 10px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .hover-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      justify-items: center;
+    }
+    .hover-grid canvas {
+      width: 100%;
       height: auto;
-      border-radius: 6px;
+      border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      background: #f8fafc;
+    }
+    /* Center the bottom row of 2 */
+    .hover-grid canvas:nth-child(4) { grid-column: 1 / 2; justify-self: end; margin-right: 4px; }
+    .hover-grid canvas:nth-child(5) { grid-column: 2 / 3; justify-self: start; margin-left: 4px; }
+    .hover-page-label {
+      font-size: 9px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-align: center;
+      margin-top: 2px;
     }
 
     /* ===== Responsive ===== */
@@ -479,9 +507,10 @@
   </div>
 
 
-  <!-- ===== Hover Preview (Layout B) ===== -->
+  <!-- ===== Hover Preview — 5-page grid ===== -->
   <div class="hover-preview" id="hoverPreview">
-    <div id="hoverContent"></div>
+    <div class="hover-preview-title" id="hoverTitle"></div>
+    <div class="hover-grid" id="hoverGrid"></div>
   </div>
 
   <script>
@@ -601,12 +630,16 @@
       data.items.forEach((ws, i) => {
         const card = document.createElement('div');
         card.className = 'ws-card';
+        if (ws.pdf) {
+          card.addEventListener('mouseenter', (e) => showHover(e, category, i));
+          card.addEventListener('mouseleave', hideHover);
+        }
         const cardId = `card-${category}-${i}`;
         const hasPdf = !!ws.pdf;
         const pageCount = hasPdf ? 5 : 0;
 
         card.innerHTML = `
-          <div class="ws-preview" onmouseenter="showHover(event, '${category}', ${i})" onmouseleave="hideHover()">
+          <div class="ws-preview">
             <div class="page-img" id="${cardId}">
               ${hasPdf
                 ? '<div class="preview-loading"><div class="spinner"></div>Loading PDF...</div>'
@@ -715,31 +748,66 @@
       });
     }
 
-    // ===== Hover Preview (Layout B) =====
+    // ===== Hover Preview — 5-page grid =====
+    let hoverTimer = null;
+    const hoverCanvasCache = {}; // key → [canvas, canvas, canvas, canvas, canvas]
+
     function showHover(e, category, index) {
-      if (currentLayout !== 'b') return;
       const key = `${category}-${index}`;
       const cached = pdfCache[key];
       if (!cached) return;
 
-      const preview = document.getElementById('hoverPreview');
-      const content = document.getElementById('hoverContent');
-      content.innerHTML = '';
-      const canvas = document.createElement('canvas');
-      content.appendChild(canvas);
-      renderPdfPage(cached.pdfDoc, 1, canvas, 560);
+      // 200ms delay to avoid flashing on casual mouse movement
+      hoverTimer = setTimeout(() => {
+        const preview = document.getElementById('hoverPreview');
+        const grid = document.getElementById('hoverGrid');
+        const title = document.getElementById('hoverTitle');
+        const ws = worksheets[category].items[index];
 
-      const rect = e.target.closest('.ws-preview').getBoundingClientRect();
-      let left = rect.right + 12;
-      let top = rect.top;
-      if (left + 310 > window.innerWidth) left = rect.left - 310;
-      if (top + 400 > window.innerHeight) top = window.innerHeight - 410;
-      preview.style.left = left + 'px';
-      preview.style.top = Math.max(8, top) + 'px';
-      preview.classList.add('visible');
+        title.textContent = ws.title + ' — Pack Preview';
+        grid.innerHTML = '';
+
+        // Render 5 worksheet pages (skip answer keys which are pages 6–10)
+        const thumbWidth = 160;
+        for (let p = 1; p <= 5; p++) {
+          const cacheKey = `${key}-p${p}`;
+          if (hoverCanvasCache[cacheKey]) {
+            grid.appendChild(hoverCanvasCache[cacheKey]);
+          } else {
+            const canvas = document.createElement('canvas');
+            grid.appendChild(canvas);
+            renderPdfPage(cached.pdfDoc, p, canvas, thumbWidth).then(() => {
+              hoverCanvasCache[cacheKey] = canvas;
+            });
+          }
+        }
+
+        // Position near the card
+        const rect = e.target.closest('.ws-card').getBoundingClientRect();
+        const popupW = thumbWidth * 3 + 8 * 2 + 28; // 3 cols + gaps + padding
+        const popupH = 420; // approximate
+
+        let left = rect.right + 14;
+        let top = rect.top;
+
+        // Flip left if overflowing right
+        if (left + popupW > window.innerWidth - 16) {
+          left = rect.left - popupW - 14;
+        }
+        // Keep within vertical bounds
+        if (top + popupH > window.innerHeight - 16) {
+          top = window.innerHeight - popupH - 16;
+        }
+        top = Math.max(8, top);
+
+        preview.style.left = left + 'px';
+        preview.style.top = top + 'px';
+        preview.classList.add('visible');
+      }, 200);
     }
 
     function hideHover() {
+      clearTimeout(hoverTimer);
       document.getElementById('hoverPreview').classList.remove('visible');
     }
 
