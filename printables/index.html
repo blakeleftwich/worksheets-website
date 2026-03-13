@@ -465,7 +465,7 @@
         <div class="breadcrumb"><a href="#" onclick="showHome(); return false;">Printables</a> &nbsp;/&nbsp; <span id="lessonBreadcrumb">Count &amp; Write</span></div>
         <h1 id="lessonTitle">Count &amp; Write Worksheets</h1>
         <p id="lessonDesc">Count the objects and write the number.</p>
-        <a href="#" class="generator-link">Need something specific? Create your own worksheet <span class="arrow">→</span></a>
+        <a href="#" class="generator-link" id="generatorLink">Need something specific? Create your own worksheet <span class="arrow">→</span></a>
       </div>
     </div>
     <div class="toolbar">
@@ -495,6 +495,7 @@
         title: 'Count & Write Worksheets',
         breadcrumb: 'Count & Write',
         desc: 'Count the objects and write the number. Each pack includes 5 unique worksheets with different objects and quantities, plus an answer key.',
+        generator: '../generators/counting-objects/index.html',
         items: [
           { title: 'Count & Write 1 to 5',   grade: 'Pre-K – K', pdf: 'pdfs/count-and-write-1-to-5-pack.pdf' },
           { title: 'Count & Write 1 to 10',  grade: 'Pre-K – K', pdf: 'pdfs/count-and-write-1-to-10-pack.pdf' },
@@ -672,6 +673,13 @@
       document.getElementById('lessonBreadcrumb').textContent = data.breadcrumb;
       document.getElementById('lessonDesc').textContent = data.desc;
       document.getElementById('wsCount').textContent = data.items.length;
+      const genLink = document.getElementById('generatorLink');
+      if (data.generator) {
+        genLink.href = data.generator;
+        genLink.style.display = '';
+      } else {
+        genLink.style.display = 'none';
+      }
       document.body.className = 'page-lesson';
       renderCards(category);
       window.scrollTo(0, 0);
