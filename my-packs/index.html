@@ -141,6 +141,21 @@
 
     /* ===== Rename Input ===== */
     .rename-input { font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 700; border: 2px solid #f59e0b; border-radius: 6px; padding: 2px 8px; outline: none; width: 250px; }
+
+    /* ===== Confirm Modal ===== */
+    .confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300; align-items: center; justify-content: center; }
+    .confirm-overlay.visible { display: flex; }
+    .confirm-box { background: white; border-radius: 16px; padding: 28px 32px 24px; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.15); text-align: center; animation: confirmIn 0.2s ease; }
+    @keyframes confirmIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .confirm-icon { font-size: 36px; margin-bottom: 12px; }
+    .confirm-title { font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+    .confirm-message { font-size: 14px; color: #64748b; line-height: 1.6; margin-bottom: 24px; }
+    .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+    .confirm-actions button { padding: 10px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-confirm-cancel { background: #f1f5f9; color: #475569; }
+    .btn-confirm-cancel:hover { background: #e2e8f0; }
+    .btn-confirm-delete { background: #ef4444; color: white; }
+    .btn-confirm-delete:hover { background: #dc2626; }
   </style>
 </head>
 <body>
@@ -185,6 +200,19 @@
         </div>
       </div>
       <div class="print-pages-wrap" id="printPages"></div>
+    </div>
+  </div>
+
+  <!-- ===== Confirm Modal ===== -->
+  <div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+      <div class="confirm-icon">🗑️</div>
+      <div class="confirm-title" id="confirmTitle"></div>
+      <div class="confirm-message" id="confirmMessage"></div>
+      <div class="confirm-actions">
+        <button class="btn-confirm-cancel" onclick="closeConfirm()">Cancel</button>
+        <button class="btn-confirm-delete" id="confirmDeleteBtn">Delete</button>
+      </div>
     </div>
   </div>
 
@@ -286,15 +314,42 @@
         </div>`;
     }
 
+    // ===== Confirm Modal =====
+    let _confirmCallback = null;
+    function showConfirm(title, message, onConfirm) {
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmMessage').textContent = message;
+      _confirmCallback = onConfirm;
+      document.getElementById('confirmDeleteBtn').onclick = () => { closeConfirm(); if (_confirmCallback) _confirmCallback(); };
+      document.getElementById('confirmOverlay').classList.add('visible');
+    }
+    function closeConfirm() {
+      document.getElementById('confirmOverlay').classList.remove('visible');
+      _confirmCallback = null;
+    }
+    // Close on overlay click (outside the box)
+    document.getElementById('confirmOverlay').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeConfirm();
+    });
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && document.getElementById('confirmOverlay').classList.contains('visible')) closeConfirm();
+    });
+
     // ===== Actions =====
     function deletePack(packId) {
       const packs = getPacks();
       const pack = packs.find(p => p.id === packId);
       if (!pack) return;
-      if (!confirm(`Delete "${pack.name}"? This will remove all ${pack.worksheets.length} worksheet(s) in this set.`)) return;
-      savePacks(packs.filter(p => p.id !== packId));
-      showToast(`Deleted "${pack.name}"`);
-      render();
+      showConfirm(
+        `Delete "${pack.name}"?`,
+        `This will remove all ${pack.worksheets.length} worksheet${pack.worksheets.length !== 1 ? 's' : ''} in this set. This cannot be undone.`,
+        () => {
+          savePacks(packs.filter(p => p.id !== packId));
+          showToast(`Deleted "${pack.name}"`);
+          render();
+        }
+      );
     }
 
     function renamePack(packId) {

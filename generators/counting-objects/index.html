@@ -737,18 +737,17 @@ function handlePrint() {
 
   const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
   sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
+  const wsCodes = currentState.sheets.map(() => 'WS' + Math.floor(Math.random() * 9000 + 1000));
   for (let i = 0; i < currentState.sheets.length; i++) {
-    const wsCode = 'WS' + Math.floor(Math.random() * 9000 + 1000);
     const p = document.createElement("div"); p.className = "worksheet-page";
-    p.appendChild(generateWorksheetSvg(currentState.sheets[i], style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode));
+    p.appendChild(generateWorksheetSvg(currentState.sheets[i], style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCodes[i]));
     sheetWrap.appendChild(p);
   }
   const answerKeyPages = [];
   if (elAnswerKey.checked) {
     for (let i = 0; i < currentState.sheets.length; i++) {
-      const wsCode = 'WS' + Math.floor(Math.random() * 9000 + 1000);
       const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
-      p.appendChild(generateAnswerKeySvg(currentState.sheets[i], style, "none", branded, numbered, title, subtitle, true, perRowMax, wsCode));
+      p.appendChild(generateAnswerKeySvg(currentState.sheets[i], style, "none", branded, numbered, title, subtitle, true, perRowMax, wsCodes[i]));
       sheetWrap.appendChild(p);
       answerKeyPages.push(p);
     }
@@ -1351,7 +1350,7 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
     const bLine2 = svgEl("text", {
       x: pageW - margin, y: brandY + 26,
       "font-family": "Fredoka, sans-serif", "font-size": 9.5,
-      fill: "#a0aec0", "text-anchor": "end"
+          fill: "#718096", "text-anchor": "end"
     });
     bLine2.textContent = "\u00A9 2026 Eggroll Games";
     svg.appendChild(bLine2);
@@ -1362,7 +1361,7 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
     svg.appendChild(svgEl("text", {
       x: pageW / 2, y: pageH - 4,
       "font-family": "Fredoka, sans-serif", "font-size": 8,
-      fill: "#cbd5e1", "text-anchor": "middle"
+      fill: "#94a3b8", "text-anchor": "middle"
     })).textContent = wsCode;
   }
 
@@ -1548,7 +1547,7 @@ function renderStyle2(problems, headerMode, branded, numbered, icons, title, sub
     const bLine2 = svgEl("text", {
       x: pageW - margin, y: brandY + 26,
       "font-family": "Fredoka, sans-serif", "font-size": 9.5,
-      fill: "#a0aec0", "text-anchor": "end"
+          fill: "#718096", "text-anchor": "end"
     });
     bLine2.textContent = "\u00A9 2026 Eggroll Games";
     svg.appendChild(bLine2);
@@ -1559,7 +1558,7 @@ function renderStyle2(problems, headerMode, branded, numbered, icons, title, sub
     svg.appendChild(svgEl("text", {
       x: pageW / 2, y: pageH - 4,
       "font-family": "Fredoka, sans-serif", "font-size": 8,
-      fill: "#cbd5e1", "text-anchor": "middle"
+      fill: "#94a3b8", "text-anchor": "middle"
     })).textContent = wsCode;
   }
 
@@ -1732,7 +1731,7 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, t
     const bLine2 = svgEl("text", {
       x: pageW - margin, y: brandY + 26,
       "font-family": "Fredoka, sans-serif", "font-size": 9.5,
-      fill: "#a0aec0", "text-anchor": "end"
+          fill: "#718096", "text-anchor": "end"
     });
     bLine2.textContent = "\u00A9 2026 Eggroll Games";
     svg.appendChild(bLine2);
@@ -1743,7 +1742,7 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, t
     svg.appendChild(svgEl("text", {
       x: pageW / 2, y: pageH - 4,
       "font-family": "Fredoka, sans-serif", "font-size": 8,
-      fill: "#cbd5e1", "text-anchor": "middle"
+      fill: "#94a3b8", "text-anchor": "middle"
     })).textContent = wsCode;
   }
 
@@ -1906,7 +1905,7 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, t
     const bLine2 = svgEl("text", {
       x: pageW - margin, y: brandY + 26,
       "font-family": "Fredoka, sans-serif", "font-size": 9.5,
-      fill: "#a0aec0", "text-anchor": "end"
+          fill: "#718096", "text-anchor": "end"
     });
     bLine2.textContent = "\u00A9 2026 Eggroll Games";
     svg.appendChild(bLine2);
@@ -1917,7 +1916,7 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, t
     svg.appendChild(svgEl("text", {
       x: pageW / 2, y: pageH - 4,
       "font-family": "Fredoka, sans-serif", "font-size": 8,
-      fill: "#cbd5e1", "text-anchor": "middle"
+      fill: "#94a3b8", "text-anchor": "middle"
     })).textContent = wsCode;
   }
 

@@ -375,9 +375,9 @@
       .site-header { display: none !important; }
       .ak-print-only { display: block !important; }
       body {
-        background: white;
-        padding: 0;
-        margin: 0;
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
       .main-container {
         display: block;
@@ -386,32 +386,35 @@
         display: none !important;
       }
       .preview-area {
-        padding: 0;
-        margin: 0;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: block !important;
+        background: white !important;
       }
       #sheetWrap {
-        gap: 0;
-        display: block !important;
         padding: 0 !important;
-        flex-direction: unset !important;
+        margin: 0 !important;
+        display: block !important;
+        background: white !important;
       }
       .worksheet-page {
-        box-shadow: none;
-        border-radius: 0;
-        page-break-after: always;
-        break-after: page;
-        padding: 0;
-        width: 100vw;
-        height: 100vh;
-        max-width: none;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        display: block !important;
+        background: white !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
       }
-      .worksheet-page:last-child {
-        page-break-after: auto;
-        break-after: auto;
+      .worksheet-page:not(:last-child) {
+        page-break-after: always !important;
+        break-after: page !important;
       }
       .worksheet-page svg {
         width: 100% !important;
-        height: 100% !important;
+        height: auto !important;
+        display: block !important;
       }
     }
   </style></head>
@@ -886,7 +889,7 @@
     }
 
     // ===== SVG Rendering =====
-    function renderWorksheetSVG(sheetData, options) {
+    function renderWorksheetSVG(sheetData, options, wsCode) {
       const { showHeader, title, subtitle, branded, showAnswers, orientation, numbered, includeExample, isAnswerKey } = options;
       const { categories, values, questions, resolvedTheme } = sheetData;
       const pageW = 612, pageH = 792, margin = 36;
@@ -975,16 +978,16 @@
         const line2 = svgEl("text", {
           x: pageW - margin, y: brandY + 26,
           "font-family": "Fredoka, sans-serif", "font-size": 9.5,
-          fill: "#a0aec0", "text-anchor": "end"
+          fill: "#718096", "text-anchor": "end"
         });
         line2.textContent = "\u00A9 2026 Eggroll Games";
         svg.appendChild(line2);
         // Worksheet code — bottom center
-        const wsCode = 'WS' + Math.floor(Math.random() * 9000 + 1000);
+        if (!wsCode) wsCode = 'WS' + Math.floor(Math.random() * 9000 + 1000);
         const wsCodeEl = svgEl("text", {
           x: pageW / 2, y: brandY + 30,
           "font-family": "Fredoka, sans-serif", "font-size": 8.5,
-          fill: "#cbd5e1", "text-anchor": "middle", "letter-spacing": "1"
+          fill: "#94a3b8", "text-anchor": "middle", "letter-spacing": "1"
         });
         wsCodeEl.textContent = wsCode;
         svg.appendChild(wsCodeEl);
@@ -1418,6 +1421,7 @@
       const opts = gatherOptions();
       const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
       sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
+      const wsCodes = currentState.sheets.map(() => 'WS' + Math.floor(Math.random() * 9000 + 1000));
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div"); p.className = "worksheet-page";
         const themeTitle = currentState.sheets[i].resolvedTheme ? themes[currentState.sheets[i].resolvedTheme].title : getThemeTitle(elDataTheme.value);
@@ -1426,7 +1430,7 @@
         p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
           showHeader: opts.showHeader, title: t, subtitle: st, branded: opts.branded,
           showAnswers: false, orientation: opts.orientation, includeExample: opts.includeExample
-        }));
+        }, wsCodes[i]));
         sheetWrap.appendChild(p);
       }
       const answerKeyPages = [];
@@ -1439,7 +1443,7 @@
           p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
             showHeader: "none", title: t, subtitle: st, branded: opts.branded,
             showAnswers: true, orientation: opts.orientation, numbered: opts.numbered, isAnswerKey: true, includeExample: false
-          }));
+          }, wsCodes[i]));
           sheetWrap.appendChild(p);
           answerKeyPages.push(p);
         }
