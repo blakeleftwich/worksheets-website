@@ -150,6 +150,11 @@
     const buttonGroup = document.querySelector('.button-group');
     if (!buttonGroup) return;
 
+    // Hide favorites UI elements when printing
+    const printStyle = document.createElement('style');
+    printStyle.textContent = '@media print { #favToast, #favBtnAddToPack, #favPackDropdown { display: none !important; } }';
+    document.head.appendChild(printStyle);
+
     // Create the Add to Pack button container
     const container = document.createElement('div');
     container.style.cssText = 'position:relative;';
