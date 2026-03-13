@@ -162,11 +162,7 @@
       border: 1px solid #e5e7eb;
     }
 
-    .browse-card.dark {
-      background: linear-gradient(180deg, #1e293b, #334155);
-      color: white;
-      border-color: #334155;
-    }
+    /* dark class no longer used — both cards are white */
 
     .browse-card h2 {
       font-family: 'DM Sans', sans-serif;
@@ -202,14 +198,14 @@
       transition: all 0.15s;
     }
 
-    .browse-card.dark .browse-row {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
+    .browse-row {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
     }
 
-    .browse-card.dark .browse-row:hover {
-      background: rgba(255,255,255,0.1);
-      border-color: rgba(251,191,36,0.3);
+    .browse-row:hover {
+      border-color: #fbbf24;
+      background: #fffbeb;
     }
 
     .browse-row .em { font-size: 18px; }
@@ -434,7 +430,7 @@
 
   <!-- ===== Browse Cards ===== -->
   <div class="browse-cards">
-    <div class="browse-card dark">
+    <div class="browse-card">
       <h2>&#127891; By Grade Level</h2>
       <div class="desc">Find worksheets for your student's level</div>
       <div class="browse-rows">
@@ -443,19 +439,18 @@
         <a class="browse-row" href="printables/index.html"><span class="em">&#11088;</span><span class="lbl">1st Grade</span><span class="sub">Add &amp; subtract within 20</span><span class="arr">&rarr;</span></a>
         <a class="browse-row" href="printables/index.html"><span class="em">&#128640;</span><span class="lbl">2nd Grade</span><span class="sub">Two-digit operations</span><span class="arr">&rarr;</span></a>
         <a class="browse-row" href="printables/index.html"><span class="em">&#127942;</span><span class="lbl">3rd Grade</span><span class="sub">Multiplication, fractions</span><span class="arr">&rarr;</span></a>
-        <a class="browse-row" href="printables/index.html"><span class="em">&#127919;</span><span class="lbl">4th Grade</span><span class="sub">Multi-digit, decimals</span><span class="arr">&rarr;</span></a>
       </div>
     </div>
     <div class="browse-card">
       <h2>&#128208; By Skill</h2>
       <div class="desc">Jump to a specific math topic</div>
       <div class="skill-grid">
-        <a class="skill-item" href="generators.html"><span class="em">&#128290;</span><div><h4>Counting</h4><div class="sub">Pre-K &ndash; 1st</div></div></a>
-        <a class="skill-item" href="generators.html"><span class="em">&#10133;</span><div><h4>Addition</h4><div class="sub">K &ndash; 4th</div></div></a>
-        <a class="skill-item" href="generators.html"><span class="em">&#10134;</span><div><h4>Subtraction</h4><div class="sub">K &ndash; 4th</div></div></a>
-        <a class="skill-item" href="generators.html"><span class="em">&#10006;&#65039;</span><div><h4>Multiplication</h4><div class="sub">2nd &ndash; 4th</div></div></a>
-        <a class="skill-item" href="generators.html"><span class="em">&#10135;</span><div><h4>Division</h4><div class="sub">3rd &ndash; 4th</div></div></a>
-        <a class="skill-item" href="generators.html"><span class="em">&#128336;</span><div><h4>Telling Time</h4><div class="sub">K &ndash; 3rd</div></div></a>
+        <a class="skill-item" href="printables/index.html"><span class="em">&#128290;</span><div><h4>Counting</h4><div class="sub">Pre-K &ndash; 1st</div></div></a>
+        <a class="skill-item" href="printables/index.html"><span class="em">&#10133;</span><div><h4>Addition</h4><div class="sub">K &ndash; 3rd</div></div></a>
+        <a class="skill-item" href="printables/index.html"><span class="em">&#10134;</span><div><h4>Subtraction</h4><div class="sub">K &ndash; 3rd</div></div></a>
+        <a class="skill-item" href="printables/index.html"><span class="em">&#10006;&#65039;</span><div><h4>Multiplication</h4><div class="sub">2nd &ndash; 3rd</div></div></a>
+        <a class="skill-item" href="printables/index.html"><span class="em">&#10135;</span><div><h4>Division</h4><div class="sub">3rd</div></div></a>
+        <a class="skill-item" href="printables/index.html"><span class="em">&#128336;</span><div><h4>Telling Time</h4><div class="sub">K &ndash; 3rd</div></div></a>
       </div>
     </div>
   </div>

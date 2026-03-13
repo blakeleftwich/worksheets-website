@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Card Style Mockups</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+
+    /* Switcher */
+    .switcher {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: #1e293b; padding: 10px 24px;
+      display: flex; align-items: center; gap: 8px; font-size: 12px; color: #94a3b8;
+      flex-wrap: wrap;
+    }
+    .switcher strong { color: #fbbf24; margin-right: 6px; }
+    .switcher button {
+      background: #334155; color: #e2e8f0; border: 2px solid transparent;
+      padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;
+    }
+    .switcher button:hover { background: #475569; }
+    .switcher button.active { border-color: #fbbf24; color: #fbbf24; }
+
+    .variant { display: none; padding-top: 50px; min-height: 100vh; }
+    .variant.active { display: block; }
+
+    /* ===== Shared Styles ===== */
+    .site-header {
+      background: white; border-bottom: 1px solid #e5e7eb; padding: 0 32px;
+    }
+    .header-inner {
+      max-width: 1200px; margin: 0 auto; display: flex; align-items: center;
+      justify-content: space-between; height: 64px;
+    }
+    .site-logo { text-decoration: none; }
+    .site-logo-img { height: 44px; width: auto; display: block; }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links a {
+      color: #64748b; text-decoration: none; font-size: 14px; font-weight: 500;
+      padding: 8px 16px; border-radius: 8px; transition: all 0.2s;
+    }
+    .nav-links a:hover { background: #f1f5f9; color: #1a1a2e; }
+
+    .hero-wrapper { background: linear-gradient(180deg, #fffbeb 0%, white 100%); }
+    .hero { text-align: center; padding: 56px 32px 40px; max-width: 800px; margin: 0 auto; }
+    .hero h1 {
+      font-family: 'DM Sans', sans-serif; font-size: 42px; font-weight: 700;
+      color: #1a1a2e; line-height: 1.15; margin-bottom: 16px; letter-spacing: -0.5px;
+    }
+    .hero p { font-size: 18px; color: #64748b; line-height: 1.6; max-width: 560px; margin: 0 auto; }
+
+    .trust-bar {
+      background: #f8fafc; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; padding: 20px 32px;
+    }
+    .trust-bar-inner {
+      max-width: 1200px; margin: 0 auto; display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;
+    }
+    .trust-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #475569; }
+    .trust-check {
+      width: 22px; height: 22px; border-radius: 50%; background: #dcfce7;
+      display: flex; align-items: center; justify-content: center; font-size: 12px; color: #16a34a; flex-shrink: 0;
+    }
+
+    /* Browse Cards Container */
+    .browse-cards {
+      max-width: 1100px; width: 100%; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+      padding: 20px 24px; align-content: start;
+    }
+
+    /* Row and skill shared */
+    .browse-row {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-radius: 8px; cursor: pointer; text-decoration: none; color: inherit; transition: all 0.15s;
+    }
+    .browse-row .em { font-size: 18px; }
+    .browse-row .lbl { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; }
+    .browse-row .sub { font-size: 11px; color: #94a3b8; flex: 1; }
+    .browse-row .arr { color: #64748b; font-size: 13px; }
+
+    .skill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .skill-item {
+      display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+      background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px;
+      cursor: pointer; text-decoration: none; color: inherit; transition: all 0.15s;
+    }
+    .skill-item:hover { border-color: #fbbf24; background: #fffbeb; }
+    .skill-item .em { font-size: 18px; }
+    .skill-item h4 { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; }
+    .skill-item .sub { font-size: 10px; color: #94a3b8; }
+
+    .browse-card h2 {
+      font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 700;
+      display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
+    }
+    .browse-card .desc { font-size: 12px; color: #94a3b8; margin-bottom: 16px; }
+    .browse-rows { display: flex; flex-direction: column; gap: 6px; }
+
+    .variant-label {
+      max-width: 1100px; margin: 0 auto; padding: 12px 24px 0;
+      font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700;
+      color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px;
+    }
+
+    /* ============================================ */
+    /* VARIANT A: Current Dark (for reference)      */
+    /* ============================================ */
+    .v-a .browse-card { background: white; border-radius: 16px; padding: 24px; border: 1px solid #e5e7eb; }
+    .v-a .browse-card.dark {
+      background: linear-gradient(180deg, #1e293b, #334155); color: white; border-color: #334155;
+    }
+    .v-a .browse-card.dark .browse-row {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    }
+    .v-a .browse-card.dark .browse-row:hover {
+      background: rgba(255,255,255,0.1); border-color: rgba(251,191,36,0.3);
+    }
+
+    /* ============================================ */
+    /* VARIANT B: Both White                        */
+    /* ============================================ */
+    .v-b .browse-card {
+      background: white; border-radius: 16px; padding: 24px; border: 1px solid #e5e7eb;
+    }
+    .v-b .browse-row {
+      background: #f8fafc; border: 1px solid #e5e7eb;
+    }
+    .v-b .browse-row:hover {
+      border-color: #fbbf24; background: #fffbeb;
+    }
+
+    /* ============================================ */
+    /* VARIANT C: Warm Amber Tint                   */
+    /* ============================================ */
+    .v-c .browse-card {
+      background: white; border-radius: 16px; padding: 24px; border: 1px solid #e5e7eb;
+    }
+    .v-c .grade-card {
+      background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+      border-color: #fde68a;
+    }
+    .v-c .grade-card h2 { color: #92400e; }
+    .v-c .grade-card .desc { color: #b45309; }
+    .v-c .browse-row {
+      background: rgba(255,255,255,0.7); border: 1px solid #fde68a;
+    }
+    .v-c .browse-row:hover {
+      background: white; border-color: #f59e0b;
+    }
+    .v-c .browse-row .sub { color: #92400e; }
+
+    /* ============================================ */
+    /* VARIANT D: Soft Slate Tint (lighter dark)    */
+    /* ============================================ */
+    .v-d .browse-card {
+      background: white; border-radius: 16px; padding: 24px; border: 1px solid #e5e7eb;
+    }
+    .v-d .grade-card {
+      background: #f1f5f9; border-color: #cbd5e1;
+    }
+    .v-d .browse-row {
+      background: white; border: 1px solid #e2e8f0;
+    }
+    .v-d .browse-row:hover {
+      border-color: #fbbf24; background: #fffbeb;
+    }
+
+    /* ============================================ */
+    /* VARIANT E: Outlined with colored left border */
+    /* ============================================ */
+    .v-e .browse-card {
+      background: white; border-radius: 16px; padding: 24px; border: 1px solid #e5e7eb;
+    }
+    .v-e .grade-card {
+      border-left: 4px solid #f59e0b;
+    }
+    .v-e .browse-row {
+      background: #f8fafc; border: 1px solid #e5e7eb;
+    }
+    .v-e .browse-row:hover {
+      border-color: #fbbf24; background: #fffbeb;
+    }
+
+    /* ============================================ */
+    /* VARIANT F: Gradient top border               */
+    /* ============================================ */
+    .v-f .browse-card {
+      background: white; border-radius: 16px; padding: 24px; border: 1px solid #e5e7eb;
+      position: relative; overflow: hidden;
+    }
+    .v-f .grade-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, #f59e0b, #fbbf24, #fde68a);
+    }
+    .v-f .skill-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, #3b82f6, #60a5fa, #93c5fd);
+    }
+    .v-f .browse-row {
+      background: #f8fafc; border: 1px solid #e5e7eb;
+    }
+    .v-f .browse-row:hover {
+      border-color: #fbbf24; background: #fffbeb;
+    }
+  </style>
+</head>
+<body>
+
+<div class="switcher">
+  <strong>CARD STYLES</strong>
+  <button class="active" onclick="show('a')">A — Current Dark</button>
+  <button onclick="show('b')">B — Both White</button>
+  <button onclick="show('c')">C — Warm Amber</button>
+  <button onclick="show('d')">D — Soft Slate</button>
+  <button onclick="show('e')">E — Left Border</button>
+  <button onclick="show('f')">F — Gradient Top</button>
+</div>
+
+<!-- ===== VARIANT A: Current Dark ===== -->
+<div class="variant active v-a" id="var-a">
+  <div class="site-header"><div class="header-inner">
+    <a href="index.html" class="site-logo"><img src="generators/branding/emma-logo-filled-no-stroke3.png" alt="Animal Math" class="site-logo-img"></a>
+    <nav class="nav-links"><a href="printables/index.html">Printables</a><a href="generators.html">Generators</a><a href="tools/index.html">Tools</a></nav>
+  </div></div>
+  <div class="hero-wrapper"><section class="hero">
+    <h1>Free Math Worksheets for K–2</h1>
+    <p>Browse worksheet packs by grade or lesson. Print ready-to-use PDFs or generate your own instantly.</p>
+  </section></div>
+  <div class="trust-bar"><div class="trust-bar-inner">
+    <div class="trust-item"><div class="trust-check">&#10003;</div>50+ Worksheet Types</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>PDF Download</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>Answer Keys Included</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>No Account Needed</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>Printer Friendly</div>
+  </div></div>
+  <div class="variant-label">A — Current (dark grade card)</div>
+  <div class="browse-cards">
+    <div class="browse-card dark">
+      <h2>&#127891; By Grade Level</h2>
+      <div class="desc">Find worksheets for your student's level</div>
+      <div class="browse-rows">
+        <a class="browse-row" href="#"><span class="em">&#127793;</span><span class="lbl">Pre-K</span><span class="sub">Counting, shapes, patterns</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#127822;</span><span class="lbl">Kindergarten</span><span class="sub">Numbers to 20, operations</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#11088;</span><span class="lbl">1st Grade</span><span class="sub">Add &amp; subtract within 20</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#128640;</span><span class="lbl">2nd Grade</span><span class="sub">Two-digit operations</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#127942;</span><span class="lbl">3rd Grade</span><span class="sub">Multiplication, fractions</span><span class="arr">&rarr;</span></a>
+      </div>
+    </div>
+    <div class="browse-card">
+      <h2>&#128208; By Skill</h2>
+      <div class="desc">Jump to a specific math topic</div>
+      <div class="skill-grid">
+        <a class="skill-item" href="#"><span class="em">&#128290;</span><div><h4>Counting</h4><div class="sub">Pre-K – 1st</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10133;</span><div><h4>Addition</h4><div class="sub">K – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10134;</span><div><h4>Subtraction</h4><div class="sub">K – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10006;&#65039;</span><div><h4>Multiplication</h4><div class="sub">2nd – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10135;</span><div><h4>Division</h4><div class="sub">3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#128336;</span><div><h4>Telling Time</h4><div class="sub">K – 3rd</div></div></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VARIANT B: Both White ===== -->
+<div class="variant v-b" id="var-b">
+  <div class="site-header"><div class="header-inner">
+    <a href="index.html" class="site-logo"><img src="generators/branding/emma-logo-filled-no-stroke3.png" alt="Animal Math" class="site-logo-img"></a>
+    <nav class="nav-links"><a href="printables/index.html">Printables</a><a href="generators.html">Generators</a><a href="tools/index.html">Tools</a></nav>
+  </div></div>
+  <div class="hero-wrapper"><section class="hero">
+    <h1>Free Math Worksheets for K–2</h1>
+    <p>Browse worksheet packs by grade or lesson. Print ready-to-use PDFs or generate your own instantly.</p>
+  </section></div>
+  <div class="trust-bar"><div class="trust-bar-inner">
+    <div class="trust-item"><div class="trust-check">&#10003;</div>50+ Worksheet Types</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>PDF Download</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>Answer Keys Included</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>No Account Needed</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>Printer Friendly</div>
+  </div></div>
+  <div class="variant-label">B — Both white cards, matching style</div>
+  <div class="browse-cards">
+    <div class="browse-card">
+      <h2>&#127891; By Grade Level</h2>
+      <div class="desc">Find worksheets for your student's level</div>
+      <div class="browse-rows">
+        <a class="browse-row" href="#"><span class="em">&#127793;</span><span class="lbl">Pre-K</span><span class="sub">Counting, shapes, patterns</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#127822;</span><span class="lbl">Kindergarten</span><span class="sub">Numbers to 20, operations</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#11088;</span><span class="lbl">1st Grade</span><span class="sub">Add &amp; subtract within 20</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#128640;</span><span class="lbl">2nd Grade</span><span class="sub">Two-digit operations</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#127942;</span><span class="lbl">3rd Grade</span><span class="sub">Multiplication, fractions</span><span class="arr">&rarr;</span></a>
+      </div>
+    </div>
+    <div class="browse-card">
+      <h2>&#128208; By Skill</h2>
+      <div class="desc">Jump to a specific math topic</div>
+      <div class="skill-grid">
+        <a class="skill-item" href="#"><span class="em">&#128290;</span><div><h4>Counting</h4><div class="sub">Pre-K – 1st</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10133;</span><div><h4>Addition</h4><div class="sub">K – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10134;</span><div><h4>Subtraction</h4><div class="sub">K – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10006;&#65039;</span><div><h4>Multiplication</h4><div class="sub">2nd – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10135;</span><div><h4>Division</h4><div class="sub">3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#128336;</span><div><h4>Telling Time</h4><div class="sub">K – 3rd</div></div></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VARIANT C: Warm Amber ===== -->
+<div class="variant v-c" id="var-c">
+  <div class="site-header"><div class="header-inner">
+    <a href="index.html" class="site-logo"><img src="generators/branding/emma-logo-filled-no-stroke3.png" alt="Animal Math" class="site-logo-img"></a>
+    <nav class="nav-links"><a href="printables/index.html">Printables</a><a href="generators.html">Generators</a><a href="tools/index.html">Tools</a></nav>
+  </div></div>
+  <div class="hero-wrapper"><section class="hero">
+    <h1>Free Math Worksheets for K–2</h1>
+    <p>Browse worksheet packs by grade or lesson. Print ready-to-use PDFs or generate your own instantly.</p>
+  </section></div>
+  <div class="trust-bar"><div class="trust-bar-inner">
+    <div class="trust-item"><div class="trust-check">&#10003;</div>50+ Worksheet Types</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>PDF Download</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>Answer Keys Included</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>No Account Needed</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>Printer Friendly</div>
+  </div></div>
+  <div class="variant-label">C — Warm amber tint on grade card</div>
+  <div class="browse-cards">
+    <div class="browse-card grade-card">
+      <h2>&#127891; By Grade Level</h2>
+      <div class="desc">Find worksheets for your student's level</div>
+      <div class="browse-rows">
+        <a class="browse-row" href="#"><span class="em">&#127793;</span><span class="lbl">Pre-K</span><span class="sub">Counting, shapes, patterns</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#127822;</span><span class="lbl">Kindergarten</span><span class="sub">Numbers to 20, operations</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#11088;</span><span class="lbl">1st Grade</span><span class="sub">Add &amp; subtract within 20</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#128640;</span><span class="lbl">2nd Grade</span><span class="sub">Two-digit operations</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#127942;</span><span class="lbl">3rd Grade</span><span class="sub">Multiplication, fractions</span><span class="arr">&rarr;</span></a>
+      </div>
+    </div>
+    <div class="browse-card">
+      <h2>&#128208; By Skill</h2>
+      <div class="desc">Jump to a specific math topic</div>
+      <div class="skill-grid">
+        <a class="skill-item" href="#"><span class="em">&#128290;</span><div><h4>Counting</h4><div class="sub">Pre-K – 1st</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10133;</span><div><h4>Addition</h4><div class="sub">K – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10134;</span><div><h4>Subtraction</h4><div class="sub">K – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10006;&#65039;</span><div><h4>Multiplication</h4><div class="sub">2nd – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10135;</span><div><h4>Division</h4><div class="sub">3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#128336;</span><div><h4>Telling Time</h4><div class="sub">K – 3rd</div></div></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VARIANT D: Soft Slate ===== -->
+<div class="variant v-d" id="var-d">
+  <div class="site-header"><div class="header-inner">
+    <a href="index.html" class="site-logo"><img src="generators/branding/emma-logo-filled-no-stroke3.png" alt="Animal Math" class="site-logo-img"></a>
+    <nav class="nav-links"><a href="printables/index.html">Printables</a><a href="generators.html">Generators</a><a href="tools/index.html">Tools</a></nav>
+  </div></div>
+  <div class="hero-wrapper"><section class="hero">
+    <h1>Free Math Worksheets for K–2</h1>
+    <p>Browse worksheet packs by grade or lesson. Print ready-to-use PDFs or generate your own instantly.</p>
+  </section></div>
+  <div class="trust-bar"><div class="trust-bar-inner">
+    <div class="trust-item"><div class="trust-check">&#10003;</div>50+ Worksheet Types</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>PDF Download</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>Answer Keys Included</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>No Account Needed</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>Printer Friendly</div>
+  </div></div>
+  <div class="variant-label">D — Soft slate/gray tint on grade card</div>
+  <div class="browse-cards">
+    <div class="browse-card grade-card">
+      <h2>&#127891; By Grade Level</h2>
+      <div class="desc">Find worksheets for your student's level</div>
+      <div class="browse-rows">
+        <a class="browse-row" href="#"><span class="em">&#127793;</span><span class="lbl">Pre-K</span><span class="sub">Counting, shapes, patterns</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#127822;</span><span class="lbl">Kindergarten</span><span class="sub">Numbers to 20, operations</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#11088;</span><span class="lbl">1st Grade</span><span class="sub">Add &amp; subtract within 20</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#128640;</span><span class="lbl">2nd Grade</span><span class="sub">Two-digit operations</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#127942;</span><span class="lbl">3rd Grade</span><span class="sub">Multiplication, fractions</span><span class="arr">&rarr;</span></a>
+      </div>
+    </div>
+    <div class="browse-card">
+      <h2>&#128208; By Skill</h2>
+      <div class="desc">Jump to a specific math topic</div>
+      <div class="skill-grid">
+        <a class="skill-item" href="#"><span class="em">&#128290;</span><div><h4>Counting</h4><div class="sub">Pre-K – 1st</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10133;</span><div><h4>Addition</h4><div class="sub">K – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10134;</span><div><h4>Subtraction</h4><div class="sub">K – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10006;&#65039;</span><div><h4>Multiplication</h4><div class="sub">2nd – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10135;</span><div><h4>Division</h4><div class="sub">3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#128336;</span><div><h4>Telling Time</h4><div class="sub">K – 3rd</div></div></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VARIANT E: Left Border ===== -->
+<div class="variant v-e" id="var-e">
+  <div class="site-header"><div class="header-inner">
+    <a href="index.html" class="site-logo"><img src="generators/branding/emma-logo-filled-no-stroke3.png" alt="Animal Math" class="site-logo-img"></a>
+    <nav class="nav-links"><a href="printables/index.html">Printables</a><a href="generators.html">Generators</a><a href="tools/index.html">Tools</a></nav>
+  </div></div>
+  <div class="hero-wrapper"><section class="hero">
+    <h1>Free Math Worksheets for K–2</h1>
+    <p>Browse worksheet packs by grade or lesson. Print ready-to-use PDFs or generate your own instantly.</p>
+  </section></div>
+  <div class="trust-bar"><div class="trust-bar-inner">
+    <div class="trust-item"><div class="trust-check">&#10003;</div>50+ Worksheet Types</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>PDF Download</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>Answer Keys Included</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>No Account Needed</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>Printer Friendly</div>
+  </div></div>
+  <div class="variant-label">E — White card with amber left border accent</div>
+  <div class="browse-cards">
+    <div class="browse-card grade-card">
+      <h2>&#127891; By Grade Level</h2>
+      <div class="desc">Find worksheets for your student's level</div>
+      <div class="browse-rows">
+        <a class="browse-row" href="#"><span class="em">&#127793;</span><span class="lbl">Pre-K</span><span class="sub">Counting, shapes, patterns</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#127822;</span><span class="lbl">Kindergarten</span><span class="sub">Numbers to 20, operations</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#11088;</span><span class="lbl">1st Grade</span><span class="sub">Add &amp; subtract within 20</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#128640;</span><span class="lbl">2nd Grade</span><span class="sub">Two-digit operations</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#127942;</span><span class="lbl">3rd Grade</span><span class="sub">Multiplication, fractions</span><span class="arr">&rarr;</span></a>
+      </div>
+    </div>
+    <div class="browse-card">
+      <h2>&#128208; By Skill</h2>
+      <div class="desc">Jump to a specific math topic</div>
+      <div class="skill-grid">
+        <a class="skill-item" href="#"><span class="em">&#128290;</span><div><h4>Counting</h4><div class="sub">Pre-K – 1st</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10133;</span><div><h4>Addition</h4><div class="sub">K – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10134;</span><div><h4>Subtraction</h4><div class="sub">K – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10006;&#65039;</span><div><h4>Multiplication</h4><div class="sub">2nd – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10135;</span><div><h4>Division</h4><div class="sub">3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#128336;</span><div><h4>Telling Time</h4><div class="sub">K – 3rd</div></div></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VARIANT F: Gradient Top ===== -->
+<div class="variant v-f" id="var-f">
+  <div class="site-header"><div class="header-inner">
+    <a href="index.html" class="site-logo"><img src="generators/branding/emma-logo-filled-no-stroke3.png" alt="Animal Math" class="site-logo-img"></a>
+    <nav class="nav-links"><a href="printables/index.html">Printables</a><a href="generators.html">Generators</a><a href="tools/index.html">Tools</a></nav>
+  </div></div>
+  <div class="hero-wrapper"><section class="hero">
+    <h1>Free Math Worksheets for K–2</h1>
+    <p>Browse worksheet packs by grade or lesson. Print ready-to-use PDFs or generate your own instantly.</p>
+  </section></div>
+  <div class="trust-bar"><div class="trust-bar-inner">
+    <div class="trust-item"><div class="trust-check">&#10003;</div>50+ Worksheet Types</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>PDF Download</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>Answer Keys Included</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>No Account Needed</div>
+    <div class="trust-item"><div class="trust-check">&#10003;</div>Printer Friendly</div>
+  </div></div>
+  <div class="variant-label">F — White cards with gradient color strip on top</div>
+  <div class="browse-cards">
+    <div class="browse-card grade-card">
+      <h2>&#127891; By Grade Level</h2>
+      <div class="desc">Find worksheets for your student's level</div>
+      <div class="browse-rows">
+        <a class="browse-row" href="#"><span class="em">&#127793;</span><span class="lbl">Pre-K</span><span class="sub">Counting, shapes, patterns</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#127822;</span><span class="lbl">Kindergarten</span><span class="sub">Numbers to 20, operations</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#11088;</span><span class="lbl">1st Grade</span><span class="sub">Add &amp; subtract within 20</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#128640;</span><span class="lbl">2nd Grade</span><span class="sub">Two-digit operations</span><span class="arr">&rarr;</span></a>
+        <a class="browse-row" href="#"><span class="em">&#127942;</span><span class="lbl">3rd Grade</span><span class="sub">Multiplication, fractions</span><span class="arr">&rarr;</span></a>
+      </div>
+    </div>
+    <div class="browse-card skill-card">
+      <h2>&#128208; By Skill</h2>
+      <div class="desc">Jump to a specific math topic</div>
+      <div class="skill-grid">
+        <a class="skill-item" href="#"><span class="em">&#128290;</span><div><h4>Counting</h4><div class="sub">Pre-K – 1st</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10133;</span><div><h4>Addition</h4><div class="sub">K – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10134;</span><div><h4>Subtraction</h4><div class="sub">K – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10006;&#65039;</span><div><h4>Multiplication</h4><div class="sub">2nd – 3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#10135;</span><div><h4>Division</h4><div class="sub">3rd</div></div></a>
+        <a class="skill-item" href="#"><span class="em">&#128336;</span><div><h4>Telling Time</h4><div class="sub">K – 3rd</div></div></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.variant').forEach(v => v.classList.remove('active'));
+  document.getElementById('var-' + id).classList.add('active');
+  document.querySelectorAll('.switcher button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

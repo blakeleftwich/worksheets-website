@@ -363,24 +363,26 @@
     .download-btn svg { width: 16px; height: 16px; }
 
 
-    /* ===== Hover Preview Overlay — 5-page grid ===== */
+    /* ===== Hover Preview Overlay — 5-page grid (compact) ===== */
     .hover-preview {
       display: none;
       position: fixed;
       z-index: 150;
       background: white;
-      border-radius: 14px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.05);
-      padding: 14px;
+      border-radius: 10px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.05);
+      padding: 10px;
       pointer-events: none;
+      width: 320px;
+      max-width: 90vw;
     }
     .hover-preview.visible { display: block; }
     .hover-preview-title {
       font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
+      font-size: 10px;
       font-weight: 700;
       color: #64748b;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       text-align: center;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -388,21 +390,21 @@
     .hover-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      gap: 6px;
       justify-items: center;
     }
     .hover-grid canvas {
       width: 100%;
       height: auto;
-      border-radius: 4px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      border-radius: 3px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       background: #f8fafc;
     }
     /* Center the bottom row of 2 */
-    .hover-grid canvas:nth-child(4) { grid-column: 1 / 2; justify-self: end; margin-right: 4px; }
-    .hover-grid canvas:nth-child(5) { grid-column: 2 / 3; justify-self: start; margin-left: 4px; }
+    .hover-grid canvas:nth-child(4) { grid-column: 1 / 2; justify-self: end; margin-right: 3px; }
+    .hover-grid canvas:nth-child(5) { grid-column: 2 / 3; justify-self: start; margin-left: 3px; }
     .hover-page-label {
-      font-size: 9px;
+      font-size: 8px;
       font-weight: 600;
       color: #94a3b8;
       text-align: center;
@@ -783,23 +785,29 @@
           }
         }
 
-        // Position near the card
+        // Position near the card — keep fully on-screen
         const rect = e.target.closest('.ws-card').getBoundingClientRect();
-        const popupW = 160 * 3 + 8 * 2 + 28; // 3 CSS-sized cols + gaps + padding
-        const popupH = 420; // approximate
+        const popupW = 320; // matches CSS width
+        const popupH = 310; // approximate compact height
+        const margin = 12; // minimum distance from viewport edge
 
-        let left = rect.right + 14;
+        let left = rect.right + 10;
         let top = rect.top;
 
         // Flip left if overflowing right
-        if (left + popupW > window.innerWidth - 16) {
-          left = rect.left - popupW - 14;
+        if (left + popupW > window.innerWidth - margin) {
+          left = rect.left - popupW - 10;
         }
-        // Keep within vertical bounds
-        if (top + popupH > window.innerHeight - 16) {
-          top = window.innerHeight - popupH - 16;
+        // If still off-screen left, center horizontally above/below
+        if (left < margin) {
+          left = Math.max(margin, (rect.left + rect.right) / 2 - popupW / 2);
+          left = Math.min(left, window.innerWidth - popupW - margin);
         }
-        top = Math.max(8, top);
+        // Clamp vertical — never let any part go off-screen
+        if (top + popupH > window.innerHeight - margin) {
+          top = window.innerHeight - popupH - margin;
+        }
+        top = Math.max(margin, top);
 
         preview.style.left = left + 'px';
         preview.style.top = top + 'px';
