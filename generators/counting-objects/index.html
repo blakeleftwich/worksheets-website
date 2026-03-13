@@ -288,17 +288,6 @@
       box-shadow: 0 6px 16px rgba(237, 137, 54, 0.4);
     }
 
-    #btnVarietyPack, #btnVarietyPack1to5 {
-      background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
-      color: white;
-      box-shadow: 0 4px 12px rgba(56, 161, 105, 0.3);
-    }
-
-    #btnVarietyPack:hover, #btnVarietyPack1to5:hover {
-      background: linear-gradient(135deg, #2f855a 0%, #276749 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(56, 161, 105, 0.4);
-    }
 
     .preview-area {
       padding: 40px;
@@ -463,6 +452,7 @@
         <a href="../../tools/index.html">Tools</a>
         <a href="https://apps.apple.com/us/app/animal-math-games-for-kids/id799973028" target="_blank">Mobile App</a>
         <a href="../../about.html">About</a>
+        <a href="../../my-packs/index.html">⭐ My Packs</a>
       </nav>
     </div>
   </header>
@@ -597,8 +587,6 @@
       <div class="button-group">
         <button id="btnGenerate">🔄 Generate New</button>
         <button id="btnPrint">🖨️ Print</button>
-        <button id="btnVarietyPack">📦 Print Variety Pack</button>
-        <button id="btnVarietyPack1to5">📦 Print 1 to 5 Variety Pack</button>
       </div>
 
       <div id="status"></div>
@@ -881,92 +869,7 @@ function generateRandomProblems(min, max, numProblems) {
   return problems;
 }
 
-function printVarietyPack(packDef) {
-  const icons = ["icon-apple-new", "icon-balloon", "icon-icecream", "icon-pepper", "icon-pizza", "icon-corn", "icon-broccoli", "icon-fish", "icon-tomato", "icon-pineapple", "icon-banana", "icon-grapes", "icon-orange", "icon-strawberry", "icon-watermelon", "icon-pear", "icon-carrot", "icon-potato", "icon-lettuce"];
-  const headerMode = "both";
-  const branded = true;
-  const numbered = true;
-  const subtitle = "Count the objects and write the number.";
-  const includeExample = false;
 
-  // Save current DOM
-  const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
-  sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
-
-  // Collect worksheet and answer key data separately so answer keys go at the end
-  const worksheetPages = [];
-  const answerKeyPages = [];
-  let wsNum = 1;
-
-  for (const group of packDef) {
-    const title = `Count & Write ${group.min} to ${group.max}`;
-    const perRowMax = group.max > 10 ? 10 : 5;
-    const numProblems = group.problems || 8;
-
-    for (let s = 0; s < group.count; s++) {
-      const problems = generateRandomProblems(group.min, group.max, numProblems);
-      const wsCode = "WS" + wsNum;
-      wsNum++;
-
-      // Worksheet page
-      const wp = document.createElement("div"); wp.className = "worksheet-page";
-      wp.appendChild(generateWorksheetSvg(problems, group.style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode));
-      worksheetPages.push(wp);
-
-      // Answer key page
-      const ak = document.createElement("div"); ak.className = "worksheet-page";
-      ak.appendChild(generateAnswerKeySvg(problems, group.style, "none", branded, numbered, title, subtitle, true, perRowMax, wsCode));
-      answerKeyPages.push(ak);
-    }
-  }
-
-  // Append all worksheets first, then all answer keys
-  worksheetPages.forEach(p => sheetWrap.appendChild(p));
-  answerKeyPages.forEach(p => sheetWrap.appendChild(p));
-
-  window.print();
-  setTimeout(() => { sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 500);
-}
-
-// ===== Variety Pack =====
-function handleVarietyPack() {
-  printVarietyPack([
-    { count: 4, min: 1, max: 5,  style: 1 },
-    { count: 4, min: 1, max: 5,  style: 2 },
-    { count: 2, min: 0, max: 5,  style: 1 },
-    { count: 2, min: 0, max: 5,  style: 2 },
-    { count: 4, min: 1, max: 10, style: 1 },
-    { count: 4, min: 1, max: 10, style: 2 },
-    { count: 2, min: 0, max: 10, style: 1 },
-    { count: 2, min: 0, max: 10, style: 2 },
-    { count: 3, min: 5, max: 10, style: 1 },
-    { count: 3, min: 5, max: 10, style: 2 },
-    { count: 3, min: 1, max: 20, style: 1 },
-    { count: 3, min: 1, max: 20, style: 2 },
-    { count: 3, min: 10, max: 20, style: 1 },
-    { count: 3, min: 10, max: 20, style: 2 },
-  ]);
-}
-
-document.getElementById("btnVarietyPack").addEventListener("click", handleVarietyPack);
-
-// ===== 1 to 5 Variety Pack =====
-function handleVarietyPack1to5() {
-  printVarietyPack([
-    { count: 4, min: 1, max: 5, style: 2, problems: 6 },
-    { count: 3, min: 1, max: 5, style: 1, problems: 6 },
-    { count: 4, min: 1, max: 5, style: 2, problems: 8 },
-    { count: 4, min: 1, max: 5, style: 1, problems: 8 },
-    { count: 1, min: 0, max: 5, style: 2, problems: 8 },
-    { count: 1, min: 0, max: 5, style: 1, problems: 8 },
-    { count: 3, min: 1, max: 5, style: 2, problems: 10 },
-    { count: 3, min: 1, max: 5, style: 1, problems: 10 },
-    { count: 1, min: 0, max: 5, style: 2, problems: 10 },
-    { count: 1, min: 0, max: 5, style: 1, problems: 10 },
-  ]);
-}
-
-document.getElementById("btnVarietyPack1to5").addEventListener("click", handleVarietyPack1to5);
 
 function renderWithNewRandomization() {
   // Generate new random problems for each sheet
@@ -2181,5 +2084,6 @@ window.addEventListener('resize', () => {
 // Initial render
 renderWithNewRandomization();
   </script>
+<script src="../../favorites.js"></script>
 </body>
 </html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Packs — Animal Math</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; }
+
+    /* ===== Header ===== */
+    .site-header { background: white; border-bottom: 1px solid #e5e7eb; padding: 0 32px; position: sticky; top: 0; z-index: 100; }
+    .header-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .site-logo { text-decoration: none; }
+    .site-logo-img { height: 44px; width: auto; display: block; }
+    .nav-links { display: flex; gap: 4px; align-items: center; }
+    .nav-links a { color: #64748b; text-decoration: none; font-size: 14px; font-weight: 500; padding: 8px 16px; border-radius: 8px; transition: all 0.2s; }
+    .nav-links a:hover { background: #f1f5f9; color: #1a1a2e; }
+    .nav-links a.active { background: #fef3c7; color: #92400e; }
+
+    /* ===== Page Content ===== */
+    .page { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+    .page-header h1 { font-family: 'DM Sans', sans-serif; font-size: 28px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    .page-header .meta { font-size: 14px; color: #94a3b8; margin-top: 4px; }
+
+    /* ===== Empty State ===== */
+    .empty-state { text-align: center; padding: 80px 20px; }
+    .empty-icon { font-size: 56px; margin-bottom: 16px; opacity: 0.4; }
+    .empty-state h2 { font-family: 'DM Sans', sans-serif; font-size: 20px; color: #475569; margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; color: #94a3b8; max-width: 360px; margin: 0 auto 20px; line-height: 1.6; }
+    .empty-state a { display: inline-block; background: #f59e0b; color: white; text-decoration: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; }
+    .empty-state a:hover { background: #d97706; }
+
+    /* ===== Pack Cards ===== */
+    .packs-list { display: flex; flex-direction: column; gap: 16px; }
+
+    .pack-card { background: white; border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; transition: all 0.2s; }
+    .pack-card:hover { border-color: #fde68a; box-shadow: 0 4px 16px rgba(0,0,0,0.04); }
+
+    .pack-top { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; cursor: pointer; user-select: none; }
+    .pack-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
+    .pack-info { flex: 1; min-width: 0; }
+    .pack-info h3 { font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .pack-info .pack-meta { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .pack-chevron { color: #94a3b8; font-size: 20px; transition: transform 0.2s; flex-shrink: 0; margin-left: 8px; }
+    .pack-card.expanded .pack-chevron { transform: rotate(90deg); }
+
+    .pack-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .btn-print-all { background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.15s; }
+    .btn-print-all:hover { background: #d97706; }
+    .btn-rename { background: none; border: 1px solid #e5e7eb; color: #94a3b8; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .btn-rename:hover { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+    .btn-delete { background: none; border: 1px solid #e5e7eb; color: #94a3b8; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .btn-delete:hover { background: #fef2f2; color: #ef4444; border-color: #fecaca; }
+
+    /* Thumbnail strip */
+    .thumb-strip { display: flex; gap: 4px; flex-shrink: 0; }
+    .thumb-mini { width: 40px; height: 52px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+    .thumb-mini svg { width: 100%; height: 100%; display: block; }
+
+    /* ===== Detail (expanded) ===== */
+    .pack-detail { display: none; border-top: 1px solid #f1f5f9; padding: 16px 20px; }
+    .pack-card.expanded .pack-detail { display: block; }
+
+    .ws-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    .ws-item { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; text-align: center; position: relative; transition: border-color 0.15s; }
+    .ws-item:hover { border-color: #fde68a; }
+    .ws-thumb { width: 100%; aspect-ratio: 0.77; background: white; border: 1px solid #e5e7eb; border-radius: 4px; margin-bottom: 8px; overflow: hidden; }
+    .ws-thumb svg { width: 100%; height: 100%; display: block; }
+    .ws-title { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; color: #1e293b; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ws-meta { font-size: 10px; color: #94a3b8; }
+    .ws-remove { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; background: white; border: 1px solid #e5e7eb; border-radius: 50%; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #94a3b8; opacity: 0; transition: opacity 0.15s; }
+    .ws-item:hover .ws-remove { opacity: 1; }
+    .ws-remove:hover { background: #fef2f2; color: #ef4444; border-color: #fecaca; }
+
+    .ws-empty { text-align: center; padding: 24px; color: #94a3b8; font-size: 13px; }
+
+    /* ===== Print Preview Overlay ===== */
+    .print-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; overflow-y: auto; }
+    .print-overlay.visible { display: block; }
+    .print-container { max-width: 700px; margin: 32px auto; padding: 0 24px 48px; }
+    .print-bar { background: white; border-radius: 12px 12px 0 0; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 10; }
+    .print-bar h2 { font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 700; }
+    .print-bar-actions { display: flex; gap: 8px; }
+    .print-bar-actions button { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
+    .btn-close-print { background: #f1f5f9; color: #475569; }
+    .btn-close-print:hover { background: #e2e8f0; }
+    .btn-do-print { background: #f59e0b; color: white; }
+    .btn-do-print:hover { background: #d97706; }
+    .print-pages-wrap { background: #e2e8f0; padding: 24px; border-radius: 0 0 12px 12px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .print-page-item { width: 100%; max-width: 595px; background: white; border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+    .print-page-item svg { width: 100%; height: auto; display: block; }
+    .print-page-label { font-size: 10px; color: #94a3b8; text-align: right; padding: 4px 12px 6px; }
+
+    /* ===== Toast ===== */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1e293b; color: white; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 500; transition: transform 0.3s ease; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+    .toast.visible { transform: translateX(-50%) translateY(0); }
+
+    /* ===== Print styles ===== */
+    @media print {
+      .site-header, .page-header, .packs-list, .print-bar, .toast { display: none !important; }
+      .print-overlay { position: static; background: none; display: block !important; }
+      .print-container { margin: 0; padding: 0; max-width: none; }
+      .print-pages-wrap { background: none; padding: 0; }
+      .print-page-item { box-shadow: none; page-break-after: always; break-after: page; border-radius: 0; }
+      .print-page-label { display: none; }
+      body { background: white; }
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .pack-left { flex-direction: column; align-items: flex-start; }
+      .thumb-strip { display: none; }
+      .ws-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+      .pack-actions { flex-wrap: wrap; }
+    }
+
+    /* ===== Rename Input ===== */
+    .rename-input { font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 700; border: 2px solid #f59e0b; border-radius: 6px; padding: 2px 8px; outline: none; width: 250px; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Header ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">
+        <img src="../generators/branding/emma-logo-filled-no-stroke3.png" alt="Animal Math" class="site-logo-img">
+      </a>
+      <nav class="nav-links">
+        <a href="../printables/index.html">Printables</a>
+        <a href="../generators.html">Generators</a>
+        <a href="../tools/index.html">Tools</a>
+        <a href="https://apps.apple.com/us/app/animal-math-games-for-kids/id799973028" target="_blank">Mobile App</a>
+        <a href="../about.html">About</a>
+        <a href="../my-packs/index.html" class="active">⭐ My Packs</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== Page ===== -->
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <h1>⭐ My Packs</h1>
+        <div class="meta" id="packsMeta"></div>
+      </div>
+    </div>
+
+    <div id="packsContent"></div>
+  </div>
+
+  <!-- ===== Print Preview Overlay ===== -->
+  <div class="print-overlay" id="printOverlay">
+    <div class="print-container">
+      <div class="print-bar">
+        <h2 id="printTitle">Pack Name</h2>
+        <div class="print-bar-actions">
+          <button class="btn-close-print" onclick="closePrintPreview()">← Back</button>
+          <button class="btn-do-print" onclick="doPrint()">🖨️ Print</button>
+        </div>
+      </div>
+      <div class="print-pages-wrap" id="printPages"></div>
+    </div>
+  </div>
+
+  <!-- ===== Toast ===== -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = 'animalmath_packs';
+
+    function getPacks() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+      catch { return []; }
+    }
+    function savePacks(packs) { localStorage.setItem(STORAGE_KEY, JSON.stringify(packs)); }
+
+    // ===== Render =====
+    function render() {
+      const packs = getPacks();
+      const total = packs.reduce((s, p) => s + p.worksheets.length, 0);
+      document.getElementById('packsMeta').textContent =
+        packs.length === 0 ? '' : `${packs.length} pack${packs.length !== 1 ? 's' : ''} · ${total} worksheet${total !== 1 ? 's' : ''} saved`;
+
+      const content = document.getElementById('packsContent');
+
+      if (packs.length === 0) {
+        content.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">⭐</div>
+            <h2>No packs yet</h2>
+            <p>Generate a worksheet, then click "⭐ Add to Pack" to start building custom worksheet packs you can print together.</p>
+            <a href="../generators.html">Browse Generators</a>
+          </div>`;
+        return;
+      }
+
+      content.innerHTML = `<div class="packs-list">${packs.map(p => renderPackCard(p)).join('')}</div>`;
+
+      // Attach events
+      content.querySelectorAll('.pack-top').forEach(el => {
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('.pack-actions')) return;
+          el.closest('.pack-card').classList.toggle('expanded');
+        });
+      });
+    }
+
+    function renderPackCard(pack) {
+      const date = new Date(pack.created);
+      const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const wsCount = pack.worksheets.length;
+
+      // Build mini thumbnails (max 4)
+      const thumbs = pack.worksheets.slice(0, 4).map(ws => {
+        const svgs = ws.svgData.split('|||SVGSEP|||');
+        const firstSvg = svgs[0] || '';
+        return `<div class="thumb-mini">${firstSvg}</div>`;
+      }).join('');
+
+      // Build worksheet grid
+      const wsGrid = wsCount === 0
+        ? '<div class="ws-empty">No worksheets in this pack yet.</div>'
+        : `<div class="ws-grid">${pack.worksheets.map(ws => renderWsItem(pack.id, ws)).join('')}</div>`;
+
+      return `
+        <div class="pack-card" data-id="${pack.id}">
+          <div class="pack-top">
+            <div class="pack-left">
+              <div class="thumb-strip">${thumbs}</div>
+              <div class="pack-info">
+                <h3>${escHtml(pack.name)} <span class="pack-chevron">›</span></h3>
+                <div class="pack-meta">${wsCount} worksheet${wsCount !== 1 ? 's' : ''} · Created ${dateStr}</div>
+              </div>
+            </div>
+            <div class="pack-actions">
+              <button class="btn-print-all" onclick="event.stopPropagation(); openPrintPreview('${pack.id}');" ${wsCount === 0 ? 'disabled style="opacity:0.5;cursor:default;"' : ''}>🖨️ Print All</button>
+              <button class="btn-rename" onclick="event.stopPropagation(); renamePack('${pack.id}');" title="Rename">✏️</button>
+              <button class="btn-delete" onclick="event.stopPropagation(); deletePack('${pack.id}');" title="Delete pack">✕</button>
+            </div>
+          </div>
+          <div class="pack-detail">${wsGrid}</div>
+        </div>`;
+    }
+
+    function renderWsItem(packId, ws) {
+      const svgs = ws.svgData.split('|||SVGSEP|||');
+      const firstSvg = svgs[0] || '';
+      const date = new Date(ws.added);
+      const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+      return `
+        <div class="ws-item">
+          <button class="ws-remove" onclick="removeWorksheet('${packId}', '${ws.id}')" title="Remove">✕</button>
+          <div class="ws-thumb">${firstSvg}</div>
+          <div class="ws-title">${escHtml(ws.title)}</div>
+          <div class="ws-meta">${escHtml(ws.generator)} · ${dateStr}</div>
+        </div>`;
+    }
+
+    // ===== Actions =====
+    function deletePack(packId) {
+      const packs = getPacks();
+      const pack = packs.find(p => p.id === packId);
+      if (!pack) return;
+      if (!confirm(`Delete "${pack.name}"? This will remove all ${pack.worksheets.length} worksheet(s) in this pack.`)) return;
+      savePacks(packs.filter(p => p.id !== packId));
+      showToast(`Deleted "${pack.name}"`);
+      render();
+    }
+
+    function renamePack(packId) {
+      const packs = getPacks();
+      const pack = packs.find(p => p.id === packId);
+      if (!pack) return;
+      const card = document.querySelector(`.pack-card[data-id="${packId}"]`);
+      const h3 = card.querySelector('h3');
+      const oldName = pack.name;
+
+      // Replace h3 with input
+      const input = document.createElement('input');
+      input.className = 'rename-input';
+      input.value = oldName;
+      h3.innerHTML = '';
+      h3.appendChild(input);
+      input.focus();
+      input.select();
+
+      const save = () => {
+        const newName = input.value.trim();
+        if (newName && newName !== oldName) {
+          pack.name = newName;
+          savePacks(packs);
+          showToast(`Renamed to "${newName}"`);
+        }
+        render();
+      };
+
+      input.addEventListener('blur', save);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); save(); }
+        if (e.key === 'Escape') render();
+      });
+    }
+
+    function removeWorksheet(packId, wsId) {
+      const packs = getPacks();
+      const pack = packs.find(p => p.id === packId);
+      if (!pack) return;
+      pack.worksheets = pack.worksheets.filter(w => w.id !== wsId);
+      savePacks(packs);
+      showToast('Worksheet removed');
+      render();
+      // Re-expand the pack
+      setTimeout(() => {
+        const card = document.querySelector(`.pack-card[data-id="${packId}"]`);
+        if (card) card.classList.add('expanded');
+      }, 10);
+    }
+
+    // ===== Print Preview =====
+    function openPrintPreview(packId) {
+      const packs = getPacks();
+      const pack = packs.find(p => p.id === packId);
+      if (!pack || pack.worksheets.length === 0) return;
+
+      document.getElementById('printTitle').textContent = pack.name;
+      const pagesWrap = document.getElementById('printPages');
+      pagesWrap.innerHTML = '';
+
+      let pageNum = 0;
+      pack.worksheets.forEach(ws => {
+        // Worksheet pages
+        const svgs = ws.svgData.split('|||SVGSEP|||');
+        svgs.forEach(svg => {
+          if (!svg.trim()) return;
+          pageNum++;
+          const div = document.createElement('div');
+          div.className = 'print-page-item';
+          div.innerHTML = svg + `<div class="print-page-label">Page ${pageNum}</div>`;
+          pagesWrap.appendChild(div);
+        });
+
+        // Answer key pages
+        if (ws.answerKeySvgs && ws.answerKeySvgs.length > 0) {
+          ws.answerKeySvgs.forEach(akSvg => {
+            if (!akSvg.trim()) return;
+            pageNum++;
+            const div = document.createElement('div');
+            div.className = 'print-page-item';
+            div.innerHTML = akSvg + `<div class="print-page-label">Page ${pageNum} (Answer Key)</div>`;
+            pagesWrap.appendChild(div);
+          });
+        }
+      });
+
+      document.getElementById('printOverlay').classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePrintPreview() {
+      document.getElementById('printOverlay').classList.remove('visible');
+      document.body.style.overflow = '';
+    }
+
+    function doPrint() {
+      window.print();
+    }
+
+    // ===== Toast =====
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('visible');
+      setTimeout(() => t.classList.remove('visible'), 2500);
+    }
+
+    function escHtml(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    // ===== Init =====
+    render();
+  </script>
+</body>
+</html>
