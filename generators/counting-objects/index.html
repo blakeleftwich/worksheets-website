@@ -545,12 +545,6 @@
             <label for="numbered">Numbered</label>
           </div>
 
-          <!-- Include example -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="includeExample" />
-            <label for="includeExample">Include example</label>
-          </div>
-
           <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
@@ -609,7 +603,7 @@ const elHeaderModeOptions = document.getElementById("headerModeOptions");
 const elNumbered = document.getElementById("numbered");
 const elBranded = document.getElementById("branded");
 const elAnswerKey = document.getElementById("answerKey");
-const elIncludeExample = document.getElementById("includeExample");
+const elIncludeExample = document.getElementById("includeExample") || { checked: false, addEventListener: function(){} };
 const elHeaderText = document.getElementById("headerText");
 const elSubtitleText = document.getElementById("subtitleText");
 const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
@@ -744,7 +738,7 @@ function handlePrint() {
   const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
   sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
   for (let i = 0; i < currentState.sheets.length; i++) {
-    const wsCode = "WS" + (i + 1);
+    const wsCode = 'WS' + Math.floor(Math.random() * 9000 + 1000);
     const p = document.createElement("div"); p.className = "worksheet-page";
     p.appendChild(generateWorksheetSvg(currentState.sheets[i], style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode));
     sheetWrap.appendChild(p);
@@ -752,7 +746,7 @@ function handlePrint() {
   const answerKeyPages = [];
   if (elAnswerKey.checked) {
     for (let i = 0; i < currentState.sheets.length; i++) {
-      const wsCode = "WS" + (i + 1);
+      const wsCode = 'WS' + Math.floor(Math.random() * 9000 + 1000);
       const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
       p.appendChild(generateAnswerKeySvg(currentState.sheets[i], style, "none", branded, numbered, title, subtitle, true, perRowMax, wsCode));
       sheetWrap.appendChild(p);
@@ -991,7 +985,7 @@ function renderWorksheet() {
     
     // Render each sheet
     for (let s = 0; s < numSheets; s++) {
-      const wsCode = "WS" + (s + 1);
+      const wsCode = 'WS' + Math.floor(Math.random() * 9000 + 1000);
       const problems = currentState.sheets[s];
       const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode);
       svg.setAttribute('width', scaledWidth);
@@ -1010,7 +1004,7 @@ function renderWorksheet() {
     // Single sheet - render at full size
     if (currentState.sheets.length > 0) {
       const problems = currentState.sheets[0];
-      const wsCode = "WS1";
+      const wsCode = 'WS' + Math.floor(Math.random() * 9000 + 1000);
       const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode);
 
       const page = document.createElement("div");
@@ -2083,6 +2077,18 @@ window.addEventListener('resize', () => {
 
 // Initial render
 renderWithNewRandomization();
+  
+    // Expose answer key capture for favorites pack system
+    window._amCaptureAnswerKeys = function() {
+      if (!currentState.sheets || !currentState.sheets.length) return [];
+      var opts = gatherOptions();
+      return currentState.sheets.map(function(sheet) {
+        try {
+          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true, includeExample: false }));
+          return sv.outerHTML;
+        } catch(e) { return ''; }
+      }).filter(Boolean);
+    };
   </script>
 <script src="../../favorites.js"></script>
 </body>

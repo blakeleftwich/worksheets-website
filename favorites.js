@@ -78,6 +78,18 @@
     }
   };
 
+  // ===== Fix relative paths in SVG markup =====
+  // Converts relative image hrefs (e.g. "../branding/logo.jpg") to absolute URLs
+  // so SVGs render correctly when displayed on any page (like My Packs).
+  function fixSvgPaths(svgHtml) {
+    return svgHtml.replace(/(href=["'])(?!https?:\/\/|data:)([^"']+)(["'])/g, function(match, pre, path, post) {
+      try {
+        var abs = new URL(path, window.location.href).href;
+        return pre + abs + post;
+      } catch (e) { return match; }
+    });
+  }
+
   // ===== Capture current worksheet =====
   function captureWorksheet() {
     const sheetWrap = document.getElementById('sheetWrap');
@@ -87,11 +99,11 @@
     const pages = sheetWrap.querySelectorAll('.worksheet-page:not(.ak-print-only)');
     if (pages.length === 0) return null;
 
-    // Capture SVGs from worksheet pages
+    // Capture SVGs from worksheet pages, fixing relative paths
     const svgs = [];
     pages.forEach(page => {
       const svg = page.querySelector('svg');
-      if (svg) svgs.push(svg.outerHTML);
+      if (svg) svgs.push(fixSvgPaths(svg.outerHTML));
     });
     if (svgs.length === 0) return null;
 
@@ -105,35 +117,32 @@
     const pageHeading = document.querySelector('.gen-title, h1, h2');
     const generator = pageHeading ? pageHeading.textContent.trim() : document.title.replace(' — Animal Math', '');
 
+    // Capture answer keys and fix their paths too
+    const akSvgs = captureAnswerKeys().map(fixSvgPaths);
+
     return {
       title: title,
       subtitle: subtitle,
       generator: generator,
       generatorUrl: window.location.pathname,
       svgData: svgs.join('|||SVGSEP|||'),
-      answerKeySvgs: captureAnswerKeys()
+      answerKeySvgs: akSvgs
     };
   }
 
   function captureAnswerKeys() {
-    const sheetWrap = document.getElementById('sheetWrap');
-    if (!sheetWrap) return [];
-
-    // Answer keys are generated on-the-fly during print in most generators.
-    // We need to check if the answer key checkbox is checked and if so,
-    // trigger a temporary render to capture them.
-    const akCheckbox = document.getElementById('answerKey') || document.getElementById('showAnswerKey');
-    if (!akCheckbox || !akCheckbox.checked) return [];
-
-    // Check if answer key pages already exist
-    const akPages = sheetWrap.querySelectorAll('.worksheet-page.ak-print-only');
-    const akSvgs = [];
-    akPages.forEach(page => {
-      const svg = page.querySelector('svg');
-      if (svg) akSvgs.push(svg.outerHTML);
-    });
-
-    return akSvgs;
+    // Use the global hook exposed by each generator's IIFE.
+    // This calls renderWorksheetSVG with showAnswers:true inside the generator scope,
+    // producing answer key SVGs identical to the worksheet but with answers filled in.
+    if (typeof window._amCaptureAnswerKeys === 'function') {
+      try {
+        return window._amCaptureAnswerKeys();
+      } catch (e) {
+        console.warn('Answer key capture failed:', e);
+        return [];
+      }
+    }
+    return [];
   }
 
   // ===== Inject UI =====

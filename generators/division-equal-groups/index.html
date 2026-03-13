@@ -288,7 +288,7 @@
 
     .btn-generate {
       background: #f1f5f9;
-      color: white;
+      color: #475569;
     }
 
     .btn-print {
@@ -482,12 +482,6 @@
       <div class="advanced-panel" id="advPanel">
         <div class="advanced-panel-inner">
 
-          <!-- Include example -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="includeExample" />
-            <label for="includeExample">Include example</label>
-          </div>
-
           <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
@@ -584,7 +578,7 @@
     const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
     const elNumbered = document.getElementById("numbered");
     const elBranded = document.getElementById("branded");
-    const elIncludeExample = document.getElementById("includeExample");
+    const elIncludeExample = document.getElementById("includeExample") || { checked: false, addEventListener: function(){} };
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
     const advArrow = document.getElementById("advArrow");
@@ -748,6 +742,15 @@
         });
         bLine2.textContent = "\u00A9 2026 Eggroll Games";
         svg.appendChild(bLine2);
+        // Worksheet code — bottom center
+        const wsCode = 'WS' + Math.floor(Math.random() * 9000 + 1000);
+        const wsCodeEl = svgEl("text", {
+          x: pageW / 2, y: brandY + 30,
+          "font-family": "Fredoka, sans-serif", "font-size": 8.5,
+          fill: "#cbd5e1", "text-anchor": "middle", "letter-spacing": "1"
+        });
+        wsCodeEl.textContent = wsCode;
+        svg.appendChild(wsCodeEl);
       }
 
       const count = problems.length;
@@ -1103,6 +1106,18 @@
 
     // ===== Init =====
     renderWithNewRandomization();
+  
+    // Expose answer key capture for favorites pack system
+    window._amCaptureAnswerKeys = function() {
+      if (!currentState.sheets || !currentState.sheets.length) return [];
+      var opts = gatherOptions();
+      return currentState.sheets.map(function(sheet) {
+        try {
+          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true, includeExample: false }));
+          return sv.outerHTML;
+        } catch(e) { return ''; }
+      }).filter(Boolean);
+    };
   </script>
 <script src="../../favorites.js"></script>
 </body>

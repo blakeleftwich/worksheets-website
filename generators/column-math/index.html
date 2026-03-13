@@ -362,7 +362,7 @@
 
     .btn-generate {
       background: #f1f5f9;
-      color: white;
+      color: #475569;
     }
 
     .btn-print {
@@ -546,10 +546,8 @@
         <label for="problemsPerSheet">Problems per Sheet</label>
         <select id="problemsPerSheet">
           <option value="8">8</option>
-          <option value="12">12</option>
+          <option value="12" selected>12</option>
           <option value="16">16</option>
-          <option value="20" selected>20</option>
-          <option value="24">24</option>
         </select>
       </div>
 
@@ -683,12 +681,6 @@
             <label for="numbered">Numbered</label>
           </div>
 
-          <!-- Include example -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="includeExample" />
-            <label for="includeExample">Include example</label>
-          </div>
-
           <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
@@ -784,7 +776,7 @@
     const elNumbered = document.getElementById("numbered");
     const elBranded = document.getElementById("branded");
     const elAnswerKey = document.getElementById("answerKey");
-    const elIncludeExample = document.getElementById("includeExample");
+    const elIncludeExample = document.getElementById("includeExample") || { checked: false, addEventListener: function(){} };
     const elRegroupEnabled = document.getElementById("regroupEnabled");
     const elRegroupMode = document.getElementById("regroupMode");
     const elRegroupOptions = document.getElementById("regroupOptions");
@@ -1039,6 +1031,10 @@
         const key = op + ":" + top + "," + bottom;
         if (seen.has(key)) continue;
         seen.add(key);
+        // Also mark the inverse for commutative ops so we don't generate e.g. 4+1 after 1+4
+        if ((op === "+" || op === "\u00d7") && top !== bottom) {
+          seen.add(op + ":" + bottom + "," + top);
+        }
         problems.push({ top, bottom, op, answer });
       }
 
@@ -1159,6 +1155,15 @@
         });
         bLine2.textContent = "\u00A9 2026 Eggroll Games";
         svg.appendChild(bLine2);
+        // Worksheet code — bottom center
+        const wsCode = 'WS' + Math.floor(Math.random() * 9000 + 1000);
+        const wsCodeEl = svgEl("text", {
+          x: pageW / 2, y: brandY + 30,
+          "font-family": "Fredoka, sans-serif", "font-size": 8.5,
+          fill: "#cbd5e1", "text-anchor": "middle", "letter-spacing": "1"
+        });
+        wsCodeEl.textContent = wsCode;
+        svg.appendChild(wsCodeEl);
       }
 
       const count = problems.length;
@@ -1399,6 +1404,18 @@
     updateAdvancedVisibility();
     syncAdvancedFromWithin();
     renderWithNewRandomization();
+
+    // Expose answer key capture for favorites pack system
+    window._amCaptureAnswerKeys = function() {
+      if (!currentState.sheets || !currentState.sheets.length) return [];
+      var opts = gatherOptions();
+      return currentState.sheets.map(function(sheet) {
+        try {
+          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true, includeExample: false }));
+          return sv.outerHTML;
+        } catch(e) { return ''; }
+      }).filter(Boolean);
+    };
   </script>
 <script src="../../favorites.js"></script>
 </body>

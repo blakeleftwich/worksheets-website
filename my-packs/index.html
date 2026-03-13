@@ -120,6 +120,11 @@
       .pack-actions { flex-wrap: wrap; }
     }
 
+    /* ===== Answer Key Checkbox ===== */
+    .ak-label { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; color: #64748b; cursor: pointer; white-space: nowrap; user-select: none; }
+    .ak-label:hover { color: #475569; }
+    .ak-checkbox { width: 15px; height: 15px; accent-color: #f59e0b; cursor: pointer; margin: 0; }
+
     /* ===== Rename Input ===== */
     .rename-input { font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 700; border: 2px solid #f59e0b; border-radius: 6px; padding: 2px 8px; outline: none; width: 250px; }
   </style>
@@ -240,6 +245,9 @@
               </div>
             </div>
             <div class="pack-actions">
+              <label class="ak-label" onclick="event.stopPropagation();" title="Include answer keys when printing">
+                <input type="checkbox" class="ak-checkbox" data-pack="${pack.id}"> Answer Key
+              </label>
               <button class="btn-print-all" onclick="event.stopPropagation(); openPrintPreview('${pack.id}');" ${wsCount === 0 ? 'disabled style="opacity:0.5;cursor:default;"' : ''}>🖨️ Print All</button>
               <button class="btn-rename" onclick="event.stopPropagation(); renamePack('${pack.id}');" title="Rename">✏️</button>
               <button class="btn-delete" onclick="event.stopPropagation(); deletePack('${pack.id}');" title="Delete pack">✕</button>
@@ -330,6 +338,10 @@
       const pack = packs.find(p => p.id === packId);
       if (!pack || pack.worksheets.length === 0) return;
 
+      // Check the answer key checkbox for this pack
+      const akCheckbox = document.querySelector(`.ak-checkbox[data-pack="${packId}"]`);
+      const includeAnswerKeys = akCheckbox ? akCheckbox.checked : false;
+
       document.getElementById('printTitle').textContent = pack.name;
       const pagesWrap = document.getElementById('printPages');
       pagesWrap.innerHTML = '';
@@ -347,8 +359,8 @@
           pagesWrap.appendChild(div);
         });
 
-        // Answer key pages
-        if (ws.answerKeySvgs && ws.answerKeySvgs.length > 0) {
+        // Answer key pages (only if checkbox is checked)
+        if (includeAnswerKeys && ws.answerKeySvgs && ws.answerKeySvgs.length > 0) {
           ws.answerKeySvgs.forEach(akSvg => {
             if (!akSvg.trim()) return;
             pageNum++;

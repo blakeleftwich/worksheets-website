@@ -319,7 +319,7 @@
 
     .btn-generate {
       background: #f1f5f9;
-      color: white;
+      color: #475569;
     }
 
     .btn-print {
@@ -532,16 +532,14 @@
             </select>
           </div>
 
-          <!-- Numbered -->
+          <!-- No numbers / All numbers overrides -->
           <div class="adv-checkbox-row">
-            <input type="checkbox" id="numbered" checked />
-            <label for="numbered">Numbered</label>
+            <input type="checkbox" id="noNumbers" />
+            <label for="noNumbers">No numbers (all blank)</label>
           </div>
-
-          <!-- Include example -->
           <div class="adv-checkbox-row">
-            <input type="checkbox" id="includeExample" />
-            <label for="includeExample">Include example</label>
+            <input type="checkbox" id="allNumbers" />
+            <label for="allNumbers">All numbers (none blank)</label>
           </div>
 
           <!-- Customize worksheet titles -->
@@ -629,14 +627,14 @@
     const elTitleInputWrap = document.getElementById("titleInputWrap");
     const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
     const elBranded = document.getElementById("branded");
-    const elNumbered = document.getElementById("numbered");
     const elAnswerKey = document.getElementById("answerKey");
     const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
     const elCustomTitleOptions = document.getElementById("customTitleOptions");
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
     const advArrow = document.getElementById("advArrow");
-    const elIncludeExample = document.getElementById("includeExample");
+    const elNoNumbers = document.getElementById("noNumbers");
+    const elAllNumbers = document.getElementById("allNumbers");
 
     // ===== Advanced panel toggle =====
     advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
@@ -688,8 +686,8 @@
         subtitle,
         branded: elBranded.checked,
         answerKey: elAnswerKey.checked,
-        numbered: elNumbered.checked,
-        includeExample: elIncludeExample.checked,
+        noNumbers: elNoNumbers.checked,
+        allNumbers: elAllNumbers.checked,
       };
     }
 
@@ -733,18 +731,33 @@
 
     // A "sheet" is an array of grids
     function generateSheet(opts) {
-      const { within, start, missingPercent } = opts;
+      const { within, start, missingPercent, noNumbers, allNumbers } = opts;
       const totalNumbers = within - start + 1;
+
+      // Override missing set for "No numbers" or "All numbers"
+      function getMissingSet() {
+        if (noNumbers) {
+          // All indices are missing (blank grid)
+          const all = new Set();
+          for (let i = 0; i < totalNumbers; i++) all.add(i);
+          return all;
+        }
+        if (allNumbers) {
+          // No indices are missing (full grid)
+          return new Set();
+        }
+        return generateMissingSet(totalNumbers, missingPercent);
+      }
 
       if (totalNumbers <= 10) {
         const gridCount = getSmallGridCount(totalNumbers, opts);
         const grids = [];
         for (let i = 0; i < gridCount; i++) {
-          grids.push({ start, within, totalNumbers, missingSet: generateMissingSet(totalNumbers, missingPercent) });
+          grids.push({ start, within, totalNumbers, missingSet: getMissingSet() });
         }
         return grids;
       } else {
-        return [{ start, within, totalNumbers, missingSet: generateMissingSet(totalNumbers, missingPercent) }];
+        return [{ start, within, totalNumbers, missingSet: getMissingSet() }];
       }
     }
 
@@ -863,6 +876,15 @@
         });
         bLine2.textContent = "\u00A9 2026 Eggroll Games";
         svg.appendChild(bLine2);
+        // Worksheet code — bottom center
+        const wsCode = 'WS' + Math.floor(Math.random() * 9000 + 1000);
+        const wsCodeEl = svgEl("text", {
+          x: pageW / 2, y: brandY + 30,
+          "font-family": "Fredoka, sans-serif", "font-size": 8.5,
+          fill: "#cbd5e1", "text-anchor": "middle", "letter-spacing": "1"
+        });
+        wsCodeEl.textContent = wsCode;
+        svg.appendChild(wsCodeEl);
       }
 
       const bottomMargin = branded ? 56 : 24;
@@ -1068,7 +1090,7 @@
       if (isMobile()) {
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample });
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: false, includeExample: false });
           p.appendChild(v); sheetWrap.appendChild(p);
         }
         return;
@@ -1088,12 +1110,12 @@
         sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample });
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: false, includeExample: false });
           v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
         }
       } else {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample });
+        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: false, includeExample: false });
         p.appendChild(v); sheetWrap.appendChild(p);
       }
     }
@@ -1105,14 +1127,14 @@
       sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }));
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: false, includeExample: false }));
         sheetWrap.appendChild(p);
       }
       const answerKeyPages = [];
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: true, numbered: opts.numbered, includeExample: false, isAnswerKey: true }));
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: true, numbered: false, includeExample: false, isAnswerKey: true }));
           sheetWrap.appendChild(p);
           answerKeyPages.push(p);
         }
@@ -1130,7 +1152,14 @@
     });
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
     elBranded.addEventListener("change", () => renderWithoutRandomization());
-    elNumbered.addEventListener("change", () => renderWithoutRandomization());
+    elNoNumbers.addEventListener("change", () => {
+      if (elNoNumbers.checked) elAllNumbers.checked = false;
+      renderWithNewRandomization();
+    });
+    elAllNumbers.addEventListener("change", () => {
+      if (elAllNumbers.checked) elNoNumbers.checked = false;
+      renderWithNewRandomization();
+    });
     elCustomTitleEnabled.addEventListener("change", () => {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
       renderWithoutRandomization();
@@ -1146,7 +1175,6 @@
     elHeaderText.addEventListener("input", () => renderWithoutRandomization());
     elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
     elAnswerKey.addEventListener("change", () => { });
-    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
     let resizeTimeout;
@@ -1154,6 +1182,18 @@
 
     // Init
     renderWithNewRandomization();
+
+    // Expose answer key capture for favorites pack system
+    window._amCaptureAnswerKeys = function() {
+      if (!currentState.sheets || !currentState.sheets.length) return [];
+      var opts = gatherOptions();
+      return currentState.sheets.map(function(sheet) {
+        try {
+          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true, includeExample: false }));
+          return sv.outerHTML;
+        } catch(e) { return ''; }
+      }).filter(Boolean);
+    };
   </script>
 <script src="../../favorites.js"></script>
 </body>
