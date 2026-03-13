@@ -1,8 +1,8 @@
 /* ============================================
-   Animal Math — Favorites Pack System
+   Animal Math — Worksheet Sets System
    Shared module loaded by all generator pages.
-   Auto-injects "Add to Pack" button + dropdown.
-   Stores packs in localStorage.
+   Auto-injects "Add to Set" button + dropdown.
+   Stores sets in localStorage.
    ============================================ */
 
 (function () {
@@ -80,7 +80,7 @@
 
   // ===== Fix relative paths in SVG markup =====
   // Converts relative image hrefs (e.g. "../branding/logo.jpg") to absolute URLs
-  // so SVGs render correctly when displayed on any page (like My Packs).
+  // so SVGs render correctly when displayed on any page (like My Worksheet Sets).
   function fixSvgPaths(svgHtml) {
     return svgHtml.replace(/(href=["'])(?!https?:\/\/|data:|#)([^"']+)(["'])/g, function(match, pre, path, post) {
       try {
@@ -164,7 +164,7 @@
         border:2px solid #fde68a; border-radius:8px; cursor:pointer;
         background:white; color:#b45309; transition:all 0.2s;
         display:flex; align-items:center; justify-content:center; gap:6px;
-      ">⭐ Add to Pack</button>
+      ">Add to Set</button>
       <div id="favPackDropdown" style="
         display:none; position:absolute; bottom:calc(100% + 8px); left:0; right:0;
         background:white; border:1px solid #e5e7eb; border-radius:10px;
@@ -172,15 +172,15 @@
       ">
         <div style="padding:10px 14px; font-family:'DM Sans',sans-serif; font-size:11px;
           font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;
-          border-bottom:1px solid #f1f5f9;">Add to Pack</div>
+          border-bottom:1px solid #f1f5f9;">Add to Set</div>
         <div id="favPackList"></div>
         <div id="favNewPackBtn" style="border-top:1px solid #f1f5f9; padding:10px 14px;
           display:flex; align-items:center; gap:6px; cursor:pointer; font-size:13px;
-          font-weight:600; color:#b45309;">＋ Create New Pack</div>
+          font-weight:600; color:#b45309;">＋ Create New Set</div>
         <div id="favNewPackInput" style="display:none; border-top:1px solid #f1f5f9;
           padding:10px 14px;">
           <div style="display:flex; gap:8px;">
-            <input id="favNewPackName" type="text" placeholder="Pack name..."
+            <input id="favNewPackName" type="text" placeholder="Set name..."
               style="flex:1; padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px;
               font-size:13px; outline:none; font-family:Inter,sans-serif;">
             <button id="favNewPackCreate" style="background:#f59e0b; color:white; border:none;
@@ -263,7 +263,7 @@
 
     if (packs.length === 0) {
       list.innerHTML = `<div style="padding:12px 14px; font-size:12px; color:#94a3b8; text-align:center;">
-        No packs yet — create one below</div>`;
+        No sets yet — create one below</div>`;
       return;
     }
 
@@ -344,7 +344,7 @@
     injectUI();
   }
 
-  // Expose PackManager globally for the My Packs page
+  // Expose PackManager globally for the My Worksheet Sets page
   window.AnimalMathPacks = PackManager;
 
 })();

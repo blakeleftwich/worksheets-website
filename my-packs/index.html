@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Packs — Animal Math</title>
+  <title>My Worksheet Sets — Animal Math</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -157,7 +157,7 @@
         <a href="../tools/index.html">Tools</a>
         <a href="https://apps.apple.com/us/app/animal-math-games-for-kids/id799973028" target="_blank">Mobile App</a>
         <a href="../about.html">About</a>
-        <a href="../my-packs/index.html" class="active">⭐ My Packs</a>
+        <a href="../my-packs/index.html" class="active">My Worksheet Sets</a>
       </nav>
     </div>
   </header>
@@ -166,7 +166,7 @@
   <div class="page">
     <div class="page-header">
       <div>
-        <h1>⭐ My Packs</h1>
+        <h1>My Worksheet Sets</h1>
         <div class="meta" id="packsMeta"></div>
       </div>
     </div>
@@ -178,7 +178,7 @@
   <div class="print-overlay" id="printOverlay">
     <div class="print-container">
       <div class="print-bar">
-        <h2 id="printTitle">Pack Name</h2>
+        <h2 id="printTitle">Set Name</h2>
         <div class="print-bar-actions">
           <button class="btn-close-print" onclick="closePrintPreview()">← Back</button>
           <button class="btn-do-print" onclick="doPrint()">🖨️ Print</button>
@@ -205,7 +205,7 @@
       const packs = getPacks();
       const total = packs.reduce((s, p) => s + p.worksheets.length, 0);
       document.getElementById('packsMeta').textContent =
-        packs.length === 0 ? '' : `${packs.length} pack${packs.length !== 1 ? 's' : ''} · ${total} worksheet${total !== 1 ? 's' : ''} saved`;
+        packs.length === 0 ? '' : `${packs.length} set${packs.length !== 1 ? 's' : ''} · ${total} worksheet${total !== 1 ? 's' : ''} saved`;
 
       const content = document.getElementById('packsContent');
 
@@ -213,8 +213,8 @@
         content.innerHTML = `
           <div class="empty-state">
             <div class="empty-icon">⭐</div>
-            <h2>No packs yet</h2>
-            <p>Generate a worksheet, then click "⭐ Add to Pack" to start building custom worksheet packs you can print together.</p>
+            <h2>No sets yet</h2>
+            <p>Generate a worksheet, then click "Add to Set" to start building custom worksheet sets you can print together.</p>
             <a href="../generators.html">Browse Generators</a>
           </div>`;
         return;
@@ -245,7 +245,7 @@
 
       // Build worksheet grid
       const wsGrid = wsCount === 0
-        ? '<div class="ws-empty">No worksheets in this pack yet.</div>'
+        ? '<div class="ws-empty">No worksheets in this set yet.</div>'
         : `<div class="ws-grid">${pack.worksheets.map(ws => renderWsItem(pack.id, ws)).join('')}</div>`;
 
       return `
@@ -264,7 +264,7 @@
               </label>
               <button class="btn-print-all" onclick="event.stopPropagation(); openPrintPreview('${pack.id}');" ${wsCount === 0 ? 'disabled style="opacity:0.5;cursor:default;"' : ''}>🖨️ Print All</button>
               <button class="btn-rename" onclick="event.stopPropagation(); renamePack('${pack.id}');" title="Rename">✏️</button>
-              <button class="btn-delete" onclick="event.stopPropagation(); deletePack('${pack.id}');" title="Delete pack">✕</button>
+              <button class="btn-delete" onclick="event.stopPropagation(); deletePack('${pack.id}');" title="Delete set">✕</button>
             </div>
           </div>
           <div class="pack-detail">${wsGrid}</div>
@@ -291,7 +291,7 @@
       const packs = getPacks();
       const pack = packs.find(p => p.id === packId);
       if (!pack) return;
-      if (!confirm(`Delete "${pack.name}"? This will remove all ${pack.worksheets.length} worksheet(s) in this pack.`)) return;
+      if (!confirm(`Delete "${pack.name}"? This will remove all ${pack.worksheets.length} worksheet(s) in this set.`)) return;
       savePacks(packs.filter(p => p.id !== packId));
       showToast(`Deleted "${pack.name}"`);
       render();
