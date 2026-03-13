@@ -379,6 +379,7 @@
 
     /* ===== Print ===== */
     @media print {
+      .site-nav-header { display: none !important; }
       .site-header { display: none !important; }
       .ak-print-only { display: block !important; }
       body {
@@ -432,6 +433,21 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+  <div class="site-nav-header" style="background:white;border-bottom:1px solid #e5e7eb;padding:0 24px;position:sticky;top:0;z-index:101;">
+    <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px;">
+      <a href="../../index.html" style="text-decoration:none;">
+        <img src="../branding/emma-logo-filled-no-stroke3.png" alt="Animal Math" style="height:44px;width:auto;display:block;">
+      </a>
+      <nav style="display:flex;align-items:center;gap:4px;">
+        <a href="../../printables/index.html" style="font-size:14px;font-weight:600;color:#64748b;text-decoration:none;padding:8px 16px;border-radius:8px;">Printables</a>
+        <a href="../../generators.html" style="font-size:14px;font-weight:600;color:#b45309;text-decoration:none;padding:8px 16px;border-radius:8px;background:#fef3c7;">Generators</a>
+        <a href="../../tools/index.html" style="font-size:14px;font-weight:600;color:#64748b;text-decoration:none;padding:8px 16px;border-radius:8px;">Tools</a>
+        <a href="https://apps.apple.com/us/app/animal-math-games-for-kids/id799973028" target="_blank" style="font-size:14px;font-weight:600;color:#64748b;text-decoration:none;padding:8px 16px;border-radius:8px;">Mobile App</a>
+        <a href="../../about.html" style="font-size:14px;font-weight:600;color:#64748b;text-decoration:none;padding:8px 16px;border-radius:8px;">About</a>
+        <a href="../../my-packs/index.html" style="font-size:14px;font-weight:600;color:#b45309;text-decoration:none;padding:8px 16px;border-radius:8px;">⭐ My Packs</a>
+      </nav>
+    </div>
+  </div>
   <header class="site-header">
     <div class="header-inner">
       
