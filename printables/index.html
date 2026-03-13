@@ -768,7 +768,8 @@
         grid.innerHTML = '';
 
         // Render 5 worksheet pages (skip answer keys which are pages 6–10)
-        const thumbWidth = 160;
+        // Render at 2x resolution for crisp retina-quality thumbnails
+        const thumbRenderWidth = 400;
         for (let p = 1; p <= 5; p++) {
           const cacheKey = `${key}-p${p}`;
           if (hoverCanvasCache[cacheKey]) {
@@ -776,7 +777,7 @@
           } else {
             const canvas = document.createElement('canvas');
             grid.appendChild(canvas);
-            renderPdfPage(cached.pdfDoc, p, canvas, thumbWidth).then(() => {
+            renderPdfPage(cached.pdfDoc, p, canvas, thumbRenderWidth).then(() => {
               hoverCanvasCache[cacheKey] = canvas;
             });
           }
@@ -784,7 +785,7 @@
 
         // Position near the card
         const rect = e.target.closest('.ws-card').getBoundingClientRect();
-        const popupW = thumbWidth * 3 + 8 * 2 + 28; // 3 cols + gaps + padding
+        const popupW = 160 * 3 + 8 * 2 + 28; // 3 CSS-sized cols + gaps + padding
         const popupH = 420; // approximate
 
         let left = rect.right + 14;
