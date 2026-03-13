@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../fonts/fonts.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', -apple-system, sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; }
@@ -101,19 +102,23 @@
 
     /* ===== Print styles ===== */
     @media print {
-      .site-header, .page, .print-bar, .toast { display: none !important; }
-      .print-overlay { position: static; background: none; display: block !important; }
-      .print-container { margin: 0; padding: 0; max-width: none; }
-      .print-pages-wrap { background: none; padding: 0; gap: 0; }
+      /* Hide everything except the print pages */
+      body > *:not(.print-overlay) { display: none !important; }
+      .print-overlay { position: static !important; background: none !important; display: block !important; overflow: visible !important; inset: auto !important; }
+      .print-container { margin: 0 !important; padding: 0 !important; max-width: none !important; }
+      .print-bar { display: none !important; }
+      .print-pages-wrap { background: none !important; padding: 0 !important; gap: 0 !important; display: block !important; border-radius: 0 !important; }
       .print-page-item {
-        box-shadow: none; border-radius: 0;
-        page-break-after: always; break-after: page;
-        width: 100vw; height: 100vh; padding: 0; margin: 0;
-        max-width: none;
+        box-shadow: none !important; border-radius: 0 !important;
+        page-break-after: always !important; break-after: page !important;
+        page-break-inside: avoid !important; break-inside: avoid !important;
+        width: 100% !important; padding: 0 !important; margin: 0 !important;
+        max-width: none !important;
       }
-      .print-page-item:last-child { page-break-after: auto; break-after: auto; }
-      .print-page-item svg { width: 100% !important; height: auto !important; }
-      body { background: white; margin: 0; padding: 0; }
+      .print-page-item:last-child { page-break-after: auto !important; break-after: auto !important; }
+      .print-page-item svg { width: 100% !important; height: auto !important; display: block !important; }
+      body { background: white !important; margin: 0 !important; padding: 0 !important; }
+      .toast { display: none !important; }
     }
     @page {
       size: letter;
@@ -233,7 +238,7 @@
 
       // Build mini thumbnails (max 4)
       const thumbs = pack.worksheets.slice(0, 4).map(ws => {
-        const svgs = ws.svgData.split('|||SVGSEP|||');
+        const svgs = fixSvgRefs(ws.svgData).split('|||SVGSEP|||');
         const firstSvg = svgs[0] || '';
         return `<div class="thumb-mini">${firstSvg}</div>`;
       }).join('');
@@ -267,7 +272,7 @@
     }
 
     function renderWsItem(packId, ws) {
-      const svgs = ws.svgData.split('|||SVGSEP|||');
+      const svgs = fixSvgRefs(ws.svgData).split('|||SVGSEP|||');
       const firstSvg = svgs[0] || '';
       const date = new Date(ws.added);
       const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -356,8 +361,8 @@
       pagesWrap.innerHTML = '';
 
       pack.worksheets.forEach(ws => {
-        // Worksheet pages
-        const svgs = ws.svgData.split('|||SVGSEP|||');
+        // Worksheet pages — fixSvgRefs repairs old data where #fragment refs got expanded to full URLs
+        const svgs = fixSvgRefs(ws.svgData).split('|||SVGSEP|||');
         svgs.forEach(svg => {
           if (!svg.trim()) return;
           const div = document.createElement('div');
@@ -372,7 +377,7 @@
             if (!akSvg.trim()) return;
             const div = document.createElement('div');
             div.className = 'print-page-item';
-            div.innerHTML = akSvg;
+            div.innerHTML = fixSvgRefs(akSvg);
             pagesWrap.appendChild(div);
           });
         }
@@ -388,7 +393,8 @@
     }
 
     function doPrint() {
-      window.print();
+      // Ensure all fonts (especially Google Sans Flex used in worksheet SVGs) are loaded before printing
+      document.fonts.ready.then(function() { window.print(); });
     }
 
     // ===== Toast =====
@@ -403,6 +409,13 @@
       const d = document.createElement('div');
       d.textContent = str;
       return d.innerHTML;
+    }
+
+    // Fix SVG data that was stored with full URL refs instead of #fragment refs.
+    // Older versions of the capture code converted href="#icon-X" to href="http://host/page#icon-X".
+    // SVG <use href> must be a bare #fragment to reference <symbol> within the same SVG.
+    function fixSvgRefs(svgHtml) {
+      return svgHtml.replace(/(href=["'])[^"']*?(#[^"']+)(["'])/g, '$1$2$3');
     }
 
     // ===== Init =====

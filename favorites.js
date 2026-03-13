@@ -152,7 +152,7 @@
 
     // Hide favorites UI elements when printing
     const printStyle = document.createElement('style');
-    printStyle.textContent = '@media print { #favToast, #favBtnAddToPack, #favPackDropdown { display: none !important; } }';
+    printStyle.textContent = '@media print { #favToast, #favBtnAddToPack, #favPackDropdown, #favToast * { display: none !important; visibility: hidden !important; position: absolute !important; width: 0 !important; height: 0 !important; overflow: hidden !important; } }';
     document.head.appendChild(printStyle);
 
     // Create the Add to Pack button container
