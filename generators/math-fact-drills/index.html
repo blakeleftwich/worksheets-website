@@ -588,6 +588,15 @@
             <input type="checkbox" id="useZero" checked />
             <label for="useZero">Allow zero</label>
           </div>
+          <div class="adv-sub" id="zeroPercentOptions" style="display:none;">
+            <label for="zeroPercent">Zero frequency</label>
+            <select id="zeroPercent">
+              <option value="25">~25% of problems</option>
+              <option value="50" selected>~50% of problems</option>
+              <option value="75">~75% of problems</option>
+              <option value="100">100% (always)</option>
+            </select>
+          </div>
 
           <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
@@ -688,6 +697,8 @@
     const elOpMul = document.getElementById("opMul");
     const elOpDiv = document.getElementById("opDiv");
     const elUseZero = document.getElementById("useZero");
+    const elZeroPercent = document.getElementById("zeroPercent");
+    const elZeroPercentOptions = document.getElementById("zeroPercentOptions");
     const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
     const elCustomTitleOptions = document.getElementById("customTitleOptions");
     const elIncludeExample = document.getElementById("includeExample") || { checked: false, addEventListener: function(){} };
@@ -700,7 +711,12 @@
     });
 
     // ===== Allow Zero =====
-    elUseZero.addEventListener("change", () => renderWithNewRandomization());
+    elUseZero.addEventListener("change", () => {
+      elZeroPercentOptions.style.display = elUseZero.checked ? "block" : "none";
+      renderWithNewRandomization();
+    });
+    elZeroPercent.addEventListener("change", () => { renderWithNewRandomization(); });
+    if (elUseZero.checked) elZeroPercentOptions.style.display = "block";
 
     // ===== Operations =====
     function getSelectedOps() {
@@ -848,6 +864,31 @@
       }
       while (problems.length < count) {
         problems.push({ top: Math.max(1, min1), bottom: Math.max(1, min2), op: operations[0], answer: 0 });
+      }
+
+      // Apply zero percentage: replace one operand with 0 for the specified % of problems
+      if (opts.useZero) {
+        const zeroCount = Math.max(1, Math.round(problems.length * opts.zeroPercent / 100));
+        const indices = problems.map((_, i) => i);
+        for (let i = indices.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [indices[i], indices[j]] = [indices[j], indices[i]]; }
+        const zeroIndices = new Set(indices.slice(0, zeroCount));
+        for (const idx of zeroIndices) {
+          const p = problems[idx];
+          const zeroTop = (p.op === "\u00f7") ? true : Math.random() < 0.5;
+          if (zeroTop) {
+            p.top = 0;
+            if (p.op === "+") p.answer = p.bottom;
+            else if (p.op === "-") { p.top = p.bottom; p.bottom = 0; p.answer = p.top; }
+            else if (p.op === "\u00d7") p.answer = 0;
+            else if (p.op === "\u00f7") { p.top = 0; p.answer = 0; }
+          } else {
+            p.bottom = 0;
+            if (p.op === "+") p.answer = p.top;
+            else if (p.op === "-") p.answer = p.top;
+            else if (p.op === "\u00d7") p.answer = 0;
+            else if (p.op === "\u00f7") { p.top = 0; p.answer = 0; }
+          }
+        }
       }
 
       // Always shuffle
@@ -1141,11 +1182,14 @@
       const ops = getSelectedOps();
       const w = getWithinValue();
       const useZero = elUseZero.checked;
-      const lo = useZero ? 0 : 1;
+      const zeroPercent = parseInt(elZeroPercent.value, 10);
+      const lo = 1;
       const showHeader = getHeaderMode();
       const title = getTitle();
       const subtitle = getSubtitle();
       return {
+        useZero,
+        zeroPercent,
         min1: lo,
         max1: w,
         min2: lo,

@@ -588,6 +588,15 @@
             <input type="checkbox" id="useZero" checked />
             <label for="useZero">Allow zero</label>
           </div>
+          <div class="adv-sub" id="zeroPercentOptions" style="display:none;">
+            <label for="zeroPercent">Zero frequency</label>
+            <select id="zeroPercent">
+              <option value="25">~25% of problems</option>
+              <option value="50" selected>~50% of problems</option>
+              <option value="75">~75% of problems</option>
+              <option value="100">100% (always)</option>
+            </select>
+          </div>
 
           <!-- Set digit count -->
           <div class="adv-checkbox-row">
@@ -796,6 +805,8 @@
     const elRegroupSection = document.getElementById("regroupSection");
     const elDivisionSection = document.getElementById("divisionSection");
     const elUseZero = document.getElementById("useZero");
+    const elZeroPercent = document.getElementById("zeroPercent");
+    const elZeroPercentOptions = document.getElementById("zeroPercentOptions");
     const elDigitLockEnabled = document.getElementById("digitLockEnabled");
     const elDigitLockOptions = document.getElementById("digitLockOptions");
     const elDigitLockMode = document.getElementById("digitLockMode");
@@ -825,7 +836,13 @@
       const opts = elWithin.querySelectorAll('option[value]:not([value="custom"])');
       opts.forEach((o, i) => { o.text = lo + ' to ' + vals[i]; });
     }
-    elUseZero.addEventListener("change", () => { updateRangeLabels(); syncAdvancedFromWithin(); renderWithNewRandomization(); });
+    elUseZero.addEventListener("change", () => {
+      elZeroPercentOptions.style.display = elUseZero.checked ? "block" : "none";
+      updateRangeLabels(); syncAdvancedFromWithin(); renderWithNewRandomization();
+    });
+    elZeroPercent.addEventListener("change", () => { renderWithNewRandomization(); });
+    // Show dropdown on load if checked
+    if (elUseZero.checked) elZeroPercentOptions.style.display = "block";
 
     // ===== Digit Lock =====
     elDigitLockEnabled.addEventListener("change", () => {
@@ -842,7 +859,7 @@
     }
 
     function digitRange(n) {
-      if (n <= 1) return { min: elUseZero.checked ? 0 : 1, max: 9 };
+      if (n <= 1) return { min: 1, max: 9 }; // Zero injection handled in post-processing
       return { min: Math.pow(10, n - 1), max: Math.pow(10, n) - 1 };
     }
 
@@ -903,7 +920,7 @@
     function syncAdvancedFromWithin() {
       if (elOverridesEnabled.checked) return; // don't overwrite manual overrides
       const w = getWithinValue();
-      const lo = elUseZero.checked ? 0 : 1;
+      const lo = 1; // Always generate with min=1; zero injection is handled in post-processing
       const d = getDigitCount();
       if (d) {
         const r = digitRange(d);
@@ -1069,6 +1086,34 @@
       }
       while (problems.length < count) { problems.push({ top: Math.max(1, min1), bottom: Math.max(1, min2), op: operations[0], answer: 0 }); }
 
+      // Apply zero percentage: replace one operand with 0 for the specified % of problems
+      if (opts.useZero) {
+        const zeroCount = Math.max(1, Math.round(problems.length * opts.zeroPercent / 100));
+        // Shuffle indices to pick which problems get a zero
+        const indices = problems.map((_, i) => i);
+        for (let i = indices.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [indices[i], indices[j]] = [indices[j], indices[i]]; }
+        const zeroIndices = new Set(indices.slice(0, zeroCount));
+        for (const idx of zeroIndices) {
+          const p = problems[idx];
+          // Pick which operand to zero out (skip for division bottom to avoid /0)
+          const zeroTop = (p.op === "\u00f7") ? true : Math.random() < 0.5;
+          if (zeroTop) {
+            p.top = 0;
+            if (p.op === "+") p.answer = p.bottom;
+            else if (p.op === "-") { p.top = p.bottom; p.bottom = 0; p.answer = p.top; }
+            else if (p.op === "\u00d7") p.answer = 0;
+            else if (p.op === "\u00f7") { p.top = 0; p.answer = 0; }
+          } else {
+            p.bottom = 0;
+            if (p.op === "+") p.answer = p.top;
+            else if (p.op === "-") p.answer = p.top;
+            else if (p.op === "\u00d7") p.answer = 0;
+            // Division by zero not allowed, zero the top instead
+            else if (p.op === "\u00f7") { p.top = 0; p.answer = 0; }
+          }
+        }
+      }
+
       // Always shuffle
       for (let i = problems.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [problems[i], problems[j]] = [problems[j], problems[i]]; }
       return problems;
@@ -1107,27 +1152,27 @@
           curY += 28;
         } else if (showHeader === "both") {
           svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#000000"
+            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Name")]));
           svg.appendChild(svgEl("line", {
             x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18,
-            stroke: "#000000", "stroke-width": 0.75
+            stroke: "#718096", "stroke-width": 0.75
           }));
           svg.appendChild(svgEl("text", {
-            x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#000000"
+            x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Date")]));
           svg.appendChild(svgEl("line", {
             x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
-            stroke: "#000000", "stroke-width": 0.75
+            stroke: "#718096", "stroke-width": 0.75
           }));
           curY += 28;
         } else if (showHeader === "name") {
           svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#000000"
+            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Name")]));
           svg.appendChild(svgEl("line", {
             x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
-            stroke: "#000000", "stroke-width": 0.75
+            stroke: "#718096", "stroke-width": 0.75
           }));
           curY += 28;
         }
@@ -1139,7 +1184,7 @@
         }
         if (subtitle) {
           svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#000000"
+            x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode(subtitle)]));
           curY += 20;
         }
@@ -1338,6 +1383,8 @@
         includeExample: elIncludeExample.checked,
         numbered: elNumbered.checked,
         showBoxes: elShowBoxes.checked,
+        useZero: elUseZero.checked,
+        zeroPercent: parseInt(elZeroPercent.value, 10),
       };
     }
 

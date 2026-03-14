@@ -516,6 +516,15 @@
             <input type="checkbox" id="allowZero" />
             <label for="allowZero">Allow zero</label>
           </div>
+          <div class="adv-sub" id="zeroPercentOptions" style="display:none;">
+            <label for="zeroPercent">Zero frequency</label>
+            <select id="zeroPercent">
+              <option value="25">~25% of problems</option>
+              <option value="50" selected>~50% of problems</option>
+              <option value="75">~75% of problems</option>
+              <option value="100">100% (always)</option>
+            </select>
+          </div>
 
           <!-- Style -->
           <div class="control-group">
@@ -613,6 +622,8 @@ const elShowSubtitle = document.getElementById("showSubtitle");
 const elTitleInputWrap = document.getElementById("titleInputWrap");
 const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
 const elAllowZero = document.getElementById("allowZero");
+const elZeroPercent = document.getElementById("zeroPercent");
+const elZeroPercentOptions = document.getElementById("zeroPercentOptions");
 const advToggle = document.getElementById("advToggle");
 const advPanel = document.getElementById("advPanel");
 const advArrow = document.getElementById("advArrow");
@@ -626,8 +637,7 @@ let currentState = {
 function getCountRange() {
   const parts = elCountRange.value.split("-");
   const rawMin = parseInt(parts[0], 10);
-  const min = (elAllowZero.checked && rawMin === 1) ? 0 : rawMin;
-  return { min, max: parseInt(parts[1], 10) };
+  return { min: rawMin, max: parseInt(parts[1], 10) };
 }
 
 function updateCountRangeLabels() {
@@ -679,7 +689,9 @@ function showStatus(msg) {
 advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
 
 // ===== Allow zero =====
-elAllowZero.addEventListener("change", () => { updateCountRangeLabels(); updateTitleFromSettings(); renderWithNewRandomization(); });
+elAllowZero.addEventListener("change", () => { elZeroPercentOptions.style.display = elAllowZero.checked ? "block" : "none"; updateCountRangeLabels(); updateTitleFromSettings(); renderWithNewRandomization(); });
+elZeroPercent.addEventListener("change", () => { renderWithNewRandomization(); });
+if (elAllowZero.checked) elZeroPercentOptions.style.display = "block";
 
 // ===== Name/Date toggle =====
 elShowHeaderEnabled.addEventListener("change", () => {
@@ -859,6 +871,18 @@ function generateRandomProblems(min, max, numProblems) {
   for (let i = 0; i < numProblems; i++) {
     problems.push({ count: placed[i], iconIndex: availableIcons[i] });
   }
+
+  // Apply zero percentage
+  if (elAllowZero.checked) {
+    const zp = parseInt(elZeroPercent.value, 10);
+    const zeroCount = Math.max(1, Math.round(problems.length * zp / 100));
+    const indices = problems.map((_, i) => i);
+    for (let i = indices.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [indices[i], indices[j]] = [indices[j], indices[i]]; }
+    for (let k = 0; k < zeroCount; k++) {
+      problems[indices[k]].count = 0;
+    }
+  }
+
   return problems;
 }
 
