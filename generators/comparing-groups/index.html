@@ -74,9 +74,11 @@
     }
     @page { size: letter; margin: 0.5in 0.4in 0in 0.4in; }
     @media (max-width: 1024px) {
+      .site-header { position: relative; }
       .main-container { grid-template-columns: 1fr; }
       .sidebar { position: relative; top: 0; height: auto; }
       .preview-area { padding: 20px; min-height: auto; }
+      .worksheet-page { scroll-margin-top: 72px; }
       .nav-links { gap: 2px; }
       .nav-links a { font-size: 13px; padding: 6px 10px; }
     }

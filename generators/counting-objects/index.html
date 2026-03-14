@@ -414,6 +414,7 @@
     }
 
     @media (max-width: 1024px) {
+      .site-header { position: relative; }
       .main-container {
         grid-template-columns: 1fr;
       }
@@ -427,6 +428,27 @@
       .preview-area {
         padding: 20px;
         min-height: auto;
+      }
+
+      .worksheet-page {
+        scroll-margin-top: 72px;
+        width: 100%;
+        max-width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+      }
+
+      .worksheet-page svg {
+        width: 100% !important;
+        height: auto !important;
+      }
+
+      #sheetWrap {
+        gap: 16px;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        padding: 0 !important;
       }
 
       .nav-links {

@@ -59,12 +59,13 @@
     .worksheet-page { background: white; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); overflow: hidden; padding: 12px; }
 
     @media (max-width: 900px) {
+      .site-header { position: relative; }
       .main-container { grid-template-columns: 1fr; }
       .sidebar { position: relative; height: auto; }
       .preview-area { padding: 12px; }
       #sheetWrap { gap: 16px; display: flex !important; flex-direction: column !important; align-items: center !important; padding: 0 !important; }
       #sheetWrap.grid-view { display: flex !important; flex-direction: column !important; grid-template-columns: none !important; padding: 0 !important; }
-      .worksheet-page { padding: 8px; width: 100%; max-width: 100%; }
+      .worksheet-page { padding: 8px; width: 100%; max-width: 100%; scroll-margin-top: 72px; }
       .worksheet-page svg { width: 100% !important; height: auto !important; }
     }
 
