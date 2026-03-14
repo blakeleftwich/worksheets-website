@@ -494,6 +494,14 @@
               <option value="1">Any minute</option>
             </select>
           </div>
+          <!-- Problems per Sheet -->
+          <div class="control-group" style="margin-bottom:12px;">
+            <label for="problemsPerSheet">Problems per Sheet</label>
+            <select id="problemsPerSheet">
+              <option value="6" selected>6</option>
+              <option value="9">9</option>
+            </select>
+          </div>
 
           <!-- Show tick marks -->
           <div class="adv-checkbox-row">
@@ -527,7 +535,7 @@
             </div>
             <div id="titleInputWrap">
               <label for="headerText">Title</label>
-              <input type="text" id="headerText" value="Telling Time: Draw the Hands" />
+              <input type="text" id="headerText" value="Telling Time" />
             </div>
             <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
               <input type="checkbox" id="showSubtitle" checked />
@@ -606,6 +614,7 @@
     const elTickStyle = document.getElementById("tickStyle");
     const elTickStyleOptions = document.getElementById("tickStyleOptions");
     const elMinuteIncrement = document.getElementById("minuteIncrement");
+    const elProblemsPerSheet = document.getElementById("problemsPerSheet");
     const elMinuteIncrementGroup = document.getElementById("minuteIncrementGroup");
     const elNumbered = document.getElementById("numbered");
     const elIncludeExample = document.getElementById("includeExample") || { checked: false, addEventListener: function(){} };
@@ -622,7 +631,7 @@
       if (elCustomTitleEnabled.checked) {
         return elShowTitle.checked ? elHeaderText.value : "";
       }
-      return elClockType.value === "hours" ? "Telling Time by Hours: Draw the Hands" : "Telling Time by Minutes: Draw the Hands";
+      return elClockType.value === "hours" ? "Telling Time by Hours" : "Telling Time by Minutes";
     }
 
     function getSubtitle() {
@@ -654,6 +663,7 @@
         numbered: elNumbered.checked,
         includeExample: elIncludeExample.checked,
         minuteIncrement: parseInt(elMinuteIncrement.value, 10),
+        problemsPerSheet: parseInt(elProblemsPerSheet.value, 10),
       };
     }
 
@@ -676,7 +686,8 @@
 
     function generateSheet(opts) {
       const times = [];
-      for (let i = 0; i < 9; i++) {
+      const numProblems = opts.problemsPerSheet || 9;
+      for (let i = 0; i < numProblems; i++) {
         times.push(generateRandomTime(opts.clockType, opts.minuteIncrement));
       }
       return times;
@@ -1009,7 +1020,9 @@
       const availH = pageH - bottomMargin - topGridY;
       const availW = pageW - margin * 2;
 
-      const cols = 3, rows = 3;
+      const totalProbs = sheetTimes.length;
+      const cols = totalProbs <= 6 ? 2 : 3;
+      const rows = Math.ceil(totalProbs / cols);
       const cellW = availW / cols;
       const cellH = availH / rows;
 
@@ -1018,7 +1031,7 @@
       const clockAreaH = cellH - boxH - boxGap;
       const radius = Math.min(cellW * 0.38, clockAreaH * 0.46);
 
-      for (let i = 0; i < 9; i++) {
+      for (let i = 0; i < totalProbs; i++) {
         const col = i % cols;
         const row = Math.floor(i / cols);
         const cellX = margin + col * cellW;
@@ -1240,6 +1253,7 @@
     let resizeTimeout;
     window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150); });
 
+    elProblemsPerSheet.addEventListener("change", () => renderWithNewRandomization());
     elMinuteIncrement.addEventListener("change", () => renderWithNewRandomization());
 
     // Init
