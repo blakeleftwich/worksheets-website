@@ -496,22 +496,16 @@
             </select>
           </div>
 
-          <!-- Show arrows -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="showArrows" checked />
-            <label for="showArrows">Show arrows</label>
-          </div>
-
           <!-- Show tick marks -->
           <div class="adv-checkbox-row">
-            <input type="checkbox" id="showTickMarks" />
+            <input type="checkbox" id="showTickMarks" checked />
             <label for="showTickMarks">Show tick marks</label>
           </div>
-          <div class="adv-sub" id="tickStyleOptions" style="display:none;">
+          <div class="adv-sub" id="tickStyleOptions">
             <label for="tickStyle">Style</label>
             <select id="tickStyle">
-              <option value="hours" selected>Hours Only</option>
-              <option value="minutes">Hours &amp; Minutes</option>
+              <option value="hours">Hours Only</option>
+              <option value="minutes" selected>Hours &amp; Minutes</option>
             </select>
           </div>
 
@@ -613,7 +607,7 @@
     const elShowTickMarks = document.getElementById("showTickMarks");
     const elTickStyle = document.getElementById("tickStyle");
     const elTickStyleOptions = document.getElementById("tickStyleOptions");
-    const elShowArrows = document.getElementById("showArrows");
+
     const elMinuteIncrement = document.getElementById("minuteIncrement");
     const elMinuteIncrementGroup = document.getElementById("minuteIncrementGroup");
     const elIncludeExample = document.getElementById("includeExample") || { checked: false, addEventListener: function(){} };
@@ -630,7 +624,7 @@
       if (elCustomTitleEnabled.checked) {
         return elShowTitle.checked ? elHeaderText.value : "";
       }
-      return elClockType.value === "hours" ? "Telling Time - Hours" : "Telling Time - Hours & Minutes";
+      return elClockType.value === "hours" ? "Telling Time by Hours" : "Telling Time by Minutes";
     }
 
     function getSubtitle() {
@@ -658,7 +652,7 @@
         branded: elBranded.checked,
         answerKey: elAnswerKey.checked,
         tickStyle,
-        showArrows: elShowArrows.checked,
+        showArrows: true,
         numbered: elNumbered.checked,
         includeExample: elIncludeExample.checked,
         minuteIncrement: parseInt(elMinuteIncrement.value, 10),
@@ -1124,13 +1118,8 @@
     }
 
     elClockType.addEventListener("change", () => {
-      if (elClockType.value === "minutes") {
-        elShowTickMarks.checked = true;
-        elTickStyle.value = "minutes";
-      } else {
-        elShowTickMarks.checked = false;
-        elTickStyle.value = "hours";
-      }
+      elShowTickMarks.checked = true;
+      elTickStyle.value = elClockType.value === "minutes" ? "minutes" : "hours";
       syncTickMarksUI();
       syncMinuteIncrementUI();
       renderWithNewRandomization();
@@ -1138,7 +1127,7 @@
 
     elShowTickMarks.addEventListener("change", () => { syncTickMarksUI(); renderWithoutRandomization(); });
     elTickStyle.addEventListener("change", () => renderWithoutRandomization());
-    elShowArrows.addEventListener("change", () => renderWithoutRandomization());
+
     elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elShowHeaderEnabled.addEventListener("change", () => {

@@ -491,14 +491,17 @@
       // Layout: [frame1] gap [sign] gap [frame2] gap [sign] gap [answerBox]
       const gap = 6;
       const signW = 20;
-      const ansBoxW = 44;
-      const ansBoxH = 44;
-      const fixedW = 4 * gap + 2 * signW + ansBoxW;
+      // Initial estimate for ansBox size to calculate cellSize
+      const estCellSize = clamp(Math.min(Math.floor((availW - 4 * gap - 2 * signW - 44) / 10), Math.floor((rowH - 14) / 2)), 14, 44);
+      const estAnsBox = 2 * estCellSize;
+      const fixedW = 4 * gap + 2 * signW + estAnsBox;
       const maxCellFromWidth = Math.floor((availW - fixedW) / 10);
       const maxCellFromHeight = Math.floor((rowH - 14) / 2);
       const cellSize = clamp(Math.min(maxCellFromWidth, maxCellFromHeight), 14, 44);
       const frameW = 5 * cellSize;
       const frameH = 2 * cellSize;
+      const ansBoxW = frameH;
+      const ansBoxH = frameH;
 
       const signFontSize = clamp(Math.round(cellSize * 1.1), 22, 36);
       const answerFontSize = clamp(Math.round(cellSize * 0.85), 16, 28);

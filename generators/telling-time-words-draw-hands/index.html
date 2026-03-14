@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Telling Time: Draw the Hands Worksheet Generator</title>
+  <title>Telling Time: Words to Clock Worksheet Generator</title>
   <style>
     * {
       margin: 0;
@@ -441,8 +441,8 @@
   <div class="main-container">
     <!-- Left sidebar controls -->
     <div class="sidebar">
-	
-      <h2>Telling Time: Draw the Hands Worksheet Generator</h2>
+
+      <h2>Telling Time: Words to Clock Worksheet Generator</h2>
 
       <div class="control-group">
         <label for="clockType">Clock Type</label>
@@ -477,7 +477,7 @@
 
       <!-- Advanced Options -->
       <div class="advanced-toggle" id="advToggle">
-        <span class="toggle-arrow" id="advArrow">▶</span>
+        <span class="toggle-arrow" id="advArrow">&#9654;</span>
         <span>Advanced Options</span>
       </div>
       <div class="advanced-panel" id="advPanel">
@@ -527,7 +527,7 @@
             </div>
             <div id="titleInputWrap">
               <label for="headerText">Title</label>
-              <input type="text" id="headerText" value="Telling Time: Draw the Hands" />
+              <input type="text" id="headerText" value="Telling Time by Minutes: Draw the Hands" />
             </div>
             <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
               <input type="checkbox" id="showSubtitle" checked />
@@ -562,8 +562,8 @@
       </div>
 
       <div class="button-group">
-        <button class="btn-generate" id="btnGenerate">🔄 Generate New</button>
-        <button class="btn-print" id="btnPrint">🖨️ Print</button>
+        <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
+        <button class="btn-print" id="btnPrint">&#128424; Print</button>
       </div>
     </div>
 
@@ -580,6 +580,29 @@
       if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
       if (children) children.forEach(c => el.appendChild(c));
       return el;
+    }
+
+    // ===== Time to Words =====
+    function timeToWords(hour, minute) {
+      const ones = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+        'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+      const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty'];
+      function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+      const hourWord = ones[hour];
+      if (minute === 0) {
+        return capitalize(hourWord) + " o'clock";
+      }
+      let minuteWord;
+      if (minute < 20) {
+        minuteWord = ones[minute];
+      } else {
+        minuteWord = tens[Math.floor(minute / 10)];
+        if (minute % 10 > 0) minuteWord += '-' + ones[minute % 10];
+      }
+      if (minute < 10) {
+        minuteWord = 'oh ' + minuteWord;
+      }
+      return capitalize(hourWord) + ' ' + minuteWord;
     }
 
     // ===== Element refs =====
@@ -608,7 +631,6 @@
     const elMinuteIncrement = document.getElementById("minuteIncrement");
     const elMinuteIncrementGroup = document.getElementById("minuteIncrementGroup");
     const elNumbered = document.getElementById("numbered");
-    const elIncludeExample = document.getElementById("includeExample") || { checked: false, addEventListener: function(){} };
 
     // ===== Advanced panel toggle =====
     advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
@@ -652,7 +674,6 @@
         tickStyle,
         showArrows: true,
         numbered: elNumbered.checked,
-        includeExample: elIncludeExample.checked,
         minuteIncrement: parseInt(elMinuteIncrement.value, 10),
       };
     }
@@ -867,49 +888,39 @@
       }));
     }
 
-    // ===== Draw time display box below a clock =====
-    function drawTimeBox(svg, cx, boxTopY, boxH, time) {
+    // ===== Draw written time text box above the clock =====
+    function drawTimeWordsBox(svg, cx, boxTopY, boxW, boxH, time) {
       const color = "#2d3748";
-      const boxW = boxH * 3.2;
       const startX = cx - boxW / 2;
+      const text = timeToWords(time.hour, time.minute);
 
+      // Rounded rect background
       svg.appendChild(svgEl("rect", {
         x: startX, y: boxTopY, width: boxW, height: boxH,
-        fill: "none", stroke: color, "stroke-width": "1.5", rx: 3
+        fill: "#f8fafc", stroke: "#e2e8f0", "stroke-width": "1.2", rx: 6
       }));
 
-      // Colon
-      const colonY = boxTopY + boxH / 2;
-      const colonGap = boxH * 0.08;
-      const dotR = boxH * 0.07;
-      svg.appendChild(svgEl("circle", { cx, cy: colonY - boxH * 0.15, r: dotR, fill: color }));
-      svg.appendChild(svgEl("circle", { cx, cy: colonY + boxH * 0.15, r: dotR, fill: color }));
+      // Auto-scale font size based on text length
+      let fontSize = boxH * 0.52;
+      if (text.length > 18) fontSize = boxH * 0.42;
+      if (text.length > 22) fontSize = boxH * 0.36;
+      if (text.length > 26) fontSize = boxH * 0.32;
 
-      // Always show the time (this IS the prompt)
-      const fontSize = boxH * 0.75;
-      const hourStr = String(time.hour);
-      const minStr = String(time.minute).padStart(2, "0");
-
-      const hEl = svgEl("text", {
-        x: cx - colonGap, y: boxTopY + boxH / 2 + fontSize * 0.35,
-        "text-anchor": "end", "font-family": "'Google Sans Flex', sans-serif",
-        "font-size": String(fontSize), "font-weight": "500", fill: color
+      const textEl = svgEl("text", {
+        x: cx, y: boxTopY + boxH / 2 + fontSize * 0.35,
+        "text-anchor": "middle",
+        "font-family": "'Google Sans Flex', sans-serif",
+        "font-size": String(fontSize),
+        "font-weight": "600",
+        fill: color
       });
-      hEl.textContent = hourStr;
-      svg.appendChild(hEl);
-
-      const mEl = svgEl("text", {
-        x: cx + colonGap, y: boxTopY + boxH / 2 + fontSize * 0.35,
-        "text-anchor": "start", "font-family": "'Google Sans Flex', sans-serif",
-        "font-size": String(fontSize), "font-weight": "500", fill: color
-      });
-      mEl.textContent = minStr;
-      svg.appendChild(mEl);
+      textEl.textContent = text;
+      svg.appendChild(textEl);
     }
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(sheetTimes, options, wsCode) {
-      const { showHeader, title, subtitle, branded, isAnswerKey, tickStyle, showArrows, numbered, includeExample } = options;
+      const { showHeader, title, subtitle, branded, isAnswerKey, tickStyle, showArrows, numbered } = options;
       const color = "#2d3748";
       const pageW = 612, pageH = 792, margin = 36;
 
@@ -994,7 +1005,7 @@
         });
         bLine2.textContent = "\u00A9 2026 Eggroll Games";
         svg.appendChild(bLine2);
-        // Worksheet code — bottom center
+        // Worksheet code -- bottom center
         if (!wsCode) wsCode = '(1)';
         const wsCodeEl = svgEl("text", {
           x: pageW / 2, y: pageH - 4,
@@ -1013,10 +1024,12 @@
       const cellW = availW / cols;
       const cellH = availH / rows;
 
-      const boxH = Math.min(cellH * 0.17, 36);
-      const boxGap = cellH * 0.04;
-      const clockAreaH = cellH - boxH - boxGap;
+      // Layout: text box on top, clock below
+      const textBoxH = Math.min(cellH * 0.17, 36);
+      const textBoxGap = cellH * 0.03;
+      const clockAreaH = cellH - textBoxH - textBoxGap;
       const radius = Math.min(cellW * 0.38, clockAreaH * 0.46);
+      const textBoxW = cellW * 0.88;
 
       for (let i = 0; i < 9; i++) {
         const col = i % cols;
@@ -1024,9 +1037,9 @@
         const cellX = margin + col * cellW;
         const cellY = topGridY + row * cellH;
         const ccx = cellX + cellW / 2;
-        const ccy = cellY + clockAreaH / 2;
         const time = sheetTimes[i];
 
+        // Problem number
         if (numbered !== false) {
           const probNumSize = 10;
           const numEl = svgEl("text", { x: cellX + 2, y: cellY + 12, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
@@ -1034,59 +1047,20 @@
           svg.appendChild(numEl);
         }
 
-        const isExample = (i === 0 && includeExample && !isAnswerKey);
+        // Written time text box at top of cell
+        const textBoxY = cellY + 4;
+        drawTimeWordsBox(svg, ccx, textBoxY, textBoxW, textBoxH, time);
+
+        // Clock center below the text box
+        const clockTopY = textBoxY + textBoxH + textBoxGap;
+        const ccy = clockTopY + clockAreaH / 2;
 
         if (isAnswerKey) {
           // Answer key: draw clock WITH hands
           drawClockWithHands(svg, ccx, ccy, radius, time.hour, time.minute, tickStyle, showArrows);
-        } else if (isExample) {
-          // Example: draw clock face + hands in green
-          drawClockFace(svg, ccx, ccy, radius, tickStyle);
-          // Draw hands in green
-          const exColor = "#16a34a";
-          const hasTicks = tickStyle !== "none";
-          const minuteLen = hasTicks ? radius * 0.57 : radius * 0.68;
-          const hourLen = hasTicks ? radius * 0.44 : radius * 0.48;
-          const hourAngle = ((time.hour % 12) * 30 + time.minute * 0.5 - 90) * Math.PI / 180;
-          const minuteAngle = (time.minute * 6 - 90) * Math.PI / 180;
-          // Hour hand
-          const hx2 = ccx + Math.cos(hourAngle) * hourLen;
-          const hy2 = ccy + Math.sin(hourAngle) * hourLen;
-          svg.appendChild(svgEl("line", {
-            x1: ccx, y1: ccy, x2: hx2, y2: hy2,
-            stroke: exColor, "stroke-width": "3.5", "stroke-linecap": "round"
-          }));
-          // Minute hand
-          const mx2 = ccx + Math.cos(minuteAngle) * minuteLen;
-          const my2 = ccy + Math.sin(minuteAngle) * minuteLen;
-          svg.appendChild(svgEl("line", {
-            x1: ccx, y1: ccy, x2: mx2, y2: my2,
-            stroke: exColor, "stroke-width": "2", "stroke-linecap": "round"
-          }));
-          // Center dot in green on top
-          svg.appendChild(svgEl("circle", { cx: ccx, cy: ccy, r: radius * 0.04, fill: exColor }));
         } else {
           // Worksheet: draw clock WITHOUT hands
           drawClockFace(svg, ccx, ccy, radius, tickStyle);
-        }
-
-        // Time box always shows the time (it's the prompt)
-        const boxTopY = cellY + clockAreaH + boxGap;
-        drawTimeBox(svg, ccx, boxTopY, boxH, time);
-
-        // Example badge above clock
-        if (isExample) {
-          const badgeW = 42, badgeH = 13;
-          const badgeX = ccx - badgeW / 2;
-          const badgeY = cellY + 14;
-          svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: badgeW, height: badgeH, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "1" }));
-          const badgeText = svgEl("text", {
-            x: ccx, y: badgeY + badgeH * 0.75,
-            "text-anchor": "middle", "font-family": "Fredoka, sans-serif",
-            "font-size": "8", "font-weight": "600", fill: "#16a34a"
-          });
-          badgeText.textContent = "Example";
-          svg.appendChild(badgeText);
         }
       }
 
@@ -1104,7 +1078,6 @@
         tickStyle: opts.tickStyle,
         showArrows: opts.showArrows,
         numbered: opts.numbered,
-        includeExample: isAnswerKey ? false : opts.includeExample,
       };
     }
 
@@ -1210,7 +1183,6 @@
     });
 
     elNumbered.addEventListener("change", () => renderWithoutRandomization());
-    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     elShowTickMarks.addEventListener("change", () => { syncTickMarksUI(); renderWithoutRandomization(); });
     elTickStyle.addEventListener("change", () => renderWithoutRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
@@ -1253,7 +1225,7 @@
       var opts = gatherOptions();
       return currentState.sheets.map(function(sheet, idx) {
         try {
-          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true, includeExample: false }), '(' + (idx + 1) + ')');
+          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true }), '(' + (idx + 1) + ')');
           return sv.outerHTML;
         } catch(e) { return ''; }
       }).filter(Boolean);
