@@ -818,7 +818,7 @@
         bLine2.textContent = "\u00A9 2026 Eggroll Games";
         svg.appendChild(bLine2);
         // Worksheet code — bottom center
-        if (!wsCode) wsCode = 'WS' + Math.floor(Math.random() * 9000 + 1000);
+        if (!wsCode) wsCode = '(1)';
         const wsCodeEl = svgEl("text", {
           x: pageW / 2, y: pageH - 4,
           "font-family": "Fredoka, sans-serif", "font-size": 8.5,
@@ -1188,7 +1188,7 @@
       const opts = gatherOptions();
       const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
       sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
-      const wsCodes = currentState.sheets.map(() => 'WS' + Math.floor(Math.random() * 9000 + 1000));
+      const wsCodes = currentState.sheets.map((_, i) => '(' + (i + 1) + ')');
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div"); p.className = "worksheet-page";
         p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
@@ -1262,9 +1262,9 @@
     window._amCaptureAnswerKeys = function() {
       if (!currentState.sheets || !currentState.sheets.length) return [];
       var opts = gatherOptions();
-      return currentState.sheets.map(function(sheet) {
+      return currentState.sheets.map(function(sheet, idx) {
         try {
-          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true, includeExample: false }));
+          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true, includeExample: false }), '(' + (idx + 1) + ')');
           return sv.outerHTML;
         } catch(e) { return ''; }
       }).filter(Boolean);

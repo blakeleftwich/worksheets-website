@@ -749,7 +749,7 @@ function handlePrint() {
 
   const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
   sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
-  const wsCodes = currentState.sheets.map(() => 'WS' + Math.floor(Math.random() * 9000 + 1000));
+  const wsCodes = currentState.sheets.map((_, i) => '(' + (i + 1) + ')');
   for (let i = 0; i < currentState.sheets.length; i++) {
     const p = document.createElement("div"); p.className = "worksheet-page";
     p.appendChild(generateWorksheetSvg(currentState.sheets[i], style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCodes[i]));
@@ -1008,7 +1008,7 @@ function renderWorksheet() {
     
     // Render each sheet
     for (let s = 0; s < numSheets; s++) {
-      const wsCode = 'WS' + Math.floor(Math.random() * 9000 + 1000);
+      const wsCode = '(' + (s + 1) + ')';
       const problems = currentState.sheets[s];
       const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode);
       svg.setAttribute('width', scaledWidth);
@@ -1027,7 +1027,7 @@ function renderWorksheet() {
     // Single sheet - render at full size
     if (currentState.sheets.length > 0) {
       const problems = currentState.sheets[0];
-      const wsCode = 'WS' + Math.floor(Math.random() * 9000 + 1000);
+      const wsCode = '(1)';
       const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode);
 
       const page = document.createElement("div");
@@ -2105,9 +2105,9 @@ renderWithNewRandomization();
     window._amCaptureAnswerKeys = function() {
       if (!currentState.sheets || !currentState.sheets.length) return [];
       var opts = gatherOptions();
-      return currentState.sheets.map(function(sheet) {
+      return currentState.sheets.map(function(sheet, idx) {
         try {
-          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true, includeExample: false }));
+          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true, includeExample: false }), '(' + (idx + 1) + ')');
           return sv.outerHTML;
         } catch(e) { return ''; }
       }).filter(Boolean);
