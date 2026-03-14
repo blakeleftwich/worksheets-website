@@ -447,8 +447,8 @@
       <div class="control-group">
         <label for="clockType">Clock Type</label>
         <select id="clockType">
-          <option value="hours" selected>Hours</option>
-          <option value="minutes">Hours &amp; Minutes</option>
+          <option value="hours">Hours</option>
+          <option value="minutes" selected>Hours &amp; Minutes</option>
         </select>
       </div>
 
@@ -483,6 +483,18 @@
       <div class="advanced-panel" id="advPanel">
         <div class="advanced-panel-inner">
 
+          <!-- Minute Increments -->
+          <div class="control-group" id="minuteIncrementGroup">
+            <label for="minuteIncrement">Minute Increments</label>
+            <select id="minuteIncrement">
+              <option value="30" selected>By 30 minutes</option>
+              <option value="15">By 15 minutes</option>
+              <option value="10">By 10 minutes</option>
+              <option value="5">By 5 minutes</option>
+              <option value="1">Any minute</option>
+            </select>
+          </div>
+
           <!-- Show tick marks -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="showTickMarks" />
@@ -493,18 +505,6 @@
             <select id="tickStyle">
               <option value="hours" selected>Hours Only</option>
               <option value="minutes">Hours &amp; Minutes</option>
-            </select>
-          </div>
-
-          <!-- Minute Increments -->
-          <div class="control-group" id="minuteIncrementGroup" style="display:none;">
-            <label for="minuteIncrement">Minute Increments</label>
-            <select id="minuteIncrement">
-              <option value="15" selected>By 15 minutes</option>
-              <option value="30">By 30 minutes</option>
-              <option value="10">By 10 minutes</option>
-              <option value="5">By 5 minutes</option>
-              <option value="1">Any minute</option>
             </select>
           </div>
 
