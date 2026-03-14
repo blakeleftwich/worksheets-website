@@ -460,27 +460,6 @@
       </div>
 
       <div class="control-group">
-        <label for="problemsPerSheet">Problems per Sheet</label>
-        <select id="problemsPerSheet">
-          <option value="4">4</option>
-          <option value="6" selected>6</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-          <option value="10">10</option>
-          <option value="12">12</option>
-        </select>
-      </div>
-
-      <div class="control-group">
-        <label for="dotStyle">Dot Style</label>
-        <select id="dotStyle">
-          <option value="circles" selected>Filled circles</option>
-          <option value="stars">Stars</option>
-          <option value="hearts">Hearts</option>
-        </select>
-      </div>
-
-      <div class="control-group">
         <label for="numWorksheets">Number of Worksheets</label>
         <select id="numWorksheets">
           <option value="1" selected>1</option>
@@ -510,6 +489,15 @@
       </div>
       <div class="advanced-panel" id="advPanel">
         <div class="advanced-panel-inner">
+
+          <!-- Problems per sheet -->
+          <div class="control-group" style="margin-bottom:12px;">
+            <label for="problemsPerSheet">Problems per Sheet</label>
+            <select id="problemsPerSheet">
+              <option value="6" selected>6</option>
+              <option value="8">8</option>
+            </select>
+          </div>
 
           <!-- Number line hint -->
           <div class="adv-checkbox-row">
@@ -597,7 +585,6 @@
     const elMode = document.getElementById("modeSelect");
     const elRange = document.getElementById("rangeSelect");
     const elProblems = document.getElementById("problemsPerSheet");
-    const elDotStyle = document.getElementById("dotStyle");
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
     const elNumberLineHint = document.getElementById("numberLineHint");
@@ -684,31 +671,12 @@
     }
 
     // ===== SVG dot shapes =====
-    function drawDot(svg, cx, cy, r, style) {
-      if (style === "stars") {
-        // 5-pointed star
-        const points = [];
-        for (let i = 0; i < 10; i++) {
-          const angle = (Math.PI / 2) * -1 + (Math.PI / 5) * i;
-          const rad = i % 2 === 0 ? r : r * 0.4;
-          points.push((cx + rad * Math.cos(angle)).toFixed(1) + "," + (cy + rad * Math.sin(angle)).toFixed(1));
-        }
-        svg.appendChild(svgEl("polygon", { points: points.join(" "), fill: "#e53e3e" }));
-      } else if (style === "hearts") {
-        // Heart shape using a path
-        const s = r / 6;
-        const path = "M " + cx + " " + (cy + s * 2.5) +
-          " C " + (cx - s * 3) + " " + (cy - s * 1) + ", " + (cx - s * 6) + " " + (cy - s * 3.5) + ", " + cx + " " + (cy - s * 6) +
-          " C " + (cx + s * 6) + " " + (cy - s * 3.5) + ", " + (cx + s * 3) + " " + (cy - s * 1) + ", " + cx + " " + (cy + s * 2.5) + " Z";
-        svg.appendChild(svgEl("path", { d: path, fill: "#e53e3e" }));
-      } else {
-        // Filled circle (default)
-        svg.appendChild(svgEl("circle", { cx: cx, cy: cy, r: r, fill: "#2b6cb0" }));
-      }
+    function drawDot(svg, cx, cy, r) {
+      svg.appendChild(svgEl("circle", { cx: cx, cy: cy, r: r, fill: "#4a5568" }));
     }
 
     // ===== Draw a single ten frame =====
-    function drawTenFrame(svg, x, y, cellSize, filledCount, dotStyle, showDots) {
+    function drawTenFrame(svg, x, y, cellSize, filledCount, _unused, showDots) {
       const cols = 5, rows = 2;
       const frameW = cols * cellSize;
       const frameH = rows * cellSize;
@@ -727,7 +695,7 @@
             const cellIndex = r * cols + c; // left-to-right, top-to-bottom
             if (cellIndex < filledCount) {
               const dotR = cellSize * 0.28;
-              drawDot(svg, cx + cellSize / 2, cy + cellSize / 2, dotR, dotStyle);
+              drawDot(svg, cx + cellSize / 2, cy + cellSize / 2, dotR);
             }
           }
         }
@@ -908,6 +876,10 @@
       // Problem number font size
       const probNumSize = 11;
 
+      // Answer box dimensions
+      const boxW = Math.max(36, cellSize * 1.2);
+      const boxH = Math.max(28, cellSize * 0.9);
+
       for (let i = 0; i < problems.length; i++) {
         const col = i % cols;
         const row = Math.floor(i / cols);
@@ -924,83 +896,77 @@
           numLabel.textContent = (i + 1) + "."; svg.appendChild(numLabel);
         }
 
-        // Center the frame + answer area within the cell
-        const contentCenterY = cellTop + rowH / 2;
-        // Horizontally center the frame block within the cell (with a small left offset for the problem number)
+        // Position content higher within each cell (0.43 instead of 0.5)
+        const contentCenterY = cellTop + rowH * 0.43;
+        // Horizontally center the frame block within the cell
         const contentStartX = cellLeft + (colW - totalFrameW) / 2 + 6;
 
         if (mode === "count") {
-          // "Count the dots" mode: show filled ten frame, student writes the number
-          // Vertical gap between bottom of ten frame and answer line
-          const answerGap = Math.max(22, cellSize * 0.7);
+          // "Count the dots" mode: show filled ten frame, student writes the number in a box
+          const answerGap = Math.max(16, cellSize * 0.5);
           if (isDouble && num > 10) {
-            // Two ten frames side by side
-            const totalBlockH = singleFrameH + answerGap + 4;
+            const totalBlockH = singleFrameH + answerGap + boxH;
             const frameBlockY = contentCenterY - totalBlockH / 2;
-            drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 10, dotStyle, true);
-            drawTenFrame(svg, contentStartX + singleFrameW + doubleGap, frameBlockY, cellSize, num - 10, dotStyle, true);
+            drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 10, null, true);
+            drawTenFrame(svg, contentStartX + singleFrameW + doubleGap, frameBlockY, cellSize, num - 10, null, true);
 
-            // Answer line below
-            const lineY = frameBlockY + singleFrameH + answerGap;
-            const lineW = 50;
-            const lineCx = contentStartX + totalFrameW / 2;
-            svg.appendChild(svgEl("line", { x1: lineCx - lineW / 2, y1: lineY, x2: lineCx + lineW / 2, y2: lineY, stroke: "#2d3748", "stroke-width": "1.5" }));
+            // Answer box below
+            const boxY = frameBlockY + singleFrameH + answerGap;
+            const boxCx = contentStartX + totalFrameW / 2;
+            svg.appendChild(svgEl("rect", { x: boxCx - boxW / 2, y: boxY, width: boxW, height: boxH, fill: "none", stroke: "#cbd5e1", "stroke-width": "1.5", rx: 4, ry: 4 }));
 
             if (showAnswers || isExample) {
               const ansColor = showAnswers ? "#3182ce" : "#16a34a";
-              const ansEl = svgEl("text", { x: lineCx, y: lineY - 5, "font-family": "Fredoka, sans-serif", "font-size": "16", "font-weight": "700", "text-anchor": "middle", fill: ansColor });
+              const ansEl = svgEl("text", { x: boxCx, y: boxY + boxH * 0.72, "font-family": "Fredoka, sans-serif", "font-size": String(Math.round(boxH * 0.6)), "font-weight": "700", "text-anchor": "middle", fill: ansColor });
               ansEl.textContent = String(num); svg.appendChild(ansEl);
             }
           } else {
-            // Single ten frame
-            const totalBlockH = singleFrameH + answerGap + 4;
+            const totalBlockH = singleFrameH + answerGap + boxH;
             const frameBlockY = contentCenterY - totalBlockH / 2;
-            drawTenFrame(svg, contentStartX, frameBlockY, cellSize, num, dotStyle, true);
+            drawTenFrame(svg, contentStartX, frameBlockY, cellSize, num, null, true);
 
-            // Answer line below
-            const lineY = frameBlockY + singleFrameH + answerGap;
-            const lineW = 50;
-            const lineCx = contentStartX + singleFrameW / 2;
-            svg.appendChild(svgEl("line", { x1: lineCx - lineW / 2, y1: lineY, x2: lineCx + lineW / 2, y2: lineY, stroke: "#2d3748", "stroke-width": "1.5" }));
+            // Answer box below
+            const boxY = frameBlockY + singleFrameH + answerGap;
+            const boxCx = contentStartX + singleFrameW / 2;
+            svg.appendChild(svgEl("rect", { x: boxCx - boxW / 2, y: boxY, width: boxW, height: boxH, fill: "none", stroke: "#cbd5e1", "stroke-width": "1.5", rx: 4, ry: 4 }));
 
             if (showAnswers || isExample) {
               const ansColor = showAnswers ? "#3182ce" : "#16a34a";
-              const ansEl = svgEl("text", { x: lineCx, y: lineY - 5, "font-family": "Fredoka, sans-serif", "font-size": "16", "font-weight": "700", "text-anchor": "middle", fill: ansColor });
+              const ansEl = svgEl("text", { x: boxCx, y: boxY + boxH * 0.72, "font-family": "Fredoka, sans-serif", "font-size": String(Math.round(boxH * 0.6)), "font-weight": "700", "text-anchor": "middle", fill: ansColor });
               ansEl.textContent = String(num); svg.appendChild(ansEl);
             }
           }
         } else {
-          // "Fill the frame" mode: show the number, student fills the empty frame
-          const numLabelGap = Math.max(14, cellSize * 0.5);  // gap between number text and frame top
+          // "Fill the frame" mode: show the number (big, Google Sans Flex), student fills the empty frame
+          const fillNumSize = Math.max(28, Math.round(cellSize * 0.9));
+          const numLabelGap = Math.max(10, cellSize * 0.35);
           if (isDouble && num > 10) {
-            // Show number on top, two ten frames below
-            const totalBlockH = 18 + numLabelGap + singleFrameH;  // 18 for text height
+            const totalBlockH = fillNumSize + numLabelGap + singleFrameH;
             const blockStartY = contentCenterY - totalBlockH / 2;
-            const numY = blockStartY + 16;
-            const numEl = svgEl("text", { x: contentStartX + totalFrameW / 2, y: numY, "font-family": "Fredoka, sans-serif", "font-size": "20", "font-weight": "700", "text-anchor": "middle", fill: "#1a202c" });
+            const numY = blockStartY + fillNumSize * 0.85;
+            const numEl = svgEl("text", { x: contentStartX + totalFrameW / 2, y: numY, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fillNumSize), "font-weight": "700", "text-anchor": "middle", fill: "#1a202c" });
             numEl.textContent = String(num); svg.appendChild(numEl);
 
             const frameBlockY = numY + numLabelGap;
             if (showAnswers || isExample) {
-              drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 10, dotStyle, true);
-              drawTenFrame(svg, contentStartX + singleFrameW + doubleGap, frameBlockY, cellSize, num - 10, dotStyle, true);
+              drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 10, null, true);
+              drawTenFrame(svg, contentStartX + singleFrameW + doubleGap, frameBlockY, cellSize, num - 10, null, true);
             } else {
-              drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 0, dotStyle, false);
-              drawTenFrame(svg, contentStartX + singleFrameW + doubleGap, frameBlockY, cellSize, 0, dotStyle, false);
+              drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 0, null, false);
+              drawTenFrame(svg, contentStartX + singleFrameW + doubleGap, frameBlockY, cellSize, 0, null, false);
             }
           } else {
-            // Show number on top, ten frame below
-            const totalBlockH = 18 + numLabelGap + singleFrameH;
+            const totalBlockH = fillNumSize + numLabelGap + singleFrameH;
             const blockStartY = contentCenterY - totalBlockH / 2;
-            const numY = blockStartY + 16;
-            const numEl = svgEl("text", { x: contentStartX + singleFrameW / 2, y: numY, "font-family": "Fredoka, sans-serif", "font-size": "20", "font-weight": "700", "text-anchor": "middle", fill: "#1a202c" });
+            const numY = blockStartY + fillNumSize * 0.85;
+            const numEl = svgEl("text", { x: contentStartX + singleFrameW / 2, y: numY, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fillNumSize), "font-weight": "700", "text-anchor": "middle", fill: "#1a202c" });
             numEl.textContent = String(num); svg.appendChild(numEl);
 
             const frameBlockY = numY + numLabelGap;
             if (showAnswers || isExample) {
-              drawTenFrame(svg, contentStartX, frameBlockY, cellSize, num, dotStyle, true);
+              drawTenFrame(svg, contentStartX, frameBlockY, cellSize, num, null, true);
             } else {
-              drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 0, dotStyle, false);
+              drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 0, null, false);
             }
           }
         }
@@ -1032,7 +998,7 @@
         mode: elMode.value,
         range: elRange.value,
         problemsPerSheet: parseInt(elProblems.value, 10),
-        dotStyle: elDotStyle.value,
+        dotStyle: "circles",
         numWorksheets: parseInt(elNumSheets.value, 10),
         answerKey: elAnswerKey.checked,
         showNumberLine: elNumberLineHint.checked,
@@ -1133,7 +1099,6 @@
     elMode.addEventListener("change", () => renderWithNewRandomization());
     elRange.addEventListener("change", () => renderWithNewRandomization());
     elProblems.addEventListener("change", () => renderWithNewRandomization());
-    elDotStyle.addEventListener("change", () => renderWithoutRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elNumberLineHint.addEventListener("change", () => renderWithoutRandomization());
     elShowHeaderEnabled.addEventListener("change", () => {
