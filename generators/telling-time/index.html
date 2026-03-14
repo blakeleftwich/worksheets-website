@@ -503,6 +503,18 @@
             </select>
           </div>
 
+          <!-- Minute Increments -->
+          <div class="control-group" id="minuteIncrementGroup" style="display:none;">
+            <label for="minuteIncrement">Minute Increments</label>
+            <select id="minuteIncrement">
+              <option value="15" selected>By 15 minutes</option>
+              <option value="30">By 30 minutes</option>
+              <option value="10">By 10 minutes</option>
+              <option value="5">By 5 minutes</option>
+              <option value="1">Any minute</option>
+            </select>
+          </div>
+
           <!-- Numbered -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="numbered" checked />
@@ -602,6 +614,8 @@
     const elTickStyle = document.getElementById("tickStyle");
     const elTickStyleOptions = document.getElementById("tickStyleOptions");
     const elShowArrows = document.getElementById("showArrows");
+    const elMinuteIncrement = document.getElementById("minuteIncrement");
+    const elMinuteIncrementGroup = document.getElementById("minuteIncrementGroup");
     const elIncludeExample = document.getElementById("includeExample") || { checked: false, addEventListener: function(){} };
 
     // ===== Advanced panel toggle =====
@@ -647,6 +661,7 @@
         showArrows: elShowArrows.checked,
         numbered: elNumbered.checked,
         includeExample: elIncludeExample.checked,
+        minuteIncrement: parseInt(elMinuteIncrement.value, 10),
       };
     }
 
@@ -654,13 +669,15 @@
     let currentState = { sheets: [] };
 
     // ===== Generate random times =====
-    function generateRandomTime(clockType) {
+    function generateRandomTime(clockType, minuteIncrement) {
       const hour = Math.floor(Math.random() * 12) + 1;
       let minute;
       if (clockType === "hours") {
         minute = 0;
       } else {
-        minute = Math.floor(Math.random() * 60);
+        const inc = minuteIncrement || 1;
+        const steps = Math.floor(60 / inc);
+        minute = Math.floor(Math.random() * steps) * inc;
       }
       return { hour, minute };
     }
@@ -668,7 +685,7 @@
     function generateSheet(opts) {
       const times = [];
       for (let i = 0; i < 9; i++) {
-        times.push(generateRandomTime(opts.clockType));
+        times.push(generateRandomTime(opts.clockType, opts.minuteIncrement));
       }
       return times;
     }
@@ -808,6 +825,7 @@
 
       // Colon
       const colonY = boxTopY + boxH / 2;
+      const colonGap = boxH * 0.08;
       const dotR = boxH * 0.07;
       svg.appendChild(svgEl("circle", { cx, cy: colonY - boxH * 0.15, r: dotR, fill: color }));
       svg.appendChild(svgEl("circle", { cx, cy: colonY + boxH * 0.15, r: dotR, fill: color }));
@@ -818,16 +836,16 @@
         const minStr = String(time.minute).padStart(2, "0");
 
         const hEl = svgEl("text", {
-          x: cx - boxW * 0.16, y: boxTopY + boxH / 2 + fontSize * 0.35,
-          "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif",
+          x: cx - colonGap, y: boxTopY + boxH / 2 + fontSize * 0.35,
+          "text-anchor": "end", "font-family": "'Google Sans Flex', sans-serif",
           "font-size": String(fontSize), "font-weight": "500", fill: "#3182ce"
         });
         hEl.textContent = hourStr;
         svg.appendChild(hEl);
 
         const mEl = svgEl("text", {
-          x: cx + boxW * 0.16, y: boxTopY + boxH / 2 + fontSize * 0.35,
-          "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif",
+          x: cx + colonGap, y: boxTopY + boxH / 2 + fontSize * 0.35,
+          "text-anchor": "start", "font-family": "'Google Sans Flex', sans-serif",
           "font-size": String(fontSize), "font-weight": "500", fill: "#3182ce"
         });
         mEl.textContent = minStr;
@@ -978,9 +996,10 @@
           svg.appendChild(svgEl("circle", { cx: ccx, cy: colonY - boxH * 0.15, r: dotR, fill: "#16a34a" }));
           svg.appendChild(svgEl("circle", { cx: ccx, cy: colonY + boxH * 0.15, r: dotR, fill: "#16a34a" }));
           const fontSize = boxH * 0.55;
-          const hEl = svgEl("text", { x: ccx - boxW * 0.16, y: boxTopY + boxH / 2 + fontSize * 0.35, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#16a34a" });
+          const exColonGap = boxH * 0.08;
+          const hEl = svgEl("text", { x: ccx - exColonGap, y: boxTopY + boxH / 2 + fontSize * 0.35, "text-anchor": "end", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#16a34a" });
           hEl.textContent = String(time.hour); svg.appendChild(hEl);
-          const mEl = svgEl("text", { x: ccx + boxW * 0.16, y: boxTopY + boxH / 2 + fontSize * 0.35, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#16a34a" });
+          const mEl = svgEl("text", { x: ccx + exColonGap, y: boxTopY + boxH / 2 + fontSize * 0.35, "text-anchor": "start", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#16a34a" });
           mEl.textContent = String(time.minute).padStart(2, "0"); svg.appendChild(mEl);
           // Badge above box
           const badgeW = 42, badgeH = 13, badgeX = startX + boxW - badgeW, badgeY = boxTopY - badgeH - 2;
@@ -1100,6 +1119,10 @@
     }
 
     // ===== Event Listeners =====
+    function syncMinuteIncrementUI() {
+      elMinuteIncrementGroup.style.display = elClockType.value === "minutes" ? "block" : "none";
+    }
+
     elClockType.addEventListener("change", () => {
       if (elClockType.value === "minutes") {
         elShowTickMarks.checked = true;
@@ -1109,6 +1132,7 @@
         elTickStyle.value = "hours";
       }
       syncTickMarksUI();
+      syncMinuteIncrementUI();
       renderWithNewRandomization();
     });
 
@@ -1144,8 +1168,11 @@
     let resizeTimeout;
     window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150); });
 
+    elMinuteIncrement.addEventListener("change", () => renderWithNewRandomization());
+
     // Init
     syncTickMarksUI();
+    syncMinuteIncrementUI();
     renderWithNewRandomization();
 
     // Expose answer key capture for favorites pack system

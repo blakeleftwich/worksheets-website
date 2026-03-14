@@ -449,14 +449,6 @@
           <option value="1-20">1 &ndash; 20</option>
         </select>
       </div>
-<div class="control-group">
-        <label for="frameStyle">Frame Style</label>
-        <select id="frameStyle">
-          <option value="circles" selected>Empty Circles</option>
-          <option value="squares">Empty Squares</option>
-        </select>
-      </div>
-
       <div class="control-group">
         <label for="numWorksheets">Number of Worksheets</label>
         <select id="numWorksheets">
@@ -579,7 +571,7 @@
     const sheetWrap = document.getElementById("sheetWrap");
     const elRange = document.getElementById("rangeSelect");
     const elProblems = document.getElementById("problemsPerSheet");
-    const elFrameStyle = document.getElementById("frameStyle");
+    const elFrameStyle = { value: "circles", addEventListener: function(){} };
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
@@ -826,12 +818,7 @@
       const singleFrameW = 5 * cellSize;
       const singleFrameH = 2 * cellSize;
 
-      // Thick divider line between the two columns
-      const dividerX = margin + colW;
-      svg.appendChild(svgEl("line", {
-        x1: dividerX, y1: gridTop, x2: dividerX, y2: gridTop + availH,
-        stroke: "#2d3748", "stroke-width": "2"
-      }));
+      // (no column divider line)
 
       // Problem number font size - large and bold for young children
       const numFontSize = Math.min(38, Math.max(24, Math.floor(rowH * 0.45)));
@@ -860,8 +847,8 @@
         const numX = cellLeft + 8;
         const numTextY = centerY + numFontSize * 0.35;
         const numEl = svgEl("text", {
-          x: numX + numberAreaW / 2, y: numTextY, "font-family": "Fredoka, sans-serif",
-          "font-size": String(numFontSize), "font-weight": "900",
+          x: numX + numberAreaW / 2, y: numTextY, "font-family": "'Google Sans Flex', sans-serif",
+          "font-size": String(numFontSize), "font-weight": "700",
           "text-anchor": "middle", fill: "#1a202c"
         });
         numEl.textContent = String(num); svg.appendChild(numEl);
@@ -918,14 +905,7 @@
         }
       }
 
-      // Row divider lines (horizontal) between each row
-      for (let r = 1; r < rows; r++) {
-        const lineY = gridTop + r * rowH;
-        svg.appendChild(svgEl("line", {
-          x1: margin, y1: lineY, x2: margin + availW, y2: lineY,
-          stroke: "#e2e8f0", "stroke-width": "1"
-        }));
-      }
+      // (no row divider lines)
 
       return svg;
     }
