@@ -748,13 +748,63 @@
         if (missingMode === "whole") missing = "whole";
         else if (missingMode === "part") missing = Math.random() < 0.5 ? "part1" : "part2";
         else { const r = Math.random(); missing = r < 0.33 ? "whole" : r < 0.66 ? "part1" : "part2"; }
+        const key = [whole, Math.min(part1, part2), Math.max(part1, part2), missing].join(",");
+        if (seen.has(key) && fa < count * 200) continue;
+        seen.add(key);
         problems.push({ whole, part1, part2, missing });
       }
 
-      // Shuffle
-      for (let i = problems.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [problems[i], problems[j]] = [problems[j], problems[i]];
+      // Adjacency-aware shuffle: no identical or commutative bonds adjacent (same row, above, or below in 2-col layout)
+      function pKey(p) { return p.whole + ":" + p.part1 + "," + p.part2; }
+      function adjKey(p) {
+        // Number bonds are commutative: 5=2+3 same as 5=3+2
+        return p.whole + ":" + Math.min(p.part1, p.part2) + "," + Math.max(p.part1, p.part2);
+      }
+      function hasAdjacentConflict(arr) {
+        const cols = 2;
+        for (let i = 0; i < arr.length; i++) {
+          const k = adjKey(arr[i]);
+          if (i % cols === 0 && i + 1 < arr.length && adjKey(arr[i + 1]) === k) return true;
+          if (i + cols < arr.length && adjKey(arr[i + cols]) === k) return true;
+        }
+        return false;
+      }
+      function countAdjConflicts(arr) {
+        let c = 0; const cols = 2;
+        for (let i = 0; i < arr.length; i++) {
+          const k = adjKey(arr[i]);
+          if (i % cols === 0 && i + 1 < arr.length && adjKey(arr[i + 1]) === k) c++;
+          if (i + cols < arr.length && adjKey(arr[i + cols]) === k) c++;
+        }
+        return c;
+      }
+      for (let attempt = 0; attempt < 10; attempt++) {
+        for (let i = problems.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [problems[i], problems[j]] = [problems[j], problems[i]]; }
+        for (let pass = 0; pass < 100 && hasAdjacentConflict(problems); pass++) {
+          const cols = 2;
+          const before = countAdjConflicts(problems);
+          for (let i = 0; i < problems.length; i++) {
+            const k = adjKey(problems[i]);
+            const right = (i % cols === 0 && i + 1 < problems.length) ? i + 1 : -1;
+            const below = (i + cols < problems.length) ? i + cols : -1;
+            if ((right >= 0 && adjKey(problems[right]) === k) || (below >= 0 && adjKey(problems[below]) === k)) {
+              const conflictIdx = (right >= 0 && adjKey(problems[right]) === k) ? right : below;
+              let bestSwap = -1, bestCount = countAdjConflicts(problems);
+              for (let s = 0; s < problems.length; s++) {
+                if (s === i || s === right || s === below) continue;
+                [problems[conflictIdx], problems[s]] = [problems[s], problems[conflictIdx]];
+                const cnt = countAdjConflicts(problems);
+                if (cnt < bestCount) { bestCount = cnt; bestSwap = s; }
+                [problems[conflictIdx], problems[s]] = [problems[s], problems[conflictIdx]];
+              }
+              if (bestSwap >= 0) {
+                [problems[conflictIdx], problems[bestSwap]] = [problems[bestSwap], problems[conflictIdx]];
+              }
+            }
+          }
+          if (countAdjConflicts(problems) >= before) break;
+        }
+        if (!hasAdjacentConflict(problems)) break;
       }
 
       // Apply zero percentage

@@ -981,12 +981,38 @@
       const problems = [];
       const seen = globalSeen ? new Set(globalSeen) : new Set();
 
+      // Pre-generate zero problems first so they get unique slots
+      const zeroProblems = [];
+      if (opts.useZero) {
+        const zeroCount = Math.max(1, Math.round(count * opts.zeroPercent / 100));
+        let za = 0;
+        while (zeroProblems.length < zeroCount && za < zeroCount * 200) {
+          za++;
+          const op = operations[Math.floor(Math.random() * operations.length)];
+          let top, bottom, answer;
+          const val = min1 + Math.floor(Math.random() * (Math.max(max1, max2) - min1 + 1));
+          if (Math.random() < 0.5) { top = 0; bottom = val; } else { top = val; bottom = 0; }
+          if (op === "+") answer = top + bottom;
+          else if (op === "-") { top = Math.max(top, bottom); bottom = Math.min(top, bottom); answer = top - bottom; }
+          else if (op === "\u00d7") answer = 0;
+          else if (op === "\u00f7") { if (bottom === 0) { top = 0; bottom = Math.max(1, val); } answer = 0; }
+          if (maxAnswer !== null && Math.abs(answer) > maxAnswer) continue;
+          const key = op + ":" + top + "," + bottom;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          zeroProblems.push({ top, bottom, op, answer });
+        }
+      }
+
+      // Generate remaining non-zero problems
+      const nonZeroCount = count - zeroProblems.length;
+
       // Determine how many problems per operation
       let opQuotas = null;
       if (!randomMix && operations.length > 1) {
         opQuotas = {};
-        const base = Math.floor(count / operations.length);
-        let remainder = count % operations.length;
+        const base = Math.floor(nonZeroCount / operations.length);
+        let remainder = nonZeroCount % operations.length;
         for (const op of operations) {
           opQuotas[op] = base + (remainder > 0 ? 1 : 0);
           if (remainder > 0) remainder--;
@@ -1003,7 +1029,7 @@
       }
 
       let attempts = 0;
-      while (problems.length < count && attempts < count * 500) {
+      while (problems.length < nonZeroCount && attempts < nonZeroCount * 500) {
         attempts++;
 
         // Pick operation: if quotas, pick one that still needs problems
@@ -1062,16 +1088,12 @@
         const key = op + ":" + top + "," + bottom;
         if (seen.has(key)) continue;
         seen.add(key);
-        // Also mark the inverse for commutative ops so we don't generate e.g. 4+1 after 1+4
-        if ((op === "+" || op === "\u00d7") && top !== bottom) {
-          seen.add(op + ":" + bottom + "," + top);
-        }
         problems.push({ top, bottom, op, answer });
       }
 
-      // Fill remainder (allow duplicates only if unique pool exhausted, but still track)
+      // Fill remainder if unique pool exhausted (allow duplicates only as last resort)
       let fa = 0;
-      while (problems.length < count && fa < count * 500) {
+      while (problems.length < nonZeroCount && fa < nonZeroCount * 500) {
         fa++;
         const op = operations[Math.floor(Math.random() * operations.length)];
         const a = min1 + Math.floor(Math.random() * (max1 - min1 + 1));
@@ -1083,101 +1105,74 @@
         else { if (bottom === 0) bottom = 1; top = Math.max(a,b); bottom = Math.min(a,b); if (bottom === 0) bottom = 1; answer = Math.floor(top / bottom); }
         if (maxAnswer !== null && Math.abs(answer) > maxAnswer) continue;
         const key = op + ":" + top + "," + bottom;
-        if (seen.has(key) && fa < count * 200) continue; // try harder to avoid dupes
+        if (seen.has(key) && fa < nonZeroCount * 200) continue;
         seen.add(key);
         problems.push({ top, bottom, op, answer });
       }
-      while (problems.length < count) { problems.push({ top: Math.max(1, min1), bottom: Math.max(1, min2), op: operations[0], answer: 0 }); }
 
-      // Apply zero percentage: replace one operand with 0, avoiding duplicates
-      if (opts.useZero) {
-        const zeroCount = Math.max(1, Math.round(problems.length * opts.zeroPercent / 100));
-        const usedKeys = new Set(problems.map(p => p.op + ":" + p.top + "," + p.bottom));
-        const indices = problems.map((_, i) => i);
-        for (let i = indices.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [indices[i], indices[j]] = [indices[j], indices[i]]; }
-        let applied = 0;
-        for (const idx of indices) {
-          if (applied >= zeroCount) break;
-          const p = problems[idx];
-          const oldKey = p.op + ":" + p.top + "," + p.bottom;
-          // Try both zero-top and zero-bottom, pick whichever doesn't create a duplicate
-          const candidates = [];
-          if (p.op !== "\u00f7") {
-            // zero-bottom
-            let t = p.top, b = 0, a;
-            if (p.op === "+") a = t;
-            else if (p.op === "-") a = t;
-            else if (p.op === "\u00d7") a = 0;
-            candidates.push({ top: t, bottom: b, answer: a, key: p.op + ":" + t + ",0" });
-          }
-          // zero-top
-          let t2 = 0, b2 = p.bottom, a2;
-          if (p.op === "+") a2 = b2;
-          else if (p.op === "-") { t2 = b2; b2 = 0; a2 = t2; }
-          else if (p.op === "\u00d7") a2 = 0;
-          else if (p.op === "\u00f7") a2 = 0;
-          candidates.push({ top: t2, bottom: b2, answer: a2, key: p.op + ":" + t2 + "," + b2 });
-          // Shuffle candidates for variety
-          if (Math.random() < 0.5 && candidates.length > 1) candidates.reverse();
-          let placed = false;
-          for (const c of candidates) {
-            if (!usedKeys.has(c.key)) {
-              usedKeys.delete(oldKey);
-              p.top = c.top; p.bottom = c.bottom; p.answer = c.answer;
-              usedKeys.add(c.key);
-              applied++;
-              placed = true;
-              break;
-            }
-          }
-          // If both would be duplicates, still apply (better to have a zero-dupe than miss target %)
-          if (!placed) {
-            const c = candidates[0];
-            usedKeys.delete(oldKey);
-            p.top = c.top; p.bottom = c.bottom; p.answer = c.answer;
-            usedKeys.add(c.key);
-            applied++;
-          }
-        }
-      }
+      // Merge zero and non-zero problems
+      const allProblems = problems.concat(zeroProblems);
+      while (allProblems.length < count) { allProblems.push({ top: Math.max(1, min1), bottom: Math.max(1, min2), op: operations[0], answer: Math.max(1, min1) + Math.max(1, min2) }); }
 
       // Adjacency-aware shuffle: no identical equations adjacent (same row, above, or below in 2-col layout)
       function pKey(p) { return p.op + ":" + p.top + "," + p.bottom; }
+      function adjKey(p) {
+        // For commutative ops (+ and ×), normalize so 4+1 and 1+4 produce the same key
+        if (p.op === '+' || p.op === '×') {
+          return p.op + ":" + Math.min(p.top, p.bottom) + "," + Math.max(p.top, p.bottom);
+        }
+        return p.op + ":" + p.top + "," + p.bottom;
+      }
       function hasAdjacentConflict(arr) {
         const cols = 2;
         for (let i = 0; i < arr.length; i++) {
-          const k = pKey(arr[i]);
-          // Same-row neighbor
-          if (i % cols === 0 && i + 1 < arr.length && pKey(arr[i + 1]) === k) return true;
-          // Below
-          if (i + cols < arr.length && pKey(arr[i + cols]) === k) return true;
+          const k = adjKey(arr[i]);
+          if (i % cols === 0 && i + 1 < arr.length && adjKey(arr[i + 1]) === k) return true;
+          if (i + cols < arr.length && adjKey(arr[i + cols]) === k) return true;
         }
         return false;
       }
-      // Fisher-Yates shuffle first, then fix conflicts
-      for (let i = problems.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [problems[i], problems[j]] = [problems[j], problems[i]]; }
-      // Try to resolve adjacency conflicts with targeted swaps
-      for (let pass = 0; pass < 50 && hasAdjacentConflict(problems); pass++) {
-        const cols = 2;
-        for (let i = 0; i < problems.length; i++) {
-          const k = pKey(problems[i]);
-          const right = (i % cols === 0 && i + 1 < problems.length) ? i + 1 : -1;
-          const below = (i + cols < problems.length) ? i + cols : -1;
-          if ((right >= 0 && pKey(problems[right]) === k) || (below >= 0 && pKey(problems[below]) === k)) {
-            // Find a non-conflicting swap target
-            for (let s = 0; s < problems.length; s++) {
-              if (s === i || s === right || s === below) continue;
-              // Try swapping the conflicting neighbor with s
-              const conflictIdx = (right >= 0 && pKey(problems[right]) === k) ? right : below;
-              [problems[conflictIdx], problems[s]] = [problems[s], problems[conflictIdx]];
-              if (!hasAdjacentConflict(problems)) break;
-              // Undo if it didn't help or made things worse
-              [problems[conflictIdx], problems[s]] = [problems[s], problems[conflictIdx]];
+      function countAdjConflicts(arr) {
+        let c = 0; const cols = 2;
+        for (let i = 0; i < arr.length; i++) {
+          const k = adjKey(arr[i]);
+          if (i % cols === 0 && i + 1 < arr.length && adjKey(arr[i + 1]) === k) c++;
+          if (i + cols < arr.length && adjKey(arr[i + cols]) === k) c++;
+        }
+        return c;
+      }
+      // Shuffle and resolve adjacency conflicts (retry with fresh shuffles if needed)
+      for (let attempt = 0; attempt < 10; attempt++) {
+        // Fisher-Yates shuffle
+        for (let i = allProblems.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [allProblems[i], allProblems[j]] = [allProblems[j], allProblems[i]]; }
+        // Targeted swaps to resolve remaining conflicts
+        for (let pass = 0; pass < 100 && hasAdjacentConflict(allProblems); pass++) {
+          const cols = 2;
+          const before = countAdjConflicts(allProblems);
+          for (let i = 0; i < allProblems.length; i++) {
+            const k = adjKey(allProblems[i]);
+            const right = (i % cols === 0 && i + 1 < allProblems.length) ? i + 1 : -1;
+            const below = (i + cols < allProblems.length) ? i + cols : -1;
+            if ((right >= 0 && adjKey(allProblems[right]) === k) || (below >= 0 && adjKey(allProblems[below]) === k)) {
+              const conflictIdx = (right >= 0 && adjKey(allProblems[right]) === k) ? right : below;
+              let bestSwap = -1, bestCount = countAdjConflicts(allProblems);
+              for (let s = 0; s < allProblems.length; s++) {
+                if (s === i || s === right || s === below) continue;
+                [allProblems[conflictIdx], allProblems[s]] = [allProblems[s], allProblems[conflictIdx]];
+                const cnt = countAdjConflicts(allProblems);
+                if (cnt < bestCount) { bestCount = cnt; bestSwap = s; }
+                [allProblems[conflictIdx], allProblems[s]] = [allProblems[s], allProblems[conflictIdx]];
+              }
+              if (bestSwap >= 0) {
+                [allProblems[conflictIdx], allProblems[bestSwap]] = [allProblems[bestSwap], allProblems[conflictIdx]];
+              }
             }
           }
+          if (countAdjConflicts(allProblems) >= before) break; // no improvement, re-shuffle
         }
+        if (!hasAdjacentConflict(allProblems)) break;
       }
-      return problems;
+      return allProblems;
     }
 
     function checkRegrouping(a, b) {
