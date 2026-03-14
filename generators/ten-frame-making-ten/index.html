@@ -656,12 +656,11 @@
     function drawTenFrame(svg, x, y, cellSize, rows, cols, filledCount) {
       const frameW = cols * cellSize;
       const frameH = rows * cellSize;
-      const strokeW = 2.5;
 
-      // Outer border - thick
+      // Outer border
       svg.appendChild(svgEl("rect", {
         x: x, y: y, width: frameW, height: frameH,
-        fill: "none", stroke: "#000", "stroke-width": String(strokeW), rx: 2, ry: 2
+        fill: "none", stroke: "#2d3748", "stroke-width": "1.5", rx: 2, ry: 2
       }));
 
       // Grid cells and dots
@@ -671,14 +670,14 @@
           const cy = y + r * cellSize;
           svg.appendChild(svgEl("rect", {
             x: cx, y: cy, width: cellSize, height: cellSize,
-            fill: "none", stroke: "#000", "stroke-width": "1.5"
+            fill: "none", stroke: "#2d3748", "stroke-width": "1"
           }));
 
           const cellIndex = r * cols + c;
           if (cellIndex < filledCount) {
             const dotR = cellSize * 0.30;
             svg.appendChild(svgEl("circle", {
-              cx: cx + cellSize / 2, cy: cy + cellSize / 2, r: dotR, fill: "#000"
+              cx: cx + cellSize / 2, cy: cy + cellSize / 2, r: dotR, fill: "#4a5568"
             }));
           }
         }
