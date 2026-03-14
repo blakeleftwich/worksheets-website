@@ -517,10 +517,10 @@
         const startX = margin + (availW - actualTotalW) / 2;
         let x = startX;
 
-        // Problem number
+        // Problem number — positioned to the left of the first ten frame
         if (numbered !== false) {
           const probNumSize = 11;
-          const pnEl = svgEl("text", { x: margin + 2, y: frameY + frameH / 2 + probNumSize * 0.35, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
+          const pnEl = svgEl("text", { x: startX - 14, y: frameY + frameH / 2 + probNumSize * 0.35, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0", "text-anchor": "end" });
           pnEl.textContent = (i + 1) + "."; svg.appendChild(pnEl);
         }
 
