@@ -901,7 +901,9 @@
         // Position content higher within each cell (0.43 instead of 0.5)
         const contentCenterY = cellTop + rowH * 0.47;
         // Horizontally center the frame block within the cell
-        const contentStartX = cellLeft + (colW - totalFrameW) / 2 + 6;
+        // For 1-20 range, center single frames when num <= 10
+        const thisFrameW = (isDouble && num <= 10) ? singleFrameW : totalFrameW;
+        const contentStartX = cellLeft + (colW - thisFrameW) / 2 + 6;
 
         if (mode === "count") {
           // "Count the dots" mode: show filled ten frame, student writes the number in a box

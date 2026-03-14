@@ -80,6 +80,16 @@
 
     .ws-empty { text-align: center; padding: 24px; color: #94a3b8; font-size: 13px; }
 
+    /* ===== Drag-to-reorder ===== */
+    .ws-grid { cursor: default; }
+    .ws-item { cursor: grab; transition: border-color 0.15s, transform 0.15s, opacity 0.15s; }
+    .ws-item:active { cursor: grabbing; }
+    .ws-item.dragging { opacity: 0.4; transform: scale(0.95); }
+    .ws-item.drag-over { border-color: #f59e0b; box-shadow: 0 0 0 2px rgba(245,158,11,0.3); }
+    .ws-drag-handle { position: absolute; top: 4px; left: 4px; width: 22px; height: 22px; font-size: 11px; color: #cbd5e1; display: flex; align-items: center; justify-content: center; cursor: grab; opacity: 0; transition: opacity 0.15s; }
+    .ws-item:hover .ws-drag-handle { opacity: 0.7; }
+    .ws-drag-handle:hover { color: #94a3b8; opacity: 1 !important; }
+
     /* ===== Print Preview Overlay ===== */
     .print-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; overflow-y: auto; }
     .print-overlay.visible { display: block; }
@@ -248,11 +258,74 @@
 
       content.innerHTML = `<div class="packs-list">${packs.map(p => renderPackCard(p)).join('')}</div>`;
 
-      // Attach events
+      // Attach expand/collapse events
       content.querySelectorAll('.pack-top').forEach(el => {
         el.addEventListener('click', (e) => {
           if (e.target.closest('.pack-actions')) return;
           el.closest('.pack-card').classList.toggle('expanded');
+        });
+      });
+
+      // Attach drag-to-reorder events
+      initDragReorder(content);
+    }
+
+    // ===== Drag-to-Reorder =====
+    let _dragItem = null;
+    function initDragReorder(container) {
+      container.querySelectorAll('.ws-item[draggable]').forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+          _dragItem = item;
+          item.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', item.dataset.wsIdx);
+        });
+        item.addEventListener('dragend', () => {
+          item.classList.remove('dragging');
+          container.querySelectorAll('.ws-item').forEach(el => el.classList.remove('drag-over'));
+          _dragItem = null;
+        });
+        item.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          if (_dragItem && _dragItem !== item && _dragItem.dataset.packId === item.dataset.packId) {
+            item.classList.add('drag-over');
+          }
+        });
+        item.addEventListener('dragleave', () => {
+          item.classList.remove('drag-over');
+        });
+        item.addEventListener('drop', (e) => {
+          e.preventDefault();
+          item.classList.remove('drag-over');
+          if (!_dragItem || _dragItem === item) return;
+          if (_dragItem.dataset.packId !== item.dataset.packId) return;
+
+          const packId = item.dataset.packId;
+          const fromIdx = parseInt(_dragItem.dataset.wsIdx, 10);
+          const toIdx = parseInt(item.dataset.wsIdx, 10);
+          if (fromIdx === toIdx) return;
+
+          const packs = getPacks();
+          const pack = packs.find(p => p.id === packId);
+          if (!pack) return;
+
+          // Reorder the worksheets array
+          const [moved] = pack.worksheets.splice(fromIdx, 1);
+          pack.worksheets.splice(toIdx, 0, moved);
+          savePacks(packs);
+
+          // Re-render the pack detail in-place
+          const card = document.querySelector(`.pack-card[data-id="${packId}"]`);
+          const wasExpanded = card && card.classList.contains('expanded');
+          render();
+          if (wasExpanded) {
+            setTimeout(() => {
+              const c = document.querySelector(`.pack-card[data-id="${packId}"]`);
+              if (c) c.classList.add('expanded');
+            }, 10);
+          }
+          showToast('Worksheet order updated');
         });
       });
     }
@@ -272,7 +345,7 @@
       // Build worksheet grid
       const wsGrid = wsCount === 0
         ? '<div class="ws-empty">No worksheets in this set yet.</div>'
-        : `<div class="ws-grid">${pack.worksheets.map(ws => renderWsItem(pack.id, ws)).join('')}</div>`;
+        : `<div class="ws-grid">${pack.worksheets.map((ws, idx) => renderWsItem(pack.id, ws, idx)).join('')}</div>`;
 
       return `
         <div class="pack-card" data-id="${pack.id}">
@@ -297,14 +370,15 @@
         </div>`;
     }
 
-    function renderWsItem(packId, ws) {
+    function renderWsItem(packId, ws, idx) {
       const svgs = fixSvgRefs(ws.svgData).split('|||SVGSEP|||');
       const firstSvg = svgs[0] || '';
       const date = new Date(ws.added);
       const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
       return `
-        <div class="ws-item">
+        <div class="ws-item" draggable="true" data-pack-id="${packId}" data-ws-id="${ws.id}" data-ws-idx="${idx}">
+          <div class="ws-drag-handle" title="Drag to reorder">⠿</div>
           <button class="ws-remove" onclick="removeWorksheet('${packId}', '${ws.id}')" title="Remove">✕</button>
           <div class="ws-thumb">${firstSvg}</div>
           <div class="ws-title">${escHtml(ws.title)}</div>
@@ -400,6 +474,16 @@
     }
 
     // ===== Print Preview =====
+    function updateWsCode(svgHtml, code) {
+      // Update the worksheet code in the SVG (the small text at bottom center)
+      // The code is rendered as a <text> element near the bottom with class or specific positioning
+      // We look for the existing code pattern like "(1)" or "(2)" etc and replace it
+      return svgHtml.replace(
+        /(<text[^>]*font-family="Fredoka[^"]*"[^>]*font-size="8\.5"[^>]*>)\([^)]*\)(<\/text>)/,
+        '$1' + code + '$2'
+      );
+    }
+
     function openPrintPreview(packId) {
       const packs = getPacks();
       const pack = packs.find(p => p.id === packId);
@@ -413,28 +497,40 @@
       const pagesWrap = document.getElementById('printPages');
       pagesWrap.innerHTML = '';
 
+      // First: add ALL worksheet pages with sequential codes
+      let pageNum = 0;
       pack.worksheets.forEach(ws => {
-        // Worksheet pages — fixSvgRefs repairs old data where #fragment refs got expanded to full URLs
         const svgs = fixSvgRefs(ws.svgData).split('|||SVGSEP|||');
         svgs.forEach(svg => {
           if (!svg.trim()) return;
+          pageNum++;
           const div = document.createElement('div');
           div.className = 'print-page-item';
-          div.innerHTML = svg;
+          div.innerHTML = updateWsCode(svg, '(' + pageNum + ')');
           pagesWrap.appendChild(div);
         });
-
-        // Answer key pages (only if checkbox is checked)
-        if (includeAnswerKeys && ws.answerKeySvgs && ws.answerKeySvgs.length > 0) {
-          ws.answerKeySvgs.forEach(akSvg => {
-            if (!akSvg.trim()) return;
-            const div = document.createElement('div');
-            div.className = 'print-page-item';
-            div.innerHTML = fixSvgRefs(akSvg);
-            pagesWrap.appendChild(div);
-          });
-        }
       });
+
+      // Then: add ALL answer keys at the END with matching codes
+      if (includeAnswerKeys) {
+        let akPageNum = 0;
+        pack.worksheets.forEach(ws => {
+          if (ws.answerKeySvgs && ws.answerKeySvgs.length > 0) {
+            ws.answerKeySvgs.forEach(akSvg => {
+              if (!akSvg.trim()) return;
+              akPageNum++;
+              const div = document.createElement('div');
+              div.className = 'print-page-item';
+              div.innerHTML = updateWsCode(fixSvgRefs(akSvg), '(' + akPageNum + ')');
+              pagesWrap.appendChild(div);
+            });
+          } else {
+            // Count how many worksheet pages this worksheet had (to keep code numbering in sync)
+            const svgs = ws.svgData.split('|||SVGSEP|||').filter(s => s.trim());
+            akPageNum += svgs.length;
+          }
+        });
+      }
 
       document.getElementById('printOverlay').classList.add('visible');
       document.body.style.overflow = 'hidden';
