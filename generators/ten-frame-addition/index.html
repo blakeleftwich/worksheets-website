@@ -3,421 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ten Frame Addition Worksheet Generator</title>
+  <title>Ten Frame Math Worksheet Generator</title>
+  <style>
+    @page { size: letter; margin: 0.5in 0.4in 0in 0.4in; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f1f5f9; min-height: 100vh; }
+
+    .site-header { background: white; border-bottom: 1px solid #e5e7eb; height: 64px; position: sticky; top: 0; z-index: 100; }
+    .header-inner { max-width: 100%; height: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+    .site-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .site-logo-img { height: 44px; width: auto; display: block; }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-links a { font-size: 14px; font-weight: 600; color: #64748b; text-decoration: none; padding: 8px 14px; border-radius: 8px; transition: all 0.2s; }
+    .nav-links a:hover { background: #f1f5f9; color: #1a1a2e; }
+    .nav-links a.active { background: #fef3c7; color: #92400e; }
+
+    .main-container { display: grid; grid-template-columns: 340px 1fr; }
+    .sidebar { background: white; padding: 32px 24px; box-shadow: 4px 0 20px rgba(0,0,0,0.1); overflow-y: auto; position: sticky; top: 64px; height: calc(100vh - 64px); }
+    .sidebar h2 { font-family: 'DM Sans', -apple-system, sans-serif; font-size: 22px; font-weight: 700; color: #1a202c; margin-bottom: 24px; text-align: left; }
+    .control-group { margin-bottom: 20px; }
+    .control-group > label { display: block; font-size: 13px; font-weight: 600; color: #2d3748; margin-bottom: 6px; }
+    .control-group input[type="number"], .control-group input[type="text"], .control-group select { width: 100%; padding: 10px 12px; font-size: 14px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; color: #2d3748; transition: border-color 0.2s, box-shadow 0.2s; }
+    .control-group input:focus, .control-group select:focus { outline: none; border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.1); }
+    .control-group input:hover, .control-group select:hover { border-color: #cbd5e0; }
+
+    .advanced-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 0; margin-bottom: 4px; user-select: none; }
+    .advanced-toggle .toggle-arrow { font-size: 12px; transition: transform 0.2s; color: #f59e0b; }
+    .advanced-toggle .toggle-arrow.open { transform: rotate(90deg); }
+    .advanced-toggle span:last-child { font-size: 13px; font-weight: 600; color: #f59e0b; }
+    .advanced-panel { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background: #f7fafc; border-radius: 8px; margin-bottom: 16px; }
+    .advanced-panel.open { max-height: 600px; }
+    .advanced-panel-inner { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .advanced-panel-inner .control-group { margin-bottom: 0; }
+    .adv-checkbox-row { display: flex; align-items: center; gap: 8px; }
+    .adv-checkbox-row input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #f59e0b; }
+    .adv-checkbox-row label { font-size: 13px; font-weight: 600; color: #2d3748; cursor: pointer; }
+    .adv-sub { padding-left: 26px; }
+    .adv-sub select, .adv-sub input[type="text"] { width: 100%; padding: 8px 10px; font-size: 13px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; color: #2d3748; }
+    .adv-sub label { font-size: 12px; color: #718096; font-weight: 600; display: block; margin-bottom: 4px; }
+
+    .checkbox-row { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+    .checkbox-row label { display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0; }
+    .checkbox-row input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #f59e0b; }
+    .checkbox-row span { font-size: 13px; font-weight: 600; color: #2d3748; }
+
+    .button-group { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; }
+    .button-group button { width: 100%; padding: 12px 16px; font-size: 14px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+    .button-group button:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .btn-generate { background: #f1f5f9; color: #475569; }
+    .btn-print { background: #ed8936; color: white; }
+
+    .preview-area { display: flex; justify-content: center; align-items: flex-start; padding: 30px; overflow: auto; }
+    #sheetWrap { display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; align-items: flex-start; }
+    #sheetWrap.grid-view { display: grid; justify-items: center; }
+    .worksheet-page { background: white; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); overflow: hidden; padding: 12px; }
+
+    @media (max-width: 900px) {
+      .main-container { grid-template-columns: 1fr; }
+      .sidebar { position: relative; height: auto; }
+      .preview-area { padding: 12px; }
+      #sheetWrap { gap: 16px; display: flex !important; flex-direction: column !important; align-items: center !important; padding: 0 !important; }
+      #sheetWrap.grid-view { display: flex !important; flex-direction: column !important; grid-template-columns: none !important; padding: 0 !important; }
+      .worksheet-page { padding: 8px; width: 100%; max-width: 100%; }
+      .worksheet-page svg { width: 100% !important; height: auto !important; }
+    }
+
+    .ak-print-only { display: none !important; }
+    @media print {
+      .site-header { display: none !important; }
+      .ak-print-only { display: block !important; }
+      body { background: white !important; margin: 0 !important; padding: 0 !important; }
+      .main-container { display: block; }
+      .sidebar { display: none !important; }
+      .preview-area { padding: 0 !important; margin: 0 !important; display: block !important; background: white !important; }
+      #sheetWrap { padding: 0 !important; margin: 0 !important; display: block !important; background: white !important; }
+      .worksheet-page { padding: 0 !important; margin: 0 !important; box-shadow: none !important; border-radius: 0 !important; display: block !important; background: white !important; page-break-inside: avoid !important; break-inside: avoid !important; }
+      .worksheet-page:not(:last-child) { page-break-after: always !important; break-after: page !important; }
+      .worksheet-page svg { width: 100% !important; height: auto !important; display: block !important; }
+    }
+  </style>
   <link rel="stylesheet" href="../../fonts/fonts.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-    @page { size: letter; margin: 0.5in 0.4in 0in 0.4in; }
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: #f1f5f9;
-      min-height: 100vh;
-      padding: 0;
-      margin: 0;
-    }
-
-    /* ===== Site Header ===== */
-    .site-header {
-      background: white;
-      border-bottom: 1px solid #e5e7eb;
-      height: 64px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .header-inner {
-      max-width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-    }
-
-    .site-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-    }
-
-    .site-logo-img {
-      height: 44px;
-      width: auto;
-      display: block;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .nav-links a {
-      font-size: 14px;
-      font-weight: 600;
-      color: #64748b;
-      text-decoration: none;
-      padding: 8px 14px;
-      border-radius: 8px;
-      transition: all 0.2s;
-    }
-
-    .nav-links a:hover {
-      background: #f1f5f9;
-      color: #1a1a2e;
-    }
-
-    .nav-links a.active {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-
-    .main-container {
-      display: grid;
-      grid-template-columns: 340px 1fr;
-      }
-
-    /* ===== Sidebar ===== */
-    .sidebar {
-      background: white;
-      padding: 32px 24px;
-      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
-      overflow-y: auto;
-      position: sticky;
-      top: 64px;
-      height: calc(100vh - 64px);
-    }
-
-    .sidebar h2 {
-      font-family: 'DM Sans', -apple-system, sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: #1a202c;
-      margin-bottom: 24px;
-      text-align: left;
-    }
-
-    .control-group {
-      margin-bottom: 20px;
-    }
-
-    .control-group > label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: #2d3748;
-      margin-bottom: 6px;
-    }
-
-    .control-group input[type="number"],
-    .control-group input[type="text"],
-    .control-group select {
-      width: 100%;
-      padding: 10px 12px;
-      font-size: 14px;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      background: white;
-      color: #2d3748;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .control-group input:focus,
-    .control-group select:focus {
-      outline: none;
-      border-color: #f59e0b;
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-    }
-
-    .control-group input:hover,
-    .control-group select:hover {
-      border-color: #cbd5e0;
-    }
-
-    /* ===== Advanced Options Toggle ===== */
-    .advanced-toggle {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      padding: 10px 0;
-      margin-bottom: 4px;
-      user-select: none;
-    }
-
-    .advanced-toggle .toggle-arrow {
-      font-size: 12px;
-      transition: transform 0.2s;
-      color: #f59e0b;
-    }
-
-    .advanced-toggle .toggle-arrow.open {
-      transform: rotate(90deg);
-    }
-
-    .advanced-toggle span:last-child {
-      font-size: 13px;
-      font-weight: 600;
-      color: #f59e0b;
-    }
-
-    .advanced-panel {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-      background: #f7fafc;
-      border-radius: 8px;
-      margin-bottom: 16px;
-    }
-
-    .advanced-panel.open {
-      max-height: 500px;
-    }
-
-    .advanced-panel-inner {
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .advanced-panel-inner .control-group {
-      margin-bottom: 0;
-    }
-
-    .adv-checkbox-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .adv-checkbox-row input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-      accent-color: #f59e0b;
-    }
-
-    .adv-checkbox-row label {
-      font-size: 13px;
-      font-weight: 600;
-      color: #2d3748;
-      cursor: pointer;
-    }
-
-    .adv-sub {
-      padding-left: 26px;
-    }
-
-    .adv-sub select,
-    .adv-sub input[type="text"] {
-      width: 100%;
-      padding: 8px 10px;
-      font-size: 13px;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      background: white;
-      color: #2d3748;
-    }
-
-    .adv-sub label {
-      font-size: 12px;
-      color: #718096;
-      font-weight: 600;
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    /* ===== Checkboxes ===== */
-    .checkbox-row {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .checkbox-row label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      margin: 0;
-    }
-
-    .checkbox-row input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-      accent-color: #f59e0b;
-    }
-
-    .checkbox-row span {
-      font-size: 13px;
-      font-weight: 600;
-      color: #2d3748;
-    }
-
-    /* ===== Buttons ===== */
-    .button-group {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 28px;
-    }
-
-    .button-group button {
-      width: 100%;
-      padding: 12px 16px;
-      font-size: 14px;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .button-group button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .btn-generate {
-      background: #f1f5f9;
-      color: #475569;
-    }
-
-    .btn-print {
-      background: #ed8936;
-      color: white;
-    }
-
-    /* ===== Preview ===== */
-    .preview-area {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 30px;
-      overflow: auto;
-    }
-
-    #sheetWrap {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 24px;
-      justify-content: center;
-      align-items: flex-start;
-    }
-
-    #sheetWrap.grid-view {
-      display: grid;
-      justify-items: center;
-    }
-
-    .worksheet-page {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-      overflow: hidden;
-      padding: 12px;
-    }
-
-    /* ===== Responsive ===== */
-    @media (max-width: 900px) {
-      .main-container {
-        grid-template-columns: 1fr;
-      }
-      .sidebar {
-        position: relative;
-        height: auto;
-      }
-      .preview-area {
-        padding: 12px;
-      }
-      #sheetWrap {
-        gap: 16px;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        padding: 0 !important;
-      }
-      #sheetWrap.grid-view {
-        display: flex !important;
-        flex-direction: column !important;
-        grid-template-columns: none !important;
-        padding: 0 !important;
-      }
-      .worksheet-page {
-        padding: 8px;
-        width: 100%;
-        max-width: 100%;
-      }
-      .worksheet-page svg {
-        width: 100% !important;
-        height: auto !important;
-      }
-    }
-
-    .ak-print-only { display: none !important; }
-
-    /* ===== Print ===== */
-    @media print {
-      .site-header { display: none !important; }
-      .ak-print-only { display: block !important; }
-      body {
-        background: white !important;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-      .main-container {
-        display: block;
-      }
-      .sidebar {
-        display: none !important;
-      }
-      .preview-area {
-        padding: 0 !important;
-        margin: 0 !important;
-        display: block !important;
-        background: white !important;
-      }
-      #sheetWrap {
-        padding: 0 !important;
-        margin: 0 !important;
-        display: block !important;
-        background: white !important;
-      }
-      .worksheet-page {
-        padding: 0 !important;
-        margin: 0 !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        display: block !important;
-        background: white !important;
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-      }
-      .worksheet-page:not(:last-child) {
-        page-break-after: always !important;
-        break-after: page !important;
-      }
-      .worksheet-page svg {
-        width: 100% !important;
-        height: auto !important;
-        display: block !important;
-      }
-    }
-  </style></head>
+</head>
 <body>
   <header class="site-header">
     <div class="header-inner">
@@ -436,23 +105,22 @@
   </header>
   <div class="main-container">
     <div class="sidebar">
-      <h2>Ten Frame Addition Worksheet Generator</h2>
+      <h2>Ten Frame Math Worksheet Generator</h2>
 
       <div class="control-group">
-        <label for="maxSumSelect">Max Sum</label>
-        <select id="maxSumSelect">
-          <option value="10" selected>10</option>
-          <option value="15">15</option>
-          <option value="20">20</option>
+        <label for="operationSelect">Operation</label>
+        <select id="operationSelect">
+          <option value="addition" selected>Addition</option>
+          <option value="subtraction">Subtraction</option>
+          <option value="mixed">Mixed</option>
         </select>
       </div>
 
       <div class="control-group">
-        <label for="problemsPerSheet">Problems per Sheet</label>
-        <select id="problemsPerSheet">
-          <option value="4">4</option>
-          <option value="5" selected>5</option>
-          <option value="6">6</option>
+        <label for="maxSumSelect">Number Range</label>
+        <select id="maxSumSelect">
+          <option value="10" selected>Within 10</option>
+          <option value="20">Within 20</option>
         </select>
       </div>
 
@@ -487,6 +155,16 @@
       <div class="advanced-panel" id="advPanel">
         <div class="advanced-panel-inner">
 
+          <!-- Problems per sheet -->
+          <div class="control-group" style="margin-bottom:12px;">
+            <label for="problemsPerSheet">Problems per Sheet</label>
+            <select id="problemsPerSheet">
+              <option value="4">4</option>
+              <option value="5" selected>5</option>
+              <option value="6">6</option>
+            </select>
+          </div>
+
           <!-- Show header -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="showHeaderEnabled" checked />
@@ -518,7 +196,7 @@
             </div>
             <div id="titleInputWrap">
               <label for="headerText">Title</label>
-              <input type="text" id="headerText" value="Ten Frame Addition" />
+              <input type="text" id="headerText" value="Ten Frame Math" />
             </div>
             <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
               <input type="checkbox" id="showSubtitle" checked />
@@ -526,7 +204,7 @@
             </div>
             <div id="subtitleInputWrap">
               <label for="subtitleText">Subtitle</label>
-              <input type="text" id="subtitleText" value="Add the number of dots in each ten frame to solve the problem." />
+              <input type="text" id="subtitleText" value="Use the ten frames to solve each problem." />
             </div>
           </div>
 
@@ -564,6 +242,7 @@
 
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
+    const elOperation = document.getElementById("operationSelect");
     const elMaxSum = document.getElementById("maxSumSelect");
     const elProblems = document.getElementById("problemsPerSheet");
     const elNumSheets = document.getElementById("numWorksheets");
@@ -586,50 +265,70 @@
     const advPanel = document.getElementById("advPanel");
     const advArrow = document.getElementById("advArrow");
 
-    // ===== Advanced panel toggle =====
     advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
 
     // ===== State =====
     let currentState = { sheets: [] };
 
     // ===== Problem generation =====
-    function generateProblems(count, maxSum) {
+    function generateProblems(count, maxNum, operation) {
       const problems = [];
       const seen = new Set();
       let attempts = 0;
 
-      while (problems.length < count && attempts < count * 200) {
+      while (problems.length < count && attempts < count * 300) {
         attempts++;
-        // Each addend must be at least 1, and the sum must be <= maxSum
-        // First addend: 1 to maxSum-1
-        const a = randInt(1, Math.min(10, maxSum - 1));
-        // Second addend: 1 to maxSum - a
-        const maxB = Math.min(10, maxSum - a);
-        if (maxB < 1) continue;
-        const b = randInt(1, maxB);
-        const sum = a + b;
-        if (sum > maxSum) continue;
+        // Pick operation for this problem
+        let op;
+        if (operation === "mixed") {
+          op = Math.random() < 0.5 ? "+" : "-";
+        } else if (operation === "subtraction") {
+          op = "-";
+        } else {
+          op = "+";
+        }
 
-        const key = a + "+" + b;
-        // Also block the reverse to get more variety
-        const keyRev = b + "+" + a;
+        let a, b, answer;
+        if (op === "+") {
+          // Addition: a + b = answer, answer <= maxNum, both a,b >= 1, both <= 10
+          a = randInt(1, Math.min(10, maxNum - 1));
+          const maxB = Math.min(10, maxNum - a);
+          if (maxB < 1) continue;
+          b = randInt(1, maxB);
+          answer = a + b;
+        } else {
+          // Subtraction: a - b = answer, a >= 2, b >= 1, answer >= 0, a <= maxNum, a <= 10 for single frame or <= 20 for double
+          a = randInt(2, Math.min(maxNum, 20));
+          b = randInt(1, Math.min(a, 10));
+          answer = a - b;
+          if (answer < 0) continue;
+        }
+
+        const key = a + op + b;
         if (seen.has(key)) continue;
         seen.add(key);
-        seen.add(keyRev);
-        problems.push({ a, b, sum });
+        problems.push({ a, b, op, answer });
       }
 
-      // Fill remainder if we couldn't get enough unique problems
+      // Fill remainder if needed
       let fa = 0;
-      while (problems.length < count && fa < count * 200) {
+      while (problems.length < count && fa < count * 300) {
         fa++;
-        const a = randInt(1, Math.min(10, maxSum - 1));
-        const maxB = Math.min(10, maxSum - a);
-        if (maxB < 1) continue;
-        const b = randInt(1, maxB);
-        const sum = a + b;
-        if (sum > maxSum) continue;
-        problems.push({ a, b, sum });
+        let op = operation === "mixed" ? (Math.random() < 0.5 ? "+" : "-") : (operation === "subtraction" ? "-" : "+");
+        let a, b, answer;
+        if (op === "+") {
+          a = randInt(1, Math.min(10, maxNum - 1));
+          const maxB = Math.min(10, maxNum - a);
+          if (maxB < 1) continue;
+          b = randInt(1, maxB);
+          answer = a + b;
+        } else {
+          a = randInt(2, Math.min(maxNum, 20));
+          b = randInt(1, Math.min(a, 10));
+          answer = a - b;
+          if (answer < 0) continue;
+        }
+        problems.push({ a, b, op, answer });
       }
 
       // Shuffle
@@ -646,27 +345,24 @@
       const frameW = cols * cellSize;
       const frameH = rows * cellSize;
 
-      // Outer border - thick
       svg.appendChild(svgEl("rect", {
         x: x, y: y, width: frameW, height: frameH,
-        fill: "none", stroke: "#1a202c", "stroke-width": "2.5", rx: 2, ry: 2
+        fill: "none", stroke: "#2d3748", "stroke-width": "1.5", rx: 2, ry: 2
       }));
 
-      // Grid cells and dots
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
           const cx = x + c * cellSize;
           const cy = y + r * cellSize;
           svg.appendChild(svgEl("rect", {
             x: cx, y: cy, width: cellSize, height: cellSize,
-            fill: "none", stroke: "#1a202c", "stroke-width": "1.5"
+            fill: "none", stroke: "#2d3748", "stroke-width": "1"
           }));
-
           const cellIndex = r * cols + c;
           if (cellIndex < filledCount) {
-            const dotR = cellSize * 0.3;
+            const dotR = cellSize * 0.28;
             svg.appendChild(svgEl("circle", {
-              cx: cx + cellSize / 2, cy: cy + cellSize / 2, r: dotR, fill: "#1a202c"
+              cx: cx + cellSize / 2, cy: cy + cellSize / 2, r: dotR, fill: "#4a5568"
             }));
           }
         }
@@ -682,29 +378,30 @@
       if (elCustomTitleEnabled.checked) {
         return elShowTitle.checked ? elHeaderText.value : "";
       }
-      const maxSum = parseInt(elMaxSum.value, 10);
-      return "Ten Frame Addition (Sums to " + maxSum + ")";
+      const op = elOperation.value;
+      const maxNum = parseInt(elMaxSum.value, 10);
+      if (op === "addition") return "Ten Frame Addition";
+      if (op === "subtraction") return "Ten Frame Subtraction";
+      return "Ten Frame Math";
     }
 
     function getSubtitle() {
       if (elCustomTitleEnabled.checked) {
         return elShowSubtitle.checked ? elSubtitleText.value : "";
       }
-      return "Add the number of dots in each ten frame to solve the problem.";
+      return "Use the ten frames to solve each problem.";
     }
 
     // ===== Gather options =====
     function gatherOptions() {
-      const showHeader = getHeaderMode();
-      const title = getTitle();
-      const subtitle = getSubtitle();
       return {
-        maxSum: parseInt(elMaxSum.value, 10),
+        operation: elOperation.value,
+        maxNum: parseInt(elMaxSum.value, 10),
         numWorksheets: parseInt(elNumSheets.value, 10),
         problemsPerSheet: parseInt(elProblems.value, 10),
-        showHeader,
-        title,
-        subtitle,
+        showHeader: getHeaderMode(),
+        title: getTitle(),
+        subtitle: getSubtitle(),
         branded: elBranded.checked,
         answerKey: elAnswerKey.checked,
         numbered: elNumbered.checked,
@@ -714,7 +411,7 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options, wsCode) {
-      const { showHeader, title, subtitle, branded, showAnswers, maxSum, numbered, includeExample, isAnswerKey } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, numbered, includeExample, isAnswerKey } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
@@ -736,26 +433,17 @@
           svg.appendChild(svgEl("text", {
             x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Name")]));
-          svg.appendChild(svgEl("line", {
-            x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18,
-            stroke: "#718096", "stroke-width": 0.75
-          }));
+          svg.appendChild(svgEl("line", { x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
           svg.appendChild(svgEl("text", {
             x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Date")]));
-          svg.appendChild(svgEl("line", {
-            x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
-            stroke: "#718096", "stroke-width": 0.75
-          }));
+          svg.appendChild(svgEl("line", { x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
           curY += 28;
         } else if (showHeader === "name") {
           svg.appendChild(svgEl("text", {
             x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Name")]));
-          svg.appendChild(svgEl("line", {
-            x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
-            stroke: "#718096", "stroke-width": 0.75
-          }));
+          svg.appendChild(svgEl("line", { x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
           curY += 28;
         }
         if (title) {
@@ -778,32 +466,15 @@
         const brandY = pageH - 48;
         const logoH = 38;
         const logoW = Math.round(logoH * 2.79);
-        svg.appendChild(svgEl("image", {
-          href: "../branding/emma-logo.jpg",
-          x: margin, y: brandY,
-          width: logoW, height: logoH
-        }));
-        const bLine1 = svgEl("text", {
-          x: pageW - margin, y: brandY + 14,
-          "font-family": "Fredoka, sans-serif", "font-size": 11,
-          fill: "#4a5568", "text-anchor": "end"
-        });
+        svg.appendChild(svgEl("image", { href: "../branding/emma-logo.jpg", x: margin, y: brandY, width: logoW, height: logoH }));
+        const bLine1 = svgEl("text", { x: pageW - margin, y: brandY + 14, "font-family": "Fredoka, sans-serif", "font-size": 11, fill: "#4a5568", "text-anchor": "end" });
         bLine1.textContent = "Find worksheets, teacher tools, and more at animalmath.com";
         svg.appendChild(bLine1);
-        const bLine2 = svgEl("text", {
-          x: pageW - margin, y: brandY + 26,
-          "font-family": "Fredoka, sans-serif", "font-size": 9.5,
-          fill: "#718096", "text-anchor": "end"
-        });
+        const bLine2 = svgEl("text", { x: pageW - margin, y: brandY + 26, "font-family": "Fredoka, sans-serif", "font-size": 9.5, fill: "#718096", "text-anchor": "end" });
         bLine2.textContent = "\u00A9 2026 Eggroll Games";
         svg.appendChild(bLine2);
-        // Worksheet code — bottom center
         if (!wsCode) wsCode = '(1)';
-        const wsCodeEl = svgEl("text", {
-          x: pageW / 2, y: pageH - 4,
-          "font-family": "Fredoka, sans-serif", "font-size": 8.5,
-          fill: "#94a3b8", "text-anchor": "middle", "letter-spacing": "1"
-        });
+        const wsCodeEl = svgEl("text", { x: pageW / 2, y: pageH - 4, "font-family": "Fredoka, sans-serif", "font-size": 8.5, fill: "#94a3b8", "text-anchor": "middle", "letter-spacing": "1" });
         wsCodeEl.textContent = wsCode;
         svg.appendChild(wsCodeEl);
       }
@@ -816,43 +487,33 @@
       const availW = pageW - margin * 2;
       const rowH = availH / count;
 
-      // Calculate ten frame cell size to fit nicely
-      // Layout per row: [frame1(5*cell)] gap plus gap [frame2(5*cell)] gap equals gap [answerBlank]
-      // We solve for cellSize so everything fits within availW
-      // gap = 6, plus/equals sign width ~ 18pt, answerBlank ~ 44pt
+      // Calculate ten frame cell size
+      // Layout: [frame1] gap [sign] gap [frame2] gap [sign] gap [answerBox]
       const gap = 6;
-      const signW = 18; // width allocated for + and = signs
-      const ansBlankW = 44; // width for the answer blank line
-      // Total non-frame width: 4*gap + 2*signW + ansBlankW
-      const fixedW = 4 * gap + 2 * signW + ansBlankW;
-      const maxCellFromWidth = Math.floor((availW - fixedW) / 10); // 10 cells across (5+5)
-
-      // Vertical: each row has frame (2*cell) + blank line below + spacing
-      const blankLineSpace = 28; // space for the blank lines under frames
-      const maxCellFromHeight = Math.floor((rowH - blankLineSpace) / 2);
-
+      const signW = 20;
+      const ansBoxW = 44;
+      const ansBoxH = 32;
+      const fixedW = 4 * gap + 2 * signW + ansBoxW;
+      const maxCellFromWidth = Math.floor((availW - fixedW) / 10);
+      const maxCellFromHeight = Math.floor((rowH - 14) / 2);
       const cellSize = clamp(Math.min(maxCellFromWidth, maxCellFromHeight), 14, 44);
       const frameW = 5 * cellSize;
       const frameH = 2 * cellSize;
 
-      // Font sizes - bold and large for kids
       const signFontSize = clamp(Math.round(cellSize * 1.1), 22, 36);
       const answerFontSize = clamp(Math.round(cellSize * 0.85), 16, 28);
-      const blankLineW = clamp(Math.round(cellSize * 1.8), 36, 60);
 
-      // Recalculate actual total width for centering
-      const actualTotalW = frameW + gap + signW + gap + frameW + gap + signW + gap + ansBlankW;
+      const actualTotalW = frameW + gap + signW + gap + frameW + gap + signW + gap + ansBoxW;
 
       for (let i = 0; i < problems.length; i++) {
-        const { a, b, sum } = problems[i];
+        const { a, b, op, answer } = problems[i];
         const rowTop = gridTop + i * rowH;
+        const isExample = (i === 0 && includeExample && !showAnswers);
 
-        // Center everything vertically in the row
-        const contentH = frameH + 22; // frame + answer line area
-        const contentStartY = rowTop + (rowH - contentH) / 2;
-        const frameY = contentStartY;
+        // Center content vertically in row
+        const frameY = rowTop + (rowH - frameH) / 2;
 
-        // Horizontal layout: center the entire equation
+        // Horizontal layout
         const startX = margin + (availW - actualTotalW) / 2;
         let x = startX;
 
@@ -864,59 +525,53 @@
         }
 
         // ===== First ten frame =====
-        const frame1X = x;
-        drawTenFrame(svg, frame1X, frameY, cellSize, a);
-
-        // Blank line under first frame
-        const line1CX = frame1X + frameW / 2;
-        const lineY = frameY + frameH + 16;
-        svg.appendChild(svgEl("line", { x1: line1CX - blankLineW / 2, y1: lineY, x2: line1CX + blankLineW / 2, y2: lineY, stroke: "#1a202c", "stroke-width": "1.5" }));
-
-        const isExample = (i === 0 && includeExample && !showAnswers);
-        const exColor = "#16a34a";
-        const ansColor = showAnswers ? "#3182ce" : (isExample ? exColor : null);
-
-        if (showAnswers || isExample) {
-          const ans1 = svgEl("text", { x: line1CX, y: lineY - 4, "font-family": "Fredoka, sans-serif", "font-size": String(answerFontSize), "font-weight": "700", "text-anchor": "middle", fill: ansColor });
-          ans1.textContent = String(a); svg.appendChild(ans1);
+        if (a <= 10) {
+          drawTenFrame(svg, x, frameY, cellSize, a);
+        } else {
+          // Double ten frame for numbers > 10
+          drawTenFrame(svg, x, frameY, cellSize, 10);
+          // Second frame below or we need to handle this differently
+          // For simplicity in horizontal layout, show 10 filled + label
+          const labelEl = svgEl("text", { x: x + frameW / 2, y: frameY - 4, "font-family": "'Google Sans Flex', sans-serif", "font-size": "14", "font-weight": "700", "text-anchor": "middle", fill: "#1a202c" });
+          labelEl.textContent = String(a);
+          svg.appendChild(labelEl);
         }
-
         x += frameW + gap;
 
-        // ===== Plus sign (vertically centered with frames) =====
+        // ===== Operation sign =====
         const signCY = frameY + frameH / 2 + signFontSize * 0.35;
-        const plusEl = svgEl("text", { x: x, y: signCY, "font-family": "Fredoka, sans-serif", "font-size": String(signFontSize), "font-weight": "700", fill: "#1a202c" });
-        plusEl.textContent = "+"; svg.appendChild(plusEl);
+        const signEl = svgEl("text", { x: x + signW / 2, y: signCY, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(signFontSize), "font-weight": "700", "text-anchor": "middle", fill: "#1a202c" });
+        signEl.textContent = op === "+" ? "+" : "\u2212";
+        svg.appendChild(signEl);
         x += signW + gap;
 
         // ===== Second ten frame =====
-        const frame2X = x;
-        drawTenFrame(svg, frame2X, frameY, cellSize, b);
-
-        // Blank line under second frame
-        const line2CX = frame2X + frameW / 2;
-        svg.appendChild(svgEl("line", { x1: line2CX - blankLineW / 2, y1: lineY, x2: line2CX + blankLineW / 2, y2: lineY, stroke: "#1a202c", "stroke-width": "1.5" }));
-
-        if (showAnswers || isExample) {
-          const ans2 = svgEl("text", { x: line2CX, y: lineY - 4, "font-family": "Fredoka, sans-serif", "font-size": String(answerFontSize), "font-weight": "700", "text-anchor": "middle", fill: ansColor });
-          ans2.textContent = String(b); svg.appendChild(ans2);
+        if (b <= 10) {
+          drawTenFrame(svg, x, frameY, cellSize, b);
+        } else {
+          drawTenFrame(svg, x, frameY, cellSize, 10);
+          const labelEl = svgEl("text", { x: x + frameW / 2, y: frameY - 4, "font-family": "'Google Sans Flex', sans-serif", "font-size": "14", "font-weight": "700", "text-anchor": "middle", fill: "#1a202c" });
+          labelEl.textContent = String(b);
+          svg.appendChild(labelEl);
         }
-
         x += frameW + gap;
 
         // ===== Equals sign =====
-        const eqEl = svgEl("text", { x: x, y: signCY, "font-family": "Fredoka, sans-serif", "font-size": String(signFontSize), "font-weight": "700", fill: "#1a202c" });
-        eqEl.textContent = "="; svg.appendChild(eqEl);
+        const eqEl = svgEl("text", { x: x + signW / 2, y: signCY, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(signFontSize), "font-weight": "700", "text-anchor": "middle", fill: "#1a202c" });
+        eqEl.textContent = "=";
+        svg.appendChild(eqEl);
         x += signW + gap;
 
-        // ===== Answer blank =====
-        const ansLineX = x;
-        const ansLineCX = ansLineX + ansBlankW / 2;
-        svg.appendChild(svgEl("line", { x1: ansLineX, y1: lineY, x2: ansLineX + ansBlankW, y2: lineY, stroke: "#1a202c", "stroke-width": "1.5" }));
+        // ===== Answer box =====
+        const boxCx = x + ansBoxW / 2;
+        const boxY = frameY + (frameH - ansBoxH) / 2;
+        svg.appendChild(svgEl("rect", { x: x, y: boxY, width: ansBoxW, height: ansBoxH, fill: "none", stroke: "#cbd5e1", "stroke-width": "1.5", rx: 4, ry: 4 }));
 
         if (showAnswers || isExample) {
-          const ansSum = svgEl("text", { x: ansLineCX, y: lineY - 4, "font-family": "Fredoka, sans-serif", "font-size": String(answerFontSize), "font-weight": "700", "text-anchor": "middle", fill: ansColor });
-          ansSum.textContent = String(sum); svg.appendChild(ansSum);
+          const ansColor = showAnswers ? "#3182ce" : "#16a34a";
+          const ansEl = svgEl("text", { x: boxCx, y: boxY + ansBoxH * 0.7, "font-family": "Fredoka, sans-serif", "font-size": String(answerFontSize), "font-weight": "700", "text-anchor": "middle", fill: ansColor });
+          ansEl.textContent = String(answer);
+          svg.appendChild(ansEl);
         }
 
         // Example badge
@@ -925,11 +580,7 @@
           const badgeX = startX + actualTotalW / 2 - badgeW / 2;
           const badgeY = rowTop + 4;
           svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: badgeW, height: badgeH, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "1" }));
-          const badgeText = svgEl("text", {
-            x: badgeX + badgeW / 2, y: badgeY + badgeH * 0.75,
-            "text-anchor": "middle", "font-family": "Fredoka, sans-serif",
-            "font-size": "8", "font-weight": "600", fill: "#16a34a"
-          });
+          const badgeText = svgEl("text", { x: badgeX + badgeW / 2, y: badgeY + badgeH * 0.75, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
           badgeText.textContent = "Example";
           svg.appendChild(badgeText);
         }
@@ -943,7 +594,7 @@
       const opts = gatherOptions();
       currentState.sheets = [];
       for (let s = 0; s < opts.numWorksheets; s++) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.maxSum));
+        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.maxNum, opts.operation));
       }
       renderWorksheet();
     }
@@ -951,7 +602,7 @@
     function renderWithoutRandomization() {
       const opts = gatherOptions();
       while (currentState.sheets.length < opts.numWorksheets) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.maxSum));
+        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.maxNum, opts.operation));
       }
       if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
       renderWorksheet();
@@ -968,7 +619,7 @@
       if (isMobile()) {
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, maxSum: opts.maxSum, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
           p.appendChild(v); sheetWrap.appendChild(p);
         }
         return;
@@ -988,12 +639,12 @@
         sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, maxSum: opts.maxSum, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
           v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
         }
       } else {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, maxSum: opts.maxSum, numbered: opts.numbered, includeExample: opts.includeExample }, '(1)');
+        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }, '(1)');
         p.appendChild(v); sheetWrap.appendChild(p);
       }
     }
@@ -1007,26 +658,24 @@
       const wsCodes = currentState.sheets.map((_, i) => '(' + (i + 1) + ')');
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, maxSum: opts.maxSum, numbered: opts.numbered, includeExample: opts.includeExample }, wsCodes[i]));
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }, wsCodes[i]));
         sheetWrap.appendChild(p);
       }
-      const answerKeyPages = [];
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, subtitle: "", branded: opts.branded, showAnswers: true, isAnswerKey: true, maxSum: opts.maxSum, numbered: opts.numbered, includeExample: false }, wsCodes[i]));
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, subtitle: "", branded: opts.branded, showAnswers: true, isAnswerKey: true, numbered: opts.numbered, includeExample: false }, wsCodes[i]));
           sheetWrap.appendChild(p);
-          answerKeyPages.push(p);
         }
       }
       window.print();
-      setTimeout(() => { answerKeyPages.forEach(p => p.remove()); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 500);
+      setTimeout(() => { sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 500);
     }
-
 
     // ===== Event Listeners =====
     elNumbered.addEventListener("change", () => renderWithoutRandomization());
     elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
+    elOperation.addEventListener("change", () => renderWithNewRandomization());
     elMaxSum.addEventListener("change", () => renderWithNewRandomization());
     elProblems.addEventListener("change", () => renderWithNewRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
