@@ -373,7 +373,7 @@
       box-shadow: 0 16px 48px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.06);
       padding: 16px;
       pointer-events: none;
-      width: 560px;
+      width: calc(100vw / 3);
       max-width: 90vw;
       max-height: calc(100vh - 24px);
       overflow: hidden;
@@ -391,7 +391,7 @@
     }
     .hover-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 10px;
       justify-items: center;
     }
@@ -402,9 +402,8 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.12);
       background: #f8fafc;
     }
-    /* Center the bottom row of 2 */
-    .hover-grid canvas:nth-child(4) { grid-column: 1 / 2; justify-self: end; margin-right: 5px; }
-    .hover-grid canvas:nth-child(5) { grid-column: 2 / 3; justify-self: start; margin-left: 5px; }
+    /* Center the last item if odd count */
+    .hover-grid canvas:nth-child(5) { grid-column: 1 / -1; justify-self: center; max-width: calc(50% - 5px); }
     .hover-page-label {
       font-size: 8px;
       font-weight: 600;
@@ -503,10 +502,6 @@
     </div>
     <div class="toolbar">
       <div class="toolbar-left"><span id="wsCount">6</span> worksheet sets</div>
-      <div class="layout-toggle">
-        <button class="layout-btn active" onclick="setLayout('a')">Layout A — Large</button>
-        <button class="layout-btn" onclick="setLayout('b')">Layout B — Compact</button>
-      </div>
     </div>
     <div class="ws-grid layout-a" id="wsGrid"></div>
   </div>
@@ -790,7 +785,7 @@
 
         // Position near the card — keep fully on-screen
         const rect = e.target.closest('.ws-card').getBoundingClientRect();
-        const popupW = 560; // matches CSS width
+        const popupW = Math.round(window.innerWidth / 3); // matches CSS width: calc(100vw / 3)
         const popupH = 540; // approximate height for larger preview
         const margin = 12; // minimum distance from viewport edge
 
