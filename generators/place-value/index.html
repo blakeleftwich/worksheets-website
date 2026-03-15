@@ -460,7 +460,7 @@
           <option value="1-10">1 &ndash; 10</option>
           <option value="1-20">1 &ndash; 20</option>
           <option value="10-20">10 &ndash; 20</option>
-          <option value="1-100">1 &ndash; 100</option>
+          <option value="10-100">10 &ndash; 100</option>
           <option value="50-100">50 &ndash; 100</option>
           <option value="10-300" selected>10 &ndash; 300</option>
           <option value="100-300">100 &ndash; 300</option>
@@ -627,7 +627,8 @@
       if (elCustomTitleEnabled.checked) {
         return elShowTitle.checked ? elHeaderText.value : "";
       }
-      return hasHundreds() ? "Base-ten Values: Hundreds, Tens and Ones" : "Base-ten Values: Tens and Ones";
+      const { max } = getRangeMinMax();
+      return "Base-ten Values to " + max;
     }
 
     function getSubtitle() {
@@ -671,7 +672,7 @@
       if (v === "1-10") return { min: 1, max: 10 };
       if (v === "1-20") return { min: 1, max: 20 };
       if (v === "10-20") return { min: 10, max: 20 };
-      if (v === "1-100") return { min: 1, max: 100 };
+      if (v === "10-100") return { min: 10, max: 100 };
       if (v === "50-100") return { min: 50, max: 100 };
       if (v === "10-300") return { min: 10, max: 300 };
       if (v === "100-300") return { min: 100, max: 300 };
@@ -680,7 +681,7 @@
 
     function hasHundreds() {
       const v = elRange.value;
-      return v === "1-100" || v === "50-100" || v === "10-300" || v === "100-300";
+      return v === "10-100" || v === "50-100" || v === "10-300" || v === "100-300";
     }
 
     // Estimate total block width for a number given block dimensions

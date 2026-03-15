@@ -549,7 +549,7 @@
           </div>
 
           <!-- Style -->
-          <div class="control-group">
+          <div class="control-group" id="styleGroup">
             <label for="style">Style</label>
             <select id="style">
               <option value="1" selected>2 Columns (Grid)</option>
@@ -738,7 +738,17 @@ elShowSubtitle.addEventListener("change", () => {
 // Add event listeners for real-time updates
 elNumSheets.addEventListener("change", () => renderWithNewRandomization());
 elProblems.addEventListener("change", () => renderWithNewRandomization());
-elCountRange.addEventListener("change", () => { updateTitleFromSettings(); renderWithNewRandomization(); });
+elCountRange.addEventListener("change", () => {
+  const range = elCountRange.value;
+  const styleGroup = document.getElementById("styleGroup");
+  if (range === "10-20" || range === "1-20") {
+    styleGroup.style.display = "none";
+    elStyle.value = "2";
+  } else {
+    styleGroup.style.display = "";
+  }
+  updateTitleFromSettings(); renderWithNewRandomization();
+});
 elStyle.addEventListener("change", () => renderWithoutRandomization());
 elShowHeader.addEventListener("change", () => renderWithoutRandomization());
 elNumbered.addEventListener("change", () => renderWithoutRandomization());
@@ -1321,10 +1331,11 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
     const count = problem.count;
     const iconId = icons[problem.iconIndex];
 
-    const boxW = 72;  // 80 * 0.9 = 72 (10% narrower)
-    const boxH = 42;  // Increased from 32 to make it taller
-    const boxX = x + cellW - boxW - 14 + 3;  // Move right 3px
-    const boxY = y + cellH - boxH - 12 + 7;  // Move down 7px
+    const lineW = 72;
+    const lineCenterX = x + cellW / 2;
+    const lineY = y + cellH - 24;  // twice as far from bottom as old box (was -12+7=-5 from bottom)
+    const lineX1 = lineCenterX - lineW / 2;
+    const lineX2 = lineCenterX + lineW / 2;
 
     placeObjects(svg, {
       iconId,
@@ -1333,7 +1344,7 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
       y: y + 12,
       w: cellW - 28,
       h: objectAreaH - 16,
-      answerBox: { x: boxX, y: boxY, width: boxW, height: boxH },
+      answerBox: { x: lineX1, y: lineY - 42, width: lineW, height: 42 },
       problemIndex: i,
       problemCount: problems.length,
       perRowMax
@@ -1341,19 +1352,17 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
 
     const isExample = (i === 0 && includeExample);
 
-    svg.appendChild(svgEl("rect", {
-      x: boxX, y: boxY, width: boxW, height: boxH,
-      rx: 6, ry: 6,
-      fill: isExample ? "#f0fdf4" : "none",
+    svg.appendChild(svgEl("line", {
+      x1: lineX1, y1: lineY, x2: lineX2, y2: lineY,
       stroke: isExample ? "#22c55e" : "#000",
-      "stroke-width": 1
+      "stroke-width": 1.5
     }));
 
     if (isExample) {
-      // Example badge above answer box
+      // Example badge above answer line
       const badgeW = 42, badgeH = 13;
-      const badgeX = boxX + boxW - badgeW;
-      const badgeY = boxY - badgeH - 2;
+      const badgeX = lineX2 - badgeW;
+      const badgeY = lineY - 30;
       svg.appendChild(svgEl("rect", {
         x: badgeX, y: badgeY, width: badgeW, height: badgeH,
         rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": 0.75
@@ -1365,9 +1374,9 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
       });
       badgeText.textContent = "Example";
       svg.appendChild(badgeText);
-      // Show answer in green
+      // Show answer in green above line
       const ansText = svgEl("text", {
-        x: boxX + boxW / 2, y: boxY + boxH / 2 + 7,
+        x: lineCenterX, y: lineY - 4,
         "font-family": "'Google Sans Flex', sans-serif", "font-size": 24, "font-weight": 700,
         fill: "#16a34a", "text-anchor": "middle"
       });
@@ -1532,25 +1541,25 @@ function renderStyle2(problems, headerMode, branded, numbered, icons, title, sub
       perRowMax
     });
 
-    const boxH = Math.min(45, rowHeight - 20);
-    const boxX = pageW - margin - boxW - 10;
-    const boxY = y + (rowHeight - boxH) / 2;
+    const lineW = 72;
+    const ansAreaCenterX = pageW - margin - boxW / 2 - 10;
+    const lineX1 = ansAreaCenterX - lineW / 2;
+    const lineX2 = ansAreaCenterX + lineW / 2;
+    const lineY = y + rowHeight - 24;
 
     const isExample = (i === 0 && includeExample);
 
-    svg.appendChild(svgEl("rect", {
-      x: boxX, y: boxY, width: boxW, height: boxH,
-      rx: 6, ry: 6,
-      fill: isExample ? "#f0fdf4" : "none",
+    svg.appendChild(svgEl("line", {
+      x1: lineX1, y1: lineY, x2: lineX2, y2: lineY,
       stroke: isExample ? "#22c55e" : "#000",
-      "stroke-width": 1
+      "stroke-width": 1.5
     }));
 
     if (isExample) {
-      // Example badge above answer box
+      // Example badge above answer line
       const badgeW = 42, badgeH = 13;
-      const badgeX = boxX + boxW - badgeW;
-      const badgeY = boxY - badgeH - 2;
+      const badgeX = lineX2 - badgeW;
+      const badgeY = lineY - 30;
       svg.appendChild(svgEl("rect", {
         x: badgeX, y: badgeY, width: badgeW, height: badgeH,
         rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": 0.75
@@ -1562,9 +1571,9 @@ function renderStyle2(problems, headerMode, branded, numbered, icons, title, sub
       });
       badgeText.textContent = "Example";
       svg.appendChild(badgeText);
-      // Show answer in green
+      // Show answer in green above line
       const ansText = svgEl("text", {
-        x: boxX + boxW / 2, y: boxY + boxH / 2 + 7,
+        x: ansAreaCenterX, y: lineY - 4,
         "font-family": "'Google Sans Flex', sans-serif", "font-size": 24, "font-weight": 700,
         fill: "#16a34a", "text-anchor": "middle"
       });
@@ -1719,10 +1728,11 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, t
     const count = problem.count;
     const iconId = icons[problem.iconIndex];
 
-    const boxW = 72;
-    const boxH = 42;
-    const boxX = x + cellW - boxW - 14 + 3;
-    const boxY = y + cellH - boxH - 12 + 7;
+    const akLineW = 72;
+    const akLineCenterX = x + cellW / 2;
+    const akLineX1 = akLineCenterX - akLineW / 2;
+    const akLineX2 = akLineCenterX + akLineW / 2;
+    const akLineY = y + cellH - 24;
 
     placeObjects(svg, {
       iconId,
@@ -1731,22 +1741,21 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, t
       y: y + 12,
       w: cellW - 28,
       h: objectAreaH - 16,
-      answerBox: { x: boxX, y: boxY, width: boxW, height: boxH },
+      answerBox: { x: akLineX1, y: akLineY - 42, width: akLineW, height: 42 },
       problemIndex: i,
       problemCount: problems.length,
       perRowMax
     });
 
-    svg.appendChild(svgEl("rect", {
-      x: boxX, y: boxY, width: boxW, height: boxH,
-      rx: 6, ry: 6,
-      fill: "none", stroke: "#000", "stroke-width": 1
+    svg.appendChild(svgEl("line", {
+      x1: akLineX1, y1: akLineY, x2: akLineX2, y2: akLineY,
+      stroke: "#000", "stroke-width": 1.5
     }));
 
-    // Add answer text inside the box
+    // Add answer text above the line
     const answerText = svgEl("text", {
-      x: boxX + boxW / 2,
-      y: boxY + boxH / 2 + 7,
+      x: akLineCenterX,
+      y: akLineY - 4,
       "font-family": "'Google Sans Flex', sans-serif",
       "font-size": 24,
       "font-weight": "500",
@@ -1907,20 +1916,21 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, t
       perRowMax
     });
 
-    const boxH = Math.min(45, rowHeight - 20);
-    const boxX = pageW - margin - boxW - 10;
-    const boxY = y + (rowHeight - boxH) / 2;
+    const lineW = 72;
+    const ansAreaCenterX = pageW - margin - boxW / 2 - 10;
+    const akLineX1 = ansAreaCenterX - lineW / 2;
+    const akLineX2 = ansAreaCenterX + lineW / 2;
+    const akLineY = y + rowHeight - 24;
 
-    svg.appendChild(svgEl("rect", {
-      x: boxX, y: boxY, width: boxW, height: boxH,
-      rx: 6, ry: 6,
-      fill: "none", stroke: "#000", "stroke-width": 1
+    svg.appendChild(svgEl("line", {
+      x1: akLineX1, y1: akLineY, x2: akLineX2, y2: akLineY,
+      stroke: "#000", "stroke-width": 1.5
     }));
-    
-    // Add answer text inside the box
+
+    // Add answer text above the line
     const answerText = svgEl("text", {
-      x: boxX + boxW / 2,
-      y: boxY + boxH / 2 + 7,
+      x: ansAreaCenterX,
+      y: akLineY - 4,
       "font-family": "'Google Sans Flex', sans-serif",
       "font-size": 24,
       "font-weight": "500",
