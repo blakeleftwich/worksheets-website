@@ -372,12 +372,12 @@
       border-radius: 12px;
       box-shadow: 0 16px 48px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.06);
       padding: 16px;
-      pointer-events: none;
+      pointer-events: auto;
       width: calc(100vw / 3);
       min-width: 320px;
       max-width: 90vw;
-      max-height: calc(100vh - 24px);
-      overflow: hidden;
+      max-height: calc(100vh - 80px);
+      overflow-y: auto;
     }
     .hover-preview.visible { display: block; }
     .hover-preview-title {
@@ -751,25 +751,31 @@
 
     // ===== Hover Preview — 5-page grid =====
     let hoverTimer = null;
-    const hoverCanvasCache = {}; // key → [canvas, canvas, canvas, canvas, canvas]
+    let hideTimer = null;
+    let activeHoverCard = null;
+    const hoverCanvasCache = {};
 
     function showHover(e, category, index) {
       const key = `${category}-${index}`;
       const cached = pdfCache[key];
       if (!cached) return;
 
+      // Cancel any pending hide
+      clearTimeout(hideTimer);
+
       // 200ms delay to avoid flashing on casual mouse movement
+      clearTimeout(hoverTimer);
       hoverTimer = setTimeout(() => {
         const preview = document.getElementById('hoverPreview');
         const grid = document.getElementById('hoverGrid');
         const title = document.getElementById('hoverTitle');
         const ws = worksheets[category].items[index];
 
+        activeHoverCard = e.target.closest('.ws-card');
         title.textContent = ws.title + ' — Set Preview';
         grid.innerHTML = '';
 
         // Render 5 worksheet pages (skip answer keys which are pages 6–10)
-        // Render at 2x resolution for crisp retina-quality thumbnails
         const thumbRenderWidth = 600;
         for (let p = 1; p <= 5; p++) {
           const cacheKey = `${key}-p${p}`;
@@ -784,11 +790,10 @@
           }
         }
 
-        // Position near the card — keep fully on-screen
-        const rect = e.target.closest('.ws-card').getBoundingClientRect();
-        const popupW = Math.round(window.innerWidth / 3); // matches CSS width: calc(100vw / 3)
-        const popupH = 540; // approximate height for larger preview
-        const margin = 12; // minimum distance from viewport edge
+        // Position near the card
+        const rect = activeHoverCard.getBoundingClientRect();
+        const popupW = Math.round(window.innerWidth / 3);
+        const margin = 12;
 
         // Position top just below the site header
         const header = document.querySelector('.site-header');
@@ -813,8 +818,38 @@
 
     function hideHover() {
       clearTimeout(hoverTimer);
-      document.getElementById('hoverPreview').classList.remove('visible');
+      // Delay hide so user can move mouse to popup
+      hideTimer = setTimeout(() => {
+        const preview = document.getElementById('hoverPreview');
+        if (!preview.matches(':hover')) {
+          preview.classList.remove('visible');
+          activeHoverCard = null;
+        }
+      }, 150);
     }
+
+    // Keep popup open when mouse is over it
+    (function() {
+      const preview = document.getElementById('hoverPreview');
+      preview.addEventListener('mouseenter', () => {
+        clearTimeout(hideTimer);
+      });
+      preview.addEventListener('mouseleave', () => {
+        hideTimer = setTimeout(() => {
+          preview.classList.remove('visible');
+          activeHoverCard = null;
+        }, 150);
+      });
+      // Close on click outside
+      document.addEventListener('click', (e) => {
+        const preview = document.getElementById('hoverPreview');
+        if (!preview.classList.contains('visible')) return;
+        if (preview.contains(e.target)) return;
+        if (activeHoverCard && activeHoverCard.contains(e.target)) return;
+        preview.classList.remove('visible');
+        activeHoverCard = null;
+      });
+    })();
 
   </script>
 </body>
