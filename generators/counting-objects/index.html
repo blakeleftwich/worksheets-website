@@ -742,10 +742,13 @@ elCountRange.addEventListener("change", () => {
   const range = elCountRange.value;
   const styleGroup = document.getElementById("styleGroup");
   if (range === "10-20" || range === "1-20") {
+    // Force 1 Column for large ranges, hide Style option
     styleGroup.style.display = "none";
     elStyle.value = "2";
   } else {
+    // For 1-5, 5-10, 1-10: default to 2 Columns, but let user change
     styleGroup.style.display = "";
+    elStyle.value = "1";
   }
   updateTitleFromSettings(); renderWithNewRandomization();
 });
@@ -1333,7 +1336,7 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
 
     const lineW = 72;
     const lineCenterX = x + cellW / 2;
-    const lineY = y + cellH - 24;  // twice as far from bottom as old box (was -12+7=-5 from bottom)
+    const lineY = y + cellH - 18;
     const lineX1 = lineCenterX - lineW / 2;
     const lineX2 = lineCenterX + lineW / 2;
 
@@ -1545,7 +1548,7 @@ function renderStyle2(problems, headerMode, branded, numbered, icons, title, sub
     const ansAreaCenterX = pageW - margin - boxW / 2 - 30;
     const lineX1 = ansAreaCenterX - lineW / 2;
     const lineX2 = ansAreaCenterX + lineW / 2;
-    const lineY = y + rowHeight - 24;
+    const lineY = y + rowHeight - 18;
 
     const isExample = (i === 0 && includeExample);
 
