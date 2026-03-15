@@ -789,23 +789,22 @@
         const popupH = 540; // approximate height for larger preview
         const margin = 12; // minimum distance from viewport edge
 
+        // Position top just below the site header
+        const header = document.querySelector('.site-header');
+        const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+        let top = headerBottom + 4;
+
         let left = rect.right + 10;
-        let top = rect.top;
 
         // Flip left if overflowing right
         if (left + popupW > window.innerWidth - margin) {
           left = rect.left - popupW - 10;
         }
-        // If still off-screen left, center horizontally above/below
+        // If still off-screen left, center horizontally
         if (left < margin) {
           left = Math.max(margin, (rect.left + rect.right) / 2 - popupW / 2);
           left = Math.min(left, window.innerWidth - popupW - margin);
         }
-        // Clamp vertical — never let any part go off-screen
-        if (top + popupH > window.innerHeight - margin) {
-          top = window.innerHeight - popupH - margin;
-        }
-        top = Math.max(margin, top);
 
         preview.style.left = left + 'px';
         preview.style.top = top + 'px';
