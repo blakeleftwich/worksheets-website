@@ -1375,13 +1375,14 @@
         const eqEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
         eqEl.textContent = "="; svg.appendChild(eqEl);
 
-        // Answer box — aligned per column, as left as possible with small buffer after equals
+        // Answer underline — aligned per column
         const boxX = cellLeft + cellPadLeft + colMaxEqW[col];
         const bW = colBoxW[col];
         const boxY = cy - boxH * 0.7;
+        const lineY = boxY + boxH;
         const isExample = (i === 0 && includeExample && !showAnswers);
         if (showBoxes !== false) {
-          svg.appendChild(svgEl("rect", { x: boxX, y: boxY, width: bW, height: boxH, rx: 4, ry: 4, fill: isExample ? "#f0fdf4" : "none", stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": "1.5" }));
+          svg.appendChild(svgEl("line", { x1: boxX, y1: lineY, x2: boxX + bW, y2: lineY, stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": "1.5" }));
         }
 
         if (isExample) {

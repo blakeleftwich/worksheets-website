@@ -566,14 +566,15 @@
         svg.appendChild(eqEl);
         x += signW + gap;
 
-        // ===== Answer box =====
+        // ===== Answer underline =====
         const boxCx = x + ansBoxW / 2;
         const boxY = frameY + (frameH - ansBoxH) / 2;
-        svg.appendChild(svgEl("rect", { x: x, y: boxY, width: ansBoxW, height: ansBoxH, fill: "none", stroke: "#cbd5e1", "stroke-width": "1.5", rx: 4, ry: 4 }));
+        const ansLineY = boxY + ansBoxH;
+        svg.appendChild(svgEl("line", { x1: x, y1: ansLineY, x2: x + ansBoxW, y2: ansLineY, stroke: "#cbd5e1", "stroke-width": "1.5" }));
 
         if (showAnswers || isExample) {
           const ansColor = showAnswers ? "#3182ce" : "#16a34a";
-          const ansEl = svgEl("text", { x: boxCx, y: boxY + ansBoxH * 0.7, "font-family": "Fredoka, sans-serif", "font-size": String(answerFontSize), "font-weight": "700", "text-anchor": "middle", fill: ansColor });
+          const ansEl = svgEl("text", { x: boxCx, y: ansLineY - ansBoxH * 0.2, "font-family": "Fredoka, sans-serif", "font-size": String(answerFontSize), "font-weight": "700", "text-anchor": "middle", fill: ansColor });
           ansEl.textContent = String(answer);
           svg.appendChild(ansEl);
         }

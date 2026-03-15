@@ -914,14 +914,14 @@
             drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 10, null, true);
             drawTenFrame(svg, contentStartX + singleFrameW + doubleGap, frameBlockY, cellSize, num - 10, null, true);
 
-            // Answer box below
-            const boxY = frameBlockY + singleFrameH + answerGap;
+            // Answer underline below
+            const lineY = frameBlockY + singleFrameH + answerGap + boxH;
             const boxCx = contentStartX + totalFrameW / 2;
-            svg.appendChild(svgEl("rect", { x: boxCx - boxW / 2, y: boxY, width: boxW, height: boxH, fill: "none", stroke: "#cbd5e1", "stroke-width": "1.5", rx: 4, ry: 4 }));
+            svg.appendChild(svgEl("line", { x1: boxCx - boxW / 2, y1: lineY, x2: boxCx + boxW / 2, y2: lineY, stroke: "#cbd5e1", "stroke-width": "1.5" }));
 
             if (showAnswers || isExample) {
               const ansColor = showAnswers ? "#3182ce" : "#16a34a";
-              const ansEl = svgEl("text", { x: boxCx, y: boxY + boxH * 0.72, "font-family": "Fredoka, sans-serif", "font-size": String(Math.round(boxH * 0.6)), "font-weight": "700", "text-anchor": "middle", fill: ansColor });
+              const ansEl = svgEl("text", { x: boxCx, y: lineY - boxH * 0.2, "font-family": "Fredoka, sans-serif", "font-size": String(Math.round(boxH * 0.6)), "font-weight": "700", "text-anchor": "middle", fill: ansColor });
               ansEl.textContent = String(num); svg.appendChild(ansEl);
             }
           } else {
@@ -929,14 +929,14 @@
             const frameBlockY = contentCenterY - totalBlockH / 2;
             drawTenFrame(svg, contentStartX, frameBlockY, cellSize, num, null, true);
 
-            // Answer box below
-            const boxY = frameBlockY + singleFrameH + answerGap;
+            // Answer underline below
+            const lineY = frameBlockY + singleFrameH + answerGap + boxH;
             const boxCx = contentStartX + singleFrameW / 2;
-            svg.appendChild(svgEl("rect", { x: boxCx - boxW / 2, y: boxY, width: boxW, height: boxH, fill: "none", stroke: "#cbd5e1", "stroke-width": "1.5", rx: 4, ry: 4 }));
+            svg.appendChild(svgEl("line", { x1: boxCx - boxW / 2, y1: lineY, x2: boxCx + boxW / 2, y2: lineY, stroke: "#cbd5e1", "stroke-width": "1.5" }));
 
             if (showAnswers || isExample) {
               const ansColor = showAnswers ? "#3182ce" : "#16a34a";
-              const ansEl = svgEl("text", { x: boxCx, y: boxY + boxH * 0.72, "font-family": "Fredoka, sans-serif", "font-size": String(Math.round(boxH * 0.6)), "font-weight": "700", "text-anchor": "middle", fill: ansColor });
+              const ansEl = svgEl("text", { x: boxCx, y: lineY - boxH * 0.2, "font-family": "Fredoka, sans-serif", "font-size": String(Math.round(boxH * 0.6)), "font-weight": "700", "text-anchor": "middle", fill: ansColor });
               ansEl.textContent = String(num); svg.appendChild(ansEl);
             }
           }

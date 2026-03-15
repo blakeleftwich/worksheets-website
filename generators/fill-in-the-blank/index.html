@@ -1398,8 +1398,9 @@
         if (boxPos === "left") {
           const bx = slot1Center - boxW / 2;
           const by = cy - boxH * 0.7;
+          const blY = by + boxH;
           if (showBoxes !== false) {
-            svg.appendChild(svgEl("rect", { x: bx, y: by, width: boxW, height: boxH, rx: 4, ry: 4, fill: isExample ? "#f0fdf4" : "none", stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": "1.5" }));
+            svg.appendChild(svgEl("line", { x1: bx, y1: blY, x2: bx + boxW, y2: blY, stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": "1.5" }));
           }
           if (isExample) {
             const el = svgEl("text", { x: slot1Center, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#16a34a" });
@@ -1426,8 +1427,9 @@
         if (boxPos === "right") {
           const bx = slot2Center - boxW / 2;
           const by = cy - boxH * 0.7;
+          const blY = by + boxH;
           if (showBoxes !== false) {
-            svg.appendChild(svgEl("rect", { x: bx, y: by, width: boxW, height: boxH, rx: 4, ry: 4, fill: isExample ? "#f0fdf4" : "none", stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": "1.5" }));
+            svg.appendChild(svgEl("line", { x1: bx, y1: blY, x2: bx + boxW, y2: blY, stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": "1.5" }));
           }
           if (isExample) {
             const el = svgEl("text", { x: slot2Center, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#16a34a" });
