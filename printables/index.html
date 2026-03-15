@@ -374,6 +374,7 @@
       padding: 16px;
       pointer-events: none;
       width: calc(100vw / 3);
+      min-width: 320px;
       max-width: 90vw;
       max-height: calc(100vh - 24px);
       overflow: hidden;
@@ -794,17 +795,15 @@
         const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
         let top = headerBottom + 4;
 
-        let left = rect.right + 10;
+        // Position to the right of the card, allow partial overlap
+        let left = rect.right - 20;
 
         // Flip left if overflowing right
         if (left + popupW > window.innerWidth - margin) {
-          left = rect.left - popupW - 10;
+          left = rect.left - popupW + 20;
         }
-        // If still off-screen left, center horizontally
-        if (left < margin) {
-          left = Math.max(margin, (rect.left + rect.right) / 2 - popupW / 2);
-          left = Math.min(left, window.innerWidth - popupW - margin);
-        }
+        // Clamp to viewport
+        left = Math.max(margin, Math.min(left, window.innerWidth - popupW - margin));
 
         preview.style.left = left + 'px';
         preview.style.top = top + 'px';

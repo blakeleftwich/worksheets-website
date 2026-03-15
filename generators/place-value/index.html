@@ -965,7 +965,7 @@
           // All modes: draw blocks at top
           drawBlocksBW(svg, hundreds, tens, ones, contentLeft, contentTop, contentW, blocksAreaH, useHundreds, unitSize, rodW, rodH, rodGap, unitGap, flatSize, flatGap, strokeColor, strokeW);
 
-          const answerY = contentTop + blocksAreaH + answerGap;
+          const answerY = contentTop + blocksAreaH + answerGap + 6;
           const lineW = Math.min(80, contentW * 0.35);
           const lineX = contentLeft + 4;
           const showAns = isExample || showAnswers;
