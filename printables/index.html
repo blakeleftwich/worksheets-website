@@ -753,12 +753,16 @@
     let hoverTimer = null;
     let hideTimer = null;
     let activeHoverCard = null;
+    let popupHovered = false;
     const hoverCanvasCache = {};
 
     function showHover(e, category, index) {
       const key = `${category}-${index}`;
       const cached = pdfCache[key];
       if (!cached) return;
+
+      // If user is currently hovering over the popup, ignore new card hovers
+      if (popupHovered) return;
 
       // Cancel any pending hide
       clearTimeout(hideTimer);
@@ -818,13 +822,14 @@
 
     function hideHover() {
       clearTimeout(hoverTimer);
+      // If popup is being hovered, don't hide
+      if (popupHovered) return;
       // Delay hide so user can move mouse to popup
       hideTimer = setTimeout(() => {
+        if (popupHovered) return;
         const preview = document.getElementById('hoverPreview');
-        if (!preview.matches(':hover')) {
-          preview.classList.remove('visible');
-          activeHoverCard = null;
-        }
+        preview.classList.remove('visible');
+        activeHoverCard = null;
       }, 150);
     }
 
@@ -832,9 +837,12 @@
     (function() {
       const preview = document.getElementById('hoverPreview');
       preview.addEventListener('mouseenter', () => {
+        popupHovered = true;
         clearTimeout(hideTimer);
+        clearTimeout(hoverTimer);
       });
       preview.addEventListener('mouseleave', () => {
+        popupHovered = false;
         hideTimer = setTimeout(() => {
           preview.classList.remove('visible');
           activeHoverCard = null;
