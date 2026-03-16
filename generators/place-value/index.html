@@ -1081,16 +1081,11 @@
     // Unit = single small square.
     function drawBlocksBW(svg, hundreds, tens, ones, areaX, areaY, areaW, areaH, useHundreds, unitSize, rodW, rodH, rodGap, unitGap, flatSize, flatGap, strokeColor, strokeW) {
       // Find the tallest block to determine the top reference
-      let tallestH = 0;
+      // Ones always build up from where a ten rod would start (rod baseline)
+      let tallestH = rodH; // minimum height is always a rod height so ones align to rod bottom
       if (useHundreds && hundreds > 0) tallestH = Math.max(tallestH, flatSize);
-      if (tens > 0) tallestH = Math.max(tallestH, rodH);
       const onesVertGap = unitGap + 1.5;
       const maxPerCol = 5;
-      if (ones > 0) {
-        const onesInFirstCol = Math.min(ones, maxPerCol);
-        tallestH = Math.max(tallestH, onesInFirstCol * unitSize + (onesInFirstCol - 1) * onesVertGap);
-      }
-      if (tallestH === 0) tallestH = unitSize;
 
       // Bottom-align all blocks: blockBottom is the shared bottom line
       const blockBottom = areaY + tallestH;
