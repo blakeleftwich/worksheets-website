@@ -523,12 +523,6 @@
             <label for="numbered">Numbered</label>
           </div>
 
-          <!-- Show labels -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="showLabels" />
-            <label for="showLabels">Show labels</label>
-          </div>
-
           <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
@@ -587,7 +581,6 @@
     const sheetWrap = document.getElementById("sheetWrap");
     const elMode = document.getElementById("modeSelect");
     const elRange = document.getElementById("rangeSelect");
-    const elShowLabels = document.getElementById("showLabels");
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
@@ -985,13 +978,12 @@
         branded: elBranded.checked,
         answerKey: elAnswerKey.checked,
         numbered: elNumbered.checked,
-        showLabels: elShowLabels.checked,
       };
     }
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options, wsCode) {
-      const { showHeader, title, subtitle, branded, numbered, isAnswerKey, showAnswers, showLabels } = options;
+      const { showHeader, title, subtitle, branded, numbered, isAnswerKey, showAnswers } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
@@ -1155,14 +1147,6 @@
               x1: textLeft, y1: ay + 14, x2: textLeft + lineW, y2: ay + 14,
               stroke: "#2d3748", "stroke-width": 1.5
             }));
-            if (a.label && showLabels) {
-              const lbl = svgEl("text", {
-                x: textLeft + lineW + 8, y: ay + 12,
-                "font-family": "Fredoka, sans-serif", "font-size": 13, "font-weight": 400, fill: "#4a5568"
-              });
-              lbl.textContent = a.label;
-              svg.appendChild(lbl);
-            }
             if (showAnswers && a.value) {
               const aEl = svgEl("text", {
                 x: textLeft + lineW / 2, y: ay + 10,
@@ -1182,14 +1166,6 @@
             x1: textLeft, y1: answerY + 14, x2: textLeft + lineW, y2: answerY + 14,
             stroke: "#2d3748", "stroke-width": 1.5
           }));
-          if (a.label) {
-            const lbl = svgEl("text", {
-              x: textLeft + lineW + 8, y: answerY + 12,
-              "font-family": "Fredoka, sans-serif", "font-size": 13, "font-weight": 400, fill: "#4a5568"
-            });
-            lbl.textContent = a.label;
-            svg.appendChild(lbl);
-          }
           if (showAnswers && a.value) {
             const aEl = svgEl("text", {
               x: textLeft + lineW / 2, y: answerY + 10,
@@ -1297,7 +1273,6 @@
     // ===== Event Listeners =====
     elMode.addEventListener("change", () => renderWithNewRandomization());
     elRange.addEventListener("change", () => renderWithNewRandomization());
-    elShowLabels.addEventListener("change", () => renderWithoutRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elAnswerKey.addEventListener("change", () => {});
     elShowHeaderEnabled.addEventListener("change", () => {

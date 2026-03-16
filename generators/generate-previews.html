@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Generate Worksheet Previews</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; padding: 24px; }
+    h1 { margin-bottom: 16px; }
+    #status { margin-bottom: 16px; font-size: 14px; color: #64748b; }
+    #controls { margin-bottom: 24px; display: flex; gap: 12px; }
+    button { padding: 10px 20px; background: #f59e0b; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    button:hover { background: #d97706; }
+    button:disabled { opacity: 0.5; cursor: default; }
+    .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+    .preview-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .preview-card .label { padding: 8px 12px; font-size: 12px; font-weight: 600; color: #475569; border-top: 1px solid #e5e7eb; }
+    .preview-card .thumb { background: #f7f8fc; display: flex; align-items: center; justify-content: center; padding: 8px; height: 180px; }
+    .preview-card .thumb svg { max-width: 100%; max-height: 100%; }
+    .preview-card.error .thumb { background: #fef2f2; color: #dc2626; font-size: 12px; }
+    .preview-card.pending .thumb { color: #94a3b8; font-size: 12px; }
+    iframe { position: absolute; left: -9999px; top: -9999px; width: 1200px; height: 900px; border: none; }
+  </style>
+</head>
+<body>
+  <h1>Generate Worksheet Preview Snapshots</h1>
+  <div id="status">Ready. Click "Generate All" to create preview snapshots for every generator.</div>
+  <div id="controls">
+    <button id="btnGenAll" onclick="generateAll()">Generate All</button>
+    <button id="btnDownload" onclick="downloadAll()" disabled>Download All SVGs</button>
+  </div>
+  <div class="preview-grid" id="grid"></div>
+
+  <script>
+    const generators = [
+      "addition-pictures", "bar-graphs", "base-ten-manipulatives", "before-after-between",
+      "coin-identification", "color-by-number", "column-math", "comparing-groups",
+      "comparing-numbers", "counting-money", "counting-objects", "data-table",
+      "division-equal-groups", "dot-to-dot", "doubles", "expanded-form",
+      "fact-families", "fill-in-the-blank", "fill-ten-frame", "fractions",
+      "greater-less-than", "horizontal-math", "line-plot", "making-ten",
+      "math-fact-drills", "measurement", "missing-numbers-grid", "multiplication-arrays",
+      "number-bonds", "number-line", "number-tracing", "number-words",
+      "odd-and-even", "ordinal-numbers", "patterns", "pictograph",
+      "place-value", "base-ten-blocks-place-value", "rounding", "shapes",
+      "skip-counting", "subtraction-pictures", "symmetry", "tally-marks",
+      "telling-time", "telling-time-draw-hands", "telling-time-words", "telling-time-words-draw-hands",
+      "ten-frame-addition", "ten-frame-making-ten", "ten-frames",
+      "three-digit-place-value", "venn-diagram", "word-problems"
+    ];
+
+    const svgResults = {};
+    const grid = document.getElementById("grid");
+    const status = document.getElementById("status");
+
+    // Create cards
+    generators.forEach(name => {
+      const card = document.createElement("div");
+      card.className = "preview-card pending";
+      card.id = "card-" + name;
+      card.innerHTML = `<div class="thumb">Pending...</div><div class="label">${name}</div>`;
+      grid.appendChild(card);
+    });
+
+    async function generateAll() {
+      document.getElementById("btnGenAll").disabled = true;
+      for (let i = 0; i < generators.length; i++) {
+        const name = generators[i];
+        status.textContent = `Processing ${i + 1}/${generators.length}: ${name}...`;
+        try {
+          const svg = await captureGenerator(name);
+          svgResults[name] = svg;
+          const card = document.getElementById("card-" + name);
+          card.className = "preview-card";
+          card.querySelector(".thumb").innerHTML = svg;
+        } catch (e) {
+          const card = document.getElementById("card-" + name);
+          card.className = "preview-card error";
+          card.querySelector(".thumb").textContent = "Error: " + e.message;
+        }
+      }
+      status.textContent = `Done! Generated ${Object.keys(svgResults).length}/${generators.length} previews.`;
+      document.getElementById("btnDownload").disabled = false;
+    }
+
+    function captureGenerator(name) {
+      return new Promise((resolve, reject) => {
+        const iframe = document.createElement("iframe");
+        iframe.src = name + "/index.html";
+        document.body.appendChild(iframe);
+
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error("Timeout"));
+        }, 15000);
+
+        iframe.onload = () => {
+          // Wait for initial render, then click Generate if needed
+          setTimeout(() => {
+            try {
+              const doc = iframe.contentDocument;
+              // Try clicking the generate button
+              const btn = doc.getElementById("btnGenerate") || doc.querySelector(".btn-generate");
+              if (btn) btn.click();
+
+              // Wait for render
+              setTimeout(() => {
+                try {
+                  const doc2 = iframe.contentDocument;
+                  // Find the first SVG in the preview area or sheet wrapper
+                  const svgEl = doc2.querySelector(".preview-area svg, .sheet-wrapper svg, #sheetWrapper svg, svg[viewBox]");
+                  if (svgEl) {
+                    // Clone and clean up the SVG
+                    const clone = svgEl.cloneNode(true);
+                    // Set explicit dimensions for the preview
+                    clone.setAttribute("width", "612");
+                    clone.setAttribute("height", "792");
+                    resolve(clone.outerHTML);
+                  } else {
+                    reject(new Error("No SVG found"));
+                  }
+                } catch (e) {
+                  reject(e);
+                }
+                cleanup();
+              }, 2000);
+            } catch (e) {
+              cleanup();
+              reject(e);
+            }
+          }, 1000);
+        };
+
+        iframe.onerror = () => {
+          cleanup();
+          reject(new Error("Failed to load"));
+        };
+
+        function cleanup() {
+          clearTimeout(timeout);
+          if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+        }
+      });
+    }
+
+    function downloadAll() {
+      for (const [name, svg] of Object.entries(svgResults)) {
+        const blob = new Blob([svg], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = name + ".svg";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    }
+  </script>
+</body>
+</html>
