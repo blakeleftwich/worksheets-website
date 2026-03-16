@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Base-ten Blocks Place Value Worksheet Generator</title>
+  <title>Base-ten Manipulatives Worksheet Generator</title>
   <style>
     * {
       margin: 0;
@@ -443,20 +443,28 @@
   <div class="main-container">
     <div class="sidebar">
 
-      <h2>Base-ten Blocks Place Value Generator</h2>
+      <h2>Base-ten Manipulatives Generator</h2>
+
+      <div class="control-group">
+        <label for="modeSelect">Mode</label>
+        <select id="modeSelect">
+          <option value="ones">Ones</option>
+          <option value="tens" selected>Tens</option>
+          <option value="mixed">Mixed</option>
+        </select>
+      </div>
 
       <div class="control-group">
         <label for="rangeSelect">Number Range</label>
         <select id="rangeSelect">
-          <option value="1-10">1 &ndash; 10</option>
           <option value="1-20">1 &ndash; 20</option>
-          <option value="10-20">10 &ndash; 20</option>
+          <option value="1-100">1 &ndash; 100</option>
           <option value="10-100">10 &ndash; 100</option>
-          <option value="50-100">50 &ndash; 100</option>
           <option value="10-300" selected>10 &ndash; 300</option>
           <option value="100-300">100 &ndash; 300</option>
         </select>
       </div>
+
       <div class="checkbox-row" style="margin-bottom:12px;">
         <label>
           <input type="checkbox" id="answerKey">
@@ -486,17 +494,6 @@
           <option value="8">8</option>
           <option value="9">9</option>
           <option value="10">10</option>
-        </select>
-      </div>
-
-          <!-- Rows per sheet -->
-          <div class="control-group" style="margin-bottom:12px;">
-        <label for="problemsPerSheet">Rows per Sheet</label>
-        <select id="problemsPerSheet">
-          <option value="2">2 rows</option>
-          <option value="3">3 rows</option>
-          <option value="4" selected>4 rows</option>
-          <option value="5">5 rows</option>
         </select>
       </div>
 
@@ -531,7 +528,7 @@
             </div>
             <div id="titleInputWrap">
               <label for="headerText">Title</label>
-              <input type="text" id="headerText" value="Base-ten Blocks Place Value" />
+              <input type="text" id="headerText" value="Base-ten Manipulatives" />
             </div>
             <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
               <input type="checkbox" id="showSubtitle" checked />
@@ -539,7 +536,7 @@
             </div>
             <div id="subtitleInputWrap">
               <label for="subtitleText">Subtitle</label>
-              <input type="text" id="subtitleText" value="Write the number of hundreds, tens, and ones." />
+              <input type="text" id="subtitleText" value="Solve each problem." />
             </div>
           </div>
 
@@ -575,8 +572,8 @@
 
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
+    const elMode = document.getElementById("modeSelect");
     const elRange = document.getElementById("rangeSelect");
-    const elProblems = document.getElementById("problemsPerSheet");
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
@@ -603,167 +600,294 @@
       return elShowHeaderEnabled.checked ? elHeaderMode.value : "none";
     }
 
+    function getRangeMinMax() {
+      const v = elRange.value;
+      if (v === "1-20") return { min: 1, max: 20 };
+      if (v === "1-100") return { min: 1, max: 100 };
+      if (v === "10-100") return { min: 10, max: 100 };
+      if (v === "10-300") return { min: 10, max: 300 };
+      if (v === "100-300") return { min: 100, max: 300 };
+      return { min: 10, max: 300 };
+    }
+
     function getTitle() {
       if (elCustomTitleEnabled.checked) {
         return elShowTitle.checked ? elHeaderText.value : "";
       }
-      const { max } = getRangeMinMax();
-      return "Base-ten Blocks Place Value to " + max;
+      return "Base-ten Manipulatives";
     }
 
     function getSubtitle() {
       if (elCustomTitleEnabled.checked) {
         return elShowSubtitle.checked ? elSubtitleText.value : "";
       }
-      return "Write the number of hundreds, tens, and ones.";
+      return "Solve each problem.";
     }
 
     // ===== State =====
     let currentState = { sheets: [] };
 
-    // ===== Number generation =====
-    function getRangeMinMax() {
-      const v = elRange.value;
-      if (v === "1-10") return { min: 1, max: 10 };
-      if (v === "1-20") return { min: 1, max: 20 };
-      if (v === "10-20") return { min: 10, max: 20 };
-      if (v === "10-100") return { min: 10, max: 100 };
-      if (v === "50-100") return { min: 50, max: 100 };
-      if (v === "10-300") return { min: 10, max: 300 };
-      if (v === "100-300") return { min: 100, max: 300 };
-      return { min: 10, max: 300 };
+    // ===== Name bank (popular kid names 2024-2026) =====
+    const NAMES = [
+      "Olivia", "Charlotte", "Amelia", "Sophia", "Mia", "Isabella", "Luna", "Harper",
+      "Evelyn", "Aria", "Ella", "Camila", "Layla", "Willow", "Zoe", "Penelope",
+      "Liam", "Noah", "Oliver", "James", "Elijah", "Theodore", "Henry", "Lucas",
+      "Benjamin", "Jack", "Levi", "Mason", "Ethan", "Mateo", "Owen", "Sebastian"
+    ];
+
+    function randItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function randInt(min, max) { return min + Math.floor(Math.random() * (max - min + 1)); }
+    function randName() { return randItem(NAMES); }
+
+    // ===== SVG Text Wrapping =====
+    function estimateTextWidth(text, fontSize) {
+      return text.length * fontSize * 0.52;
     }
 
-    function hasHundreds() {
-      const v = elRange.value;
-      return v === "10-100" || v === "50-100" || v === "10-300" || v === "100-300";
-    }
-
-    function pickNumber(min, max, seen) {
-      let attempts = 0;
-      while (attempts < 200) {
-        attempts++;
-        const n = min + Math.floor(Math.random() * (max - min + 1));
-        if (seen.has(n) && (max - min + 1) > 12) continue;
-        seen.add(n);
-        return n;
+    function wrapText(text, maxWidth, fontSize) {
+      const words = text.split(' ');
+      const lines = [];
+      let currentLine = '';
+      for (const word of words) {
+        const testLine = currentLine ? currentLine + ' ' + word : word;
+        if (estimateTextWidth(testLine, fontSize) > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
       }
-      const n = min + Math.floor(Math.random() * (max - min + 1));
-      return n;
+      if (currentLine) lines.push(currentLine);
+      return lines;
     }
 
-    // Generate a sheet as rows, each row is a single number (1 column layout)
-    function generateSheetRows() {
-      const { min, max } = getRangeMinMax();
-      const rows = [];
-      const seen = new Set();
-      const numRows = parseInt(elProblems.value, 10) || 4;
-      for (let r = 0; r < numRows; r++) {
-        rows.push(pickNumber(min, max, seen));
+    // ===== Question Bank =====
+    // Each question: { text, answers: [{label, value}], categories: ["ones","tens","hundreds",...] }
+    // answers is an array of {label, value} — label goes after the answer line
+
+    function buildQuestionBank() {
+      const Q = [];
+
+      // --- TENS questions ---
+      Q.push({ cat: ["tens"], gen: function() {
+        const n = randName(), shelves = randInt(2,9), total = shelves*10;
+        return { text: n+" was putting up books in the library. Each shelf holds ten books and he filled "+shelves+" shelves. How many books did he put away?", answers: [{label:"books", value:String(total)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const n = randName(), rows = randInt(2,9), total = rows*10;
+        return { text: n+" built a garden with "+rows+" rows of 10 flowers. How many flowers did she have in total?", answers: [{label:"flowers", value:String(total)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const n = randName(), days = randItem(["Monday and Tuesday", "Monday, Tuesday, and Wednesday", "Monday, Tuesday, and Thursday", "Monday through Wednesday", "Monday, Wednesday, and Friday"]);
+        const count = days.split(",").length + (days.includes("and") && !days.includes(",") ? 1 : 0);
+        const dayCount = days.includes("through") ? 3 : (days.match(/,/g)||[]).length + 1;
+        const total = dayCount * 10;
+        return { text: n+" read for ten minutes "+days+". How many minutes did he read this week?", answers: [{label:"minutes", value:String(total)}] };
+      }});
+      Q.push({ cat: ["ones"], gen: function() {
+        const n = randName(), needed = randItem([20,30,40,50,60]); const trays = needed/10;
+        return { text: n+" needed to bake "+needed+" cookies for the bake sale but each tray was only large enough for ten cookies. How many trays did she use to bake all the cookies she needed?", answers: [{label:"trays", value:String(trays)}] };
+      }});
+      Q.push({ cat: ["ones"], gen: function() {
+        const n = randName(), item = randItem(["lemons","strawberries","oranges"]), cups = randInt(1,3);
+        const pitchers = randInt(3,10), fruitPer = randInt(3,8);
+        return { text: n+"'s lemonade recipe: Fill a pitcher with water, add "+fruitPer+" "+item+", "+cups+(cups===1?" cup":" cups")+" of sugar, and stir. "+n+" wants to make "+pitchers+" pitchers of lemonade for a stand. How many "+item+" will be needed? How many cups of sugar will be needed?", answers: [{label:item, value:String(fruitPer*pitchers)}, {label:"cups of sugar", value:String(cups*pitchers)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const n1 = randName(), n2 = randName();
+        const b1 = randInt(2,5), b2 = randInt(2,5);
+        return { text: "Mrs. "+randItem(["Jones","Smith","Bell","Park","Davis"])+" asked "+n1+" and "+n2+" to help put away the crayons. Each box holds 10 crayons. "+n1+" filled "+b1+" boxes and "+n2+" filled "+b2+" boxes. How many crayons did each person put away? How many total?", answers: [{label:n1+"'s crayons", value:String(b1*10)}, {label:n2+"'s crayons", value:String(b2*10)}, {label:"total crayons", value:String((b1+b2)*10)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const baskets = randInt(3,9), total = baskets*10;
+        return { text: "Each basket holds 10 apples. There are "+baskets+" baskets at the farm stand. How many apples are there altogether?", answers: [{label:"apples", value:String(total)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const tables = randInt(3,8), total = tables*10;
+        return { text: "The cafeteria has "+tables+" tables. Each table seats 10 students. How many students can sit down at the same time?", answers: [{label:"students", value:String(total)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const n = randName(), bags = randInt(2,8), total = bags*10;
+        return { text: n+" is packing party favor bags. Each bag gets 10 stickers. How many stickers does "+n+" need for "+bags+" bags?", answers: [{label:"stickers", value:String(total)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const bags = randInt(3,8), total = bags*10;
+        return { text: "There are 10 goldfish crackers in each snack bag. The teacher handed out "+bags+" bags at snack time. How many goldfish crackers is that in all?", answers: [{label:"goldfish crackers", value:String(total)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const rows = randInt(2,6), total = rows*10;
+        return { text: "The egg carton holds 10 eggs per row. There are "+rows+" full rows. How many eggs are in the carton?", answers: [{label:"eggs", value:String(total)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const n = randName();
+        const friends = [randName(), randName(), randName()].filter((v,i,a) => a.indexOf(v)===i && v!==n);
+        while (friends.length < 2) friends.push(randName());
+        const people = friends.length + 1, total = people*10;
+        return { text: n+" and "+friends.join(", ")+" each did 10 jumping jacks in gym class. How many jumping jacks did they do all together?", answers: [{label:"jumping jacks", value:String(total)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const n = randName(), pitchers = randInt(2,6), customers = pitchers*10;
+        return { text: n+" made "+pitchers+" pitchers of lemonade today for a lemonade stand. Every customer ordered one cup and each pitcher had enough for ten cups of lemonade. By lunchtime all the lemonade was sold. How many customers were there today?", answers: [{label:"customers", value:String(customers)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const n = randName(), a = randInt(1,5), b = randInt(1,5), total = (a+b)*10;
+        return { text: n+" sells lemonade for ten cents per cup. Today "+n.toLowerCase()+" sold "+a+" cups at lunchtime and "+b+" cups at snacktime. How much money did "+n.toLowerCase()+" make?", answers: [{label:"cents", value:String(total)}] };
+      }});
+      // More tens
+      Q.push({ cat: ["tens"], gen: function() {
+        const n = randName(), pages = randInt(2,9), total = pages*10;
+        return { text: n+" is reading a chapter book. Each chapter has 10 pages. "+n+" has read "+pages+" chapters so far. How many pages has "+n+" read?", answers: [{label:"pages", value:String(total)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const n = randName(), packs = randInt(2,7), total = packs*10;
+        return { text: "There are 10 markers in every pack. "+n+" bought "+packs+" packs at the store. How many markers did "+n+" buy?", answers: [{label:"markers", value:String(total)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const cars = randInt(3,8), total = cars*10;
+        return { text: "A toy train has "+cars+" cars. Each car carries 10 passengers. How many passengers can the train carry in all?", answers: [{label:"passengers", value:String(total)}] };
+      }});
+
+      // --- ONES questions ---
+      Q.push({ cat: ["ones"], gen: function() {
+        const n = randName(), a = randInt(1,9), b = randInt(1,9);
+        return { text: n+" found "+a+" seashells on Monday and "+b+" seashells on Tuesday. How many seashells does "+n+" have now?", answers: [{label:"seashells", value:String(a+b)}] };
+      }});
+      Q.push({ cat: ["ones"], gen: function() {
+        const n = randName(), total = randInt(5,9), gave = randInt(1,total-1), left = total-gave;
+        return { text: n+" had "+total+" stickers. She gave "+gave+" stickers to a friend. How many stickers does "+n+" have left?", answers: [{label:"stickers", value:String(left)}] };
+      }});
+      Q.push({ cat: ["ones"], gen: function() {
+        const n = randName(), a = randInt(2,5), b = randInt(2,5);
+        return { text: n+" picked "+a+" red apples and "+b+" green apples from the tree. How many apples did "+n+" pick in all?", answers: [{label:"apples", value:String(a+b)}] };
+      }});
+      Q.push({ cat: ["ones"], gen: function() {
+        const n = randName(), cookies = randInt(5,9), ate = randInt(1,3), left = cookies-ate;
+        return { text: n+" baked "+cookies+" cookies. He ate "+ate+" of them. How many cookies are left?", answers: [{label:"cookies", value:String(left)}] };
+      }});
+      Q.push({ cat: ["ones"], gen: function() {
+        const n = randName(), birds = randInt(3,8), more = randInt(1,4);
+        return { text: n+" saw "+birds+" birds in a tree. Then "+more+" more birds landed. How many birds are in the tree now?", answers: [{label:"birds", value:String(birds+more)}] };
+      }});
+
+      // --- ONES questions (involve ones + tens, answer not divisible by 10) ---
+      Q.push({ cat: ["ones"], gen: function() {
+        const n = randName(), bags = randInt(2,5), extra = randInt(1,9), total = bags*10+extra;
+        return { text: n+" has "+bags+" bags of marbles with 10 in each bag and "+extra+" extra marbles. How many marbles does "+n+" have in all?", answers: [{label:"marbles", value:String(total)}] };
+      }});
+      Q.push({ cat: ["ones"], gen: function() {
+        const n = randName(), packs = randInt(2,6), loose = randInt(1,9), total = packs*10+loose;
+        return { text: "There are 10 crayons in each pack. "+n+" has "+packs+" packs and "+loose+" loose crayons. How many crayons does "+n+" have altogether?", answers: [{label:"crayons", value:String(total)}] };
+      }});
+      Q.push({ cat: ["ones"], gen: function() {
+        const boxes = randInt(2,5), extra = randInt(1,9), total = boxes*10+extra;
+        return { text: "Each box has 10 juice boxes in it. The cafeteria has "+boxes+" full boxes and "+extra+" extra juice boxes. How many juice boxes are there in all?", answers: [{label:"juice boxes", value:String(total)}] };
+      }});
+      Q.push({ cat: ["ones"], gen: function() {
+        const n = randName(), shelves = randInt(2,4), extra = randInt(1,9), total = shelves*10+extra;
+        return { text: n+" organized books on "+shelves+" shelves with 10 books on each shelf. There were also "+extra+" books left on the table. How many books are there in all?", answers: [{label:"books", value:String(total)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const n = randName(), boxes = randInt(2,4), total = boxes*100;
+        return { text: n+"'s school ordered new pencils. Each box has 100 pencils. They ordered "+boxes+" boxes. How many pencils did they order?", answers: [{label:"pencils", value:String(total)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const pages = randInt(2,9), total = pages*10;
+        return { text: "A photo album holds 10 photos on each page. If there are "+pages+" full pages, how many photos are in the album?", answers: [{label:"photos", value:String(total)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const n = randName(), jars = randInt(2,3), total = jars*100;
+        return { text: n+" counted "+jars+" jars of beads. Each jar has 100 beads. How many beads are there in all?", answers: [{label:"beads", value:String(total)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const n = randName(), boxes = randInt(1,3), packs = randInt(1,9), total = boxes*100+packs*10;
+        return { text: n+" has "+boxes+(boxes===1?" box":" boxes")+" of stickers with 100 in each box and "+packs+" packs with 10 in each pack. How many stickers does "+n+" have?", answers: [{label:"stickers", value:String(total)}] };
+      }});
+      Q.push({ cat: ["tens"], gen: function() {
+        const sheets = randInt(1,3), packs = randInt(1,9), total = sheets*100+packs*10;
+        return { text: "The art room has "+sheets+" stacks of 100 sheets of paper and "+packs+" packs of 10 sheets. How many sheets of paper are there?", answers: [{label:"sheets", value:String(total)}] };
+      }});
+
+      return Q;
+    }
+
+    // ===== Problem Generation =====
+    function generateProblem(mode, usedIndices, bank) {
+      // Filter by mode category
+      let pool;
+      if (mode === "mixed") {
+        pool = bank.map((q, i) => ({ q, origIdx: i }));
+      } else {
+        pool = bank.map((q, i) => ({ q, origIdx: i })).filter(item => item.q.cat.includes(mode));
       }
-      return rows;
+      // Shuffle
+      const shuffled = pool.slice().sort(() => Math.random() - 0.5);
+      // Pick unused first
+      for (let i = 0; i < shuffled.length; i++) {
+        const item = shuffled[i];
+        if (usedIndices.has(item.origIdx)) continue;
+        const prob = item.q.gen();
+        if (prob) { usedIndices.add(item.origIdx); return prob; }
+      }
+      // All templates used — generate from random unused template (different random values)
+      for (const item of shuffled) {
+        const prob = item.q.gen();
+        if (prob) return prob;
+      }
+      return { text: "How many tens are in 30?", answers: [{label:"tens", value:"3"}] };
+    }
+
+    function estimateProblemHeight(prob) {
+      const fontSize = 14;
+      const lineHeight = fontSize * 1.45;
+      const textW = 612 - 36 * 2 - 22; // pageW - margins - number indent
+      const lines = wrapText(prob.text, textW, fontSize);
+      const textH = fontSize + (lines.length - 1) * lineHeight + 8;
+      const answerLines = prob.answers ? prob.answers.length : 1;
+      const ansH = answerLines > 1 ? answerLines * 20 : 20;
+      return textH + 10 + ansH + lineHeight; // text + gap + answers + extra line under
+    }
+
+    function generateSheet() {
+      const mode = elMode.value;
+      const bank = buildQuestionBank();
+      const fontSize = 14;
+      const lineHeight = fontSize * 1.45;
+      const lineGap = lineHeight; // one text line height between problems
+      // Estimate available height: pageH(792) - header area(~120) - bottom margin(~56) - buffer(~40)
+      const availH = 792 - 120 - 56 - 40; // ~576
+      const problems = [];
+      const usedIndices = new Set();
+      let totalH = 0;
+      const maxProblems = 8;
+      for (let i = 0; i < maxProblems; i++) {
+        const prob = generateProblem(mode, usedIndices, bank);
+        const h = estimateProblemHeight(prob);
+        const neededH = totalH + h + (problems.length > 0 ? lineGap : 0);
+        if (neededH > availH && problems.length >= 3) break;
+        problems.push(prob);
+        totalH = neededH;
+      }
+      return problems;
     }
 
     // ===== Gather options =====
     function gatherOptions() {
-      const showHeader = getHeaderMode();
-      const title = getTitle();
-      const subtitle = getSubtitle();
       return {
+        mode: elMode.value,
         range: elRange.value,
         numWorksheets: parseInt(elNumSheets.value, 10),
-        problemsPerSheet: parseInt(elProblems.value, 10),
-        showHeader: showHeader,
-        title: title,
-        subtitle: subtitle,
+        showHeader: getHeaderMode(),
+        title: getTitle(),
+        subtitle: getSubtitle(),
         branded: elBranded.checked,
         answerKey: elAnswerKey.checked,
         numbered: elNumbered.checked,
       };
     }
 
-    // ===== Draw black & white line art base-ten blocks =====
-    // Blocks are left-aligned, bottom-aligned. Units stack bottom-to-top, left-to-right.
-    // Rod = 10 unit cubes stacked vertically with segment lines.
-    // Flat = 10x10 grid square (same height as rod).
-    // Unit = single small square.
-    function drawBlocksBW(svg, hundreds, tens, ones, areaX, areaY, areaW, areaH, useHundreds, unitSize, rodW, rodH, rodGap, unitGap, flatSize, flatGap, strokeColor, strokeW) {
-      // Find the tallest block to determine the top reference
-      let tallestH = 0;
-      if (useHundreds && hundreds > 0) tallestH = Math.max(tallestH, flatSize);
-      if (tens > 0) tallestH = Math.max(tallestH, rodH);
-      const onesVertGap = unitGap + 1.5;
-      const maxPerCol = 5;
-      if (ones > 0) {
-        const onesInFirstCol = Math.min(ones, maxPerCol);
-        tallestH = Math.max(tallestH, onesInFirstCol * unitSize + (onesInFirstCol - 1) * onesVertGap);
-      }
-      if (tallestH === 0) tallestH = unitSize;
-
-      // Bottom-align all blocks: blockBottom is the shared bottom line
-      const blockBottom = areaY + tallestH;
-
-      let curX = areaX + 4; // left-aligned cursor
-
-      // Draw hundreds flats (10x10 grids)
-      if (useHundreds && hundreds > 0) {
-        for (let f = 0; f < hundreds; f++) {
-          const fY = blockBottom - flatSize;
-          // Outer rect
-          svg.appendChild(svgEl("rect", {
-            x: curX, y: fY, width: flatSize, height: flatSize,
-            fill: "none", stroke: strokeColor, "stroke-width": strokeW
-          }));
-          // Grid lines (10x10)
-          const cellSz = flatSize / 10;
-          for (let g = 1; g < 10; g++) {
-            svg.appendChild(svgEl("line", { x1: curX + cellSz * g, y1: fY, x2: curX + cellSz * g, y2: fY + flatSize, stroke: strokeColor, "stroke-width": strokeW * 0.6 }));
-            svg.appendChild(svgEl("line", { x1: curX, y1: fY + cellSz * g, x2: curX + flatSize, y2: fY + cellSz * g, stroke: strokeColor, "stroke-width": strokeW * 0.6 }));
-          }
-          curX += flatSize + flatGap;
-        }
-        curX += rodGap; // extra gap after flats before rods
-      }
-
-      // Draw tens rods (vertical stack of 10 unit squares)
-      if (tens > 0) {
-        for (let t = 0; t < tens; t++) {
-          const rY = blockBottom - rodH;
-          // Outer rect for rod
-          svg.appendChild(svgEl("rect", {
-            x: curX, y: rY, width: rodW, height: rodH,
-            fill: "none", stroke: strokeColor, "stroke-width": strokeW
-          }));
-          // Segment lines (10 segments)
-          for (let s = 1; s < 10; s++) {
-            const segY = rY + unitSize * s;
-            svg.appendChild(svgEl("line", { x1: curX, y1: segY, x2: curX + rodW, y2: segY, stroke: strokeColor, "stroke-width": strokeW * 0.6 }));
-          }
-          curX += rodW + rodGap;
-        }
-        curX += rodGap; // extra gap after rods before units
-      }
-
-      // Draw ones units (bottom-to-top, max 5 per column, then next column)
-      if (ones > 0) {
-        for (let o = 0; o < ones; o++) {
-          const colIdx = Math.floor(o / maxPerCol);
-          const rowIdx = o % maxPerCol;
-          const uX = curX + colIdx * (unitSize + unitGap + 2);
-          const uY = blockBottom - unitSize - rowIdx * (unitSize + onesVertGap); // bottom-to-top
-          svg.appendChild(svgEl("rect", {
-            x: uX, y: uY, width: unitSize, height: unitSize,
-            fill: "none", stroke: strokeColor, "stroke-width": strokeW
-          }));
-        }
-      }
-      return tallestH;
-    }
-
     // ===== SVG Rendering =====
-    function renderWorksheetSVG(sheetRows, options, wsCode) {
-      const { showHeader, title, subtitle, branded, showAnswers, numbered, isAnswerKey } = options;
-      const useHundreds = hasHundreds();
+    function renderWorksheetSVG(problems, options, wsCode) {
+      const { showHeader, title, subtitle, branded, numbered, isAnswerKey, showAnswers } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
@@ -819,7 +943,7 @@
           }, [document.createTextNode(subtitle)]));
           curY += 20;
         }
-        topGridY = curY + 6;
+        topGridY = curY + 22;
       }
 
       // Branding footer
@@ -860,135 +984,121 @@
       const gridTop = topGridY;
       const availH = pageH - bottomMargin - gridTop;
       const availW = pageW - margin * 2;
-      const numRows = sheetRows.length;
-      const rowH = availH / numRows;
+      const numProblems = problems.length;
+      const fontSize = 14;
+      const lineHeight = fontSize * 1.45;
+      const textMaxW = availW - 20;
+      const ansColor = showAnswers ? "#3182ce" : "#3182ce";
+      const textW = availW - (numbered ? 22 : 0);
+      const ansLineH = 20; // height per answer line
 
-      // Block dimensions for single-column layout
-      // Left side ~55% for blocks, right side ~45% for chart
-      const blocksAreaW = availW * 0.55;
-      const chartW = 180;
+      // Pre-compute each problem's natural height
+      const probHeights = problems.map(prob => {
+        const lines = wrapText(prob.text, textW, fontSize);
+        const textH = fontSize + (lines.length - 1) * lineHeight + 8;
+        const answers = prob.answers || [];
+        const ansH = answers.length > 1 ? answers.length * ansLineH : ansLineH;
+        return textH + 10 + ansH + lineHeight; // text + gap + answers + extra line under
+      });
+      const gap = lineHeight; // one text line height between problems
 
-      const blockAreaMaxH = rowH - 12;
-      const unitSize = Math.max(4, Math.min(Math.floor(blockAreaMaxH / 10), 14, Math.floor(blocksAreaW / 16)));
-      const rodW = unitSize;
-      const rodH = unitSize * 10;
-      const rodGap = Math.max(2, Math.ceil(unitSize * 0.35));
-      const unitGap = Math.max(1, Math.ceil(unitSize * 0.2));
-      const flatSize = rodH;
-      const flatGap = 4;
-      const strokeColor = "#333";
-      const strokeW = 0.75;
-
-      // Place value chart dimensions
-      const chartHeaderH = 22;
-      const chartBodyH = 36;
-      const chartTotalH = chartHeaderH + chartBodyH;
-      const chartFontSize = 11;
-
-      // Render each row (single column)
-      for (let r = 0; r < numRows; r++) {
-        const num = sheetRows[r];
-        const hundreds = Math.floor(num / 100);
-        const tens = Math.floor((num % 100) / 10);
-        const ones = num % 10;
-        const probNum = r + 1;
-
-        const cellTop = gridTop + r * rowH;
+      // Render each problem
+      let curY = gridTop;
+      for (let p = 0; p < numProblems; p++) {
+        const prob = problems[p];
+        const cellTop = curY;
         const cellLeft = margin;
+
+        let contentY = cellTop;
 
         // Problem number
         if (numbered) {
-          const probNumEl = svgEl("text", { x: cellLeft + 4, y: cellTop + 16, "font-family": "Fredoka, sans-serif", "font-size": "10", "font-weight": "600", fill: "#a0aec0" });
-          probNumEl.textContent = probNum + ".";
-          svg.appendChild(probNumEl);
+          const numEl = svgEl("text", {
+            x: cellLeft, y: contentY + fontSize,
+            "font-family": "Fredoka, sans-serif", "font-size": fontSize + 1, "font-weight": 700, fill: "#a0aec0"
+          });
+          numEl.textContent = (p + 1) + ".";
+          svg.appendChild(numEl);
         }
 
-        // Draw blocks on the left side
-        const contentLeft = cellLeft + 20;
-        const contentTop = cellTop + 4;
-        const blocksW = blocksAreaW - 24;
-        const blocksH = rowH - 12;
+        const textLeft = cellLeft + (numbered ? 22 : 0);
 
-        drawBlocksBW(svg, hundreds, tens, ones, contentLeft, contentTop, blocksW, blocksH, useHundreds, unitSize, rodW, rodH, rodGap, unitGap, flatSize, flatGap, strokeColor, strokeW);
+        // Wrap and render problem text
+        const lines = wrapText(prob.text, textW, fontSize);
+        for (let li = 0; li < lines.length; li++) {
+          const tEl = svgEl("text", {
+            x: textLeft, y: contentY + fontSize + li * lineHeight,
+            "font-family": "Fredoka, sans-serif", "font-size": fontSize, "font-weight": 400, fill: "#2d3748"
+          });
+          tEl.textContent = lines[li];
+          svg.appendChild(tEl);
+        }
 
-        // Draw place value chart on the right side
-        const chartX = cellLeft + availW - chartW;
-        const chartY = contentTop + 4;
-        const numCols = useHundreds ? 3 : 2;
-        const colW = chartW / numCols;
+        const textBottomY = contentY + fontSize + (lines.length - 1) * lineHeight + 8;
 
-        // Chart outer border
-        svg.appendChild(svgEl("rect", {
-          x: chartX, y: chartY, width: chartW, height: chartTotalH,
-          fill: "none", stroke: "#000", "stroke-width": 1
-        }));
+        // Answer lines
+        const answerY = textBottomY + 10;
+        const answers = prob.answers || [];
 
-        // Header row background
-        svg.appendChild(svgEl("rect", {
-          x: chartX, y: chartY, width: chartW, height: chartHeaderH,
-          fill: "#f0f4f8", stroke: "#000", "stroke-width": 1
-        }));
-
-        // Horizontal line between header and body
-        svg.appendChild(svgEl("line", {
-          x1: chartX, y1: chartY + chartHeaderH,
-          x2: chartX + chartW, y2: chartY + chartHeaderH,
-          stroke: "#000", "stroke-width": 1
-        }));
-
-        // Vertical dividers
-        for (let ci = 1; ci < numCols; ci++) {
+        if (answers.length > 1) {
+          // Multiple answer lines stacked vertically
+          const lineW = 100;
+          const ansGap = 20;
+          let ay = answerY;
+          for (let ai = 0; ai < answers.length; ai++) {
+            const a = answers[ai];
+            svg.appendChild(svgEl("line", {
+              x1: textLeft, y1: ay + 14, x2: textLeft + lineW, y2: ay + 14,
+              stroke: "#2d3748", "stroke-width": 1.5
+            }));
+            if (a.label) {
+              const lbl = svgEl("text", {
+                x: textLeft + lineW + 8, y: ay + 12,
+                "font-family": "Fredoka, sans-serif", "font-size": 13, "font-weight": 400, fill: "#4a5568"
+              });
+              lbl.textContent = a.label;
+              svg.appendChild(lbl);
+            }
+            if (showAnswers && a.value) {
+              const aEl = svgEl("text", {
+                x: textLeft + lineW / 2, y: ay + 10,
+                "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700,
+                "text-anchor": "middle", fill: ansColor
+              });
+              aEl.textContent = a.value;
+              svg.appendChild(aEl);
+            }
+            ay += ansGap;
+          }
+        } else if (answers.length === 1) {
+          // Single answer line
+          const a = answers[0];
+          const lineW = 100;
           svg.appendChild(svgEl("line", {
-            x1: chartX + colW * ci, y1: chartY,
-            x2: chartX + colW * ci, y2: chartY + chartTotalH,
-            stroke: "#000", "stroke-width": 1
+            x1: textLeft, y1: answerY + 14, x2: textLeft + lineW, y2: answerY + 14,
+            stroke: "#2d3748", "stroke-width": 1.5
           }));
-        }
-
-        // Header labels
-        if (useHundreds) {
-          const hLabel = svgEl("text", { x: chartX + colW * 0.5, y: chartY + 15, "font-family": "Fredoka, sans-serif", "font-size": chartFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2d3748" });
-          hLabel.textContent = "hundreds";
-          svg.appendChild(hLabel);
-          const tLabel = svgEl("text", { x: chartX + colW * 1.5, y: chartY + 15, "font-family": "Fredoka, sans-serif", "font-size": chartFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2d3748" });
-          tLabel.textContent = "tens";
-          svg.appendChild(tLabel);
-          const oLabel = svgEl("text", { x: chartX + colW * 2.5, y: chartY + 15, "font-family": "Fredoka, sans-serif", "font-size": chartFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2d3748" });
-          oLabel.textContent = "ones";
-          svg.appendChild(oLabel);
-        } else {
-          const tLabel = svgEl("text", { x: chartX + colW * 0.5, y: chartY + 15, "font-family": "Fredoka, sans-serif", "font-size": chartFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2d3748" });
-          tLabel.textContent = "tens";
-          svg.appendChild(tLabel);
-          const oLabel = svgEl("text", { x: chartX + colW * 1.5, y: chartY + 15, "font-family": "Fredoka, sans-serif", "font-size": chartFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2d3748" });
-          oLabel.textContent = "ones";
-          svg.appendChild(oLabel);
-        }
-
-        // Answer key: fill in the values
-        if (showAnswers) {
-          const ansColor = "#3182ce";
-          const ansFontSize = 16;
-          const ansY = chartY + chartHeaderH + chartBodyH / 2 + 6;
-          if (useHundreds) {
-            const hAns = svgEl("text", { x: chartX + colW * 0.5, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": ansFontSize, "font-weight": 700, "text-anchor": "middle", fill: ansColor });
-            hAns.textContent = String(hundreds);
-            svg.appendChild(hAns);
-            const tAns = svgEl("text", { x: chartX + colW * 1.5, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": ansFontSize, "font-weight": 700, "text-anchor": "middle", fill: ansColor });
-            tAns.textContent = String(tens);
-            svg.appendChild(tAns);
-            const oAns = svgEl("text", { x: chartX + colW * 2.5, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": ansFontSize, "font-weight": 700, "text-anchor": "middle", fill: ansColor });
-            oAns.textContent = String(ones);
-            svg.appendChild(oAns);
-          } else {
-            const tAns = svgEl("text", { x: chartX + colW * 0.5, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": ansFontSize, "font-weight": 700, "text-anchor": "middle", fill: ansColor });
-            tAns.textContent = String(tens);
-            svg.appendChild(tAns);
-            const oAns = svgEl("text", { x: chartX + colW * 1.5, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": ansFontSize, "font-weight": 700, "text-anchor": "middle", fill: ansColor });
-            oAns.textContent = String(ones);
-            svg.appendChild(oAns);
+          if (a.label) {
+            const lbl = svgEl("text", {
+              x: textLeft + lineW + 8, y: answerY + 12,
+              "font-family": "Fredoka, sans-serif", "font-size": 13, "font-weight": 400, fill: "#4a5568"
+            });
+            lbl.textContent = a.label;
+            svg.appendChild(lbl);
+          }
+          if (showAnswers && a.value) {
+            const aEl = svgEl("text", {
+              x: textLeft + lineW / 2, y: answerY + 10,
+              "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700,
+              "text-anchor": "middle", fill: ansColor
+            });
+            aEl.textContent = a.value;
+            svg.appendChild(aEl);
           }
         }
+
+        // Advance Y by this problem's height + gap
+        curY += probHeights[p] + gap;
       }
 
       return svg;
@@ -999,7 +1109,7 @@
       const opts = gatherOptions();
       currentState.sheets = [];
       for (let s = 0; s < opts.numWorksheets; s++) {
-        currentState.sheets.push(generateSheetRows());
+        currentState.sheets.push(generateSheet());
       }
       renderWorksheet();
     }
@@ -1007,7 +1117,7 @@
     function renderWithoutRandomization() {
       const opts = gatherOptions();
       while (currentState.sheets.length < opts.numWorksheets) {
-        currentState.sheets.push(generateSheetRows());
+        currentState.sheets.push(generateSheet());
       }
       if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
       renderWorksheet();
@@ -1081,8 +1191,8 @@
     }
 
     // ===== Event Listeners =====
+    elMode.addEventListener("change", () => renderWithNewRandomization());
     elRange.addEventListener("change", () => renderWithNewRandomization());
-    elProblems.addEventListener("change", () => renderWithNewRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elAnswerKey.addEventListener("change", () => {});
     elShowHeaderEnabled.addEventListener("change", () => {

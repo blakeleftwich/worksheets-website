@@ -234,49 +234,6 @@
       margin-bottom: 4px;
     }
 
-    /* ===== Operation Chips ===== */
-    .ops-row {
-      display: flex;
-      gap: 6px;
-    }
-
-    .op-chip {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex: 1;
-      padding: 6px 0;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.15s;
-      text-align: center;
-    }
-
-    .op-chip input[type="checkbox"] {
-      display: none;
-    }
-
-    .op-chip span {
-      font-size: 18px;
-      font-weight: 700;
-      color: #a0aec0;
-      line-height: 1;
-    }
-
-    .op-chip:has(input:checked) {
-      border-color: #f59e0b;
-      background: rgba(245, 158, 11, 0.08);
-    }
-
-    .op-chip:has(input:checked) span {
-      color: #f59e0b;
-    }
-
-    .op-chip:hover {
-      border-color: #cbd5e0;
-    }
-
     /* ===== Checkboxes ===== */
     .checkbox-row {
       display: flex;
@@ -408,11 +365,6 @@
       }
     }
 
-    @page {
-      size: letter;
-      margin: 0.5in 0.4in 0in 0.4in;
-    }
-
     .ak-print-only { display: none !important; }
 
     /* ===== Print ===== */
@@ -462,6 +414,10 @@
         display: block !important;
       }
     }
+    @page {
+      size: letter;
+      margin: 0.5in 0.4in 0in 0.4in;
+    }
   </style>
   <link rel="stylesheet" href="../../fonts/fonts.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -486,45 +442,33 @@
   </header>
   <div class="main-container">
     <div class="sidebar">
-      <h2>Word Problems Worksheet Generator</h2>
+
+      <h2>Word Problems Generator</h2>
 
       <div class="control-group">
-        <label>Operations</label>
-        <div class="ops-row">
-          <label class="op-chip"><input type="checkbox" id="opAdd" checked /><span>&#xFF0B;</span></label>
-          <label class="op-chip"><input type="checkbox" id="opSub" checked /><span>&#xFF0D;</span></label>
-        </div>
+        <label for="modeSelect">Mode</label>
+        <select id="modeSelect">
+          <option value="addition">Addition</option>
+          <option value="subtraction">Subtraction</option>
+          <option value="multiplication">Multiplication</option>
+          <option value="division">Division</option>
+          <option value="add-sub" selected>Addition and Subtraction</option>
+          <option value="mult-div">Multiplication and Division</option>
+          <option value="mixed">Mixed</option>
+        </select>
       </div>
 
       <div class="control-group">
         <label for="rangeSelect">Number Range</label>
         <select id="rangeSelect">
-          <option value="5">Within 5</option>
-          <option value="10" selected>Within 10</option>
-          <option value="20">Within 20</option>
-          <option value="50">Within 50</option>
-        </select>
-      </div>
-<div class="checkbox-row" style="margin-bottom:12px;">
-        <label>
-          <input type="checkbox" id="showWorkSpace" checked>
-          <span>Show work space</span>
-        </label>
-      </div>
-
-      <div class="control-group">
-        <label for="numWorksheets">Number of Worksheets</label>
-        <select id="numWorksheets">
-          <option value="1" selected>1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-          <option value="10">10</option>
+          <option value="1-5">1 &ndash; 5</option>
+          <option value="1-10">1 &ndash; 10</option>
+          <option value="1-20" selected>1 &ndash; 20</option>
+          <option value="10-50">10 &ndash; 50</option>
+          <option value="1-100">1 &ndash; 100</option>
+          <option value="50-100">50 &ndash; 100</option>
+          <option value="50-200">50 &ndash; 200</option>
+          <option value="100-300">100 &ndash; 300</option>
         </select>
       </div>
 
@@ -543,17 +487,22 @@
       <div class="advanced-panel" id="advPanel">
         <div class="advanced-panel-inner">
 
-          <!-- Problems per sheet -->
+          <!-- Number of Worksheets -->
           <div class="control-group" style="margin-bottom:12px;">
-        <label for="problemsPerSheet">Problems per Sheet</label>
-        <select id="problemsPerSheet">
+        <label for="numWorksheets">Number of Worksheets</label>
+        <select id="numWorksheets">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
           <option value="3">3</option>
           <option value="4">4</option>
-          <option value="5" selected>5</option>
+          <option value="5">5</option>
           <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
         </select>
       </div>
-
 
           <!-- Name / Date -->
           <div class="adv-checkbox-row">
@@ -572,6 +521,12 @@
           <div class="adv-checkbox-row">
             <input type="checkbox" id="numbered" checked />
             <label for="numbered">Numbered</label>
+          </div>
+
+          <!-- Show labels -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="showLabels" />
+            <label for="showLabels">Show labels</label>
           </div>
 
           <!-- Customize worksheet titles -->
@@ -594,7 +549,7 @@
             </div>
             <div id="subtitleInputWrap">
               <label for="subtitleText">Subtitle</label>
-              <input type="text" id="subtitleText" value="Read each problem and write the answer." />
+              <input type="text" id="subtitleText" value="Solve each problem." />
             </div>
           </div>
 
@@ -608,8 +563,8 @@
       </div>
 
       <div class="button-group">
-        <button class="btn-generate" id="btnGenerate">&#x1F504; Generate New</button>
-        <button class="btn-print" id="btnPrint">&#x1F5A8;&#xFE0F; Print</button>
+        <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
+<button class="btn-print" id="btnPrint">&#128424; Print</button>
       </div>
     </div>
 
@@ -628,186 +583,11 @@
       return el;
     }
 
-    // ===== Names and Items pools =====
-    const NAMES = ["Emma", "Liam", "Olivia", "Noah", "Ava", "Ethan", "Sophia", "Mason", "Isabella", "Lucas"];
-    const ITEMS = ["apples", "toys", "books", "stickers", "marbles", "cookies", "pencils", "flowers", "balloons", "stars", "fish", "birds", "dogs", "cats", "butterflies"];
-
-    // ===== Word Problem Templates =====
-    // Each template: { text: function(name1, name2, a, b, items) => string, answer: function(a, b) => number }
-
-    const ADDITION_TEMPLATES = [
-      {
-        text: (n1, n2, a, b, items) => `${n1} has ${a} ${items}. ${n2} gives ${n1} ${b} more ${items}. How many ${items} does ${n1} have now?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `There are ${a} ${items} on the table. ${n1} puts ${b} more ${items} on the table. How many ${items} are on the table now?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} finds ${a} ${items} in the morning and ${b} ${items} in the afternoon. How many ${items} did ${n1} find in all?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} has ${a} ${items}. ${n1} gets ${b} more ${items} for a birthday present. How many ${items} does ${n1} have in all?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} picks ${a} ${items}. ${n2} picks ${b} ${items}. How many ${items} do they have together?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `There are ${a} ${items} in a box. ${n1} adds ${b} more ${items} to the box. How many ${items} are in the box now?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} sees ${a} ${items} in the park. Then ${n1} sees ${b} more ${items}. How many ${items} did ${n1} see in all?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} has ${a} ${items} in one pocket and ${b} ${items} in the other pocket. How many ${items} does ${n1} have in all?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} bought ${a} ${items} at the store. ${n2} bought ${b} ${items}. How many ${items} did they buy together?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} drew ${a} ${items}. Then ${n1} drew ${b} more ${items}. How many ${items} did ${n1} draw in total?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `There are ${a} ${items} on one shelf and ${b} ${items} on another shelf. How many ${items} are there on both shelves?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} counted ${a} ${items} in the garden. ${n2} counted ${b} more ${items}. How many ${items} were there altogether?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} made ${a} ${items} on Monday and ${b} ${items} on Tuesday. How many ${items} did ${n1} make in all?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} has ${a} red ${items} and ${b} blue ${items}. How many ${items} does ${n1} have altogether?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} collected ${a} ${items} last week. This week ${n1} collected ${b} more ${items}. How many ${items} does ${n1} have now?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} brought ${a} ${items} to school. ${n2} brought ${b} ${items}. How many ${items} are there in all?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `There are ${a} ${items} in a bag. ${n1} puts ${b} more ${items} into the bag. How many ${items} are in the bag now?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} won ${a} ${items} in the first game and ${b} ${items} in the second game. How many ${items} did ${n1} win in total?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} read ${a} ${items} before lunch. After lunch, ${n1} read ${b} more ${items}. How many ${items} did ${n1} read in all?`,
-        answer: (a, b) => a + b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n2} gave ${n1} ${a} ${items}. Then ${n2} gave ${n1} ${b} more ${items}. How many ${items} did ${n1} get from ${n2}?`,
-        answer: (a, b) => a + b
-      }
-    ];
-
-    const SUBTRACTION_TEMPLATES = [
-      {
-        text: (n1, n2, a, b, items) => `${n1} had ${a} ${items}. ${n1} gave away ${b} ${items}. How many ${items} does ${n1} have left?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `There were ${a} ${items} on the table. ${n1} took ${b} ${items} away. How many ${items} are left on the table?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} had ${a} ${items}. ${n1} lost ${b} of them. How many ${items} does ${n1} have now?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} had ${a} ${items}. ${n1} gave ${b} ${items} to ${n2}. How many ${items} does ${n1} have left?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `There are ${a} ${items} in a jar. ${n1} eats ${b} of them. How many ${items} are left in the jar?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} has ${a} ${items}. ${b} of them break. How many ${items} does ${n1} have now?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} had ${a} ${items} in a box. ${n1} took out ${b} ${items}. How many ${items} are still in the box?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `There were ${a} ${items} at the park. Then ${b} ${items} went away. How many ${items} are still at the park?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} picked ${a} ${items}. ${n1} gave ${b} ${items} to friends. How many ${items} does ${n1} still have?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} started with ${a} ${items}. After sharing, ${n1} had ${b} fewer ${items}. How many ${items} does ${n1} have now?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} had ${a} ${items}. ${n2} borrowed ${b} of them. How many ${items} does ${n1} have left?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `There were ${a} ${items} on the tree. ${b} ${items} fell down. How many ${items} are still on the tree?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} made ${a} ${items}. ${n1} sold ${b} of them. How many ${items} does ${n1} have left?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} had ${a} ${items} in a bag. ${b} ${items} fell out. How many ${items} are still in the bag?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} counted ${a} ${items}. Then ${b} ${items} disappeared. How many ${items} are left?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} brought ${a} ${items} to the party. ${n2} took ${b} ${items} home. How many ${items} are left at the party?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} had ${a} ${items}. After giving some to ${n2}, ${n1} had ${b} fewer. How many ${items} does ${n1} have now?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `There are ${a} ${items} on the plate. ${n1} takes ${b} ${items}. How many ${items} are left on the plate?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} saw ${a} ${items} in the yard. ${b} of them ran away. How many ${items} are still in the yard?`,
-        answer: (a, b) => a - b
-      },
-      {
-        text: (n1, n2, a, b, items) => `${n1} had ${a} ${items}. ${n1} used ${b} of them for a project. How many ${items} does ${n1} have left?`,
-        answer: (a, b) => a - b
-      }
-    ];
-
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
-    const elOpAdd = document.getElementById("opAdd");
-    const elOpSub = document.getElementById("opSub");
+    const elMode = document.getElementById("modeSelect");
     const elRange = document.getElementById("rangeSelect");
-    const elProblems = document.getElementById("problemsPerSheet");
-    const elShowWorkSpace = document.getElementById("showWorkSpace");
+    const elShowLabels = document.getElementById("showLabels");
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
@@ -823,7 +603,6 @@
     const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
     const elBranded = document.getElementById("branded");
     const elNumbered = document.getElementById("numbered");
-    const elIncludeExample = document.getElementById("includeExample") || { checked: false, addEventListener: function(){} };
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
     const advArrow = document.getElementById("advArrow");
@@ -831,133 +610,394 @@
     // ===== Advanced panel toggle =====
     advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
 
-    // ===== Operations =====
-    function handleOpChange(el) {
-      if (!(elOpAdd.checked || elOpSub.checked)) { el.checked = true; return; }
-      renderWithNewRandomization();
+    function getHeaderMode() {
+      return elShowHeaderEnabled.checked ? elHeaderMode.value : "none";
     }
-    elOpAdd.addEventListener("change", () => handleOpChange(elOpAdd));
-    elOpSub.addEventListener("change", () => handleOpChange(elOpSub));
+
+    function getTitle() {
+      if (elCustomTitleEnabled.checked) {
+        return elShowTitle.checked ? elHeaderText.value : "";
+      }
+      return "Word Problems";
+    }
+
+    function getSubtitle() {
+      if (elCustomTitleEnabled.checked) {
+        return elShowSubtitle.checked ? elSubtitleText.value : "";
+      }
+      return "Solve each problem.";
+    }
 
     // ===== State =====
     let currentState = { sheets: [] };
 
-    // ===== Random helpers =====
+    // ===== Name bank (popular kid names 2024-2026) =====
+    const NAMES = [
+      "Olivia", "Charlotte", "Amelia", "Sophia", "Mia", "Isabella", "Luna", "Harper",
+      "Evelyn", "Aria", "Ella", "Camila", "Layla", "Willow", "Zoe", "Penelope",
+      "Liam", "Noah", "Oliver", "James", "Elijah", "Theodore", "Henry", "Lucas",
+      "Benjamin", "Jack", "Levi", "Mason", "Ethan", "Mateo", "Owen", "Sebastian"
+    ];
+
+    function randItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
     function randInt(min, max) { return min + Math.floor(Math.random() * (max - min + 1)); }
-    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-    function pickTwo(arr) {
-      const i = Math.floor(Math.random() * arr.length);
-      let j = Math.floor(Math.random() * (arr.length - 1));
-      if (j >= i) j++;
-      return [arr[i], arr[j]];
+    function randName() { return randItem(NAMES); }
+
+    // ===== SVG Text Wrapping =====
+    function estimateTextWidth(text, fontSize) {
+      return text.length * fontSize * 0.52;
     }
 
-    // ===== Problem generation =====
-    function generateWordProblems(count, opts) {
-      const { maxNum, operations } = opts;
-      const problems = [];
-      const usedKeys = new Set();
-
-      // Split problems evenly between operations
-      let opQuotas = {};
-      const base = Math.floor(count / operations.length);
-      let remainder = count % operations.length;
-      for (const op of operations) {
-        opQuotas[op] = base + (remainder > 0 ? 1 : 0);
-        if (remainder > 0) remainder--;
-      }
-
-      function opCount(op) { return problems.filter(p => p.op === op).length; }
-
-      let attempts = 0;
-      while (problems.length < count && attempts < count * 200) {
-        attempts++;
-
-        // Pick an operation that still needs problems
-        const available = operations.filter(o => opCount(o) < opQuotas[o]);
-        if (available.length === 0) break;
-        const op = pick(available);
-
-        let a, b, answer;
-        if (op === "+") {
-          // a + b <= maxNum, both >= 1
-          a = randInt(1, maxNum - 1);
-          b = randInt(1, maxNum - a);
-          answer = a + b;
+    function wrapText(text, maxWidth, fontSize) {
+      const words = text.split(' ');
+      const lines = [];
+      let currentLine = '';
+      for (const word of words) {
+        const testLine = currentLine ? currentLine + ' ' + word : word;
+        if (estimateTextWidth(testLine, fontSize) > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
         } else {
-          // a - b >= 0, a >= 2, b >= 1
-          a = randInt(2, maxNum);
-          b = randInt(1, a - 1);
-          answer = a - b;
+          currentLine = testLine;
         }
-
-        // Pick template
-        const templates = op === "+" ? ADDITION_TEMPLATES : SUBTRACTION_TEMPLATES;
-        const template = pick(templates);
-        const [name1, name2] = pickTwo(NAMES);
-        const items = pick(ITEMS);
-        const text = template.text(name1, name2, a, b, items);
-
-        // Avoid exact duplicate problems
-        const key = op + ":" + a + "," + b + ":" + items;
-        if (usedKeys.has(key)) continue;
-        usedKeys.add(key);
-
-        problems.push({ text, answer, op, a, b });
       }
+      if (currentLine) lines.push(currentLine);
+      return lines;
+    }
 
-      // Fill any remaining if needed
-      while (problems.length < count) {
-        const op = pick(operations);
-        const a = op === "+" ? randInt(1, maxNum - 1) : randInt(2, maxNum);
-        const b = op === "+" ? randInt(1, maxNum - a) : randInt(1, a - 1);
-        const answer = op === "+" ? a + b : a - b;
-        const templates = op === "+" ? ADDITION_TEMPLATES : SUBTRACTION_TEMPLATES;
-        const template = pick(templates);
-        const [name1, name2] = pickTwo(NAMES);
-        const items = pick(ITEMS);
-        const text = template.text(name1, name2, a, b, items);
-        problems.push({ text, answer, op, a, b });
+    // ===== Question Bank =====
+    // Each question: { cat: ["category"], gen: function() => { text, answers: [{label, value}] } }
+
+    function parseRange(rangeStr) {
+      const parts = rangeStr.split("-");
+      return { lo: parseInt(parts[0], 10), hi: parseInt(parts[1], 10) };
+    }
+
+    function buildQuestionBank() {
+      const range = parseRange(elRange.value);
+      const lo = range.lo, hi = range.hi;
+      // For addition/subtraction: each operand is roughly in [lo, hi/2] so sum stays in range
+      const addLo = Math.max(1, lo);
+      const addHi = Math.max(addLo + 1, Math.floor(hi / 2));
+      // For subtraction: total is in [lo+2, hi], taken is in [1, total-1]
+      const subLo = Math.max(3, lo + 2);
+      const subHi = hi;
+      // For multiplication: factors chosen so product stays in range
+      const maxFactor = Math.max(2, Math.min(12, Math.floor(Math.sqrt(hi))));
+      const minFactor = hi <= 10 ? 1 : 2;
+      // For division: total in range, divisor small
+      const divMaxFactor = maxFactor;
+      const divMinFactor = minFactor;
+      const Q = [];
+
+      // --- ADDITION questions ---
+      Q.push({ cat: ["addition"], gen: function() {
+        const n = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
+        return { text: n+" found "+a+" seashells on the beach and then found "+b+" more. How many seashells does "+n+" have altogether?", answers: [{label:"seashells", value:String(a+b)}] };
+      }});
+      Q.push({ cat: ["addition"], gen: function() {
+        const n = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
+        return { text: n+" has "+a+" red marbles and "+b+" blue marbles. How many marbles does "+n+" have in all?", answers: [{label:"marbles", value:String(a+b)}] };
+      }});
+      Q.push({ cat: ["addition"], gen: function() {
+        const a = randInt(addLo, addHi), b = randInt(addLo, addHi);
+        return { text: "There are "+a+" boys and "+b+" girls in the class. How many students are there in all?", answers: [{label:"students", value:String(a+b)}] };
+      }});
+      Q.push({ cat: ["addition"], gen: function() {
+        const n = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
+        return { text: n+" read "+a+" pages on Monday and "+b+" pages on Tuesday. How many pages did "+n+" read in total?", answers: [{label:"pages", value:String(a+b)}] };
+      }});
+      Q.push({ cat: ["addition"], gen: function() {
+        const n1 = randName(), n2 = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
+        return { text: n1+" picked "+a+" apples. "+n2+" picked "+b+" apples. How many apples did they pick together?", answers: [{label:"apples", value:String(a+b)}] };
+      }});
+      Q.push({ cat: ["addition"], gen: function() {
+        const a = randInt(addLo, addHi), b = randInt(addLo, addHi);
+        return { text: "A jar has "+a+" cookies. Mom adds "+b+" more cookies to the jar. How many cookies are in the jar now?", answers: [{label:"cookies", value:String(a+b)}] };
+      }});
+      Q.push({ cat: ["addition"], gen: function() {
+        const n = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
+        return { text: n+" scored "+a+" points in the first half and "+b+" points in the second half. How many points did "+n+" score in total?", answers: [{label:"points", value:String(a+b)}] };
+      }});
+      Q.push({ cat: ["addition"], gen: function() {
+        const a = randInt(addLo, addHi), b = randInt(addLo, addHi);
+        return { text: a+" birds sat in a tree. Then "+b+" more birds landed on the branches. How many birds are in the tree now?", answers: [{label:"birds", value:String(a+b)}] };
+      }});
+      Q.push({ cat: ["addition"], gen: function() {
+        const n = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
+        return { text: n+" has "+a+" crayons. The teacher gave "+n+" "+b+" more crayons. How many crayons does "+n+" have now?", answers: [{label:"crayons", value:String(a+b)}] };
+      }});
+      Q.push({ cat: ["addition"], gen: function() {
+        const n = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
+        return { text: n+" saw "+a+" cars and "+b+" trucks in the parking lot. How many vehicles did "+n+" see?", answers: [{label:"vehicles", value:String(a+b)}] };
+      }});
+      Q.push({ cat: ["addition"], gen: function() {
+        const n = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
+        return { text: "There were "+a+" flowers in the garden. "+n+" planted "+b+" more flowers. How many flowers are in the garden now?", answers: [{label:"flowers", value:String(a+b)}] };
+      }});
+      Q.push({ cat: ["addition"], gen: function() {
+        const n1 = randName(), n2 = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
+        return { text: n1+" had "+a+" stickers. "+n2+" gave "+n1+" "+b+" more stickers. How many stickers does "+n1+" have now?", answers: [{label:"stickers", value:String(a+b)}] };
+      }});
+      Q.push({ cat: ["addition"], gen: function() {
+        const a = randInt(addLo, addHi), b = randInt(addLo, addHi);
+        return { text: "The library got "+a+" new books on Monday and "+b+" new books on Friday. How many new books did the library get?", answers: [{label:"books", value:String(a+b)}] };
+      }});
+      Q.push({ cat: ["addition"], gen: function() {
+        const n = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
+        return { text: n+" caught "+a+" fish in the morning and "+b+" fish in the afternoon. How many fish did "+n+" catch in all?", answers: [{label:"fish", value:String(a+b)}] };
+      }});
+      Q.push({ cat: ["addition"], gen: function() {
+        const a = randInt(addLo, addHi), b = randInt(addLo, addHi);
+        return { text: a+" kids are on the swings and "+b+" kids are on the slide. How many kids are at the playground?", answers: [{label:"kids", value:String(a+b)}] };
+      }});
+
+      // --- SUBTRACTION questions ---
+      Q.push({ cat: ["subtraction"], gen: function() {
+        const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
+        return { text: n+" had "+total+" cookies and ate "+some+" of them. How many cookies does "+n+" have left?", answers: [{label:"cookies", value:String(total - some)}] };
+      }});
+      Q.push({ cat: ["subtraction"], gen: function() {
+        const total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
+        return { text: "There were "+total+" birds on a fence. "+some+" flew away. How many birds are still on the fence?", answers: [{label:"birds", value:String(total - some)}] };
+      }});
+      Q.push({ cat: ["subtraction"], gen: function() {
+        const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
+        return { text: n+" had "+total+" stickers and gave "+some+" to a friend. How many stickers does "+n+" have left?", answers: [{label:"stickers", value:String(total - some)}] };
+      }});
+      Q.push({ cat: ["subtraction"], gen: function() {
+        const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
+        return { text: "A basket had "+total+" apples. "+n+" took "+some+" apples. How many apples are left in the basket?", answers: [{label:"apples", value:String(total - some)}] };
+      }});
+      Q.push({ cat: ["subtraction"], gen: function() {
+        const total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
+        return { text: total+" students were in class. "+some+" went to lunch early. How many students stayed in class?", answers: [{label:"students", value:String(total - some)}] };
+      }});
+      Q.push({ cat: ["subtraction"], gen: function() {
+        const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
+        return { text: n+" had "+total+" dollars. "+n+" spent "+some+" dollars on a toy. How much money does "+n+" have left?", answers: [{label:"dollars", value:String(total - some)}] };
+      }});
+      Q.push({ cat: ["subtraction"], gen: function() {
+        const total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
+        return { text: "The store had "+total+" balloons. "+some+" balloons popped. How many balloons are left?", answers: [{label:"balloons", value:String(total - some)}] };
+      }});
+      Q.push({ cat: ["subtraction"], gen: function() {
+        const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
+        return { text: n+" baked "+total+" muffins. The family ate "+some+" muffins. How many muffins are left?", answers: [{label:"muffins", value:String(total - some)}] };
+      }});
+      Q.push({ cat: ["subtraction"], gen: function() {
+        const total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
+        return { text: "There were "+total+" crayons in the box. "+some+" were broken. How many good crayons are left?", answers: [{label:"crayons", value:String(total - some)}] };
+      }});
+      Q.push({ cat: ["subtraction"], gen: function() {
+        const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
+        return { text: n+" had "+total+" grapes. "+n+" ate "+some+" as a snack. How many grapes does "+n+" have left?", answers: [{label:"grapes", value:String(total - some)}] };
+      }});
+      Q.push({ cat: ["subtraction"], gen: function() {
+        const total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
+        return { text: "There were "+total+" leaves on the tree. "+some+" blew away in the wind. How many leaves are still on the tree?", answers: [{label:"leaves", value:String(total - some)}] };
+      }});
+      Q.push({ cat: ["subtraction"], gen: function() {
+        const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
+        return { text: n+" had "+total+" marbles. "+n+" lost "+some+" at recess. How many marbles does "+n+" have now?", answers: [{label:"marbles", value:String(total - some)}] };
+      }});
+      Q.push({ cat: ["subtraction"], gen: function() {
+        const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
+        return { text: "A jar had "+total+" candies. "+n+" shared "+some+" with friends. How many candies are left in the jar?", answers: [{label:"candies", value:String(total - some)}] };
+      }});
+      Q.push({ cat: ["subtraction"], gen: function() {
+        const total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
+        return { text: total+" ants were on a hill. "+some+" walked away. How many ants stayed on the hill?", answers: [{label:"ants", value:String(total - some)}] };
+      }});
+      Q.push({ cat: ["subtraction"], gen: function() {
+        const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
+        return { text: n+" had "+total+" puzzle pieces. "+some+" were missing. How many puzzle pieces did "+n+" have?", answers: [{label:"pieces", value:String(total - some)}] };
+      }});
+
+      // --- MULTIPLICATION questions ---
+      Q.push({ cat: ["multiplication"], gen: function() {
+        const n = randName(), a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
+        return { text: n+" has "+a+" bags with "+b+" candies in each bag. How many candies does "+n+" have in all?", answers: [{label:"candies", value:String(a*b)}] };
+      }});
+      Q.push({ cat: ["multiplication"], gen: function() {
+        const a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
+        return { text: "There are "+a+" tables in the room with "+b+" chairs at each table. How many chairs are there in all?", answers: [{label:"chairs", value:String(a*b)}] };
+      }});
+      Q.push({ cat: ["multiplication"], gen: function() {
+        const n = randName(), a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
+        return { text: n+" bought "+a+" packs of stickers with "+b+" stickers in each pack. How many stickers did "+n+" buy?", answers: [{label:"stickers", value:String(a*b)}] };
+      }});
+      Q.push({ cat: ["multiplication"], gen: function() {
+        const n = randName(), a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
+        return { text: "Each box holds "+b+" crayons. "+n+" has "+a+" boxes. How many crayons does "+n+" have?", answers: [{label:"crayons", value:String(a*b)}] };
+      }});
+      Q.push({ cat: ["multiplication"], gen: function() {
+        const a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
+        return { text: a+" friends each brought "+b+" cookies to the party. How many cookies are there altogether?", answers: [{label:"cookies", value:String(a*b)}] };
+      }});
+      Q.push({ cat: ["multiplication"], gen: function() {
+        const n = randName(), a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
+        return { text: n+" has "+a+" shelves with "+b+" books on each shelf. How many books does "+n+" have?", answers: [{label:"books", value:String(a*b)}] };
+      }});
+      Q.push({ cat: ["multiplication"], gen: function() {
+        const a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
+        return { text: "There are "+a+" rows of desks with "+b+" desks in each row. How many desks are there?", answers: [{label:"desks", value:String(a*b)}] };
+      }});
+      Q.push({ cat: ["multiplication"], gen: function() {
+        const n = randName(), a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
+        return { text: n+" waters "+a+" plants "+b+" times each week. How many waterings does "+n+" do per week?", answers: [{label:"waterings", value:String(a*b)}] };
+      }});
+      Q.push({ cat: ["multiplication"], gen: function() {
+        const a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
+        return { text: "A parking lot has "+a+" rows with "+b+" cars in each row. How many cars are in the parking lot?", answers: [{label:"cars", value:String(a*b)}] };
+      }});
+      Q.push({ cat: ["multiplication"], gen: function() {
+        const n = randName(), a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
+        return { text: n+" puts "+b+" photos on each page of an album. The album has "+a+" pages. How many photos are in the album?", answers: [{label:"photos", value:String(a*b)}] };
+      }});
+      Q.push({ cat: ["multiplication"], gen: function() {
+        const a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
+        return { text: "Each team has "+b+" players. There are "+a+" teams. How many players are there in total?", answers: [{label:"players", value:String(a*b)}] };
+      }});
+      Q.push({ cat: ["multiplication"], gen: function() {
+        const n = randName(), a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
+        return { text: n+" earns "+b+" dollars each day. How much will "+n+" earn in "+a+" days?", answers: [{label:"dollars", value:String(a*b)}] };
+      }});
+
+      // --- DIVISION questions ---
+      Q.push({ cat: ["division"], gen: function() {
+        const n = randName(), divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
+        return { text: n+" has "+total+" candies to share equally among "+divisor+" friends. How many candies does each friend get?", answers: [{label:"candies", value:String(multiplier)}] };
+      }});
+      Q.push({ cat: ["division"], gen: function() {
+        const divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
+        return { text: "There are "+total+" students to split into "+divisor+" equal groups. How many students are in each group?", answers: [{label:"students", value:String(multiplier)}] };
+      }});
+      Q.push({ cat: ["division"], gen: function() {
+        const n = randName(), divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
+        return { text: n+" has "+total+" stickers to put equally on "+divisor+" pages. How many stickers go on each page?", answers: [{label:"stickers", value:String(multiplier)}] };
+      }});
+      Q.push({ cat: ["division"], gen: function() {
+        const divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
+        return { text: total+" apples need to be shared equally among "+divisor+" baskets. How many apples go in each basket?", answers: [{label:"apples", value:String(multiplier)}] };
+      }});
+      Q.push({ cat: ["division"], gen: function() {
+        const n = randName(), divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
+        return { text: n+" has "+total+" minutes to finish "+divisor+" chores. How many minutes can "+n+" spend on each chore?", answers: [{label:"minutes", value:String(multiplier)}] };
+      }});
+      Q.push({ cat: ["division"], gen: function() {
+        const divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
+        return { text: "There are "+total+" flowers planted in "+divisor+" equal rows. How many flowers are in each row?", answers: [{label:"flowers", value:String(multiplier)}] };
+      }});
+      Q.push({ cat: ["division"], gen: function() {
+        const divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
+        return { text: "A pizza has "+total+" slices to be shared equally by "+divisor+" people. How many slices does each person get?", answers: [{label:"slices", value:String(multiplier)}] };
+      }});
+      Q.push({ cat: ["division"], gen: function() {
+        const n = randName(), divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
+        return { text: n+" has "+total+" beads to make "+divisor+" necklaces. If each necklace has the same number of beads, how many beads go on each one?", answers: [{label:"beads", value:String(multiplier)}] };
+      }});
+      Q.push({ cat: ["division"], gen: function() {
+        const divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
+        return { text: "There are "+total+" books to put on "+divisor+" shelves equally. How many books go on each shelf?", answers: [{label:"books", value:String(multiplier)}] };
+      }});
+      Q.push({ cat: ["division"], gen: function() {
+        const n = randName(), divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
+        return { text: n+" packs "+total+" toys equally into "+divisor+" boxes. How many toys go in each box?", answers: [{label:"toys", value:String(multiplier)}] };
+      }});
+
+      return Q;
+    }
+
+    // ===== Problem Generation =====
+    function generateProblem(mode, usedIndices, bank) {
+      // Filter by mode category
+      let pool;
+      if (mode === "mixed") {
+        pool = bank.map((q, i) => ({ q, origIdx: i }));
+      } else if (mode === "add-sub") {
+        pool = bank.map((q, i) => ({ q, origIdx: i })).filter(item => item.q.cat.includes("addition") || item.q.cat.includes("subtraction"));
+      } else if (mode === "mult-div") {
+        pool = bank.map((q, i) => ({ q, origIdx: i })).filter(item => item.q.cat.includes("multiplication") || item.q.cat.includes("division"));
+      } else {
+        pool = bank.map((q, i) => ({ q, origIdx: i })).filter(item => item.q.cat.includes(mode));
       }
-
       // Shuffle
-      for (let i = problems.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [problems[i], problems[j]] = [problems[j], problems[i]];
+      const shuffled = pool.slice().sort(() => Math.random() - 0.5);
+      // Pick unused first
+      for (let i = 0; i < shuffled.length; i++) {
+        const item = shuffled[i];
+        if (usedIndices.has(item.origIdx)) continue;
+        const prob = item.q.gen();
+        if (prob) { usedIndices.add(item.origIdx); return prob; }
       }
+      // All templates used — generate from random unused template (different random values)
+      for (const item of shuffled) {
+        const prob = item.q.gen();
+        if (prob) return prob;
+      }
+      return { text: "How many is 5 + 3?", answers: [{label:"", value:"8"}] };
+    }
 
+    function estimateProblemHeight(prob) {
+      const fontSize = 14;
+      const lineHeight = fontSize * 1.45;
+      const textW = 612 - 36 * 2 - 22; // pageW - margins - number indent
+      const lines = wrapText(prob.text, textW, fontSize);
+      const textH = fontSize + (lines.length - 1) * lineHeight + 8;
+      const answerLines = prob.answers ? prob.answers.length : 1;
+      const ansH = answerLines > 1 ? answerLines * 20 : 20;
+      return textH + 10 + ansH + lineHeight; // text + gap + answers + extra line under
+    }
+
+    function generateSheet() {
+      const mode = elMode.value;
+      const bank = buildQuestionBank();
+      const fontSize = 14;
+      const lineHeight = fontSize * 1.45;
+      const lineGap = lineHeight; // one text line height between problems
+      // Estimate available height: pageH(792) - header area(~120) - bottom margin(~56) - buffer(~40)
+      const availH = 792 - 120 - 56 - 40; // ~576
+      const problems = [];
+      const usedIndices = new Set();
+      let totalH = 0;
+      const maxProblems = 8;
+      for (let i = 0; i < maxProblems; i++) {
+        const prob = generateProblem(mode, usedIndices, bank);
+        const h = estimateProblemHeight(prob);
+        const neededH = totalH + h + (problems.length > 0 ? lineGap : 0);
+        if (neededH > availH && problems.length >= 3) break;
+        problems.push(prob);
+        totalH = neededH;
+      }
       return problems;
     }
 
-    // ===== Text wrapping helper =====
-    function wrapText(text, maxWidth, fontSize) {
-      const charW = fontSize * 0.52; // approximate char width for Arial
-      const maxChars = Math.floor(maxWidth / charW);
-      const words = text.split(" ");
-      const lines = [];
-      let current = "";
-      for (const word of words) {
-        const test = current ? current + " " + word : word;
-        if (test.length > maxChars && current) {
-          lines.push(current);
-          current = word;
-        } else {
-          current = test;
-        }
-      }
-      if (current) lines.push(current);
-      return lines;
+    // ===== Gather options =====
+    function gatherOptions() {
+      return {
+        mode: elMode.value,
+        range: elRange.value,
+        numWorksheets: parseInt(elNumSheets.value, 10),
+        showHeader: getHeaderMode(),
+        title: getTitle(),
+        subtitle: getSubtitle(),
+        branded: elBranded.checked,
+        answerKey: elAnswerKey.checked,
+        numbered: elNumbered.checked,
+        showLabels: elShowLabels.checked,
+      };
     }
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options, wsCode) {
-      const { showHeader, title, subtitle, branded, showAnswers, showWorkSpace, numbered, includeExample, isAnswerKey } = options;
+      const { showHeader, title, subtitle, branded, numbered, isAnswerKey, showAnswers, showLabels } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
 
       const midX = pageW / 2;
-      let topY;
+      let topGridY;
       {
         let curY = 10;
         if (isAnswerKey) {
@@ -1007,9 +1047,10 @@
           }, [document.createTextNode(subtitle)]));
           curY += 20;
         }
-        topY = curY + 6;
+        topGridY = curY + 22;
       }
 
+      // Branding footer
       if (branded) {
         const brandY = pageH - 48;
         const logoH = 38;
@@ -1033,7 +1074,6 @@
         });
         bLine2.textContent = "\u00A9 2026 Eggroll Games";
         svg.appendChild(bLine2);
-        // Worksheet code — bottom center
         if (!wsCode) wsCode = '(1)';
         const wsCodeEl = svgEl("text", {
           x: pageW / 2, y: pageH - 4,
@@ -1044,155 +1084,136 @@
         svg.appendChild(wsCodeEl);
       }
 
-      const count = problems.length;
       const bottomMargin = branded ? 56 : 24;
-      const availH = pageH - bottomMargin - topY;
-      const contentW = pageW - margin * 2;
-      const problemH = availH / count;
+      const gridTop = topGridY;
+      const availH = pageH - bottomMargin - gridTop;
+      const availW = pageW - margin * 2;
+      const numProblems = problems.length;
+      const fontSize = 14;
+      const lineHeight = fontSize * 1.45;
+      const textMaxW = availW - 20;
+      const ansColor = showAnswers ? "#3182ce" : "#3182ce";
+      const textW = availW - (numbered ? 22 : 0);
+      const ansLineH = 20; // height per answer line
 
-      const textFontSize = 14;
-      const lineHeight = textFontSize * 1.6;
-      const probNumSize = 14;
-      const answerFontSize = 13;
+      // Pre-compute each problem's natural height
+      const probHeights = problems.map(prob => {
+        const lines = wrapText(prob.text, textW, fontSize);
+        const textH = fontSize + (lines.length - 1) * lineHeight + 8;
+        const answers = prob.answers || [];
+        const ansH = answers.length > 1 ? answers.length * ansLineH : ansLineH;
+        return textH + 10 + ansH + lineHeight; // text + gap + answers + extra line under
+      });
+      const gap = lineHeight; // one text line height between problems
 
-      for (let i = 0; i < count; i++) {
-        const prob = problems[i];
-        const slotTop = topY + i * problemH;
+      // Render each problem
+      let curY = gridTop;
+      for (let p = 0; p < numProblems; p++) {
+        const prob = problems[p];
+        const cellTop = curY;
+        const cellLeft = margin;
+
+        let contentY = cellTop;
 
         // Problem number
-        if (numbered !== false) {
-          const numX = margin;
-          const numY = slotTop + lineHeight;
-          const numEl = svgEl("text", { x: numX, y: numY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "700", fill: "#1a202c" });
-          numEl.textContent = (i + 1) + ".";
+        if (numbered) {
+          const numEl = svgEl("text", {
+            x: cellLeft, y: contentY + fontSize,
+            "font-family": "Fredoka, sans-serif", "font-size": fontSize + 1, "font-weight": 700, fill: "#a0aec0"
+          });
+          numEl.textContent = (p + 1) + ".";
           svg.appendChild(numEl);
         }
 
-        // Word problem text (wrapped)
-        const textX = margin + 28;
-        const lines = wrapText(prob.text, contentW - 28, textFontSize);
+        const textLeft = cellLeft + (numbered ? 22 : 0);
+
+        // Wrap and render problem text
+        const lines = wrapText(prob.text, textW, fontSize);
         for (let li = 0; li < lines.length; li++) {
-          const lineEl = svgEl("text", { x: textX, y: slotTop + lineHeight + li * lineHeight, "font-family": "Fredoka, sans-serif", "font-size": String(textFontSize), fill: "#1a202c" });
-          lineEl.textContent = lines[li];
-          svg.appendChild(lineEl);
-        }
-
-        const textBottomY = slotTop + lineHeight + (lines.length - 1) * lineHeight;
-
-        // Answer line
-        const answerY = textBottomY + lineHeight * 1.4;
-        const ansLabel = svgEl("text", { x: textX, y: answerY, "font-family": "Fredoka, sans-serif", "font-size": String(answerFontSize), "font-weight": "600", fill: "#2d3748" });
-        ansLabel.textContent = "Answer:";
-        svg.appendChild(ansLabel);
-
-        // Answer blank line
-        const lineX1 = textX + 55;
-        const lineX2 = textX + 170;
-        svg.appendChild(svgEl("line", { x1: lineX1, y1: answerY + 2, x2: lineX2, y2: answerY + 2, stroke: "#2d3748", "stroke-width": 1.5 }));
-
-        // Show answer if answer key or example
-        const isExample = (i === 0 && includeExample && !showAnswers);
-        if (showAnswers || isExample) {
-          const ansColor = showAnswers ? "#3182ce" : "#16a34a";
-          const ansEl = svgEl("text", { x: (lineX1 + lineX2) / 2, y: answerY, "font-family": "Fredoka, sans-serif", "font-size": String(answerFontSize + 1), "font-weight": "700", fill: ansColor, "text-anchor": "middle" });
-          ansEl.textContent = String(prob.answer);
-          svg.appendChild(ansEl);
-        }
-
-        // Example badge
-        if (isExample) {
-          const badgeW = 42, badgeH = 13;
-          const badgeX = textX;
-          const badgeY2 = slotTop + 4;
-          svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY2, width: badgeW, height: badgeH, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "1" }));
-          const badgeText = svgEl("text", {
-            x: badgeX + badgeW / 2, y: badgeY2 + badgeH * 0.75,
-            "text-anchor": "middle", "font-family": "Fredoka, sans-serif",
-            "font-size": "8", "font-weight": "600", fill: "#16a34a"
+          const tEl = svgEl("text", {
+            x: textLeft, y: contentY + fontSize + li * lineHeight,
+            "font-family": "Fredoka, sans-serif", "font-size": fontSize, "font-weight": 400, fill: "#2d3748"
           });
-          badgeText.textContent = "Example";
-          svg.appendChild(badgeText);
+          tEl.textContent = lines[li];
+          svg.appendChild(tEl);
         }
 
-        // Work space box (dashed border)
-        if (showWorkSpace && !showAnswers) {
-          const boxTop = answerY + 12;
-          const boxBottom = slotTop + problemH - 8;
-          const boxH = boxBottom - boxTop;
-          if (boxH > 10) {
-            svg.appendChild(svgEl("rect", {
-              x: textX, y: boxTop, width: contentW - 28, height: boxH,
-              rx: 4, ry: 4, fill: "none", stroke: "#cbd5e0", "stroke-width": 1, "stroke-dasharray": "6,4"
+        const textBottomY = contentY + fontSize + (lines.length - 1) * lineHeight + 8;
+
+        // Answer lines
+        const answerY = textBottomY + 10;
+        const answers = prob.answers || [];
+
+        if (answers.length > 1) {
+          // Multiple answer lines stacked vertically
+          const lineW = 100;
+          const ansGap = 20;
+          let ay = answerY;
+          for (let ai = 0; ai < answers.length; ai++) {
+            const a = answers[ai];
+            svg.appendChild(svgEl("line", {
+              x1: textLeft, y1: ay + 14, x2: textLeft + lineW, y2: ay + 14,
+              stroke: "#2d3748", "stroke-width": 1.5
             }));
+            if (a.label && showLabels) {
+              const lbl = svgEl("text", {
+                x: textLeft + lineW + 8, y: ay + 12,
+                "font-family": "Fredoka, sans-serif", "font-size": 13, "font-weight": 400, fill: "#4a5568"
+              });
+              lbl.textContent = a.label;
+              svg.appendChild(lbl);
+            }
+            if (showAnswers && a.value) {
+              const aEl = svgEl("text", {
+                x: textLeft + lineW / 2, y: ay + 10,
+                "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700,
+                "text-anchor": "middle", fill: ansColor
+              });
+              aEl.textContent = a.value;
+              svg.appendChild(aEl);
+            }
+            ay += ansGap;
+          }
+        } else if (answers.length === 1) {
+          // Single answer line
+          const a = answers[0];
+          const lineW = 100;
+          svg.appendChild(svgEl("line", {
+            x1: textLeft, y1: answerY + 14, x2: textLeft + lineW, y2: answerY + 14,
+            stroke: "#2d3748", "stroke-width": 1.5
+          }));
+          if (a.label) {
+            const lbl = svgEl("text", {
+              x: textLeft + lineW + 8, y: answerY + 12,
+              "font-family": "Fredoka, sans-serif", "font-size": 13, "font-weight": 400, fill: "#4a5568"
+            });
+            lbl.textContent = a.label;
+            svg.appendChild(lbl);
+          }
+          if (showAnswers && a.value) {
+            const aEl = svgEl("text", {
+              x: textLeft + lineW / 2, y: answerY + 10,
+              "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 700,
+              "text-anchor": "middle", fill: ansColor
+            });
+            aEl.textContent = a.value;
+            svg.appendChild(aEl);
           }
         }
 
-        // Separator line between problems (except last)
-        if (i < count - 1) {
-          const sepY = slotTop + problemH;
-          svg.appendChild(svgEl("line", { x1: margin, y1: sepY, x2: pageW - margin, y2: sepY, stroke: "#e2e8f0", "stroke-width": 0.5 }));
-        }
+        // Advance Y by this problem's height + gap
+        curY += probHeights[p] + gap;
       }
 
       return svg;
     }
 
-    // ===== Auto title =====
-    // ===== Helper functions =====
-    function getHeaderMode() {
-      return elShowHeaderEnabled.checked ? elHeaderMode.value : "none";
-    }
-
-    function getTitle() {
-      if (elCustomTitleEnabled.checked) {
-        return elShowTitle.checked ? elHeaderText.value : "";
-      }
-      const ops = [];
-      if (elOpAdd.checked) ops.push("Addition");
-      if (elOpSub.checked) ops.push("Subtraction");
-      const maxNum = parseInt(elRange.value, 10);
-      let opLabel;
-      if (ops.length === 2) opLabel = "Addition & Subtraction";
-      else opLabel = ops[0] || "Math";
-      return opLabel + " Word Problems Within " + maxNum;
-    }
-
-    function getSubtitle() {
-      if (elCustomTitleEnabled.checked) {
-        return elShowSubtitle.checked ? elSubtitleText.value : "";
-      }
-      return "Read each problem and write the answer.";
-    }
-
-    // ===== Gather options =====
-    function gatherOptions() {
-      const ops = [];
-      if (elOpAdd.checked) ops.push("+");
-      if (elOpSub.checked) ops.push("-");
-      const showHeader = getHeaderMode();
-      const title = getTitle();
-      const subtitle = getSubtitle();
-      return {
-        maxNum: parseInt(elRange.value, 10),
-        operations: ops,
-        numWorksheets: parseInt(elNumSheets.value, 10),
-        problemsPerSheet: parseInt(elProblems.value, 10),
-        showWorkSpace: elShowWorkSpace.checked,
-        showHeader,
-        title,
-        subtitle,
-        branded: elBranded.checked,
-        answerKey: elAnswerKey.checked,
-        numbered: elNumbered.checked,
-        includeExample: elIncludeExample.checked,
-      };
-    }
-
+    // ===== Render state =====
     function renderWithNewRandomization() {
       const opts = gatherOptions();
       currentState.sheets = [];
       for (let s = 0; s < opts.numWorksheets; s++) {
-        currentState.sheets.push(generateWordProblems(opts.problemsPerSheet, opts));
+        currentState.sheets.push(generateSheet());
       }
       renderWorksheet();
     }
@@ -1200,7 +1221,7 @@
     function renderWithoutRandomization() {
       const opts = gatherOptions();
       while (currentState.sheets.length < opts.numWorksheets) {
-        currentState.sheets.push(generateWordProblems(opts.problemsPerSheet, opts));
+        currentState.sheets.push(generateSheet());
       }
       if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
       renderWorksheet();
@@ -1217,7 +1238,7 @@
       if (isMobile()) {
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showWorkSpace: opts.showWorkSpace, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          const v = renderWorksheetSVG(currentState.sheets[s], { ...opts, showAnswers: false }, '(' + (s + 1) + ')');
           p.appendChild(v); sheetWrap.appendChild(p);
         }
         return;
@@ -1229,21 +1250,21 @@
         const ep = numSheets >= 3 ? 12 : 0;
         const aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
         let cols;
-        if (numSheets <= 3) { cols = numSheets; if ((aw - (cols-1)*gap)/cols < mrw) cols = Math.max(1, Math.floor((aw+gap)/(mrw+gap))); }
-        else { cols = Math.min(3, numSheets); if ((aw - (cols-1)*gap)/cols < mrw) cols = Math.max(1, Math.floor((aw+gap)/(mrw+gap))); }
-        const msw = (aw - (cols-1)*gap)/cols, msh = numSheets <= 3 ? ah : ah*0.8;
-        const scale = Math.min(msw/sheetWidth, msh/sheetHeight);
-        const sw = Math.floor(sheetWidth*scale), sh = Math.floor(sheetHeight*scale);
-        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw+24) + "px)";
+        if (numSheets <= 3) { cols = numSheets; if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        else { cols = Math.min(3, numSheets); if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        const msw = (aw - (cols - 1) * gap) / cols, msh = numSheets <= 3 ? ah : ah * 0.8;
+        const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
+        const sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
+        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
         sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showWorkSpace: opts.showWorkSpace, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          const v = renderWorksheetSVG(currentState.sheets[s], { ...opts, showAnswers: false }, '(' + (s + 1) + ')');
           v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
         }
       } else {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showWorkSpace: opts.showWorkSpace, numbered: opts.numbered, includeExample: opts.includeExample }, '(1)');
+        const v = renderWorksheetSVG(currentState.sheets[0], { ...opts, showAnswers: false }, '(1)');
         p.appendChild(v); sheetWrap.appendChild(p);
       }
     }
@@ -1257,14 +1278,14 @@
       const wsCodes = currentState.sheets.map((_, i) => '(' + (i + 1) + ')');
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showWorkSpace: opts.showWorkSpace, numbered: opts.numbered, includeExample: opts.includeExample }, wsCodes[i]));
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { ...opts, showAnswers: false }, wsCodes[i]));
         sheetWrap.appendChild(p);
       }
       const answerKeyPages = [];
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, subtitle: "", branded: opts.branded, showAnswers: true, isAnswerKey: true, showWorkSpace: false, numbered: opts.numbered, includeExample: false }, wsCodes[i]));
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { ...opts, showHeader: "none", showAnswers: true, isAnswerKey: true }, wsCodes[i]));
           sheetWrap.appendChild(p);
           answerKeyPages.push(p);
         }
@@ -1273,20 +1294,17 @@
       setTimeout(() => { answerKeyPages.forEach(p => p.remove()); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 500);
     }
 
-
     // ===== Event Listeners =====
-    elNumbered.addEventListener("change", () => renderWithoutRandomization());
-    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
+    elMode.addEventListener("change", () => renderWithNewRandomization());
     elRange.addEventListener("change", () => renderWithNewRandomization());
-    elProblems.addEventListener("change", () => renderWithNewRandomization());
-    elShowWorkSpace.addEventListener("change", () => renderWithoutRandomization());
+    elShowLabels.addEventListener("change", () => renderWithoutRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
+    elAnswerKey.addEventListener("change", () => {});
     elShowHeaderEnabled.addEventListener("change", () => {
       elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
       renderWithoutRandomization();
     });
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
-    elBranded.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
       renderWithoutRandomization();
@@ -1301,7 +1319,8 @@
     });
     elHeaderText.addEventListener("input", () => renderWithoutRandomization());
     elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
-    elAnswerKey.addEventListener("change", () => {});
+    elBranded.addEventListener("change", () => renderWithoutRandomization());
+    elNumbered.addEventListener("change", () => renderWithoutRandomization());
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
     let resizeTimeout;
@@ -1316,7 +1335,7 @@
       var opts = gatherOptions();
       return currentState.sheets.map(function(sheet, idx) {
         try {
-          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true, includeExample: false }), '(' + (idx + 1) + ')');
+          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true }), '(' + (idx + 1) + ')');
           return sv.outerHTML;
         } catch(e) { return ''; }
       }).filter(Boolean);

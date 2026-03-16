@@ -963,10 +963,10 @@
           const blocksAreaH = contentH - answerAreaH - answerGap;
 
           // All modes: draw blocks at top
-          drawBlocksBW(svg, hundreds, tens, ones, contentLeft, contentTop, contentW, blocksAreaH, useHundreds, unitSize, rodW, rodH, rodGap, unitGap, flatSize, flatGap, strokeColor, strokeW);
+          const actualBlockH = drawBlocksBW(svg, hundreds, tens, ones, contentLeft, contentTop, contentW, blocksAreaH, useHundreds, unitSize, rodW, rodH, rodGap, unitGap, flatSize, flatGap, strokeColor, strokeW);
 
           const answerYExtra = (mode === "expanded-form") ? 14 : 6;
-          const answerY = contentTop + blocksAreaH + answerGap + answerYExtra;
+          const answerY = contentTop + actualBlockH + answerGap + answerYExtra;
           const lineW = Math.min(80, contentW * 0.35);
           const lineX = contentLeft + 4;
           const showAns = isExample || showAnswers;
@@ -1080,7 +1080,20 @@
     // Flat = 10x10 grid square (same height as rod).
     // Unit = single small square.
     function drawBlocksBW(svg, hundreds, tens, ones, areaX, areaY, areaW, areaH, useHundreds, unitSize, rodW, rodH, rodGap, unitGap, flatSize, flatGap, strokeColor, strokeW) {
-      const blockBottom = areaY + areaH; // bottom baseline for all blocks
+      // Find the tallest block to determine the top reference
+      let tallestH = 0;
+      if (useHundreds && hundreds > 0) tallestH = Math.max(tallestH, flatSize);
+      if (tens > 0) tallestH = Math.max(tallestH, rodH);
+      const onesVertGap = unitGap + 1.5;
+      const maxPerCol = 5;
+      if (ones > 0) {
+        const onesInFirstCol = Math.min(ones, maxPerCol);
+        tallestH = Math.max(tallestH, onesInFirstCol * unitSize + (onesInFirstCol - 1) * onesVertGap);
+      }
+      if (tallestH === 0) tallestH = unitSize;
+
+      // Bottom-align all blocks: blockBottom is the shared bottom line
+      const blockBottom = areaY + tallestH;
 
       let curX = areaX + 4; // left-aligned cursor
 
@@ -1123,21 +1136,20 @@
         curX += rodGap; // extra gap after rods before units
       }
 
-      // Draw ones units (bottom-to-top, left-to-right columns)
+      // Draw ones units (bottom-to-top, max 5 per column, then next column)
       if (ones > 0) {
-        // Stack units in columns: bottom to top, then next column
-        const maxPerCol = Math.max(1, Math.floor(areaH / (unitSize + unitGap)));
         for (let o = 0; o < ones; o++) {
           const colIdx = Math.floor(o / maxPerCol);
           const rowIdx = o % maxPerCol;
-          const uX = curX + colIdx * (unitSize + unitGap);
-          const uY = blockBottom - unitSize - rowIdx * (unitSize + unitGap); // bottom-to-top
+          const uX = curX + colIdx * (unitSize + unitGap + 2);
+          const uY = blockBottom - unitSize - rowIdx * (unitSize + onesVertGap); // bottom-to-top
           svg.appendChild(svgEl("rect", {
             x: uX, y: uY, width: unitSize, height: unitSize,
             fill: "none", stroke: strokeColor, "stroke-width": strokeW
           }));
         }
       }
+      return tallestH;
     }
 
     // ===== Render state =====
