@@ -140,20 +140,6 @@
       border-color: #cbd5e0;
     }
 
-    .range-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .range-row .sub-label {
-      font-size: 11px;
-      color: #718096;
-      font-weight: 600;
-      margin-bottom: 4px;
-      display: block;
-    }
-
     /* ===== Advanced Options Toggle ===== */
     .advanced-toggle {
       display: flex;
@@ -456,59 +442,25 @@
   </header>
   <div class="main-container">
     <div class="sidebar">
-      
-      <h2>Number Tracing Worksheet Generator</h2>
+
+      <h2>Number Tracing Practice</h2>
 
       <div class="control-group">
-        <label>Number Range</label>
-        <div class="range-row">
-          <div>
-            <span class="sub-label">Start</span>
-            <input type="number" id="startNumber" value="1" min="0" max="20" />
-          </div>
-          <div>
-            <span class="sub-label">End</span>
-            <input type="number" id="endNumber" value="10" min="0" max="20" />
-          </div>
-        </div>
+        <label for="numberRange">Number Range</label>
+        <select id="numberRange">
+          <option value="1-5" selected>1 – 5</option>
+          <option value="0-4">0 – 4</option>
+          <option value="6-10">6 – 10</option>
+          <option value="5-9">5 – 9</option>
+        </select>
       </div>
 
       <div class="control-group">
-        <label for="repetitions">Repetitions per Number</label>
-        <select id="repetitions">
-          <option value="3">3</option>
+        <label for="rowsPerPage">Rows per Page</label>
+        <select id="rowsPerPage">
           <option value="4" selected>4</option>
           <option value="5">5</option>
-          <option value="6">6</option>
         </select>
-      </div>
-
-      <div class="control-group">
-        <label for="traceStyle">Style</label>
-        <select id="traceStyle">
-          <option value="dotted" selected>Dotted outline</option>
-          <option value="dashed">Dashed outline</option>
-        </select>
-      </div>
-
-      <div class="control-group">
-        <label for="fontSize">Font Size</label>
-        <select id="fontSize">
-          <option value="small">Small</option>
-          <option value="medium" selected>Medium</option>
-          <option value="large">Large</option>
-        </select>
-      </div>
-
-      <div class="checkbox-row" style="margin-bottom:12px;">
-        <label>
-          <input type="checkbox" id="includePracticeLine" checked>
-          <span>Include practice line</span>
-        </label>
-        <label>
-          <input type="checkbox" id="answerKey">
-          <span>Include Answer Key</span>
-        </label>
       </div>
 
       <!-- Advanced Options -->
@@ -548,12 +500,6 @@
             </select>
           </div>
 
-          <!-- Numbered -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="numbered" checked />
-            <label for="numbered">Numbered</label>
-          </div>
-
           <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
@@ -574,7 +520,7 @@
             </div>
             <div id="subtitleInputWrap">
               <label for="subtitleText">Subtitle</label>
-              <input type="text" id="subtitleText" value="Trace each number carefully." />
+              <input type="text" id="subtitleText" value="Trace each number, then practice writing it on your own." />
             </div>
           </div>
 
@@ -607,23 +553,16 @@
       if (children) children.forEach(c => el.appendChild(c));
       return el;
     }
-    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
-    const elStartNumber = document.getElementById("startNumber");
-    const elEndNumber = document.getElementById("endNumber");
-    const elRepetitions = document.getElementById("repetitions");
-    const elTraceStyle = document.getElementById("traceStyle");
-    const elFontSize = document.getElementById("fontSize");
+    const elNumberRange = document.getElementById("numberRange");
+    const elRowsPerPage = document.getElementById("rowsPerPage");
     const elNumSheets = document.getElementById("numWorksheets");
-    const elIncludePracticeLine = document.getElementById("includePracticeLine");
-    const elAnswerKey = document.getElementById("answerKey");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
     const elHeaderMode = document.getElementById("headerMode");
     const elHeaderModeOptions = document.getElementById("headerModeOptions");
     const elBranded = document.getElementById("branded");
-    const elNumbered = document.getElementById("numbered");
     const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
     const elCustomTitleOptions = document.getElementById("customTitleOptions");
     const elHeaderText = document.getElementById("headerText");
@@ -635,7 +574,6 @@
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
     const advArrow = document.getElementById("advArrow");
-    const elIncludeExample = document.getElementById("includeExample") || { checked: false, addEventListener: function(){} };
 
     // ===== Advanced panel toggle =====
     advToggle.addEventListener("click", () => {
@@ -658,391 +596,371 @@
       if (elCustomTitleEnabled.checked) {
         return elShowSubtitle.checked ? elSubtitleText.value : "";
       }
-      return "Trace each number carefully.";
+      return "Trace each number, then practice writing it on your own.";
     }
 
-    // ===== Gather options =====
     function gatherOptions() {
-      const showHeader = getHeaderMode();
-      const title = getTitle();
-      const subtitle = getSubtitle();
       return {
-        startNumber: clamp(parseInt(elStartNumber.value, 10) || 0, 0, 20),
-        endNumber: clamp(parseInt(elEndNumber.value, 10) || 10, 0, 20),
-        repetitions: parseInt(elRepetitions.value, 10),
-        traceStyle: elTraceStyle.value,
-        fontSize: elFontSize.value,
+        numberRange: elNumberRange.value,
+        rowsPerPage: parseInt(elRowsPerPage.value, 10),
         numWorksheets: parseInt(elNumSheets.value, 10),
-        includePracticeLine: elIncludePracticeLine.checked,
-        answerKey: elAnswerKey.checked,
-        showHeader: showHeader,
-        title: title,
-        subtitle: subtitle,
+        showHeader: getHeaderMode(),
+        title: getTitle(),
+        subtitle: getSubtitle(),
         branded: elBranded.checked,
-        numbered: elNumbered.checked,
-        includeExample: elIncludeExample.checked,
       };
     }
 
-    // ===== SVG Rendering =====
+    function parseRange(val) {
+      const [a, b] = val.split("-").map(Number);
+      const nums = [];
+      for (let i = a; i <= b; i++) nums.push(i);
+      return nums;
+    }
+
+    // ===== Digit Definitions =====
+    // Each digit: array of strokes with SVG path (normalized 0-1), start point, direction vector
+    const digitDefs = {
+      1: {
+        strokes: [
+          { d: "M 0.30 0.24 L 0.55 0.05", start: [0.30, 0.24], dir: [0.10, -0.08] },
+          { d: "M 0.55 0.05 L 0.55 0.95", start: [0.55, 0.05], dir: [0.0, 0.14] }
+        ]
+      },
+      2: {
+        strokes: [
+          { d: "M 0.22 0.20 C 0.22 0.05, 0.82 0.05, 0.82 0.28 C 0.82 0.50, 0.20 0.70, 0.15 0.95", start: [0.22, 0.20], dir: [0.10, -0.12] },
+          { d: "M 0.15 0.95 L 0.85 0.95", start: [0.15, 0.95], dir: [0.15, 0.0] }
+        ]
+      },
+      3: {
+        strokes: [
+          { d: "M 0.18 0.12 C 0.40 0.05, 0.82 0.07, 0.78 0.28 C 0.74 0.46, 0.48 0.48, 0.45 0.48", start: [0.18, 0.12], dir: [0.14, -0.06] },
+          { d: "M 0.45 0.48 C 0.72 0.46, 0.85 0.60, 0.78 0.80 C 0.70 0.95, 0.30 0.95, 0.16 0.88", start: [0.45, 0.48], dir: [0.14, 0.0] }
+        ]
+      },
+      4: {
+        strokes: [
+          { d: "M 0.15 0.05 L 0.15 0.50", start: [0.15, 0.05], dir: [0.0, 0.14] },
+          { d: "M 0.15 0.50 L 0.88 0.50", start: [0.15, 0.50], dir: [0.15, 0.0] },
+          { d: "M 0.68 0.05 L 0.68 0.95", start: [0.68, 0.05], dir: [0.0, 0.14] }
+        ]
+      },
+      5: {
+        strokes: [
+          { d: "M 0.78 0.05 L 0.25 0.05", start: [0.78, 0.05], dir: [-0.15, 0.0] },
+          { d: "M 0.25 0.05 L 0.25 0.50", start: [0.25, 0.05], dir: [0.0, 0.14] },
+          { d: "M 0.25 0.50 C 0.48 0.44, 0.85 0.46, 0.82 0.68 C 0.79 0.92, 0.42 0.95, 0.16 0.88", start: [0.25, 0.50], dir: [0.14, 0.0] }
+        ]
+      },
+      6: {
+        strokes: [
+          { d: "M 0.62 0.05 C 0.30 0.05, 0.12 0.25, 0.12 0.62 C 0.12 0.78, 0.28 0.95, 0.50 0.95 C 0.72 0.95, 0.82 0.78, 0.82 0.66 C 0.82 0.52, 0.72 0.42, 0.50 0.42 C 0.30 0.42, 0.16 0.50, 0.14 0.58", start: [0.62, 0.05], dir: [-0.14, 0.0] }
+        ]
+      },
+      7: {
+        strokes: [
+          { d: "M 0.12 0.05 L 0.88 0.05", start: [0.12, 0.05], dir: [0.15, 0.0] },
+          { d: "M 0.88 0.05 L 0.38 0.95", start: [0.88, 0.05], dir: [-0.08, 0.14] }
+        ]
+      },
+      8: {
+        strokes: [
+          { d: "M 0.50 0.05 C 0.10 0.05, 0.05 0.48, 0.50 0.48 C 1.00 0.48, 1.00 0.95, 0.50 0.95 C 0.00 0.95, 0.00 0.48, 0.50 0.48 C 0.95 0.48, 0.90 0.05, 0.50 0.05", start: [0.50, 0.05], dir: [-0.14, 0.0] }
+        ]
+      },
+      9: {
+        strokes: [
+          { d: "M 0.38 0.95 C 0.70 0.95, 0.88 0.75, 0.88 0.38", start: [0.86, 0.37], dir: [0.0, -0.14] },
+          { d: "M 0.88 0.38 C 0.88 0.22, 0.72 0.05, 0.50 0.05 C 0.28 0.05, 0.18 0.22, 0.18 0.34 C 0.18 0.48, 0.28 0.58, 0.50 0.58 C 0.70 0.58, 0.84 0.50, 0.86 0.42", start: [0.86, 0.47], dir: [0.0, 0.14] }
+        ]
+      },
+      0: {
+        strokes: [
+          { d: "M 0.50 0.05 C 0.32 0.05, 0.15 0.20, 0.15 0.50 C 0.15 0.80, 0.32 0.95, 0.50 0.95 C 0.68 0.95, 0.85 0.80, 0.85 0.50 C 0.85 0.20, 0.68 0.05, 0.50 0.05", start: [0.50, 0.05], dir: [-0.14, 0.0] }
+        ]
+      },
+    };
+
+    // ===== SVG Drawing Functions =====
+    function scalePath(d, x, y, w, h) {
+      return d.replace(/([0-9]*\.?[0-9]+)\s+([0-9]*\.?[0-9]+)/g, function(match, px, py) {
+        var sx = (x + parseFloat(px) * w).toFixed(1);
+        var sy = (y + parseFloat(py) * h).toFixed(1);
+        return sx + " " + sy;
+      });
+    }
+
+    function drawDigit(svg, digit, cx, topY, digitH, opts) {
+      opts = opts || {};
+      var opacity = opts.opacity != null ? opts.opacity : 1;
+      var showGuide = opts.showGuide || false;
+      var strokeWidth = opts.strokeWidth || 2.5;
+      var indicatorScale = opts.indicatorScale || 1;
+
+      var digitW = digitH * 0.75;
+      var dx = cx - digitW / 2;
+      var dy = topY;
+      var def = digitDefs[digit];
+      if (!def) return;
+
+      def.strokes.forEach(function(stroke) {
+        var scaled = scalePath(stroke.d, dx, dy, digitW, digitH);
+        svg.appendChild(svgEl("path", {
+          d: scaled, fill: "none", stroke: "#333",
+          "stroke-width": String(strokeWidth), "stroke-linecap": "round",
+          "stroke-linejoin": "round", "stroke-dasharray": "1 5",
+          opacity: String(opacity),
+        }));
+      });
+
+      if (showGuide) {
+        def.strokes.forEach(function(stroke, si) {
+          var sx = dx + stroke.start[0] * digitW;
+          var sy = dy + stroke.start[1] * digitH;
+          var adx = stroke.dir[0] * digitW;
+          var ady = stroke.dir[1] * digitH;
+          var num = si + 1;
+
+          var dotR = 8 * indicatorScale;
+          var dirLen = Math.sqrt(adx * adx + ady * ady);
+          var normDx = dirLen > 0 ? adx / dirLen : 0;
+          var normDy = dirLen > 0 ? ady / dirLen : 0;
+          var perpDx = -normDy;
+          var perpDy = normDx;
+
+          var shaftLen = 2 * indicatorScale;
+          var shaftHW = 3 * indicatorScale;
+          var arrowLen = 10 * indicatorScale;
+          var arrowWing = 7 * indicatorScale;
+
+          var dotX = sx, dotY = sy;
+          var shaftStartX = dotX + normDx * dotR;
+          var shaftStartY = dotY + normDy * dotR;
+          var shaftEndX = dotX + normDx * (dotR + shaftLen);
+          var shaftEndY = dotY + normDy * (dotR + shaftLen);
+
+          var s3x = shaftEndX - perpDx * shaftHW;
+          var s3y = shaftEndY - perpDy * shaftHW;
+          var s4x = shaftEndX + perpDx * shaftHW;
+          var s4y = shaftEndY + perpDy * shaftHW;
+
+          var tipX = dotX + normDx * (dotR + shaftLen + arrowLen);
+          var tipY = dotY + normDy * (dotR + shaftLen + arrowLen);
+          var wing1X = shaftEndX + perpDx * arrowWing;
+          var wing1Y = shaftEndY + perpDy * arrowWing;
+          var wing2X = shaftEndX - perpDx * arrowWing;
+          var wing2Y = shaftEndY - perpDy * arrowWing;
+
+          var angle = Math.atan2(normDy, normDx);
+          var halfShaftAngle = Math.asin(Math.min(1, shaftHW / dotR));
+          var a1 = angle + halfShaftAngle;
+          var a2 = angle - halfShaftAngle;
+          var cx1 = dotX + dotR * Math.cos(a1);
+          var cy1 = dotY + dotR * Math.sin(a1);
+          var cx2 = dotX + dotR * Math.cos(a2);
+          var cy2 = dotY + dotR * Math.sin(a2);
+
+          var combinedPath = "M " + cx1 + " " + cy1 + " L " + s4x + " " + s4y + " L " + wing1X + " " + wing1Y + " L " + tipX + " " + tipY + " L " + wing2X + " " + wing2Y + " L " + s3x + " " + s3y + " L " + cx2 + " " + cy2 + " A " + dotR + " " + dotR + " 0 1 0 " + cx1 + " " + cy1 + " Z";
+
+          svg.appendChild(svgEl("path", { d: combinedPath, fill: "#222", stroke: "none" }));
+
+          var numEl = svgEl("text", {
+            x: String(dotX), y: String(dotY + 4 * indicatorScale),
+            "font-family": "Arial, sans-serif", "font-size": String(11 * indicatorScale),
+            "font-weight": "700", fill: "white", "text-anchor": "middle",
+          });
+          numEl.textContent = String(num);
+          svg.appendChild(numEl);
+        });
+      }
+    }
+
+    function drawNumber(svg, num, cx, topY, digitH, opts) {
+      var digits = String(num).split("").map(Number);
+      var digitW = digitH * 0.75;
+      var gap = digitW * -0.35;
+      var totalW = digits.length * digitW + (digits.length - 1) * gap;
+      var startX = cx - totalW / 2 + digitW / 2;
+      digits.forEach(function(d, i) {
+        drawDigit(svg, d, startX + i * (digitW + gap), topY, digitH, opts);
+      });
+    }
+
+    function drawTracingRow(svg, num, rowTop, rowH, margin, pageW, scale) {
+      scale = scale || 1;
+      var lineRight = pageW - margin;
+      var digits = String(num).split("").map(Number);
+      var isMultiDigit = digits.length > 1;
+
+      var digitH = rowH * 0.72;
+      var digitTop = rowTop + (rowH - digitH) / 2;
+
+      var halfStroke = 1.4;
+      var actualTop = digitTop + 0.05 * digitH - halfStroke;
+      var actualBot = digitTop + 0.95 * digitH + halfStroke;
+      var actualMid = (actualTop + actualBot) / 2;
+
+      var guideAreaW = isMultiDigit ? 160 : 100;
+      var guideAreaX = margin;
+
+      var guideCx = guideAreaX + guideAreaW / 2;
+      var iScale = Math.pow(scale, 1.5);
+      drawNumber(svg, num, guideCx, digitTop, digitH, { opacity: 0.85, showGuide: true, strokeWidth: 2.8, indicatorScale: iScale });
+
+      var linesStart = guideAreaX + guideAreaW + 8;
+
+      svg.appendChild(svgEl("line", { x1: String(linesStart), y1: String(actualTop), x2: String(lineRight), y2: String(actualTop), stroke: "#aaa", "stroke-width": "1" }));
+      svg.appendChild(svgEl("line", { x1: String(linesStart), y1: String(actualMid), x2: String(lineRight), y2: String(actualMid), stroke: "#ccc", "stroke-width": "0.75", "stroke-dasharray": "8 5" }));
+      svg.appendChild(svgEl("line", { x1: String(linesStart), y1: String(actualBot), x2: String(lineRight), y2: String(actualBot), stroke: "#aaa", "stroke-width": "1" }));
+
+      var traceAreaW = lineRight - linesStart;
+      var numTraced = isMultiDigit ? 2 : 4;
+      var spacing = isMultiDigit ? traceAreaW / 2 : traceAreaW / numTraced;
+
+      var opacities = [0.80, 0.50, 0.25, 0.10];
+      for (var i = 0; i < numTraced; i++) {
+        var cx = linesStart + spacing * (i + 0.5);
+        drawNumber(svg, num, cx, digitTop, digitH, {
+          opacity: opacities[i] || 0.08,
+          strokeWidth: 2.2,
+        });
+      }
+    }
+
+    // ===== Worksheet SVG Rendering =====
     function renderWorksheetSVG(numbers, options, wsCode) {
-      const { showHeader, title, subtitle, branded, traceStyle, repetitions, includePracticeLine, fontSize, showAnswers, numbered, includeExample, isAnswerKey } = options;
-      const pageW = 612, pageH = 792, margin = 36;
-      const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
+      var showHeader = options.showHeader;
+      var title = options.title;
+      var subtitle = options.subtitle;
+      var branded = options.branded;
+
+      var pageW = 612, pageH = 792, margin = 36;
+      var svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
 
-      // Font size mapping
-      let numFontSize;
-      if (fontSize === "small") numFontSize = 48;
-      else if (fontSize === "large") numFontSize = 72;
-      else numFontSize = 60; // medium
+      var midX = pageW / 2;
+      var curY = 10;
 
-      const midX = pageW / 2;
-      let topContentY;
-      {
-        let curY = 10;
-        if (isAnswerKey) {
-          const akLabel = svgEl("text", {
-            x: pageW - margin, y: curY + 16,
-            "font-family": "'Google Sans Flex', sans-serif", "font-size": 12, "font-weight": 700,
-            fill: "#000", "text-anchor": "end", "letter-spacing": "2"
-          });
-          akLabel.textContent = "ANSWER KEY";
-          svg.appendChild(akLabel);
-          curY += 28;
-        } else if (showHeader === "both") {
-          svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-          }, [document.createTextNode("Name")]));
-          svg.appendChild(svgEl("line", {
-            x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18,
-            stroke: "#718096", "stroke-width": 0.75
-          }));
-          svg.appendChild(svgEl("text", {
-            x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-          }, [document.createTextNode("Date")]));
-          svg.appendChild(svgEl("line", {
-            x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
-            stroke: "#718096", "stroke-width": 0.75
-          }));
-          curY += 28;
-        } else if (showHeader === "name") {
-          svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-          }, [document.createTextNode("Name")]));
-          svg.appendChild(svgEl("line", {
-            x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
-            stroke: "#718096", "stroke-width": 0.75
-          }));
-          curY += 28;
-        }
-        if (title) {
-          svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 38, "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af"
-          }, [document.createTextNode(title)]));
-          curY += 46;
-        }
-        if (subtitle) {
-          svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568"
-          }, [document.createTextNode(subtitle)]));
-          curY += 20;
-        }
-        topContentY = curY + 6;
+      // Header (Name / Date)
+      if (showHeader === "both") {
+        svg.appendChild(svgEl("text", { x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode("Name")]));
+        svg.appendChild(svgEl("line", { x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
+        svg.appendChild(svgEl("text", { x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode("Date")]));
+        svg.appendChild(svgEl("line", { x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
+        curY += 28;
+      } else if (showHeader === "name") {
+        svg.appendChild(svgEl("text", { x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode("Name")]));
+        svg.appendChild(svgEl("line", { x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
+        curY += 28;
       }
+
+      // Title
+      if (title) {
+        svg.appendChild(svgEl("text", { x: margin, y: curY + 38, "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af" }, [document.createTextNode(title)]));
+        curY += 46;
+      }
+
+      // Subtitle
+      if (subtitle) {
+        svg.appendChild(svgEl("text", { x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode(subtitle)]));
+        curY += 20;
+      }
+
+      var gridTop = curY + 6;
 
       // Branding footer
       if (branded) {
-        const brandY = pageH - 48;
-        const logoH = 38;
-        const logoW = Math.round(logoH * 2.79);
-        svg.appendChild(svgEl("image", {
-          href: "../branding/emma-logo.jpg",
-          x: margin, y: brandY,
-          width: logoW, height: logoH
-        }));
-        const bLine1 = svgEl("text", {
-          x: pageW - margin, y: brandY + 14,
-          "font-family": "Fredoka, sans-serif", "font-size": 11,
-          fill: "#4a5568", "text-anchor": "end"
-        });
+        var brandY = pageH - 48;
+        var logoH = 38;
+        var logoW = Math.round(logoH * 2.79);
+        svg.appendChild(svgEl("image", { href: "../branding/emma-logo.jpg", x: margin, y: brandY, width: logoW, height: logoH }));
+        var bLine1 = svgEl("text", { x: pageW - margin, y: brandY + 14, "font-family": "Fredoka, sans-serif", "font-size": 11, fill: "#4a5568", "text-anchor": "end" });
         bLine1.textContent = "Find worksheets, teacher tools, and more at animalmath.com";
         svg.appendChild(bLine1);
-        const bLine2 = svgEl("text", {
-          x: pageW - margin, y: brandY + 26,
-          "font-family": "Fredoka, sans-serif", "font-size": 9.5,
-          fill: "#718096", "text-anchor": "end"
-        });
+        var bLine2 = svgEl("text", { x: pageW - margin, y: brandY + 26, "font-family": "Fredoka, sans-serif", "font-size": 9.5, fill: "#718096", "text-anchor": "end" });
         bLine2.textContent = "\u00A9 2026 Eggroll Games";
         svg.appendChild(bLine2);
-        // Worksheet code — bottom center
         if (!wsCode) wsCode = '(1)';
-        const wsCodeEl = svgEl("text", {
-          x: pageW / 2, y: pageH - 4,
-          "font-family": "Fredoka, sans-serif", "font-size": 8.5,
-          fill: "#94a3b8", "text-anchor": "middle", "letter-spacing": "1"
-        });
+        var wsCodeEl = svgEl("text", { x: pageW / 2, y: pageH - 4, "font-family": "Fredoka, sans-serif", "font-size": 8.5, fill: "#94a3b8", "text-anchor": "middle", "letter-spacing": "1" });
         wsCodeEl.textContent = wsCode;
         svg.appendChild(wsCodeEl);
       }
 
-      const bottomMargin = branded ? 56 : 24;
-      const availH = pageH - bottomMargin - topContentY;
-      const contentW = pageW - margin * 2;
+      var bottomMargin = branded ? 56 : 24;
+      var gridBot = pageH - bottomMargin;
+      var numRows = numbers.length;
+      var rowH = (gridBot - gridTop) / numRows;
 
-      // Determine dash array for tracing style
-      const dashArray = traceStyle === "dashed" ? "6,4" : "2,3";
+      // Scale factor for indicator sizing based on how many rows
+      var scale = numRows <= 4 ? 1 : (4 / numRows);
 
-      // Calculate row layout
-      // Each number gets a "row block": the tracing row plus optional practice line
-      const totalNumbers = numbers.length;
-      const rowBlockCount = totalNumbers;
-      const rowBlockH = availH / rowBlockCount;
-
-      // Within each row block: tracing area + optional practice line
-      const practiceFraction = includePracticeLine ? 0.35 : 0;
-      const traceRowH = rowBlockH * (1 - practiceFraction);
-      const practiceRowH = rowBlockH * practiceFraction;
-
-      // Calculate spacing for numbers across the row
-      // Layout: [reference number] [gap] [traced copies evenly spaced]
-      const refNumberWidth = numFontSize * 1.2; // space for the reference number on the left
-      const traceAreaLeft = margin + refNumberWidth;
-      const traceAreaWidth = contentW - refNumberWidth;
-
-      for (let i = 0; i < totalNumbers; i++) {
-        const num = numbers[i];
-        const numStr = String(num);
-        const blockTop = topContentY + i * rowBlockH;
-        const traceCenterY = blockTop + traceRowH * 0.5;
-        const isExample = (i === 0 && includeExample && !showAnswers);
-
-        // Draw a light baseline for the tracing row
-        const baselineY = blockTop + traceRowH * 0.78;
-        svg.appendChild(svgEl("line", {
-          x1: margin, y1: baselineY, x2: pageW - margin, y2: baselineY,
-          stroke: "#e2e8f0", "stroke-width": 1
-        }));
-
-        // Problem number
-        if (numbered !== false) {
-          const probNumSize = 10;
-          const numEl = svgEl("text", { x: margin + 2, y: blockTop + 12, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
-          numEl.textContent = (i + 1) + ".";
-          svg.appendChild(numEl);
-        }
-
-        // Reference number (solid, bold, dark)
-        const refY = baselineY - numFontSize * 0.08;
-
-        // Example: green highlight behind the whole row
-        if (isExample) {
-          svg.appendChild(svgEl("rect", {
-            x: margin, y: blockTop + 2, width: pageW - margin * 2, height: traceRowH - 4,
-            rx: 4, ry: 4, fill: "#f0fdf4", stroke: "#22c55e", "stroke-width": "0.75"
-          }));
-          // Example badge
-          const badgeX = pageW - margin - 44, badgeY = blockTop + 4;
-          svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
-          const bt = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
-          bt.textContent = "Example"; svg.appendChild(bt);
-        }
-
-        const refEl = svgEl("text", {
-          x: margin + 4,
-          y: refY,
-          "font-family": "'Google Sans Flex', sans-serif",
-          "font-size": String(numFontSize),
-          "font-weight": "500",
-          fill: "#1a202c"
-        });
-        refEl.textContent = numStr;
-        svg.appendChild(refEl);
-
-        // Traced copies (dotted/dashed outline)
-        const traceSpacing = traceAreaWidth / repetitions;
-        for (let r = 0; r < repetitions; r++) {
-          const traceX = traceAreaLeft + r * traceSpacing + traceSpacing * 0.1;
-
-          if (showAnswers) {
-            // Answer key: show solid numbers in blue
-            const ansEl = svgEl("text", {
-              x: traceX,
-              y: refY,
-              "font-family": "'Google Sans Flex', sans-serif",
-              "font-size": String(numFontSize),
-              "font-weight": "500",
-              fill: "#3182ce"
-            });
-            ansEl.textContent = numStr;
-            svg.appendChild(ansEl);
-          } else if (isExample && r === 0) {
-            // Example first copy: solid green
-            const exEl = svgEl("text", {
-              x: traceX,
-              y: refY,
-              "font-family": "'Google Sans Flex', sans-serif",
-              "font-size": String(numFontSize),
-              "font-weight": "500",
-              fill: "#16a34a"
-            });
-            exEl.textContent = numStr;
-            svg.appendChild(exEl);
-          } else {
-            // Traced number with stroke dash
-            const traceEl = svgEl("text", {
-              x: traceX,
-              y: refY,
-              "font-family": "'Google Sans Flex', sans-serif",
-              "font-size": String(numFontSize),
-              "font-weight": "500",
-              fill: "none",
-              stroke: "#c0c0c0",
-              "stroke-width": "1.5",
-              "stroke-dasharray": dashArray,
-              "paint-order": "stroke"
-            });
-            traceEl.textContent = numStr;
-            svg.appendChild(traceEl);
-          }
-        }
-
-        // Optional practice line (ruled line for freehand writing)
-        if (includePracticeLine) {
-          const practiceBaseY = blockTop + traceRowH + practiceRowH * 0.78;
-          // Main writing line
-          svg.appendChild(svgEl("line", {
-            x1: margin, y1: practiceBaseY, x2: pageW - margin, y2: practiceBaseY,
-            stroke: "#cbd5e0", "stroke-width": 0.75
-          }));
-          // Midline (dashed, lighter) for letter height guidance
-          const midY = practiceBaseY - practiceRowH * 0.4;
-          svg.appendChild(svgEl("line", {
-            x1: margin, y1: midY, x2: pageW - margin, y2: midY,
-            stroke: "#e2e8f0", "stroke-width": 0.5, "stroke-dasharray": "4,4"
-          }));
-        }
+      for (var r = 0; r < numRows; r++) {
+        drawTracingRow(svg, numbers[r], gridTop + r * rowH, rowH, margin, pageW, scale);
       }
 
       return svg;
     }
 
     // ===== Pagination =====
-    // Split numbers across pages based on how many fit per page
-    function getNumbersPerPage(options) {
-      const { fontSize, includePracticeLine } = options;
-
-      // Estimate available height for content
-      let headerH;
-      if (options.showHeader === "both" || options.showHeader === "name") headerH = 96;
-      else headerH = 65;
-      const bottomMargin = options.branded ? 56 : 24;
-      const availH = 792 - bottomMargin - headerH;
-
-      // Each number row block needs enough vertical space
-      let numFontSize;
-      if (fontSize === "small") numFontSize = 48;
-      else if (fontSize === "large") numFontSize = 72;
-      else numFontSize = 60;
-
-      // Minimum row height: font size + padding + optional practice line
-      const minTraceH = numFontSize * 1.4;
-      const practiceExtra = includePracticeLine ? minTraceH * 0.55 : 0;
-      const minRowBlockH = minTraceH + practiceExtra;
-
-      return Math.max(1, Math.floor(availH / minRowBlockH));
-    }
-
-    function generateNumberList(opts) {
-      const start = opts.startNumber;
-      const end = opts.endNumber;
-      const numbers = [];
-      if (start <= end) {
-        for (let n = start; n <= end; n++) numbers.push(n);
-      } else {
-        for (let n = start; n >= end; n--) numbers.push(n);
-      }
-      return numbers;
-    }
-
-    // ===== State =====
-    let currentState = { pages: [] };
-
     function buildPages() {
-      const opts = gatherOptions();
-      const allNumbers = generateNumberList(opts);
-      const perPage = getNumbersPerPage(opts);
-      const pages = [];
-      for (let i = 0; i < allNumbers.length; i += perPage) {
-        pages.push(allNumbers.slice(i, i + perPage));
+      var opts = gatherOptions();
+      var allNumbers = parseRange(opts.numberRange);
+      var perPage = opts.rowsPerPage;
+      var basePages = [];
+      for (var i = 0; i < allNumbers.length; i += perPage) {
+        basePages.push(allNumbers.slice(i, i + perPage));
       }
-      // Repeat pages based on numWorksheets
-      const basePages = pages.slice();
-      const totalSheetSets = opts.numWorksheets;
-      const result = [];
-      for (let s = 0; s < totalSheetSets; s++) {
-        for (const p of basePages) {
-          result.push(p);
+      var result = [];
+      for (var s = 0; s < opts.numWorksheets; s++) {
+        for (var j = 0; j < basePages.length; j++) {
+          result.push(basePages[j]);
         }
       }
       currentState.pages = result;
     }
 
+    // ===== State =====
+    var currentState = { pages: [] };
+
     function isMobile() { return window.innerWidth <= 900; }
 
     function renderWorksheets() {
-      const opts = gatherOptions();
-      const numPages = currentState.pages.length;
+      var opts = gatherOptions();
+      var numPages = currentState.pages.length;
       sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
-      const sheetWidth = 612, sheetHeight = 792;
+      var sheetWidth = 612, sheetHeight = 792;
 
       if (isMobile()) {
-        for (let s = 0; s < numPages; s++) {
-          const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.pages[s], {
-            showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
-            traceStyle: opts.traceStyle, repetitions: opts.repetitions,
-            includePracticeLine: opts.includePracticeLine, fontSize: opts.fontSize,
-            showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample
-          });
+        for (var s = 0; s < numPages; s++) {
+          var p = document.createElement("div"); p.className = "worksheet-page";
+          var v = renderWorksheetSVG(currentState.pages[s], opts, '(' + (s + 1) + ')');
           p.appendChild(v); sheetWrap.appendChild(p);
         }
         return;
       }
 
-      // Desktop: grid layout with calculated sizing
       if (numPages > 1) {
         sheetWrap.classList.add("grid-view");
-        const ep = numPages >= 3 ? 12 : 0;
-        const aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
-        let cols;
+        var ep = numPages >= 3 ? 12 : 0;
+        var aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
+        var cols;
         if (numPages <= 3) { cols = numPages; if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
         else { cols = Math.min(3, numPages); if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        const msw = (aw - (cols - 1) * gap) / cols, msh = numPages <= 3 ? ah : ah * 0.8;
-        const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
-        const sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
+        var msw = (aw - (cols - 1) * gap) / cols, msh = numPages <= 3 ? ah : ah * 0.8;
+        var scale = Math.min(msw / sheetWidth, msh / sheetHeight);
+        var sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
         sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
         sheetWrap.style.padding = numPages >= 3 ? "0 " + ep + "px" : "0";
-        for (let s = 0; s < numPages; s++) {
-          const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.pages[s], {
-            showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
-            traceStyle: opts.traceStyle, repetitions: opts.repetitions,
-            includePracticeLine: opts.includePracticeLine, fontSize: opts.fontSize,
-            showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample
-          });
-          v.setAttribute("width", sw); v.setAttribute("height", sh);
-          p.appendChild(v); sheetWrap.appendChild(p);
+        for (var s2 = 0; s2 < numPages; s2++) {
+          var p2 = document.createElement("div"); p2.className = "worksheet-page";
+          var v2 = renderWorksheetSVG(currentState.pages[s2], opts, '(' + (s2 + 1) + ')');
+          v2.setAttribute("width", sw); v2.setAttribute("height", sh); p2.appendChild(v2); sheetWrap.appendChild(p2);
         }
       } else {
-        const p = document.createElement("div"); p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.pages[0], {
-          showHeader: opts.showHeader, title: opts.title, branded: opts.branded,
-          traceStyle: opts.traceStyle, repetitions: opts.repetitions,
-          includePracticeLine: opts.includePracticeLine, fontSize: opts.fontSize,
-          showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample
-        });
-        p.appendChild(v); sheetWrap.appendChild(p);
+        var p3 = document.createElement("div"); p3.className = "worksheet-page";
+        var v3 = renderWorksheetSVG(currentState.pages[0], opts, '(1)');
+        p3.appendChild(v3); sheetWrap.appendChild(p3);
       }
     }
 
@@ -1054,85 +972,53 @@
     // ===== Print =====
     function handlePrint() {
       if (!currentState.pages.length) { alert("Generate a worksheet first!"); return; }
-      const opts = gatherOptions();
-      const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
+      var opts = gatherOptions();
+      var sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
       sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
-      const wsCodes = currentState.pages.map((_, i) => '(' + (i + 1) + ')');
-      for (let i = 0; i < currentState.pages.length; i++) {
-        const p = document.createElement("div"); p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.pages[i], {
-          showHeader: opts.showHeader, title: opts.title, branded: opts.branded,
-          traceStyle: opts.traceStyle, repetitions: opts.repetitions,
-          includePracticeLine: opts.includePracticeLine, fontSize: opts.fontSize,
-          showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample
-        }, wsCodes[i]));
+      var wsCodes = currentState.pages.map(function(_, i) { return '(' + (i + 1) + ')'; });
+      for (var i = 0; i < currentState.pages.length; i++) {
+        var p = document.createElement("div"); p.className = "worksheet-page";
+        p.appendChild(renderWorksheetSVG(currentState.pages[i], opts, wsCodes[i]));
         sheetWrap.appendChild(p);
       }
-      if (opts.answerKey) {
-        for (let i = 0; i < currentState.pages.length; i++) {
-          const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
-          p.appendChild(renderWorksheetSVG(currentState.pages[i], {
-            showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
-            traceStyle: opts.traceStyle, repetitions: opts.repetitions,
-            includePracticeLine: false, fontSize: opts.fontSize,
-            showAnswers: true, isAnswerKey: true, numbered: opts.numbered, includeExample: false
-          }, wsCodes[i]));
-          sheetWrap.appendChild(p);
-        }
-      }
-      setTimeout(() => { window.print(); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 50);
+      setTimeout(function() { window.print(); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 50);
     }
 
-
     // ===== Event Listeners =====
-    elStartNumber.addEventListener("input", () => regenerate());
-    elEndNumber.addEventListener("input", () => regenerate());
-    elRepetitions.addEventListener("change", () => regenerate());
-    elTraceStyle.addEventListener("change", () => regenerate());
-    elFontSize.addEventListener("change", () => regenerate());
-    elNumSheets.addEventListener("change", () => regenerate());
-    elIncludePracticeLine.addEventListener("change", () => regenerate());
-    elShowHeaderEnabled.addEventListener("change", () => {
+    elNumberRange.addEventListener("change", regenerate);
+    elRowsPerPage.addEventListener("change", regenerate);
+    elNumSheets.addEventListener("change", regenerate);
+    elShowHeaderEnabled.addEventListener("change", function() {
       elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
       regenerate();
     });
-    elHeaderMode.addEventListener("change", () => regenerate());
-    elBranded.addEventListener("change", () => regenerate());
-    elNumbered.addEventListener("change", () => regenerate());
-    elCustomTitleEnabled.addEventListener("change", () => {
+    elHeaderMode.addEventListener("change", regenerate);
+    elBranded.addEventListener("change", regenerate);
+    elCustomTitleEnabled.addEventListener("change", function() {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
       regenerate();
     });
-    elShowTitle.addEventListener("change", () => {
+    elShowTitle.addEventListener("change", function() {
       elTitleInputWrap.style.display = elShowTitle.checked ? "" : "none";
       regenerate();
     });
-    elShowSubtitle.addEventListener("change", () => {
+    elShowSubtitle.addEventListener("change", function() {
       elSubtitleInputWrap.style.display = elShowSubtitle.checked ? "" : "none";
       regenerate();
     });
-    elHeaderText.addEventListener("input", () => regenerate());
-    elSubtitleText.addEventListener("input", () => regenerate());
-    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
-    elAnswerKey.addEventListener("change", () => {});
-    document.getElementById("btnGenerate").addEventListener("click", () => regenerate());
+    elHeaderText.addEventListener("input", regenerate);
+    elSubtitleText.addEventListener("input", regenerate);
+    document.getElementById("btnGenerate").addEventListener("click", regenerate);
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
-    let resizeTimeout;
-    window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.pages.length > 1) renderWorksheets(); }, 150); });
+    var resizeTimeout;
+    window.addEventListener("resize", function() { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(function() { if (currentState.pages.length > 1) renderWorksheets(); }, 150); });
 
     // ===== Init =====
     regenerate();
 
     // Expose answer key capture for favorites pack system
     window._amCaptureAnswerKeys = function() {
-      if (!currentState.sheets || !currentState.sheets.length) return [];
-      var opts = gatherOptions();
-      return currentState.sheets.map(function(sheet, idx) {
-        try {
-          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true, includeExample: false }), '(' + (idx + 1) + ')');
-          return sv.outerHTML;
-        } catch(e) { return ''; }
-      }).filter(Boolean);
+      return [];
     };
   </script>
 <script src="../../favorites.js"></script>

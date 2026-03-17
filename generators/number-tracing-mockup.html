@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Number Tracing Mockup</title>
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+    .controls { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; background: #fff; padding: 10px 20px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .controls label { font-size: 13px; color: #555; }
+    .controls select, .controls input { font-size: 13px; padding: 4px 8px; }
+    .page { background: white; box-shadow: 0 2px 20px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <label>Numbers: <select id="numSelect">
+      <option value="1-5">1–5</option>
+      <option value="6-10">6–10</option>
+      <option value="0-5">0–5</option>
+      <option value="0-10">0–10</option>
+      <option value="1-3">1–3</option>
+      <option value="1-10">1–10</option>
+    </select></label>
+    <label>Rows: <select id="rowSelect">
+      <option value="4" selected>4</option>
+      <option value="5">5</option>
+    </select></label>
+    <label>Scale: <input type="range" id="scaleSlider" min="50" max="150" value="100" style="width:120px"><span id="scaleLabel">100%</span></label>
+  </div>
+  <div class="page" id="page"></div>
+  <script>
+    const W = 612, H = 792, M = 36;
+
+    function svgEl(tag, attrs) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      return el;
+    }
+
+    // Each digit is defined as an array of strokes (pen-down segments).
+    // Each stroke has:
+    //   d: SVG path in normalized coords (0-1)
+    //   start: [x, y] - where the stroke begins (dot placement)
+    //   dir: [dx, dy] - direction arrow vector from the start dot
+    //
+    // Standard stroke order for handwriting:
+    // 1: One stroke - start top, draw down
+    // 2: One stroke - curve at top, diagonal down-left, then right across bottom
+    // 3: Two strokes - top curve right, then bottom curve right from middle
+    // 4: Two strokes - (1) down-left diagonal then right, (2) vertical line down
+    // 5: Two strokes - (1) across top left then down, (2) curve around bottom
+
+    const digitDefs = {
+      1: {
+        strokes: [
+          {
+            // Stroke 1: Serif - start at mid-left, draw up-right to the peak (extra length for dot spacing)
+            d: "M 0.30 0.24 L 0.55 0.05",
+            start: [0.30, 0.24],
+            dir: [0.10, -0.08],  // arrow pointing up-right
+          },
+          {
+            // Stroke 2: From the peak, draw straight down
+            d: "M 0.55 0.05 L 0.55 0.95",
+            start: [0.55, 0.05],
+            dir: [0.0, 0.14],  // arrow pointing straight down
+          }
+        ]
+      },
+      2: {
+        strokes: [
+          {
+            // Stroke 1: Start at top-left of curve, go right and around the top, then diagonal down to base
+            d: "M 0.22 0.20 C 0.22 0.05, 0.82 0.05, 0.82 0.28 C 0.82 0.50, 0.20 0.70, 0.15 0.95",
+            start: [0.22, 0.20],
+            dir: [0.10, -0.12],  // arrow pointing right and up, following the curve
+          },
+          {
+            // Stroke 2: Base line from bottom-left going right
+            d: "M 0.15 0.95 L 0.85 0.95",
+            start: [0.15, 0.95],
+            dir: [0.15, 0.0],  // arrow pointing right along the base
+          }
+        ]
+      },
+      3: {
+        strokes: [
+          {
+            // Top half: start upper-left, curve right across top to middle
+            d: "M 0.18 0.12 C 0.40 0.05, 0.82 0.07, 0.78 0.28 C 0.74 0.46, 0.48 0.48, 0.45 0.48",
+            start: [0.18, 0.12],
+            dir: [0.14, -0.06],  // arrow pointing right and slightly up
+          },
+          {
+            // Bottom half: from middle, curve right and down around bottom
+            d: "M 0.45 0.48 C 0.72 0.46, 0.85 0.60, 0.78 0.80 C 0.70 0.95, 0.30 0.95, 0.16 0.88",
+            start: [0.45, 0.48],
+            dir: [0.14, 0.0],  // arrow pointing perfectly horizontal right
+          }
+        ]
+      },
+      4: {
+        strokes: [
+          {
+            // Stroke 1: Left vertical arm — straight down to crossbar at center
+            d: "M 0.15 0.05 L 0.15 0.50",
+            start: [0.15, 0.05],
+            dir: [0.0, 0.14],  // arrow pointing down
+          },
+          {
+            // Stroke 2: Crossbar — centered vertically at 0.50
+            d: "M 0.15 0.50 L 0.88 0.50",
+            start: [0.15, 0.50],
+            dir: [0.15, 0.0],  // arrow pointing right
+          },
+          {
+            // Stroke 3: Right vertical — full height down
+            d: "M 0.68 0.05 L 0.68 0.95",
+            start: [0.68, 0.05],
+            dir: [0.0, 0.14],  // arrow pointing straight down
+          }
+        ]
+      },
+      5: {
+        strokes: [
+          {
+            // Stroke 1: Start top-right, go left across top
+            d: "M 0.78 0.05 L 0.25 0.05",
+            start: [0.78, 0.05],
+            dir: [-0.15, 0.0],  // arrow pointing left
+          },
+          {
+            // Stroke 2: From top-left corner, straight down to vertical center
+            d: "M 0.25 0.05 L 0.25 0.50",
+            start: [0.25, 0.05],
+            dir: [0.0, 0.14],  // arrow pointing down
+          },
+          {
+            // Stroke 3: Curve from vertical center going right and around the bottom (flatter top)
+            d: "M 0.25 0.50 C 0.48 0.44, 0.85 0.46, 0.82 0.68 C 0.79 0.92, 0.42 0.95, 0.16 0.88",
+            start: [0.25, 0.50],
+            dir: [0.14, 0.0],  // arrow pointing right
+          }
+        ]
+      },
+      6: {
+        strokes: [
+          {
+            // One stroke: start at top, curve down the left side and around into the belly (belly in bottom half)
+            d: "M 0.62 0.05 C 0.30 0.05, 0.12 0.25, 0.12 0.62 C 0.12 0.78, 0.28 0.95, 0.50 0.95 C 0.72 0.95, 0.82 0.78, 0.82 0.66 C 0.82 0.52, 0.72 0.42, 0.50 0.42 C 0.30 0.42, 0.16 0.50, 0.14 0.58",
+            start: [0.62, 0.05],
+            dir: [-0.14, 0.0],  // arrow pointing left along top
+          }
+        ]
+      },
+      7: {
+        strokes: [
+          {
+            // Stroke 1: Horizontal line across top
+            d: "M 0.12 0.05 L 0.88 0.05",
+            start: [0.12, 0.05],
+            dir: [0.15, 0.0],  // arrow pointing right
+          },
+          {
+            // Stroke 2: Diagonal from top-right down to bottom-left
+            d: "M 0.88 0.05 L 0.38 0.95",
+            start: [0.88, 0.05],
+            dir: [-0.08, 0.14],  // arrow pointing down-left
+          }
+        ]
+      },
+      8: {
+        strokes: [
+          {
+            // One stroke: start at top center, go left around top loop, cross through center, around bottom loop, back to top
+            d: "M 0.50 0.05 C 0.10 0.05, 0.05 0.48, 0.50 0.48 C 1.00 0.48, 1.00 0.95, 0.50 0.95 C 0.00 0.95, 0.00 0.48, 0.50 0.48 C 0.95 0.48, 0.90 0.05, 0.50 0.05",
+            start: [0.50, 0.05],
+            dir: [-0.14, 0.0],  // arrow pointing left at top center
+          }
+        ]
+      },
+      9: {
+        strokes: [
+          {
+            // Stroke 1: stem — from bottom up to where circle begins
+            d: "M 0.38 0.95 C 0.70 0.95, 0.88 0.75, 0.88 0.38",
+            start: [0.86, 0.37],
+            dir: [0.0, -0.14],  // arrow pointing up
+          },
+          {
+            // Stroke 2: circle — from top of stem around the loop back to meeting point
+            d: "M 0.88 0.38 C 0.88 0.22, 0.72 0.05, 0.50 0.05 C 0.28 0.05, 0.18 0.22, 0.18 0.34 C 0.18 0.48, 0.28 0.58, 0.50 0.58 C 0.70 0.58, 0.84 0.50, 0.86 0.42",
+            start: [0.86, 0.47],
+            dir: [0.0, 0.14],  // arrow pointing down
+          }
+        ]
+      },
+      0: {
+        strokes: [
+          {
+            // One stroke: egg shape, widest at vertical center, narrower at top and bottom
+            d: "M 0.50 0.05 C 0.32 0.05, 0.15 0.20, 0.15 0.50 C 0.15 0.80, 0.32 0.95, 0.50 0.95 C 0.68 0.95, 0.85 0.80, 0.85 0.50 C 0.85 0.20, 0.68 0.05, 0.50 0.05",
+            start: [0.50, 0.05],
+            dir: [-0.14, 0.0],  // arrow pointing left at top center
+          }
+        ]
+      },
+    };
+
+    function scalePath(d, x, y, w, h) {
+      return d.replace(/([0-9]*\.?[0-9]+)\s+([0-9]*\.?[0-9]+)/g, (match, px, py) => {
+        const sx = (x + parseFloat(px) * w).toFixed(1);
+        const sy = (y + parseFloat(py) * h).toFixed(1);
+        return sx + " " + sy;
+      });
+    }
+
+    function drawDigit(svg, digit, cx, topY, digitH, opts = {}) {
+      const { opacity = 1, showGuide = false, strokeWidth = 2.5, indicatorScale = 1 } = opts;
+      const digitW = digitH * 0.75;
+      const dx = cx - digitW / 2;
+      const dy = topY;
+      const def = digitDefs[digit];
+      if (!def) return;
+
+      def.strokes.forEach((stroke, si) => {
+        const scaled = scalePath(stroke.d, dx, dy, digitW, digitH);
+        const pathEl = svgEl("path", {
+          d: scaled,
+          fill: "none",
+          stroke: "#333",
+          "stroke-width": String(strokeWidth),
+          "stroke-linecap": "round",
+          "stroke-linejoin": "round",
+          "stroke-dasharray": "1 5",
+          opacity: String(opacity),
+        });
+        svg.appendChild(pathEl);
+      });
+
+      // Draw stroke order indicators only in guide box
+      if (showGuide) {
+        def.strokes.forEach((stroke, si) => {
+          const sx = dx + stroke.start[0] * digitW;
+          const sy = dy + stroke.start[1] * digitH;
+          const adx = stroke.dir[0] * digitW;
+          const ady = stroke.dir[1] * digitH;
+          const num = si + 1;
+
+          // Combined dot+arrow indicator (circle with attached filled arrow, one connected shape)
+          const dotR = 8 * indicatorScale;
+          const dirLen = Math.sqrt(adx * adx + ady * ady);
+          const normDx = dirLen > 0 ? adx / dirLen : 0;
+          const normDy = dirLen > 0 ? ady / dirLen : 0;
+          // Perpendicular vector for arrow wing spread
+          const perpDx = -normDy;
+          const perpDy = normDx;
+
+          // Shaft + arrow dimensions
+          const shaftLen = 2 * indicatorScale;
+          const shaftHW = 3 * indicatorScale;
+          const arrowLen = 10 * indicatorScale;
+          const arrowWing = 7 * indicatorScale;
+
+          // Position: circle center lands on the stroke start point (first dot of the dotted line)
+          const dotX = sx;
+          const dotY = sy;
+
+          // Shaft: rectangle from circle edge to arrow base
+          const shaftStartX = dotX + normDx * dotR;
+          const shaftStartY = dotY + normDy * dotR;
+          const shaftEndX = dotX + normDx * (dotR + shaftLen);
+          const shaftEndY = dotY + normDy * (dotR + shaftLen);
+
+          // Shaft corners
+          const s1x = shaftStartX + perpDx * shaftHW;
+          const s1y = shaftStartY + perpDy * shaftHW;
+          const s2x = shaftStartX - perpDx * shaftHW;
+          const s2y = shaftStartY - perpDy * shaftHW;
+          const s3x = shaftEndX - perpDx * shaftHW;
+          const s3y = shaftEndY - perpDy * shaftHW;
+          const s4x = shaftEndX + perpDx * shaftHW;
+          const s4y = shaftEndY + perpDy * shaftHW;
+
+          // Draw as a single combined path so no seams are visible
+          const tipX = dotX + normDx * (dotR + shaftLen + arrowLen);
+          const tipY = dotY + normDy * (dotR + shaftLen + arrowLen);
+          const wing1X = shaftEndX + perpDx * arrowWing;
+          const wing1Y = shaftEndY + perpDy * arrowWing;
+          const wing2X = shaftEndX - perpDx * arrowWing;
+          const wing2Y = shaftEndY - perpDy * arrowWing;
+
+          // Angle where shaft meets circle edge (for arc start/end points)
+          const angle = Math.atan2(normDy, normDx);
+          const halfShaftAngle = Math.asin(Math.min(1, shaftHW / dotR));
+          // Arc from shaft side 2 back around to shaft side 1 (the long way, away from arrow)
+          const a1 = angle + halfShaftAngle; // where side 1 meets circle
+          const a2 = angle - halfShaftAngle; // where side 2 meets circle
+          const cx1 = dotX + dotR * Math.cos(a1);
+          const cy1 = dotY + dotR * Math.sin(a1);
+          const cx2 = dotX + dotR * Math.cos(a2);
+          const cy2 = dotY + dotR * Math.sin(a2);
+
+          // Single path: shaft side 1 → arrow wing 1 → tip → arrow wing 2 → shaft side 2 → arc back around circle
+          const combinedPath = `M ${cx1} ${cy1} L ${s4x} ${s4y} L ${wing1X} ${wing1Y} L ${tipX} ${tipY} L ${wing2X} ${wing2Y} L ${s3x} ${s3y} L ${cx2} ${cy2} A ${dotR} ${dotR} 0 1 0 ${cx1} ${cy1} Z`;
+
+          svg.appendChild(svgEl("path", {
+            d: combinedPath,
+            fill: "#222", stroke: "none",
+          }));
+
+          // Number label inside circle
+          const numEl = svgEl("text", {
+            x: String(dotX), y: String(dotY + 4 * indicatorScale),
+            "font-family": "Arial, sans-serif", "font-size": String(11 * indicatorScale),
+            "font-weight": "700", fill: "white",
+            "text-anchor": "middle",
+          });
+          numEl.textContent = String(num);
+          svg.appendChild(numEl);
+        });
+      }
+    }
+
+    // Compute the actual min/max normalized Y from a digit's path data
+    function getDigitYBounds(digit) {
+      const def = digitDefs[digit];
+      if (!def) return { minY: 0, maxY: 1 };
+      let minY = 1, maxY = 0;
+      def.strokes.forEach(stroke => {
+        // Extract all Y values from path (every second number in coordinate pairs)
+        const nums = stroke.d.match(/([0-9]*\.?[0-9]+)\s+([0-9]*\.?[0-9]+)/g);
+        if (nums) {
+          nums.forEach(pair => {
+            const [, py] = pair.trim().split(/\s+/);
+            const y = parseFloat(py);
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          });
+        }
+      });
+      return { minY, maxY };
+    }
+
+    // Draw a number (single or multi-digit) centered at cx
+    function drawNumber(svg, num, cx, topY, digitH, opts = {}) {
+      const digits = String(num).split("").map(Number);
+      const digitW = digitH * 0.75;
+      const gap = digitW * -0.35; // overlap digits closer together
+      const totalW = digits.length * digitW + (digits.length - 1) * gap;
+      let startX = cx - totalW / 2 + digitW / 2;
+      digits.forEach((d, i) => {
+        drawDigit(svg, d, startX + i * (digitW + gap), topY, digitH, opts);
+      });
+    }
+
+    function drawRow(svg, num, rowTop, rowH, scale) {
+      scale = scale || 1;
+      const lineRight = W - M;
+      const digits = String(num).split("").map(Number);
+      const isMultiDigit = digits.length > 1;
+
+      // The digit height is the canonical size — everything else matches it
+      const digitH = rowH * 0.72;
+      const digitTop = rowTop + (rowH - digitH) / 2;
+      const digitBot = digitTop + digitH;
+
+      // All digits normalized to 0.05–0.95 range
+      // Offset lines outward by half the traced stroke width so dots touch but don't overlap
+      const halfStroke = 1.4;
+      const actualTop = digitTop + 0.05 * digitH - halfStroke;
+      const actualBot = digitTop + 0.95 * digitH + halfStroke;
+      const actualMid = (actualTop + actualBot) / 2;
+
+      // Guide area — no rectangle, just the digit with stroke indicators
+      const guideAreaW = isMultiDigit ? 160 : 100;
+      const guideAreaX = M;
+
+      // Draw guide number (same digitH as traced digits)
+      const guideCx = guideAreaX + guideAreaW / 2;
+      const iScale = Math.pow(scale, 1.5); // indicators scale down faster
+      drawNumber(svg, num, guideCx, digitTop, digitH, { opacity: 0.85, showGuide: true, strokeWidth: 2.8, indicatorScale: iScale });
+
+      // Writing lines — positioned at digit top, mid, and bottom
+      const linesStart = guideAreaX + guideAreaW + 8;
+
+      // Top line (solid) — aligned to actual top of digit strokes
+      svg.appendChild(svgEl("line", {
+        x1: String(linesStart), y1: String(actualTop),
+        x2: String(lineRight), y2: String(actualTop),
+        stroke: "#aaa", "stroke-width": "1",
+      }));
+      // Middle line (dashed) — exact vertical center
+      svg.appendChild(svgEl("line", {
+        x1: String(linesStart), y1: String(actualMid),
+        x2: String(lineRight), y2: String(actualMid),
+        stroke: "#ccc", "stroke-width": "0.75", "stroke-dasharray": "8 5",
+      }));
+      // Bottom line (solid) — aligned to actual bottom of digit strokes
+      svg.appendChild(svgEl("line", {
+        x1: String(linesStart), y1: String(actualBot),
+        x2: String(lineRight), y2: String(actualBot),
+        stroke: "#aaa", "stroke-width": "1",
+      }));
+
+      // Draw traced numbers — same digitH as guide
+      const traceAreaW = lineRight - linesStart;
+      const numTraced = isMultiDigit ? 2 : 4;
+      const spacing = isMultiDigit ? traceAreaW / 2 : traceAreaW / numTraced;
+
+      for (let i = 0; i < numTraced; i++) {
+        const opacities = [0.80, 0.50, 0.25, 0.10];
+        const cx = linesStart + spacing * (i + 0.5);
+        drawNumber(svg, num, cx, digitTop, digitH, {
+          opacity: opacities[i] || 0.08,
+          strokeWidth: 2.2,
+        });
+      }
+    }
+
+    function parseRange(val) {
+      const [a, b] = val.split("-").map(Number);
+      const nums = [];
+      for (let i = a; i <= b; i++) nums.push(i);
+      return nums;
+    }
+
+    function render() {
+      const page = document.getElementById("page");
+      page.innerHTML = "";
+
+      const allNumbers = parseRange(document.getElementById("numSelect").value);
+      const maxRows = parseInt(document.getElementById("rowSelect").value);
+      const numbers = allNumbers.slice(0, maxRows);
+      const scale = parseInt(document.getElementById("scaleSlider").value) / 100;
+      document.getElementById("scaleLabel").textContent = Math.round(scale * 100) + "%";
+
+      const svg = svgEl("svg", {
+        width: W, height: H,
+        viewBox: `0 0 ${W} ${H}`,
+        xmlns: "http://www.w3.org/2000/svg",
+      });
+      svg.appendChild(svgEl("rect", { x: 0, y: 0, width: W, height: H, fill: "#fff" }));
+
+      // Arrow marker definition
+      const defs = svgEl("defs");
+      const marker = svgEl("marker", {
+        id: "arrowhead", markerWidth: "7", markerHeight: "7",
+        refX: "6", refY: "3.5", orient: "auto",
+      });
+      marker.appendChild(svgEl("path", {
+        d: "M 0 0 L 7 3.5 L 0 7 Z", fill: "#222",
+      }));
+      defs.appendChild(marker);
+      svg.appendChild(defs);
+
+      // Title
+      const title = svgEl("text", {
+        x: String(M), y: "50",
+        "font-family": "'Google Sans Flex', sans-serif",
+        "font-size": "32", "font-weight": "700", fill: "#9ca3af",
+      });
+      title.textContent = "Number Tracing Practice";
+      svg.appendChild(title);
+
+      const subtitle = svgEl("text", {
+        x: String(M), y: "70",
+        "font-family": "Fredoka, sans-serif",
+        "font-size": "14", fill: "#4a5568",
+      });
+      subtitle.textContent = "Trace each number, then practice writing it on your own.";
+      svg.appendChild(subtitle);
+
+      const gridTop = 90;
+      const gridBot = H - 50;
+      const numRows = numbers.length;
+      const rowH = ((gridBot - gridTop) / numRows) * scale;
+
+      for (let r = 0; r < numRows; r++) {
+        drawRow(svg, numbers[r], gridTop + r * rowH, rowH, scale);
+      }
+
+      page.appendChild(svg);
+    }
+
+    document.getElementById("numSelect").addEventListener("change", render);
+    document.getElementById("rowSelect").addEventListener("change", render);
+    document.getElementById("scaleSlider").addEventListener("input", render);
+    render();
+  </script>
+</body>
+</html>
