@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Math Fact Drills Worksheet Generator</title>
+  <title>Math Worksheet Generator</title>
   <style>
     * {
       margin: 0;
@@ -191,7 +191,7 @@
     }
 
     .advanced-panel.open {
-      max-height: 600px;
+      max-height: 500px;
     }
 
     .advanced-panel-inner {
@@ -514,33 +514,36 @@
     </div>
   </header>
   <div class="main-container">
+    <!-- Left sidebar controls -->
     <div class="sidebar">
-      <h2>Math Fact Drills Worksheet Generator</h2>
+	
+      <h2>Horizontal Math Worksheet Generator</h2>
 
-      <!-- Operations -->
       <div class="control-group">
         <label>Operations</label>
         <div class="ops-row">
-          <label class="op-chip"><input type="checkbox" id="opAdd" checked /><span>&#xFF0B;</span></label>
-          <label class="op-chip"><input type="checkbox" id="opSub" /><span>&#xFF0D;</span></label>
-          <label class="op-chip"><input type="checkbox" id="opMul" /><span>&times;</span></label>
-          <label class="op-chip"><input type="checkbox" id="opDiv" /><span>&divide;</span></label>
+          <label class="op-chip"><input type="checkbox" id="opAdd" checked /><span>＋</span></label>
+          <label class="op-chip"><input type="checkbox" id="opSub" /><span>－</span></label>
+          <label class="op-chip"><input type="checkbox" id="opMul" /><span>×</span></label>
+          <label class="op-chip"><input type="checkbox" id="opDiv" /><span>÷</span></label>
         </div>
       </div>
 
-      <!-- Fact Range -->
       <div class="control-group">
-        <label for="withinSelect">Fact Range</label>
+        <label for="withinSelect">Range</label>
         <select id="withinSelect">
-          <option value="5">Within 5</option>
-          <option value="10" selected>Within 10</option>
-          <option value="12">Within 12</option>
-          <option value="20">Within 20</option>
+          <option value="5" selected>1 to 5</option>
+          <option value="10">1 to 10</option>
+          <option value="20">1 to 20</option>
+          <option value="50">1 to 50</option>
+          <option value="100">1 to 100</option>
+          <option value="custom">Custom</option>
         </select>
       </div>
-
-      <!-- Problems per sheet -->
-<!-- Answer key checkbox -->
+      <div class="control-group" id="customWithinGroup" style="display:none;">
+        <label for="customWithin">Custom value</label>
+        <input type="number" id="customWithin" value="25" min="2" max="9999" />
+      </div>
       <div class="checkbox-row" style="margin-bottom:12px;">
         <label>
           <input type="checkbox" id="answerKey">
@@ -550,7 +553,7 @@
 
       <!-- Advanced Options -->
       <div class="advanced-toggle" id="advToggle">
-        <span class="toggle-arrow" id="advArrow">&#9658;</span>
+        <span class="toggle-arrow" id="advArrow">▶</span>
         <span>Advanced Options</span>
       </div>
       <div class="advanced-panel" id="advPanel">
@@ -576,12 +579,9 @@
           <div class="control-group" style="margin-bottom:12px;">
         <label for="problemsPerSheet">Problems per Sheet</label>
         <select id="problemsPerSheet">
-          <option value="20">20</option>
-          <option value="30">30</option>
-          <option value="40" selected>40</option>
-          <option value="50">50</option>
-          <option value="60">60</option>
-          <option value="100">100</option>
+          <option value="8">8</option>
+          <option value="12" selected>12</option>
+          <option value="16">16</option>
         </select>
       </div>
 
@@ -601,6 +601,93 @@
             </select>
           </div>
 
+          <!-- Set digit count -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="digitLockEnabled" />
+            <label for="digitLockEnabled">Set digit count</label>
+          </div>
+          <div class="adv-sub" id="digitLockOptions" style="display:none;">
+            <label for="digitLockMode">Digits</label>
+            <select id="digitLockMode">
+              <option value="1">1 digit</option>
+              <option value="2">2 digits</option>
+              <option value="3">3 digits</option>
+              <option value="4">4 digits</option>
+            </select>
+          </div>
+
+          <!-- Regrouping (add/sub) -->
+          <div id="regroupSection">
+            <div class="adv-checkbox-row">
+              <input type="checkbox" id="regroupEnabled" />
+              <label for="regroupEnabled">Regrouping / Borrowing</label>
+            </div>
+            <div class="adv-sub" id="regroupOptions" style="display:none;">
+              <label for="regroupMode">Mix</label>
+              <select id="regroupMode">
+                <option value="all" selected>All</option>
+                <option value="half">50%</option>
+                <option value="random">Random</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Division options -->
+          <div id="divisionSection" style="display:none;">
+            <div class="adv-checkbox-row">
+              <input type="checkbox" id="noRemainders" checked />
+              <label for="noRemainders">No remainders</label>
+            </div>
+          </div>
+
+          <!-- Random mix (only visible with 2+ operations) -->
+          <div id="randomMixSection" style="display:none;">
+            <div class="adv-checkbox-row">
+              <input type="checkbox" id="randomMix" />
+              <label for="randomMix">Random mix</label>
+            </div>
+          </div>
+
+          <!-- Number Overrides -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="overridesEnabled" />
+            <label for="overridesEnabled">Number overrides</label>
+          </div>
+          <div id="overridesPanel" style="display:none;">
+            <div class="control-group" style="margin-bottom:10px;">
+              <label style="font-size:12px;">First number</label>
+              <div class="range-row">
+                <div>
+                  <span class="sub-label">Min</span>
+                  <input type="number" id="advMin1" value="1" min="0" max="9999" />
+                </div>
+                <div>
+                  <span class="sub-label">Max</span>
+                  <input type="number" id="advMax1" value="5" min="0" max="9999" />
+                </div>
+              </div>
+            </div>
+
+            <div class="control-group" style="margin-bottom:10px;">
+              <label style="font-size:12px;">Second number</label>
+              <div class="range-row">
+                <div>
+                  <span class="sub-label">Min</span>
+                  <input type="number" id="advMin2" value="1" min="0" max="9999" />
+                </div>
+                <div>
+                  <span class="sub-label">Max</span>
+                  <input type="number" id="advMax2" value="5" min="0" max="9999" />
+                </div>
+              </div>
+            </div>
+
+            <div class="control-group" style="margin-bottom:0;">
+              <label style="font-size:12px;">Maximum answer</label>
+              <input type="number" id="advMaxAnswer" value="5" min="1" max="99999" />
+            </div>
+          </div>
+
           <!-- Customize titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
@@ -613,7 +700,7 @@
             </div>
             <div id="titleInputWrap">
               <label for="headerText">Title</label>
-              <input type="text" id="headerText" value="Math Fact Drills" />
+              <input type="text" id="headerText" value="Math Practice" />
             </div>
             <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
               <input type="checkbox" id="showSubtitle" checked />
@@ -621,7 +708,7 @@
             </div>
             <div id="subtitleInputWrap">
               <label for="subtitleText">Subtitle</label>
-              <input type="text" id="subtitleText" value="Complete each problem as quickly as you can." />
+              <input type="text" id="subtitleText" value="Solve each problem." />
             </div>
           </div>
 
@@ -644,6 +731,12 @@
             <label for="numbered">Numbered</label>
           </div>
 
+          <!-- Show boxes -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="showBoxes" checked />
+            <label for="showBoxes">Show boxes</label>
+          </div>
+
           <!-- Branding -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="branded" checked />
@@ -653,9 +746,10 @@
         </div>
       </div>
 
+
       <div class="button-group">
-        <button class="btn-generate" id="btnGenerate">&#x1F504; Generate New</button>
-        <button class="btn-print" id="btnPrint">&#x1F5A8;&#xFE0F; Print</button>
+        <button class="btn-generate" id="btnGenerate">🔄 Generate New</button>
+        <button class="btn-print" id="btnPrint">🖨️ Print</button>
       </div>
     </div>
 
@@ -674,11 +768,19 @@
       return el;
     }
     function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
-    function isMobile() { return window.innerWidth <= 900; }
 
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
     const elWithin = document.getElementById("withinSelect");
+    const elCustomWithinGroup = document.getElementById("customWithinGroup");
+    const elCustomWithin = document.getElementById("customWithin");
+    const elOverridesEnabled = document.getElementById("overridesEnabled");
+    const elOverridesPanel = document.getElementById("overridesPanel");
+    const elAdvMin1 = document.getElementById("advMin1");
+    const elAdvMax1 = document.getElementById("advMax1");
+    const elAdvMin2 = document.getElementById("advMin2");
+    const elAdvMax2 = document.getElementById("advMax2");
+    const elAdvMaxAnswer = document.getElementById("advMaxAnswer");
     const elNumSheets = document.getElementById("numWorksheets");
     const elProblems = document.getElementById("problemsPerSheet");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
@@ -692,6 +794,9 @@
     const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
     const elBranded = document.getElementById("branded");
     const elAnswerKey = document.getElementById("answerKey");
+    const elRegroupEnabled = document.getElementById("regroupEnabled");
+    const elRegroupMode = document.getElementById("regroupMode");
+    const elRegroupOptions = document.getElementById("regroupOptions");
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
     const advArrow = document.getElementById("advArrow");
@@ -699,27 +804,87 @@
     const elOpSub = document.getElementById("opSub");
     const elOpMul = document.getElementById("opMul");
     const elOpDiv = document.getElementById("opDiv");
+    const elNoRemainders = document.getElementById("noRemainders");
+    const elRegroupSection = document.getElementById("regroupSection");
+    const elDivisionSection = document.getElementById("divisionSection");
     const elUseZero = document.getElementById("useZero");
     const elZeroPercent = document.getElementById("zeroPercent");
     const elZeroPercentOptions = document.getElementById("zeroPercentOptions");
+    const elDigitLockEnabled = document.getElementById("digitLockEnabled");
+    const elDigitLockOptions = document.getElementById("digitLockOptions");
+    const elDigitLockMode = document.getElementById("digitLockMode");
+    const elRandomMix = document.getElementById("randomMix");
+    const elRandomMixSection = document.getElementById("randomMixSection");
     const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
     const elCustomTitleOptions = document.getElementById("customTitleOptions");
     const elIncludeExample = document.getElementById("includeExample") || { checked: false, addEventListener: function(){} };
     const elNumbered = document.getElementById("numbered");
+    const elShowBoxes = document.getElementById("showBoxes");
 
     // ===== Advanced panel toggle =====
-    advToggle.addEventListener("click", () => {
-      advPanel.classList.toggle("open");
-      advArrow.classList.toggle("open");
+    advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
+    elRegroupEnabled.addEventListener("change", () => { elRegroupOptions.style.display = elRegroupEnabled.checked ? "block" : "none"; renderWithNewRandomization(); });
+
+    // ===== Overrides toggle =====
+    elOverridesEnabled.addEventListener("change", () => {
+      elOverridesPanel.style.display = elOverridesEnabled.checked ? "block" : "none";
+      if (!elOverridesEnabled.checked) syncAdvancedFromWithin();
+      renderWithNewRandomization();
     });
 
     // ===== Allow Zero =====
+    function updateRangeLabels() {
+      const lo = elUseZero.checked ? '0' : '1';
+      const vals = [5, 10, 20, 50, 100];
+      const opts = elWithin.querySelectorAll('option[value]:not([value="custom"])');
+      opts.forEach((o, i) => { o.text = lo + ' to ' + vals[i]; });
+    }
     elUseZero.addEventListener("change", () => {
       elZeroPercentOptions.style.display = elUseZero.checked ? "block" : "none";
-      renderWithNewRandomization();
+      updateRangeLabels(); syncAdvancedFromWithin(); renderWithNewRandomization();
     });
     elZeroPercent.addEventListener("change", () => { renderWithNewRandomization(); });
+    // Show dropdown on load if checked
     if (elUseZero.checked) elZeroPercentOptions.style.display = "block";
+
+    // ===== Digit Lock =====
+    elDigitLockEnabled.addEventListener("change", () => {
+      elDigitLockOptions.style.display = elDigitLockEnabled.checked ? "block" : "none";
+      if (elDigitLockEnabled.checked) applyDigitLock();
+      else syncAdvancedFromWithin();
+      renderWithNewRandomization();
+    });
+    elDigitLockMode.addEventListener("change", () => { applyDigitLock(); renderWithNewRandomization(); });
+
+    function getDigitCount() {
+      if (!elDigitLockEnabled.checked) return null;
+      return parseInt(elDigitLockMode.value, 10);
+    }
+
+    function digitRange(n) {
+      if (n <= 1) return { min: 1, max: 9 }; // Zero injection handled in post-processing
+      return { min: Math.pow(10, n - 1), max: Math.pow(10, n) - 1 };
+    }
+
+    function applyDigitLock() {
+      const d = getDigitCount();
+      if (!d) return;
+      const r = digitRange(d);
+      const presets = [5, 10, 20, 50, 100];
+      let bestPreset = null;
+      for (const p of presets) { if (p >= r.max) { bestPreset = p; break; } }
+      if (bestPreset) {
+        elWithin.value = String(bestPreset);
+        elCustomWithinGroup.style.display = "none";
+      } else {
+        elWithin.value = "custom";
+        elCustomWithin.value = r.max + r.max;
+        elCustomWithinGroup.style.display = "block";
+      }
+      syncAdvancedFromWithin();
+      elAdvMin1.value = r.min; elAdvMax1.value = r.max;
+      elAdvMin2.value = r.min; elAdvMax2.value = r.max;
+    }
 
     // ===== Operations =====
     function getSelectedOps() {
@@ -732,22 +897,65 @@
     }
 
     function handleOpChange(el) {
-      if (!(elOpAdd.checked || elOpSub.checked || elOpMul.checked || elOpDiv.checked)) {
-        el.checked = true;
-        return;
-      }
+      if (!(elOpAdd.checked || elOpSub.checked || elOpMul.checked || elOpDiv.checked)) { el.checked = true; return; }
+      updateAdvancedVisibility();
       renderWithNewRandomization();
+    }
+
+    function updateAdvancedVisibility() {
+      elRegroupSection.style.display = (elOpAdd.checked || elOpSub.checked) ? "block" : "none";
+      elDivisionSection.style.display = elOpDiv.checked ? "block" : "none";
+      const opCount = (elOpAdd.checked ? 1 : 0) + (elOpSub.checked ? 1 : 0) + (elOpMul.checked ? 1 : 0) + (elOpDiv.checked ? 1 : 0);
+      elRandomMixSection.style.display = opCount >= 2 ? "block" : "none";
     }
 
     elOpAdd.addEventListener("change", () => handleOpChange(elOpAdd));
     elOpSub.addEventListener("change", () => handleOpChange(elOpSub));
     elOpMul.addEventListener("change", () => handleOpChange(elOpMul));
     elOpDiv.addEventListener("change", () => handleOpChange(elOpDiv));
+    elRandomMix.addEventListener("change", () => renderWithNewRandomization());
 
     // ===== Within dropdown =====
     function getWithinValue() {
-      return parseInt(elWithin.value, 10);
+      return elWithin.value === "custom" ? (parseInt(elCustomWithin.value, 10) || 10) : parseInt(elWithin.value, 10);
     }
+
+    function syncAdvancedFromWithin() {
+      if (elOverridesEnabled.checked) return; // don't overwrite manual overrides
+      const w = getWithinValue();
+      const lo = 1; // Always generate with min=1; zero injection is handled in post-processing
+      const d = getDigitCount();
+      if (d) {
+        const r = digitRange(d);
+        elAdvMin1.value = r.min; elAdvMax1.value = r.max;
+        elAdvMin2.value = r.min; elAdvMax2.value = r.max;
+        elAdvMaxAnswer.value = w;
+      } else {
+        elAdvMin1.value = lo; elAdvMax1.value = w;
+        elAdvMin2.value = lo; elAdvMax2.value = w;
+        elAdvMaxAnswer.value = w;
+      }
+    }
+
+    function syncWithinFromRange() {
+      if (elDigitLockEnabled.checked) {
+        const d = getDigitCount();
+        const r = digitRange(d);
+        const w = getWithinValue();
+        if (w < r.max) {
+          elDigitLockEnabled.checked = false;
+          elDigitLockOptions.style.display = "none";
+        }
+      }
+      syncAdvancedFromWithin();
+    }
+
+    elWithin.addEventListener("change", () => {
+      elCustomWithinGroup.style.display = elWithin.value === "custom" ? "block" : "none";
+      syncWithinFromRange();
+      renderWithNewRandomization();
+    });
+    elCustomWithin.addEventListener("input", () => { syncWithinFromRange(); renderWithNewRandomization(); });
 
     function getHeaderMode() {
       return elShowHeaderEnabled.checked ? elHeaderMode.value : "none";
@@ -757,31 +965,57 @@
       if (elCustomTitleEnabled.checked) {
         return elShowTitle.checked ? elHeaderText.value : "";
       }
-      return generateAutoTitle();
+      return "Math Practice";
     }
 
     function getSubtitle() {
       if (elCustomTitleEnabled.checked) {
         return elShowSubtitle.checked ? elSubtitleText.value : "";
       }
-      return "Complete each problem as quickly as you can.";
+      return "Solve each problem.";
     }
 
-    // ===== State =====
+        // ===== State =====
     let currentState = { sheets: [] };
 
     // ===== Problem generation =====
-    function generateProblems(count, opts) {
-      const { min1, max1, min2, max2, maxAnswer, operations } = opts;
+    function generateProblems(count, opts, globalSeen) {
+      const { min1, max1, min2, max2, maxAnswer, operations, regroupEnabled, regroupMode, noRemainders, randomMix } = opts;
       const problems = [];
-      const seen = new Set();
+      const seen = globalSeen ? new Set(globalSeen) : new Set();
 
-      // Determine how many problems per operation (even split)
+      // Pre-generate zero problems first so they get unique slots
+      const zeroProblems = [];
+      if (opts.useZero) {
+        const zeroCount = Math.max(1, Math.round(count * opts.zeroPercent / 100));
+        let za = 0;
+        while (zeroProblems.length < zeroCount && za < zeroCount * 200) {
+          za++;
+          const op = operations[Math.floor(Math.random() * operations.length)];
+          let top, bottom, answer;
+          const val = min1 + Math.floor(Math.random() * (Math.max(max1, max2) - min1 + 1));
+          if (Math.random() < 0.5) { top = 0; bottom = val; } else { top = val; bottom = 0; }
+          if (op === "+") answer = top + bottom;
+          else if (op === "-") { top = Math.max(top, bottom); bottom = Math.min(top, bottom); answer = top - bottom; }
+          else if (op === "\u00d7") answer = 0;
+          else if (op === "\u00f7") { if (bottom === 0) { top = 0; bottom = Math.max(1, val); } answer = 0; }
+          if (maxAnswer !== null && Math.abs(answer) > maxAnswer) continue;
+          const key = op + ":" + top + "," + bottom;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          zeroProblems.push({ top, bottom, op, answer });
+        }
+      }
+
+      // Generate remaining non-zero problems
+      const nonZeroCount = count - zeroProblems.length;
+
+      // Determine how many problems per operation
       let opQuotas = null;
-      if (operations.length > 1) {
+      if (!randomMix && operations.length > 1) {
         opQuotas = {};
-        const base = Math.floor(count / operations.length);
-        let remainder = count % operations.length;
+        const base = Math.floor(nonZeroCount / operations.length);
+        let remainder = nonZeroCount % operations.length;
         for (const op of operations) {
           opQuotas[op] = base + (remainder > 0 ? 1 : 0);
           if (remainder > 0) remainder--;
@@ -798,9 +1032,10 @@
       }
 
       let attempts = 0;
-      while (problems.length < count && attempts < count * 500) {
+      while (problems.length < nonZeroCount && attempts < nonZeroCount * 500) {
         attempts++;
 
+        // Pick operation: if quotas, pick one that still needs problems
         let op;
         if (opQuotas) {
           const available = operations.filter(o => !opFull(o));
@@ -816,13 +1051,22 @@
           top = min1 + Math.floor(Math.random() * (max1 - min1 + 1));
           bottom = min2 + Math.floor(Math.random() * (max2 - min2 + 1));
           answer = top + bottom;
+          if (regroupEnabled) {
+            const nr = checkRegrouping(top, bottom);
+            if (regroupMode === "all" && !nr) continue;
+            if (regroupMode === "half") { const rc = problems.filter(p => p.op === "+" && checkRegrouping(p.top, p.bottom)).length; if (nr && rc >= Math.ceil(opCountFor("+") * 0.5) + 1) continue; }
+          } else { if (checkRegrouping(top, bottom)) continue; }
 
         } else if (op === "-") {
           let a = min1 + Math.floor(Math.random() * (max1 - min1 + 1));
           let b = min2 + Math.floor(Math.random() * (max2 - min2 + 1));
-          top = Math.max(a, b);
-          bottom = Math.min(a, b);
+          top = Math.max(a, b); bottom = Math.min(a, b);
           answer = top - bottom;
+          if (regroupEnabled) {
+            const nb = checkBorrowing(top, bottom);
+            if (regroupMode === "all" && !nb) continue;
+            if (regroupMode === "half") { const bc = problems.filter(p => p.op === "-" && checkBorrowing(p.top, p.bottom)).length; if (nb && bc >= Math.ceil(opCountFor("-") * 0.5) + 1) continue; }
+          } else { if (checkBorrowing(top, bottom)) continue; }
 
         } else if (op === "\u00d7") {
           top = min1 + Math.floor(Math.random() * (max1 - min1 + 1));
@@ -831,10 +1075,16 @@
 
         } else if (op === "\u00f7") {
           const divisor = Math.max(1, min2) + Math.floor(Math.random() * (Math.max(1, max2) - Math.max(1, min2) + 1));
-          const quotient = Math.max(1, min1) + Math.floor(Math.random() * (max1 - Math.max(1, min1) + 1));
-          top = divisor * quotient;
-          bottom = divisor;
-          answer = quotient;
+          if (noRemainders) {
+            const quotient = Math.max(1, min1) + Math.floor(Math.random() * (max1 - Math.max(1, min1) + 1));
+            top = divisor * quotient; bottom = divisor; answer = quotient;
+          } else {
+            top = min1 + Math.floor(Math.random() * (max1 - min1 + 1));
+            bottom = divisor;
+            if (top < bottom) { const t = top; top = bottom; bottom = t; }
+            if (bottom === 0) continue;
+            answer = Math.floor(top / bottom);
+          }
         }
 
         if (maxAnswer !== null && Math.abs(answer) > maxAnswer) continue;
@@ -844,63 +1094,36 @@
         problems.push({ top, bottom, op, answer });
       }
 
-      // Fill remainder if needed (allow duplicates as fallback)
+      // Fill remainder if unique pool exhausted (allow duplicates only as last resort)
       let fa = 0;
-      while (problems.length < count && fa < count * 500) {
+      while (problems.length < nonZeroCount && fa < nonZeroCount * 500) {
         fa++;
         const op = operations[Math.floor(Math.random() * operations.length)];
         const a = min1 + Math.floor(Math.random() * (max1 - min1 + 1));
         const b = Math.max(1, min2 + Math.floor(Math.random() * (max2 - min2 + 1)));
         let top = a, bottom = b, answer;
         if (op === "+") { answer = a + b; }
-        else if (op === "-") { top = Math.max(a, b); bottom = Math.min(a, b); answer = top - bottom; }
+        else if (op === "-") { top = Math.max(a,b); bottom = Math.min(a,b); answer = top - bottom; }
         else if (op === "\u00d7") { answer = a * b; }
-        else {
-          if (bottom === 0) bottom = 1;
-          top = Math.max(a, b);
-          bottom = Math.min(a, b);
-          if (bottom === 0) bottom = 1;
-          answer = Math.floor(top / bottom);
-        }
+        else { if (bottom === 0) bottom = 1; top = Math.max(a,b); bottom = Math.min(a,b); if (bottom === 0) bottom = 1; answer = Math.floor(top / bottom); }
         if (maxAnswer !== null && Math.abs(answer) > maxAnswer) continue;
         const key = op + ":" + top + "," + bottom;
-        if (seen.has(key) && fa < count * 200) continue;
+        if (seen.has(key) && fa < nonZeroCount * 200) continue;
         seen.add(key);
         problems.push({ top, bottom, op, answer });
       }
-      while (problems.length < count) {
-        problems.push({ top: Math.max(1, min1), bottom: Math.max(1, min2), op: operations[0], answer: 0 });
-      }
 
-      // Apply zero percentage: replace one operand with 0 for the specified % of problems
-      if (opts.useZero) {
-        const zeroCount = Math.max(1, Math.round(problems.length * opts.zeroPercent / 100));
-        const indices = problems.map((_, i) => i);
-        for (let i = indices.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [indices[i], indices[j]] = [indices[j], indices[i]]; }
-        const zeroIndices = new Set(indices.slice(0, zeroCount));
-        for (const idx of zeroIndices) {
-          const p = problems[idx];
-          const zeroTop = (p.op === "\u00f7") ? true : Math.random() < 0.5;
-          if (zeroTop) {
-            p.top = 0;
-            if (p.op === "+") p.answer = p.bottom;
-            else if (p.op === "-") { p.top = p.bottom; p.bottom = 0; p.answer = p.top; }
-            else if (p.op === "\u00d7") p.answer = 0;
-            else if (p.op === "\u00f7") { p.top = 0; p.answer = 0; }
-          } else {
-            p.bottom = 0;
-            if (p.op === "+") p.answer = p.top;
-            else if (p.op === "-") p.answer = p.top;
-            else if (p.op === "\u00d7") p.answer = 0;
-            else if (p.op === "\u00f7") { p.top = 0; p.answer = 0; }
-          }
-        }
-      }
+      // Merge zero and non-zero problems
+      const allProblems = problems.concat(zeroProblems);
+      while (allProblems.length < count) { allProblems.push({ top: Math.max(1, min1), bottom: Math.max(1, min2), op: operations[0], answer: Math.max(1, min1) + Math.max(1, min2) }); }
 
-      // Adjacency-aware shuffle: no identical or commutative equations adjacent (same row, above, or below in 2-col layout)
+      // Adjacency-aware shuffle: no identical equations adjacent (same row, above, or below in 2-col layout)
       function pKey(p) { return p.op + ":" + p.top + "," + p.bottom; }
       function adjKey(p) {
-        if (p.op === '+' || p.op === '×') return p.op + ":" + Math.min(p.top, p.bottom) + "," + Math.max(p.top, p.bottom);
+        // For commutative ops (+ and ×), normalize so 4+1 and 1+4 produce the same key
+        if (p.op === '+' || p.op === '×') {
+          return p.op + ":" + Math.min(p.top, p.bottom) + "," + Math.max(p.top, p.bottom);
+        }
         return p.op + ":" + p.top + "," + p.bottom;
       }
       function hasAdjacentConflict(arr) {
@@ -921,46 +1144,56 @@
         }
         return c;
       }
+      // Shuffle and resolve adjacency conflicts (retry with fresh shuffles if needed)
       for (let attempt = 0; attempt < 10; attempt++) {
-        for (let i = problems.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [problems[i], problems[j]] = [problems[j], problems[i]]; }
-        for (let pass = 0; pass < 100 && hasAdjacentConflict(problems); pass++) {
+        // Fisher-Yates shuffle
+        for (let i = allProblems.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [allProblems[i], allProblems[j]] = [allProblems[j], allProblems[i]]; }
+        // Targeted swaps to resolve remaining conflicts
+        for (let pass = 0; pass < 100 && hasAdjacentConflict(allProblems); pass++) {
           const cols = 2;
-          const before = countAdjConflicts(problems);
-          for (let i = 0; i < problems.length; i++) {
-            const k = adjKey(problems[i]);
-            const right = (i % cols === 0 && i + 1 < problems.length) ? i + 1 : -1;
-            const below = (i + cols < problems.length) ? i + cols : -1;
-            if ((right >= 0 && adjKey(problems[right]) === k) || (below >= 0 && adjKey(problems[below]) === k)) {
-              const conflictIdx = (right >= 0 && adjKey(problems[right]) === k) ? right : below;
-              let bestSwap = -1, bestCount = countAdjConflicts(problems);
-              for (let s = 0; s < problems.length; s++) {
+          const before = countAdjConflicts(allProblems);
+          for (let i = 0; i < allProblems.length; i++) {
+            const k = adjKey(allProblems[i]);
+            const right = (i % cols === 0 && i + 1 < allProblems.length) ? i + 1 : -1;
+            const below = (i + cols < allProblems.length) ? i + cols : -1;
+            if ((right >= 0 && adjKey(allProblems[right]) === k) || (below >= 0 && adjKey(allProblems[below]) === k)) {
+              const conflictIdx = (right >= 0 && adjKey(allProblems[right]) === k) ? right : below;
+              let bestSwap = -1, bestCount = countAdjConflicts(allProblems);
+              for (let s = 0; s < allProblems.length; s++) {
                 if (s === i || s === right || s === below) continue;
-                [problems[conflictIdx], problems[s]] = [problems[s], problems[conflictIdx]];
-                const cnt = countAdjConflicts(problems);
+                [allProblems[conflictIdx], allProblems[s]] = [allProblems[s], allProblems[conflictIdx]];
+                const cnt = countAdjConflicts(allProblems);
                 if (cnt < bestCount) { bestCount = cnt; bestSwap = s; }
-                [problems[conflictIdx], problems[s]] = [problems[s], problems[conflictIdx]];
+                [allProblems[conflictIdx], allProblems[s]] = [allProblems[s], allProblems[conflictIdx]];
               }
               if (bestSwap >= 0) {
-                [problems[conflictIdx], problems[bestSwap]] = [problems[bestSwap], problems[conflictIdx]];
+                [allProblems[conflictIdx], allProblems[bestSwap]] = [allProblems[bestSwap], allProblems[conflictIdx]];
               }
             }
           }
-          if (countAdjConflicts(problems) >= before) break;
+          if (countAdjConflicts(allProblems) >= before) break; // no improvement, re-shuffle
         }
-        if (!hasAdjacentConflict(problems)) break;
+        if (!hasAdjacentConflict(allProblems)) break;
       }
-      return problems;
+      return allProblems;
+    }
+
+    function checkRegrouping(a, b) {
+      let aa = a, bb = b;
+      while (aa > 0 || bb > 0) { if ((aa % 10) + (bb % 10) >= 10) return true; aa = Math.floor(aa / 10); bb = Math.floor(bb / 10); }
+      return false;
+    }
+    function checkBorrowing(a, b) {
+      let aa = a, bb = b;
+      while (aa > 0 || bb > 0) { if ((aa % 10) < (bb % 10)) return true; aa = Math.floor(aa / 10); bb = Math.floor(bb / 10); }
+      return false;
     }
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options, wsCode) {
-      const { showHeader, title, subtitle, branded, showAnswers, numbered, includeExample, isAnswerKey } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, showBoxes, numbered, includeExample, isAnswerKey } = options;
       const pageW = 612, pageH = 792, margin = 36;
-      const svg = svgEl("svg", {
-        width: pageW, height: pageH,
-        viewBox: "0 0 " + pageW + " " + pageH,
-        xmlns: "http://www.w3.org/2000/svg"
-      });
+      const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
 
       const midX = pageW / 2;
@@ -978,44 +1211,39 @@
           curY += 28;
         } else if (showHeader === "both") {
           svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 16,
-            "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#000000"
+            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Name")]));
           svg.appendChild(svgEl("line", {
             x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18,
-            stroke: "#000000", "stroke-width": 0.75
+            stroke: "#718096", "stroke-width": 0.75
           }));
           svg.appendChild(svgEl("text", {
-            x: midX + 20, y: curY + 16,
-            "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#000000"
+            x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Date")]));
           svg.appendChild(svgEl("line", {
             x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
-            stroke: "#000000", "stroke-width": 0.75
+            stroke: "#718096", "stroke-width": 0.75
           }));
           curY += 28;
         } else if (showHeader === "name") {
           svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 16,
-            "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#000000"
+            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Name")]));
           svg.appendChild(svgEl("line", {
             x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
-            stroke: "#000000", "stroke-width": 0.75
+            stroke: "#718096", "stroke-width": 0.75
           }));
           curY += 28;
         }
         if (title) {
           svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 38,
-            "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af"
+            x: margin, y: curY + 38, "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af"
           }, [document.createTextNode(title)]));
           curY += 46;
         }
         if (subtitle) {
           svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 14,
-            "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#000000"
+            x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode(subtitle)]));
           curY += 20;
         }
@@ -1058,162 +1286,119 @@
 
       const count = problems.length;
       const bottomMargin = branded ? 56 : 24;
-      const availH = pageH - bottomMargin - topGridY;
+      const gridTop = topGridY;
+      const availH = pageH - bottomMargin - gridTop;
       const availW = pageW - margin * 2;
 
-      // Determine columns based on problem count
+      let maxDigits = 1;
+      for (const p of problems) { maxDigits = Math.max(maxDigits, String(p.top).length, String(p.bottom).length, String(Math.abs(Math.round(p.answer))).length); }
+
+      // Horizontal layout: 2 columns for most cases, 1 column for very large numbers
       let cols;
-      if (count <= 20) cols = 2;
-      else if (count <= 30) cols = 3;
-      else if (count <= 50) cols = 4;
-      else cols = 5;
-
+      if (maxDigits >= 5) cols = 1;
+      else cols = count <= 10 ? (count <= 8 && count > 4 ? 2 : 1) : 2;
+      if (count > 10 && cols === 1) cols = 2;
       const rows = Math.ceil(count / cols);
-      const colW = availW / cols;
-      const rowH = availH / rows;
+      const colW = availW / cols, rowH = availH / rows;
 
-      // Small font for drills
-      const fontSize = Math.min(18, Math.max(11, Math.floor(Math.min(rowH * 0.5, colW * 0.12))));
+      // Size text to fill available space — use rowH as primary driver with a comfortable buffer
+      // Reserve ~20% of row height as vertical breathing room (10% top + 10% bottom)
+      const maxTextH = rowH * 0.8;
+      const maxTextW = colW * 0.09;
+      const fontSize = Math.min(36, Math.max(14, Math.floor(Math.min(maxTextH, maxTextW))));
       const charW = fontSize * 0.62;
+      const boxH = fontSize * 1.7;
 
-      const probNumSize = 8;
+      // Fixed problem number size — matches column worksheet generator
+      const probNumSize = 10;
       const probNumW = numbered !== false ? probNumSize * (count >= 10 ? 2.0 : 1.6) : 0;
 
+      // First pass: find the widest equation (up to and including the equals sign) in each column
+      // For larger numbers, use a tighter gap after equals to give more room for answers
+      const eqGap = maxDigits >= 2 ? charW * 0.4 : charW * 0.8;
+      const colMaxEqW = new Array(cols).fill(0);
       for (let i = 0; i < problems.length; i++) {
         const col = i % cols;
-        const row = Math.floor(i / cols);
-        const cellLeft = margin + col * colW;
-        const cellTop = topGridY + row * rowH;
+        const aStr = String(problems[i].top), bStr = String(problems[i].bottom);
+        const eqW = probNumW + aStr.length * charW + charW * 0.8 + charW + charW * 1.6 + bStr.length * charW + charW * 0.8 + charW + eqGap;
+        if (eqW > colMaxEqW[col]) colMaxEqW[col] = eqW;
+      }
+
+      // Calculate box width per column: fill remaining space with right padding to stay within column
+      const cellPadLeft = 8;
+      const cellPadRight = 12;
+      const colBoxW = [];
+      for (let c = 0; c < cols; c++) {
+        const availBoxW = colW - cellPadLeft - colMaxEqW[c] - cellPadRight;
+        colBoxW.push(Math.max(boxH * 1.3, Math.min(availBoxW, boxH * 2.5)));
+      }
+
+      for (let i = 0; i < problems.length; i++) {
+        const col = i % cols, row = Math.floor(i / cols);
+        const cellLeft = margin + col * colW, cellTop = gridTop + row * rowH;
         const { top: pTop, bottom: pBot, op: pOp, answer: pAns } = problems[i];
+        const aStr = String(pTop), bStr = String(pBot);
+        const ansStr = String(Math.round(pAns * 100) / 100);
+
         const opSymbol = pOp === "\u00d7" ? "\u00d7" : pOp === "\u00f7" ? "\u00f7" : pOp === "-" ? "\u2212" : "+";
 
-        // Vertically center within cell
-        const cy = cellTop + rowH * 0.6;
-        let x = cellLeft + 6;
+        // Vertical centering within cell
+        const cy = cellTop + rowH / 2 + fontSize * 0.35;
 
-        const isExample = (i === 0 && includeExample && !showAnswers);
+        // Build equation left-to-right
+        let x = cellLeft + 8;
 
-        // Problem number
+        // Problem number — fixed size, top-aligned with equation text
         if (numbered !== false) {
-          const numEl = svgEl("text", {
-            x, y: cy - fontSize * 0.7,
-            "font-family": "Fredoka, sans-serif",
-            "font-size": String(probNumSize),
-            "font-weight": "600",
-            fill: "#a0aec0"
-          });
-          numEl.textContent = (i + 1) + ".";
-          svg.appendChild(numEl);
+          const probNumY = cy - 0.72 * (fontSize - probNumSize);
+          const numEl = svgEl("text", { x: x, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
+          numEl.textContent = (i + 1) + "."; svg.appendChild(numEl);
           x += probNumW;
         }
 
         // First number
-        const aEl = svgEl("text", {
-          x, y: cy,
-          "font-family": "'Google Sans Flex', sans-serif",
-          "font-size": String(fontSize),
-          "font-weight": "500",
-          fill: "#1a202c"
-        });
-        aEl.textContent = String(pTop);
-        svg.appendChild(aEl);
-        x += String(pTop).length * charW + charW * 0.6;
+        const topEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        topEl.textContent = aStr; svg.appendChild(topEl);
+        x += aStr.length * charW + charW * 0.8;
 
         // Operator
-        const opEl = svgEl("text", {
-          x, y: cy,
-          "font-family": "'Google Sans Flex', sans-serif",
-          "font-size": String(fontSize),
-          "font-weight": "500",
-          fill: "#1a202c"
-        });
-        opEl.textContent = opSymbol;
-        svg.appendChild(opEl);
-        x += charW * 1.4;
+        const opEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        opEl.textContent = opSymbol; svg.appendChild(opEl);
+        x += charW * 1.6;
 
         // Second number
-        const bEl = svgEl("text", {
-          x, y: cy,
-          "font-family": "'Google Sans Flex', sans-serif",
-          "font-size": String(fontSize),
-          "font-weight": "500",
-          fill: "#1a202c"
-        });
-        bEl.textContent = String(pBot);
-        svg.appendChild(bEl);
-        x += String(pBot).length * charW + charW * 0.6;
+        const botEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        botEl.textContent = bStr; svg.appendChild(botEl);
+        x += bStr.length * charW + charW * 0.8;
 
         // Equals sign
-        const eqEl = svgEl("text", {
-          x, y: cy,
-          "font-family": "'Google Sans Flex', sans-serif",
-          "font-size": String(fontSize),
-          "font-weight": "500",
-          fill: "#1a202c"
-        });
-        eqEl.textContent = "=";
-        svg.appendChild(eqEl);
-        x += charW * 1.2;
+        const eqEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        eqEl.textContent = "="; svg.appendChild(eqEl);
 
-        // Answer area: a short underline
-        const lineLen = Math.max(charW * 2.5, String(Math.abs(Math.round(pAns))).length * charW + charW);
-        const lineY = cy + 2;
+        // Answer underline — aligned per column
+        const boxX = cellLeft + cellPadLeft + colMaxEqW[col];
+        const bW = colBoxW[col];
+        const boxY = cy - boxH * 0.7;
+        const lineY = boxY + boxH;
+        const isExample = (i === 0 && includeExample && !showAnswers);
+        if (showBoxes !== false) {
+          svg.appendChild(svgEl("line", { x1: boxX, y1: lineY, x2: boxX + bW, y2: lineY, stroke: isExample ? "#22c55e" : "#cbd5e1", "stroke-width": "1.5" }));
+        }
 
         if (isExample) {
-          // Green underline + answer
-          svg.appendChild(svgEl("line", {
-            x1: x, y1: lineY, x2: x + lineLen, y2: lineY,
-            stroke: "#22c55e", "stroke-width": "1.5"
-          }));
           // Example badge
-          const badgeW = 38, badgeH = 11;
-          const badgeX = x + lineLen - badgeW;
-          const badgeY2 = cy - fontSize - 8;
-          svg.appendChild(svgEl("rect", {
-            x: badgeX, y: badgeY2, width: badgeW, height: badgeH, rx: 2, ry: 2,
-            fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75"
-          }));
-          const bt = svgEl("text", {
-            x: badgeX + badgeW / 2, y: badgeY2 + 8,
-            "text-anchor": "middle",
-            "font-family": "Fredoka, sans-serif",
-            "font-size": "7.5",
-            "font-weight": "600",
-            fill: "#16a34a"
-          });
-          bt.textContent = "Example";
-          svg.appendChild(bt);
-          // Answer text
-          const aEl2 = svgEl("text", {
-            x: x + lineLen / 2, y: cy - 1,
-            "text-anchor": "middle",
-            "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(fontSize * 0.9),
-            "font-weight": "500",
-            fill: "#16a34a"
-          });
-          aEl2.textContent = String(Math.round(pAns));
-          svg.appendChild(aEl2);
-        } else {
-          svg.appendChild(svgEl("line", {
-            x1: x, y1: lineY, x2: x + lineLen, y2: lineY,
-            stroke: "#2d3748", "stroke-width": "1.2"
-          }));
-          if (showAnswers) {
-            const aEl2 = svgEl("text", {
-              x: x + lineLen / 2, y: cy - 1,
-              "text-anchor": "middle",
-              "font-family": "'Google Sans Flex', sans-serif",
-              "font-size": String(fontSize * 0.9),
-              "font-weight": "500",
-              fill: "#3182ce"
-            });
-            aEl2.textContent = String(Math.round(pAns));
-            svg.appendChild(aEl2);
-          }
+          const badgeW = 42, badgeH = 13, badgeX = boxX + bW - badgeW - 2, badgeY = boxY - badgeH - 2;
+          svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: badgeW, height: badgeH, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
+          const badgeText = svgEl("text", { x: badgeX + badgeW / 2, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
+          badgeText.textContent = "Example"; svg.appendChild(badgeText);
+          // Show answer
+          const ansEl = svgEl("text", { x: boxX + bW / 2, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#16a34a" });
+          ansEl.textContent = ansStr; svg.appendChild(ansEl);
+        } else if (showAnswers) {
+          const ansEl = svgEl("text", { x: boxX + bW / 2, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
+          ansEl.textContent = ansStr; svg.appendChild(ansEl);
         }
       }
-
       return svg;
     }
 
@@ -1227,77 +1412,74 @@
       else if (ops.length === 3) opLabel = ops.map(o => names[o]).join(", ");
       else if (ops.length === 2) opLabel = ops.map(o => names[o]).join(" & ");
       else opLabel = names[ops[0]] || "Math";
-      return opLabel + " Within " + w;
+      const lo = elUseZero.checked ? '0' : '1';
+      return opLabel + " " + lo + " to " + w;
     }
 
     // ===== Gather options =====
     function gatherOptions() {
       const ops = getSelectedOps();
-      const w = getWithinValue();
-      const useZero = elUseZero.checked;
-      const zeroPercent = parseInt(elZeroPercent.value, 10);
-      const lo = 1;
       const showHeader = getHeaderMode();
       const title = getTitle();
       const subtitle = getSubtitle();
       return {
-        useZero,
-        zeroPercent,
-        min1: lo,
-        max1: w,
-        min2: lo,
-        max2: w,
-        maxAnswer: w,
+        min1: clamp(parseInt(elAdvMin1.value, 10) || 0, 0, 9999),
+        max1: clamp(parseInt(elAdvMax1.value, 10) || 10, 0, 9999),
+        min2: clamp(parseInt(elAdvMin2.value, 10) || 0, 0, 9999),
+        max2: clamp(parseInt(elAdvMax2.value, 10) || 10, 0, 9999),
+        maxAnswer: parseInt(elAdvMaxAnswer.value, 10) || null,
         operations: ops,
         numWorksheets: parseInt(elNumSheets.value, 10),
         problemsPerSheet: parseInt(elProblems.value, 10),
-        showHeader,
-        title,
-        subtitle,
+        showHeader: showHeader,
+        title: title,
+        subtitle: subtitle,
         branded: elBranded.checked,
         answerKey: elAnswerKey.checked,
+        regroupEnabled: elRegroupEnabled.checked,
+        regroupMode: elRegroupMode.value,
+        noRemainders: elNoRemainders.checked,
+        randomMix: elRandomMix.checked,
         includeExample: elIncludeExample.checked,
         numbered: elNumbered.checked,
+        showBoxes: elShowBoxes.checked,
+        useZero: elUseZero.checked,
+        zeroPercent: parseInt(elZeroPercent.value, 10),
       };
     }
 
     function renderWithNewRandomization() {
       const opts = gatherOptions();
       currentState.sheets = [];
+      const sharedSeen = new Set();
       for (let s = 0; s < opts.numWorksheets; s++) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts));
+        const sheet = generateProblems(opts.problemsPerSheet, opts, sharedSeen);
+        for (const p of sheet) sharedSeen.add(p.op + ":" + p.top + "," + p.bottom);
+        currentState.sheets.push(sheet);
       }
       renderWorksheet();
     }
-
     function renderWithoutRandomization() {
       const opts = gatherOptions();
-      while (currentState.sheets.length < opts.numWorksheets) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts));
-      }
+      while (currentState.sheets.length < opts.numWorksheets) { currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts)); }
       if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
       renderWorksheet();
     }
 
+    function isMobile() { return window.innerWidth <= 900; }
+
     function renderWorksheet() {
       const opts = gatherOptions();
       const numSheets = currentState.sheets.length;
-      sheetWrap.innerHTML = "";
-      sheetWrap.className = "";
-      sheetWrap.style.cssText = "";
+      sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
       const sheetWidth = 612, sheetHeight = 792;
 
       if (isMobile()) {
+        // Mobile: render all sheets at native size, CSS scales them to fit
         for (let s = 0; s < numSheets; s++) {
-          const p = document.createElement("div");
-          p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], {
-            showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle,
-            branded: opts.branded, showAnswers: false,
-            numbered: opts.numbered, includeExample: opts.includeExample
-          });
-          p.appendChild(v);
-          sheetWrap.appendChild(p);
+          const p = document.createElement("div"); p.className = "worksheet-page";
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showBoxes: opts.showBoxes, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          p.appendChild(v); sheetWrap.appendChild(p);
         }
         return;
       }
@@ -1306,46 +1488,24 @@
       if (numSheets > 1) {
         sheetWrap.classList.add("grid-view");
         const ep = numSheets >= 3 ? 12 : 0;
-        const aw = window.innerWidth - 340 - 80 - ep * 2;
-        const ah = window.innerHeight - 80;
-        const gap = 24, mrw = 180;
+        const aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
         let cols;
-        if (numSheets <= 3) {
-          cols = numSheets;
-          if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap)));
-        } else {
-          cols = Math.min(3, numSheets);
-          if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap)));
-        }
-        const msw = (aw - (cols - 1) * gap) / cols;
-        const msh = numSheets <= 3 ? ah : ah * 0.8;
-        const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
-        const sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
-        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
+        if (numSheets <= 3) { cols = numSheets; if ((aw - (cols-1)*gap)/cols < mrw) cols = Math.max(1, Math.floor((aw+gap)/(mrw+gap))); }
+        else { cols = Math.min(3, numSheets); if ((aw - (cols-1)*gap)/cols < mrw) cols = Math.max(1, Math.floor((aw+gap)/(mrw+gap))); }
+        const msw = (aw - (cols-1)*gap)/cols, msh = numSheets <= 3 ? ah : ah*0.8;
+        const scale = Math.min(msw/sheetWidth, msh/sheetHeight);
+        const sw = Math.floor(sheetWidth*scale), sh = Math.floor(sheetHeight*scale);
+        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw+24) + "px)";
         sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
-          const p = document.createElement("div");
-          p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], {
-            showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle,
-            branded: opts.branded, showAnswers: false,
-            numbered: opts.numbered, includeExample: opts.includeExample
-          });
-          v.setAttribute("width", sw);
-          v.setAttribute("height", sh);
-          p.appendChild(v);
-          sheetWrap.appendChild(p);
+          const p = document.createElement("div"); p.className = "worksheet-page";
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showBoxes: opts.showBoxes, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
         }
       } else {
-        const p = document.createElement("div");
-        p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], {
-          showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle,
-          branded: opts.branded, showAnswers: false,
-          numbered: opts.numbered, includeExample: opts.includeExample
-        });
-        p.appendChild(v);
-        sheetWrap.appendChild(p);
+        const p = document.createElement("div"); p.className = "worksheet-page";
+        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showBoxes: opts.showBoxes, numbered: opts.numbered, includeExample: opts.includeExample }, '(1)');
+        p.appendChild(v); sheetWrap.appendChild(p);
       }
     }
 
@@ -1353,52 +1513,36 @@
       if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
       const opts = gatherOptions();
       const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
-      sheetWrap.innerHTML = "";
+      sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
       const wsCodes = currentState.sheets.map((_, i) => '(' + (i + 1) + ')');
-      sheetWrap.className = "";
-      sheetWrap.style.cssText = "";
       for (let i = 0; i < currentState.sheets.length; i++) {
-        const p = document.createElement("div");
-        p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
-          showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle,
-          branded: opts.branded, showAnswers: false,
-          numbered: opts.numbered, includeExample: opts.includeExample
-        }, wsCodes[i]));
+        const p = document.createElement("div"); p.className = "worksheet-page";
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showBoxes: opts.showBoxes, numbered: opts.numbered, includeExample: opts.includeExample }, wsCodes[i]));
         sheetWrap.appendChild(p);
       }
       const answerKeyPages = [];
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
-          const p = document.createElement("div");
-          p.className = "worksheet-page ak-print-only";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], {
-            showHeader: "none",
-            title: opts.title,
-            subtitle: opts.subtitle,
-            branded: opts.branded,
-            showAnswers: true,
-            numbered: opts.numbered,
-            isAnswerKey: true,
-            includeExample: false
-          }, wsCodes[i]));
+          const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: true, showBoxes: opts.showBoxes, numbered: opts.numbered, includeExample: false, isAnswerKey: true }, wsCodes[i]));
           sheetWrap.appendChild(p);
           answerKeyPages.push(p);
         }
       }
       window.print();
-      setTimeout(() => {
-        answerKeyPages.forEach(p => p.remove());
-        sheetWrap.innerHTML = sH;
-        sheetWrap.className = sC;
-        sheetWrap.style.cssText = sS;
-      }, 500);
+      setTimeout(() => { answerKeyPages.forEach(p => p.remove()); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 500);
     }
 
     // ===== Event Listeners =====
-    elWithin.addEventListener("change", () => renderWithNewRandomization());
+    elAdvMin1.addEventListener("input", () => renderWithNewRandomization());
+    elAdvMax1.addEventListener("input", () => renderWithNewRandomization());
+    elAdvMin2.addEventListener("input", () => renderWithNewRandomization());
+    elAdvMax2.addEventListener("input", () => renderWithNewRandomization());
+    elAdvMaxAnswer.addEventListener("input", () => renderWithNewRandomization());
     elProblems.addEventListener("change", () => renderWithNewRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
+    elRegroupMode.addEventListener("change", () => renderWithNewRandomization());
+    elNoRemainders.addEventListener("change", () => renderWithNewRandomization());
     elShowHeaderEnabled.addEventListener("change", () => {
       elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
       renderWithoutRandomization();
@@ -1407,6 +1551,7 @@
     elBranded.addEventListener("change", () => renderWithoutRandomization());
     elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     elNumbered.addEventListener("change", () => renderWithoutRandomization());
+    elShowBoxes.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
       renderWithoutRandomization();
@@ -1425,20 +1570,18 @@
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
     let resizeTimeout;
-    window.addEventListener("resize", () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        if (currentState.sheets.length > 1) renderWorksheet();
-      }, 150);
-    });
+    window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150); });
 
     // Init
+    updateAdvancedVisibility();
+    updateRangeLabels();
+    syncAdvancedFromWithin();
     renderWithNewRandomization();
 
     // Expose answer key capture for favorites pack system
     window._amCaptureAnswerKeys = function() {
       if (!currentState.sheets || !currentState.sheets.length) return [];
-      var opts = gatherOptions();
+      const opts = gatherOptions();
       return currentState.sheets.map(function(sheet, idx) {
         try {
           var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true, includeExample: false }), '(' + (idx + 1) + ')');

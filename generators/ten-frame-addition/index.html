@@ -69,6 +69,14 @@
       .worksheet-page svg { width: 100% !important; height: auto !important; }
     }
 
+    .ops-row { display: flex; gap: 6px; }
+    .op-chip { display: flex; align-items: center; justify-content: center; flex: 1; padding: 6px 0; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.15s; text-align: center; }
+    .op-chip input[type="checkbox"] { display: none; }
+    .op-chip span { font-size: 18px; font-weight: 700; color: #a0aec0; line-height: 1; }
+    .op-chip:has(input:checked) { border-color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
+    .op-chip:has(input:checked) span { color: #f59e0b; }
+    .op-chip:hover { border-color: #cbd5e0; }
+
     .ak-print-only { display: none !important; }
     @media print {
       .site-header { display: none !important; }
@@ -109,12 +117,11 @@
       <h2>Ten Frame Math Worksheet Generator</h2>
 
       <div class="control-group">
-        <label for="operationSelect">Operation</label>
-        <select id="operationSelect">
-          <option value="addition" selected>Addition</option>
-          <option value="subtraction">Subtraction</option>
-          <option value="mixed">Mixed</option>
-        </select>
+        <label>Operations</label>
+        <div class="ops-row">
+          <label class="op-chip"><input type="checkbox" id="opAdd" checked /><span>＋</span></label>
+          <label class="op-chip"><input type="checkbox" id="opSub" /><span>－</span></label>
+        </div>
       </div>
 
       <div class="control-group">
@@ -122,22 +129,6 @@
         <select id="maxSumSelect">
           <option value="10" selected>Within 10</option>
           <option value="20">Within 20</option>
-        </select>
-      </div>
-
-      <div class="control-group">
-        <label for="numWorksheets">Number of Worksheets</label>
-        <select id="numWorksheets">
-          <option value="1" selected>1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-          <option value="10">10</option>
         </select>
       </div>
 
@@ -155,6 +146,22 @@
       </div>
       <div class="advanced-panel" id="advPanel">
         <div class="advanced-panel-inner">
+
+          <div class="control-group">
+            <label for="numWorksheets">Number of Worksheets</label>
+            <select id="numWorksheets">
+              <option value="1" selected>1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+            </select>
+          </div>
 
           <!-- Problems per sheet -->
           <div class="control-group" style="margin-bottom:12px;">
@@ -185,10 +192,10 @@
             <label for="numbered">Numbered</label>
           </div>
 
-          <!-- Customize worksheet titles -->
+          <!-- Customize titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
-            <label for="customTitleEnabled">Customize worksheet titles</label>
+            <label for="customTitleEnabled">Customize titles</label>
           </div>
           <div class="adv-sub" id="customTitleOptions" style="display:none;">
             <div class="adv-checkbox-row" style="margin-bottom:8px;">
@@ -243,7 +250,19 @@
 
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
-    const elOperation = document.getElementById("operationSelect");
+    const elOpAdd = document.getElementById("opAdd");
+    const elOpSub = document.getElementById("opSub");
+    function getOperation() {
+      const add = elOpAdd.checked, sub = elOpSub.checked;
+      if (add && sub) return "mixed";
+      if (sub) return "subtraction";
+      return "addition";
+    }
+    function guardOps(changed) {
+      if (!elOpAdd.checked && !elOpSub.checked) changed.checked = true;
+    }
+    elOpAdd.addEventListener("change", () => { guardOps(elOpAdd); renderWithNewRandomization(); });
+    elOpSub.addEventListener("change", () => { guardOps(elOpSub); renderWithNewRandomization(); });
     const elMaxSum = document.getElementById("maxSumSelect");
     const elProblems = document.getElementById("problemsPerSheet");
     const elNumSheets = document.getElementById("numWorksheets");
@@ -379,7 +398,7 @@
       if (elCustomTitleEnabled.checked) {
         return elShowTitle.checked ? elHeaderText.value : "";
       }
-      const op = elOperation.value;
+      const op = getOperation();
       const maxNum = parseInt(elMaxSum.value, 10);
       if (op === "addition") return "Ten Frame Addition";
       if (op === "subtraction") return "Ten Frame Subtraction";
@@ -396,7 +415,7 @@
     // ===== Gather options =====
     function gatherOptions() {
       return {
-        operation: elOperation.value,
+        operation: getOperation(),
         maxNum: parseInt(elMaxSum.value, 10),
         numWorksheets: parseInt(elNumSheets.value, 10),
         problemsPerSheet: parseInt(elProblems.value, 10),
@@ -680,7 +699,6 @@
     // ===== Event Listeners =====
     elNumbered.addEventListener("change", () => renderWithoutRandomization());
     elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
-    elOperation.addEventListener("change", () => renderWithNewRandomization());
     elMaxSum.addEventListener("change", () => renderWithNewRandomization());
     elProblems.addEventListener("change", () => renderWithNewRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());

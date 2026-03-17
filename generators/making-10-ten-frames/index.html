@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tally Marks Worksheet Generator</title>
+  <title>Ten Frame Making Ten Worksheet Generator</title>
   <style>
     * {
       margin: 0;
@@ -125,18 +125,17 @@
       border-radius: 8px;
       background: white;
       color: #2d3748;
-      transition: border-color 0.2s;
-      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .control-group input[type="number"]:focus,
-    .control-group input[type="text"]:focus,
+    .control-group input:focus,
     .control-group select:focus {
+      outline: none;
       border-color: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
     }
 
-    .control-group input[type="number"]:hover,
-    .control-group input[type="text"]:hover,
+    .control-group input:hover,
     .control-group select:hover {
       border-color: #cbd5e0;
     }
@@ -366,11 +365,6 @@
       }
     }
 
-    @page {
-      size: letter;
-      margin: 0.5in 0.4in 0in 0.4in;
-    }
-
     .ak-print-only { display: none !important; }
 
     /* ===== Print ===== */
@@ -420,6 +414,10 @@
         display: block !important;
       }
     }
+    @page {
+      size: letter;
+      margin: 0.5in 0.4in 0in 0.4in;
+    }
   </style>
   <link rel="stylesheet" href="../../fonts/fonts.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -443,26 +441,15 @@
     </div>
   </header>
   <div class="main-container">
-    <!-- Left sidebar controls -->
     <div class="sidebar">
-      
-      <h2>Tally Marks Worksheet Generator</h2>
+      <h2>Ten Frame Making Ten Worksheet Generator</h2>
 
       <div class="control-group">
-        <label for="modeSelect">Mode</label>
-        <select id="modeSelect">
-          <option value="count" selected>Count tallies (write the number)</option>
-          <option value="draw">Draw tallies (given a number)</option>
-        </select>
-      </div>
-
-      <div class="control-group">
-        <label for="rangeSelect">Number Range</label>
-        <select id="rangeSelect">
-          <option value="5">1 - 5</option>
-          <option value="10" selected>1 - 10</option>
-          <option value="15">1 - 15</option>
-          <option value="20">1 - 20</option>
+        <label for="targetSelect">Target Number</label>
+        <select id="targetSelect">
+          <option value="5">Make 5</option>
+          <option value="10" selected>Make 10</option>
+          <option value="20">Make 20</option>
         </select>
       </div>
       <div class="checkbox-row" style="margin-bottom:12px;">
@@ -501,14 +488,13 @@
         <label for="problemsPerSheet">Problems per Sheet</label>
         <select id="problemsPerSheet">
           <option value="6">6</option>
-          <option value="8">8</option>
-          <option value="10" selected>10</option>
-          <option value="12">12</option>
+          <option value="8" selected>8</option>
+          <option value="10">10</option>
         </select>
       </div>
 
 
-          <!-- Name / Date -->
+          <!-- Show header -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="showHeaderEnabled" checked />
             <label for="showHeaderEnabled">Name / Date</label>
@@ -539,7 +525,7 @@
             </div>
             <div id="titleInputWrap">
               <label for="headerText">Title</label>
-              <input type="text" id="headerText" value="Tally Marks" />
+              <input type="text" id="headerText" value="Making Ten" />
             </div>
             <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
               <input type="checkbox" id="showSubtitle" checked />
@@ -547,7 +533,7 @@
             </div>
             <div id="subtitleInputWrap">
               <label for="subtitleText">Subtitle</label>
-              <input type="text" id="subtitleText" value="Count the tally marks and write the number." />
+              <input type="text" id="subtitleText" value="Find the missing number to make ten." />
             </div>
           </div>
 
@@ -561,8 +547,12 @@
       </div>
 
       <div class="button-group">
-        <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
-<button class="btn-print" id="btnPrint">&#128424; Print</button>
+        <button class="btn-generate" id="btnGenerate">&#x1f504; Generate New</button>
+        <button class="btn-print" id="btnPrint">&#x1f5a8;&#xfe0f; Print</button>
+      </div>
+
+      <div style="margin-top: 24px; text-align: center;">
+        <a href="../../about.html" style="font-size: 12px; color: #a0aec0; text-decoration: none;">About</a>
       </div>
     </div>
 
@@ -580,11 +570,12 @@
       if (children) children.forEach(c => el.appendChild(c));
       return el;
     }
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+    function randInt(lo, hi) { return lo + Math.floor(Math.random() * (hi - lo + 1)); }
 
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
-    const elMode = document.getElementById("modeSelect");
-    const elRange = document.getElementById("rangeSelect");
+    const elTarget = document.getElementById("targetSelect");
     const elProblems = document.getElementById("problemsPerSheet");
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
@@ -607,124 +598,105 @@
     const advArrow = document.getElementById("advArrow");
 
     // ===== Advanced panel toggle =====
-    advToggle.addEventListener("click", () => {
-      advPanel.classList.toggle("open");
-      advArrow.classList.toggle("open");
-    });
-
-    function getHeaderMode() {
-      return elShowHeaderEnabled.checked ? elHeaderMode.value : "none";
-    }
-
-    function getTitle() {
-      if (elCustomTitleEnabled.checked) {
-        return elShowTitle.checked ? elHeaderText.value : "";
-      }
-      return "Tally Marks";
-    }
-
-    function getSubtitle() {
-      if (elCustomTitleEnabled.checked) {
-        return elShowSubtitle.checked ? elSubtitleText.value : "";
-      }
-      const mode = elMode.value;
-      if (mode === "count") return "Count the tally marks and write the number.";
-      return "Draw the tally marks for each number.";
-    }
+    advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
 
     // ===== State =====
     let currentState = { sheets: [] };
 
     // ===== Problem generation =====
-    function generateProblems(count, maxVal) {
+    function generateProblems(count, target) {
       const problems = [];
-      const available = [];
-      for (let i = 1; i <= maxVal; i++) available.push(i);
+      // Valid dot counts: 1 to (target - 1) so the missing addend is always >= 1
+      const lo = 1, hi = target - 1;
+      const range = hi - lo + 1;
 
-      // Shuffle and cycle to fill count
-      for (let i = available.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [available[i], available[j]] = [available[j], available[i]];
-      }
-
-      for (let i = 0; i < count; i++) {
-        if (i < available.length) {
-          problems.push(available[i]);
-        } else {
-          // Pick randomly from the range for extras
-          problems.push(1 + Math.floor(Math.random() * maxVal));
+      if (count <= range) {
+        // Pick unique values from [lo..hi]
+        const pool = [];
+        for (let n = lo; n <= hi; n++) pool.push(n);
+        for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+        for (let i = 0; i < count; i++) {
+          const dots = pool[i];
+          const missing = target - dots;
+          const blankFirst = Math.random() < 0.5;
+          problems.push({ dots, missing, target, blankFirst });
+        }
+      } else {
+        // More problems than range: fill with full shuffled sets + remainder
+        const fullSets = Math.floor(count / range);
+        const remainder = count % range;
+        for (let s = 0; s < fullSets; s++) {
+          const pool = [];
+          for (let n = lo; n <= hi; n++) pool.push(n);
+          for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+          for (const dots of pool) {
+            const missing = target - dots;
+            const blankFirst = Math.random() < 0.5;
+            problems.push({ dots, missing, target, blankFirst });
+          }
+        }
+        if (remainder > 0) {
+          const pool = [];
+          for (let n = lo; n <= hi; n++) pool.push(n);
+          for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+          for (let i = 0; i < remainder; i++) {
+            const dots = pool[i];
+            const missing = target - dots;
+            const blankFirst = Math.random() < 0.5;
+            problems.push({ dots, missing, target, blankFirst });
+          }
         }
       }
 
-      // Shuffle final list
-      for (let i = problems.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [problems[i], problems[j]] = [problems[j], problems[i]];
-      }
-
+      // Final shuffle
+      for (let i = problems.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [problems[i], problems[j]] = [problems[j], problems[i]]; }
       return problems;
     }
 
-    // ===== Draw tally marks into SVG =====
-    function drawTallyMarks(svg, num, cx, cy, tallyH, color) {
-      // Draw tally marks centered around (cx, cy)
-      // Each vertical stroke is tallyH tall
-      // Groups of 5: four verticals + diagonal
-      const groups = Math.floor(num / 5);
-      const singles = num % 5;
-      const strokeW = Math.max(1.5, tallyH * 0.08);
-      const gap = Math.max(6, tallyH * 0.35);       // gap between strokes within a group
-      const groupGap = Math.max(10, tallyH * 0.55);  // gap between groups
+    // ===== Draw a ten frame =====
+    // rows x cols grid with thick borders, filled dots as solid black circles
+    function drawTenFrame(svg, x, y, cellSize, rows, cols, filledCount) {
+      const frameW = cols * cellSize;
+      const frameH = rows * cellSize;
 
-      // Calculate total width
-      let totalW = 0;
-      if (groups > 0) {
-        totalW += groups * (3 * gap); // 4 lines = 3 gaps width per group
-        if (groups > 1 || singles > 0) totalW += (groups > 1 ? (groups - 1) * groupGap : 0);
-        if (singles > 0) totalW += groupGap;
-      }
-      if (singles > 0) {
-        totalW += (singles - 1) * gap;
-      }
+      // Outer border
+      svg.appendChild(svgEl("rect", {
+        x: x, y: y, width: frameW, height: frameH,
+        fill: "none", stroke: "#2d3748", "stroke-width": "1.5", rx: 2, ry: 2
+      }));
 
-      let x = cx - totalW / 2;
-      const yTop = cy - tallyH / 2;
-      const yBot = cy + tallyH / 2;
-
-      // Draw groups of 5
-      for (let g = 0; g < groups; g++) {
-        const groupStartX = x;
-        // Draw 4 vertical lines
-        for (let j = 0; j < 4; j++) {
-          svg.appendChild(svgEl("line", {
-            x1: x, y1: yTop, x2: x, y2: yBot,
-            stroke: color, "stroke-width": strokeW, "stroke-linecap": "round"
+      // Grid cells and dots
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const cx = x + c * cellSize;
+          const cy = y + r * cellSize;
+          svg.appendChild(svgEl("rect", {
+            x: cx, y: cy, width: cellSize, height: cellSize,
+            fill: "none", stroke: "#2d3748", "stroke-width": "1"
           }));
-          if (j < 3) x += gap;
-        }
-        // Draw diagonal crossing line
-        const diagPad = tallyH * 0.15;
-        svg.appendChild(svgEl("line", {
-          x1: groupStartX - gap * 0.3, y1: yBot - diagPad,
-          x2: x + gap * 0.3, y2: yTop + diagPad,
-          stroke: color, "stroke-width": strokeW, "stroke-linecap": "round"
-        }));
-        x += groupGap;
-      }
 
-      // Draw remaining singles
-      for (let j = 0; j < singles; j++) {
-        svg.appendChild(svgEl("line", {
-          x1: x, y1: yTop, x2: x, y2: yBot,
-          stroke: color, "stroke-width": strokeW, "stroke-linecap": "round"
-        }));
-        if (j < singles - 1) x += gap;
+          const cellIndex = r * cols + c;
+          if (cellIndex < filledCount) {
+            const dotR = cellSize * 0.30;
+            svg.appendChild(svgEl("circle", {
+              cx: cx + cellSize / 2, cy: cy + cellSize / 2, r: dotR, fill: "#4a5568"
+            }));
+          }
+        }
       }
+    }
+
+    // ===== Get frame dimensions for a target =====
+    function getFrameConfig(target) {
+      if (target === 5) return { rows: 1, cols: 5, frames: 1 };
+      if (target === 10) return { rows: 2, cols: 5, frames: 1 };
+      // target === 20: two 2x5 frames side by side
+      return { rows: 2, cols: 5, frames: 2 };
     }
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options, wsCode) {
-      const { mode, showHeader, title, subtitle, branded, showAnswers, numbered, includeExample, isAnswerKey } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, target, numbered, includeExample, isAnswerKey } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
@@ -743,46 +715,28 @@
           svg.appendChild(akLabel);
           curY += 28;
         } else if (showHeader === "both") {
-          svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-          }, [document.createTextNode("Name")]));
-          svg.appendChild(svgEl("line", {
-            x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18,
-            stroke: "#718096", "stroke-width": 0.75
-          }));
-          svg.appendChild(svgEl("text", {
-            x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-          }, [document.createTextNode("Date")]));
-          svg.appendChild(svgEl("line", {
-            x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
-            stroke: "#718096", "stroke-width": 0.75
-          }));
+          svg.appendChild(svgEl("text", { x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode("Name")]));
+          svg.appendChild(svgEl("line", { x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
+          svg.appendChild(svgEl("text", { x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode("Date")]));
+          svg.appendChild(svgEl("line", { x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
           curY += 28;
         } else if (showHeader === "name") {
-          svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
-          }, [document.createTextNode("Name")]));
-          svg.appendChild(svgEl("line", {
-            x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
-            stroke: "#718096", "stroke-width": 0.75
-          }));
+          svg.appendChild(svgEl("text", { x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode("Name")]));
+          svg.appendChild(svgEl("line", { x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
           curY += 28;
         }
         if (title) {
-          svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 38, "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af"
-          }, [document.createTextNode(title)]));
+          svg.appendChild(svgEl("text", { x: margin, y: curY + 38, "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af" }, [document.createTextNode(title)]));
           curY += 46;
         }
         if (subtitle) {
-          svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568"
-          }, [document.createTextNode(subtitle)]));
+          svg.appendChild(svgEl("text", { x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode(subtitle)]));
           curY += 20;
         }
         topGridY = curY + 6;
       }
 
+      // Branding
       if (branded) {
         const brandY = pageH - 48;
         const logoH = 38;
@@ -817,138 +771,267 @@
         svg.appendChild(wsCodeEl);
       }
 
+      // Layout grid
       const count = problems.length;
-      const bottomMargin = branded ? 56 : 24;
+      const bottomMargin = branded ? 56 : 40;
       const gridTop = topGridY;
       const availH = pageH - bottomMargin - gridTop;
       const availW = pageW - margin * 2;
 
-      // Two-column layout
       const cols = 2;
       const rows = Math.ceil(count / cols);
       const colW = availW / cols;
       const rowH = availH / rows;
 
-      // Sizing
-      const fontSize = Math.min(28, Math.max(16, Math.floor(rowH * 0.35)));
-      const tallyH = Math.min(30, Math.max(16, Math.floor(rowH * 0.4)));
-      const probNumSize = 10;
+      const frameConfig = getFrameConfig(target);
+
+      // Calculate cell size for ten frame to fit well in the available space
+      // Frame needs to be LARGE and clear for young children
+      const maxFrameW = colW - 40; // horizontal room
+      const maxFrameH = rowH * 0.55; // vertical room for frame (leave room for equation below)
+
+      let cellSize;
+      if (frameConfig.frames === 2) {
+        // Two frames side by side: total width = 2 * (5 * cell) + gap
+        const doubleGap = 10;
+        cellSize = Math.min(
+          Math.floor((maxFrameW - doubleGap) / 10),
+          Math.floor(maxFrameH / frameConfig.rows)
+        );
+      } else {
+        cellSize = Math.min(
+          Math.floor(maxFrameW / frameConfig.cols),
+          Math.floor(maxFrameH / frameConfig.rows)
+        );
+      }
+      cellSize = clamp(cellSize, 14, 50);
+
+      const singleFrameW = frameConfig.cols * cellSize;
+      const singleFrameH = frameConfig.rows * cellSize;
+      const doubleGap = 10;
+      const totalFrameW = frameConfig.frames === 2 ? singleFrameW * 2 + doubleGap : singleFrameW;
+
+      // Equation font size - LARGE for young children
+      const eqFontSize = Math.min(28, Math.max(16, Math.floor(rowH * 0.18)));
+      const probNumSize = 11;
 
       for (let i = 0; i < problems.length; i++) {
         const col = i % cols;
         const row = Math.floor(i / cols);
         const cellLeft = margin + col * colW;
         const cellTop = gridTop + row * rowH;
-        const cy = cellTop + rowH / 2;
-
-        const num = problems[i];
+        const prob = problems[i];
 
         // Problem number
         if (numbered !== false) {
-          const probNumX = cellLeft + 8;
-          const probNumY = cy + probNumSize * 0.35;
-          const numEl = svgEl("text", { x: probNumX, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
-          numEl.textContent = (i + 1) + ".";
-          svg.appendChild(numEl);
+          const pnX = cellLeft + 4;
+          const pnY = cellTop + 16;
+          const numLabel = svgEl("text", { x: pnX, y: pnY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
+          numLabel.textContent = (i + 1) + "."; svg.appendChild(numLabel);
         }
 
-        const contentLeft = cellLeft + 28;
-        const contentRight = cellLeft + colW - 10;
-        const contentMid = (contentLeft + contentRight) / 2;
+        // Center the frame horizontally in the cell
+        const contentCenterX = cellLeft + colW / 2;
+        const frameStartX = contentCenterX - totalFrameW / 2;
 
-        // Dividing the cell: left half for prompt, right half for answer area
-        const leftZoneCenter = contentLeft + (contentRight - contentLeft) * 0.35;
-        const rightZoneCenter = contentLeft + (contentRight - contentLeft) * 0.7;
-        const answerLineW = (contentRight - contentLeft) * 0.25;
+        // Vertical layout: frame on top, equation below
+        // Position frame in upper portion of cell, equation in lower portion
+        const gapBetween = Math.max(12, rowH * 0.06);
+        const totalContentH = singleFrameH + gapBetween + eqFontSize;
+        const contentStartY = cellTop + (rowH - totalContentH) / 2;
+        const frameY = contentStartY;
 
+        // Draw the ten frame(s)
+        if (frameConfig.frames === 2) {
+          // For target 20: two frames side by side
+          const dotsInFirst = Math.min(prob.dots, 10);
+          const dotsInSecond = Math.max(0, prob.dots - 10);
+          drawTenFrame(svg, frameStartX, frameY, cellSize, frameConfig.rows, frameConfig.cols, dotsInFirst);
+          drawTenFrame(svg, frameStartX + singleFrameW + doubleGap, frameY, cellSize, frameConfig.rows, frameConfig.cols, dotsInSecond);
+        } else {
+          drawTenFrame(svg, frameStartX, frameY, cellSize, frameConfig.rows, frameConfig.cols, prob.dots);
+        }
+
+        // Draw the equation below the frame
+        const eqY = frameY + singleFrameH + gapBetween + eqFontSize * 0.8 + 14;
+
+        // Build the equation string parts
+        // blankFirst: ___ + dots = target
+        // !blankFirst: dots + ___ = target
         const isExample = (i === 0 && includeExample && !showAnswers);
+        const dotsStr = String(prob.dots);
+        const missingStr = String(prob.missing);
+        const targetStr = String(prob.target);
+        const blankW = eqFontSize * 2.0; // width of the blank underline
 
-        if (mode === "count") {
-          // Show tally marks on left, blank line (or answer) on right
-          drawTallyMarks(svg, num, leftZoneCenter, cy, tallyH, "#1a202c");
+        // Measure approximate equation width to center it
+        const charW = eqFontSize * 0.62;
+        const spaceW = eqFontSize * 0.35;
+        const plusW = charW;
+        const equalsW = charW;
 
-          if (isExample) {
-            // Show answer in green with badge
-            const lineY = cy + fontSize * 0.45;
-            const badgeW = 42, badgeH = 13, badgeX = rightZoneCenter + answerLineW / 2 - badgeW, badgeY = lineY - badgeH - 4;
-            svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: badgeW, height: badgeH, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
-            const bt = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
-            bt.textContent = "Example"; svg.appendChild(bt);
+        let eqTotalW;
+        if (prob.blankFirst) {
+          // ___ + dotsStr = targetStr
+          eqTotalW = blankW + spaceW + plusW + spaceW + dotsStr.length * charW + spaceW + equalsW + spaceW + targetStr.length * charW;
+        } else {
+          // dotsStr + ___ = targetStr
+          eqTotalW = dotsStr.length * charW + spaceW + plusW + spaceW + blankW + spaceW + equalsW + spaceW + targetStr.length * charW;
+        }
+
+        let eqX = contentCenterX - eqTotalW / 2;
+
+        if (prob.blankFirst) {
+          // Draw blank (underline) or answer
+          if (showAnswers || isExample) {
+            const ansColor = showAnswers ? "#3182ce" : "#16a34a";
             const ansEl = svgEl("text", {
-              x: rightZoneCenter, y: lineY - 3,
-              "text-anchor": "middle", "font-family": "Fredoka, sans-serif",
-              "font-size": String(fontSize), "font-weight": "700", fill: "#16a34a"
+              x: eqX + blankW / 2, y: eqY,
+              "text-anchor": "middle",
+              "font-family": "'Google Sans Flex', sans-serif",
+              "font-size": String(eqFontSize), "font-weight": "500", fill: ansColor
             });
-            ansEl.textContent = String(num);
-            svg.appendChild(ansEl);
-          } else if (showAnswers) {
-            // Show the number
-            const ansEl = svgEl("text", {
-              x: rightZoneCenter, y: cy + fontSize * 0.35,
-              "text-anchor": "middle", "font-family": "Fredoka, sans-serif",
-              "font-size": String(fontSize), "font-weight": "700", fill: "#3182ce"
-            });
-            ansEl.textContent = String(num);
-            svg.appendChild(ansEl);
+            ansEl.textContent = missingStr; svg.appendChild(ansEl);
           } else {
-            // Blank line for writing
-            const lineY = cy + fontSize * 0.45;
+            // Underline for blank
+            const lineY2 = eqY + 4;
             svg.appendChild(svgEl("line", {
-              x1: rightZoneCenter - answerLineW / 2, y1: lineY,
-              x2: rightZoneCenter + answerLineW / 2, y2: lineY,
-              stroke: "#000", "stroke-width": 1
+              x1: eqX + 2, y1: lineY2, x2: eqX + blankW - 2, y2: lineY2,
+              stroke: "#000", "stroke-width": "2.5"
             }));
           }
-        } else {
-          // "Draw tallies" mode: show number on left, empty space (or answer tallies) on right
-          const numTextEl = svgEl("text", {
-            x: contentLeft + 20, y: cy + fontSize * 0.35,
-            "font-family": "Fredoka, sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c"
+          eqX += blankW + spaceW;
+
+          // Plus sign
+          const plusEl = svgEl("text", {
+            x: eqX, y: eqY,
+            "font-family": "'Google Sans Flex', sans-serif",
+            "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
           });
-          numTextEl.textContent = String(num);
-          svg.appendChild(numTextEl);
+          plusEl.textContent = "+"; svg.appendChild(plusEl);
+          eqX += plusW + spaceW;
 
-          if (isExample) {
-            // Draw the correct tallies in green with badge
-            drawTallyMarks(svg, num, rightZoneCenter, cy, tallyH, "#16a34a");
-            const badgeW = 42, badgeH = 13, badgeX = rightZoneCenter + answerLineW / 2 - badgeW, badgeY = cy - tallyH / 2 - badgeH - 2;
-            svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: badgeW, height: badgeH, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
-            const bt = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
-            bt.textContent = "Example"; svg.appendChild(bt);
-          } else if (showAnswers) {
-            // Draw the correct tallies
-            drawTallyMarks(svg, num, rightZoneCenter, cy, tallyH, "#3182ce");
+          // Dots number
+          const dotsEl = svgEl("text", {
+            x: eqX, y: eqY,
+            "font-family": "'Google Sans Flex', sans-serif",
+            "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
+          });
+          dotsEl.textContent = dotsStr; svg.appendChild(dotsEl);
+          eqX += dotsStr.length * charW + spaceW;
+
+          // Equals sign
+          const eqEl = svgEl("text", {
+            x: eqX, y: eqY,
+            "font-family": "'Google Sans Flex', sans-serif",
+            "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
+          });
+          eqEl.textContent = "="; svg.appendChild(eqEl);
+          eqX += equalsW + spaceW;
+
+          // Target number
+          const tgtEl = svgEl("text", {
+            x: eqX, y: eqY,
+            "font-family": "'Google Sans Flex', sans-serif",
+            "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
+          });
+          tgtEl.textContent = targetStr; svg.appendChild(tgtEl);
+
+        } else {
+          // dotsStr + ___ = targetStr
+
+          // Dots number
+          const dotsEl = svgEl("text", {
+            x: eqX, y: eqY,
+            "font-family": "'Google Sans Flex', sans-serif",
+            "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
+          });
+          dotsEl.textContent = dotsStr; svg.appendChild(dotsEl);
+          eqX += dotsStr.length * charW + spaceW;
+
+          // Plus sign
+          const plusEl = svgEl("text", {
+            x: eqX, y: eqY,
+            "font-family": "'Google Sans Flex', sans-serif",
+            "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
+          });
+          plusEl.textContent = "+"; svg.appendChild(plusEl);
+          eqX += plusW + spaceW;
+
+          // Draw blank (underline) or answer
+          if (showAnswers || isExample) {
+            const ansColor = showAnswers ? "#3182ce" : "#16a34a";
+            const ansEl = svgEl("text", {
+              x: eqX + blankW / 2, y: eqY,
+              "text-anchor": "middle",
+              "font-family": "'Google Sans Flex', sans-serif",
+              "font-size": String(eqFontSize), "font-weight": "500", fill: ansColor
+            });
+            ansEl.textContent = missingStr; svg.appendChild(ansEl);
+          } else {
+            // Underline for blank
+            const lineY2 = eqY + 4;
+            svg.appendChild(svgEl("line", {
+              x1: eqX + 2, y1: lineY2, x2: eqX + blankW - 2, y2: lineY2,
+              stroke: "#000", "stroke-width": "2.5"
+            }));
           }
-          // In worksheet mode: leave empty space for drawing
+          eqX += blankW + spaceW;
+
+          // Equals sign
+          const eqEl = svgEl("text", {
+            x: eqX, y: eqY,
+            "font-family": "'Google Sans Flex', sans-serif",
+            "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
+          });
+          eqEl.textContent = "="; svg.appendChild(eqEl);
+          eqX += equalsW + spaceW;
+
+          // Target number
+          const tgtEl = svgEl("text", {
+            x: eqX, y: eqY,
+            "font-family": "'Google Sans Flex', sans-serif",
+            "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
+          });
+          tgtEl.textContent = targetStr; svg.appendChild(tgtEl);
         }
 
-        // Separator line between rows (except last row)
-        if (row < rows - 1 && i + cols < count + (count % cols === 0 ? 0 : cols - count % cols)) {
-          // Only draw if not last row
-        }
-
-        // Column separator
-        if (col === 0 && count > 1) {
-          svg.appendChild(svgEl("line", {
-            x1: cellLeft + colW, y1: cellTop + 4,
-            x2: cellLeft + colW, y2: cellTop + rowH - 4,
-            stroke: "#e2e8f0", "stroke-width": 0.5
-          }));
-        }
-
-        // Row separator
-        if (row < rows - 1) {
-          const sepY = cellTop + rowH;
-          const sepX1 = cellLeft + 4;
-          const sepX2 = cellLeft + colW - 4;
-          svg.appendChild(svgEl("line", {
-            x1: sepX1, y1: sepY, x2: sepX2, y2: sepY,
-            stroke: "#e2e8f0", "stroke-width": 0.5
-          }));
+        // Example badge
+        if (isExample) {
+          const badgeW = 42, badgeH = 13;
+          const badgeX = contentCenterX - badgeW / 2;
+          const badgeY = cellTop + 4;
+          svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: badgeW, height: badgeH, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "1" }));
+          const badgeText = svgEl("text", {
+            x: contentCenterX, y: badgeY + badgeH * 0.75,
+            "text-anchor": "middle", "font-family": "Fredoka, sans-serif",
+            "font-size": "8", "font-weight": "600", fill: "#16a34a"
+          });
+          badgeText.textContent = "Example";
+          svg.appendChild(badgeText);
         }
       }
-
       return svg;
+    }
+
+    // ===== Helper functions =====
+    function getHeaderMode() {
+      return elShowHeaderEnabled.checked ? elHeaderMode.value : "none";
+    }
+
+    function getTitle() {
+      if (elCustomTitleEnabled.checked) {
+        return elShowTitle.checked ? elHeaderText.value : "";
+      }
+      const target = parseInt(elTarget.value, 10);
+      return "Making " + target;
+    }
+
+    function getSubtitle() {
+      if (elCustomTitleEnabled.checked) {
+        return elShowSubtitle.checked ? elSubtitleText.value : "";
+      }
+      return "Find the missing number to make ten.";
     }
 
     // ===== Gather options =====
@@ -956,17 +1039,15 @@
       const showHeader = getHeaderMode();
       const title = getTitle();
       const subtitle = getSubtitle();
-      const mode = elMode.value;
       return {
-        mode: mode,
-        maxVal: parseInt(elRange.value, 10),
-        numWorksheets: parseInt(elNumSheets.value, 10),
+        target: parseInt(elTarget.value, 10),
         problemsPerSheet: parseInt(elProblems.value, 10),
-        showHeader: showHeader,
-        title: title,
-        subtitle: subtitle,
-        branded: elBranded.checked,
+        numWorksheets: parseInt(elNumSheets.value, 10),
         answerKey: elAnswerKey.checked,
+        showHeader,
+        title,
+        subtitle,
+        branded: elBranded.checked,
         numbered: elNumbered.checked,
         includeExample: elIncludeExample.checked,
       };
@@ -976,7 +1057,7 @@
       const opts = gatherOptions();
       currentState.sheets = [];
       for (let s = 0; s < opts.numWorksheets; s++) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.maxVal));
+        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.target));
       }
       renderWorksheet();
     }
@@ -984,7 +1065,7 @@
     function renderWithoutRandomization() {
       const opts = gatherOptions();
       while (currentState.sheets.length < opts.numWorksheets) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.maxVal));
+        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.target));
       }
       if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
       renderWorksheet();
@@ -1001,32 +1082,33 @@
       if (isMobile()) {
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { mode: opts.mode, showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, target: opts.target, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
           p.appendChild(v); sheetWrap.appendChild(p);
         }
         return;
       }
 
+      // Desktop: grid layout with calculated sizing
       if (numSheets > 1) {
         sheetWrap.classList.add("grid-view");
         const ep = numSheets >= 3 ? 12 : 0;
         const aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
-        let cols;
-        if (numSheets <= 3) { cols = numSheets; if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        else { cols = Math.min(3, numSheets); if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        const msw = (aw - (cols - 1) * gap) / cols, msh = numSheets <= 3 ? ah : ah * 0.8;
+        let gridCols;
+        if (numSheets <= 3) { gridCols = numSheets; if ((aw - (gridCols - 1) * gap) / gridCols < mrw) gridCols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        else { gridCols = Math.min(3, numSheets); if ((aw - (gridCols - 1) * gap) / gridCols < mrw) gridCols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        const msw = (aw - (gridCols - 1) * gap) / gridCols, msh = numSheets <= 3 ? ah : ah * 0.8;
         const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
         const sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
-        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
+        sheetWrap.style.gridTemplateColumns = "repeat(" + gridCols + ", " + (sw + 24) + "px)";
         sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { mode: opts.mode, showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, target: opts.target, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
           v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
         }
       } else {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], { mode: opts.mode, showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }, '(1)');
+        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, target: opts.target, numbered: opts.numbered, includeExample: opts.includeExample }, '(1)');
         p.appendChild(v); sheetWrap.appendChild(p);
       }
     }
@@ -1040,14 +1122,14 @@
       const wsCodes = currentState.sheets.map((_, i) => '(' + (i + 1) + ')');
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { mode: opts.mode, showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }, wsCodes[i]));
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, target: opts.target, numbered: opts.numbered, includeExample: opts.includeExample }, wsCodes[i]));
         sheetWrap.appendChild(p);
       }
       const answerKeyPages = [];
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { mode: opts.mode, showHeader: "none", title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: true, isAnswerKey: true, includeExample: false, numbered: opts.numbered }, wsCodes[i]));
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, subtitle: "", branded: opts.branded, showAnswers: true, isAnswerKey: true, target: opts.target, numbered: opts.numbered, includeExample: false }, wsCodes[i]));
           sheetWrap.appendChild(p);
           answerKeyPages.push(p);
         }
@@ -1056,9 +1138,11 @@
       setTimeout(() => { answerKeyPages.forEach(p => p.remove()); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 500);
     }
 
+
     // ===== Event Listeners =====
-    elMode.addEventListener("change", () => renderWithNewRandomization());
-    elRange.addEventListener("change", () => renderWithNewRandomization());
+    elNumbered.addEventListener("change", () => renderWithoutRandomization());
+    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
+    elTarget.addEventListener("change", () => renderWithNewRandomization());
     elProblems.addEventListener("change", () => renderWithNewRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elShowHeaderEnabled.addEventListener("change", () => {
@@ -1067,8 +1151,6 @@
     });
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
     elBranded.addEventListener("change", () => renderWithoutRandomization());
-    elNumbered.addEventListener("change", () => renderWithoutRandomization());
-    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
       renderWithoutRandomization();
@@ -1086,7 +1168,7 @@
     elAnswerKey.addEventListener("change", () => {});
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
-let resizeTimeout;
+    let resizeTimeout;
     window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150); });
 
     // Init

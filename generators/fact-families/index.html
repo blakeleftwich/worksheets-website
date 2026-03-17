@@ -418,6 +418,14 @@
         display: block !important;
       }
     }
+
+    .ops-row { display: flex; gap: 6px; }
+    .op-chip { display: flex; align-items: center; justify-content: center; flex: 1; padding: 6px 0; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.15s; text-align: center; }
+    .op-chip input[type="checkbox"] { display: none; }
+    .op-chip span { font-size: 18px; font-weight: 700; color: #a0aec0; line-height: 1; }
+    .op-chip:has(input:checked) { border-color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
+    .op-chip:has(input:checked) span { color: #f59e0b; }
+    .op-chip:hover { border-color: #cbd5e0; }
   </style>
   <link rel="stylesheet" href="../../fonts/fonts.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -447,11 +455,11 @@
       <h2>Fact Families Worksheet Generator</h2>
 
       <div class="control-group">
-        <label for="operationSelect">Operation</label>
-        <select id="operationSelect">
-          <option value="addsub" selected>Addition &amp; Subtraction</option>
-          <option value="muldiv">Multiplication &amp; Division</option>
-        </select>
+        <label>Operations</label>
+        <div class="ops-row">
+          <label class="op-chip"><input type="checkbox" id="opAddSub" checked /><span>＋ －</span></label>
+          <label class="op-chip"><input type="checkbox" id="opMulDiv" /><span>× ÷</span></label>
+        </div>
       </div>
 
       <div class="control-group">
@@ -471,22 +479,6 @@
           <option value="missing">Fill in missing numbers</option>
         </select>
       </div>
-<div class="control-group">
-        <label for="numWorksheets">Number of Worksheets</label>
-        <select id="numWorksheets">
-          <option value="1" selected>1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-          <option value="10">10</option>
-        </select>
-      </div>
-
       <div class="checkbox-row" style="margin-bottom:12px;">
         <label>
           <input type="checkbox" id="answerKey">
@@ -501,6 +493,22 @@
       </div>
       <div class="advanced-panel" id="advPanel">
         <div class="advanced-panel-inner">
+
+          <div class="control-group">
+            <label for="numWorksheets">Number of Worksheets</label>
+            <select id="numWorksheets">
+              <option value="1" selected>1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+            </select>
+          </div>
 
           <!-- Problems per sheet -->
           <div class="control-group" style="margin-bottom:12px;">
@@ -532,10 +540,10 @@
             <label for="numbered">Numbered</label>
           </div>
 
-          <!-- Customize worksheet titles -->
+          <!-- Customize titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
-            <label for="customTitleEnabled">Customize worksheet titles</label>
+            <label for="customTitleEnabled">Customize titles</label>
           </div>
           <div class="adv-sub" id="customTitleOptions" style="display:none;">
             <div class="adv-checkbox-row" style="margin-bottom:8px;">
@@ -588,7 +596,19 @@
 
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
-    const elOperation = document.getElementById("operationSelect");
+    const elOpAddSub = document.getElementById("opAddSub");
+    const elOpMulDiv = document.getElementById("opMulDiv");
+    function getOperation() {
+      const as = elOpAddSub.checked, md = elOpMulDiv.checked;
+      if (as && md) return "mixed";
+      if (md) return "muldiv";
+      return "addsub";
+    }
+    function guardOps(changed) {
+      if (!elOpAddSub.checked && !elOpMulDiv.checked) changed.checked = true;
+    }
+    elOpAddSub.addEventListener("change", () => { guardOps(elOpAddSub); renderWithNewRandomization(); });
+    elOpMulDiv.addEventListener("change", () => { guardOps(elOpMulDiv); renderWithNewRandomization(); });
     const elRange = document.getElementById("rangeSelect");
     const elDifficulty = document.getElementById("difficultySelect");
     const elProblems = document.getElementById("problemsPerSheet");
@@ -631,8 +651,10 @@
       while (families.length < count && attempts < count * 500) {
         attempts++;
         let a, b, c;
+        let famOp = operation;
+        if (famOp === "mixed") famOp = Math.random() < 0.5 ? "addsub" : "muldiv";
 
-        if (operation === "addsub") {
+        if (famOp === "addsub") {
           // a + b = c, where a >= 1, b >= 1, c <= maxVal
           c = 2 + Math.floor(Math.random() * (maxVal - 1));
           if (c > maxVal) continue;
@@ -650,18 +672,19 @@
 
         // Ensure a <= b for canonical form to avoid duplicates
         if (a > b) { const t = a; a = b; b = t; }
-        const key = a + "," + b;
+        const key = famOp + ":" + a + "," + b;
         if (seen.has(key)) continue;
         seen.add(key);
-        families.push({ a, b, c });
+        families.push({ a, b, c, op: famOp });
       }
 
       // Fallback fill
       while (families.length < count) {
-        if (operation === "addsub") {
-          families.push({ a: 1, b: 2, c: 3 });
+        const fallbackOp = operation === "mixed" ? (Math.random() < 0.5 ? "addsub" : "muldiv") : operation;
+        if (fallbackOp === "addsub") {
+          families.push({ a: 1, b: 2, c: 3, op: "addsub" });
         } else {
-          families.push({ a: 2, b: 3, c: 6 });
+          families.push({ a: 2, b: 3, c: 6, op: "muldiv" });
         }
       }
 
@@ -778,10 +801,6 @@
       const colW = availW / cols;
       const cellH = availH / rows;
 
-      // Operators
-      const op1 = operation === "addsub" ? "+" : "\u00d7";
-      const op2 = operation === "addsub" ? "\u2212" : "\u00f7";
-
       // Dynamically size elements based on available cell height
       // Budget: padding(8%) + triangle(40%) + gap(5%) + equations(42%) + bottom pad(5%)
       const triScale = Math.min(1, cellH / 220);
@@ -883,7 +902,8 @@
         // eq2: c - a = b
         // eq3: c - b = a
         let equations;
-        if (operation === "addsub") {
+        const famOp = families[i].op || operation;
+        if (famOp === "addsub") {
           equations = [
             { left: a, op: "+", right: b, result: c },
             { left: b, op: "+", right: a, result: c },
@@ -987,10 +1007,11 @@
       if (elCustomTitleEnabled.checked) {
         return elShowTitle.checked ? elHeaderText.value : "";
       }
-      const op = elOperation.value;
+      const op = getOperation();
       const range = elRange.value;
       if (op === "addsub") return "Fact Families: Addition & Subtraction Within " + range;
-      return "Fact Families: Multiplication & Division Within " + range;
+      if (op === "muldiv") return "Fact Families: Multiplication & Division Within " + range;
+      return "Fact Families Within " + range;
     }
 
     function getSubtitle() {
@@ -1006,7 +1027,7 @@
       const title = getTitle();
       const subtitle = getSubtitle();
       return {
-        operation: elOperation.value,
+        operation: getOperation(),
         range: elRange.value,
         difficulty: elDifficulty.value,
         problemsPerSheet: parseInt(elProblems.value, 10),
@@ -1143,7 +1164,6 @@
       setTimeout(() => { answerKeyPages.forEach(p => p.remove()); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 500);
     }
     // ===== Event Listeners =====
-    elOperation.addEventListener("change", () => renderWithNewRandomization());
     elRange.addEventListener("change", () => renderWithNewRandomization());
     elDifficulty.addEventListener("change", () => renderWithNewRandomization());
     elProblems.addEventListener("change", () => renderWithNewRandomization());

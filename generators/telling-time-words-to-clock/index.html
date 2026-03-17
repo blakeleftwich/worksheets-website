@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tally Marks Worksheet Generator</title>
+  <title>Telling Time: Words to Clock Worksheet Generator</title>
   <style>
     * {
       margin: 0;
@@ -125,18 +125,17 @@
       border-radius: 8px;
       background: white;
       color: #2d3748;
-      transition: border-color 0.2s;
-      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .control-group input[type="number"]:focus,
-    .control-group input[type="text"]:focus,
+    .control-group input:focus,
     .control-group select:focus {
+      outline: none;
       border-color: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
     }
 
-    .control-group input[type="number"]:hover,
-    .control-group input[type="text"]:hover,
+    .control-group input:hover,
     .control-group select:hover {
       border-color: #cbd5e0;
     }
@@ -178,7 +177,7 @@
     }
 
     .advanced-panel.open {
-      max-height: 500px;
+      max-height: 800px;
     }
 
     .advanced-panel-inner {
@@ -366,11 +365,6 @@
       }
     }
 
-    @page {
-      size: letter;
-      margin: 0.5in 0.4in 0in 0.4in;
-    }
-
     .ak-print-only { display: none !important; }
 
     /* ===== Print ===== */
@@ -420,6 +414,10 @@
         display: block !important;
       }
     }
+    @page {
+      size: letter;
+      margin: 0.5in 0.4in 0in 0.4in;
+    }
   </style>
   <link rel="stylesheet" href="../../fonts/fonts.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -445,26 +443,17 @@
   <div class="main-container">
     <!-- Left sidebar controls -->
     <div class="sidebar">
-      
-      <h2>Tally Marks Worksheet Generator</h2>
+
+      <h2>Telling Time: Words to Clock Worksheet Generator</h2>
 
       <div class="control-group">
-        <label for="modeSelect">Mode</label>
-        <select id="modeSelect">
-          <option value="count" selected>Count tallies (write the number)</option>
-          <option value="draw">Draw tallies (given a number)</option>
+        <label for="clockType">Clock Type</label>
+        <select id="clockType">
+          <option value="hours">Hours</option>
+          <option value="minutes" selected>Hours &amp; Minutes</option>
         </select>
       </div>
 
-      <div class="control-group">
-        <label for="rangeSelect">Number Range</label>
-        <select id="rangeSelect">
-          <option value="5">1 - 5</option>
-          <option value="10" selected>1 - 10</option>
-          <option value="15">1 - 15</option>
-          <option value="20">1 - 20</option>
-        </select>
-      </div>
       <div class="checkbox-row" style="margin-bottom:12px;">
         <label>
           <input type="checkbox" id="answerKey">
@@ -496,17 +485,69 @@
             </select>
           </div>
 
-          <!-- Problems per sheet -->
+          <!-- Minute Increments -->
+          <div class="control-group" id="minuteIncrementGroup">
+            <label for="minuteIncrement">Minute Increments</label>
+            <select id="minuteIncrement">
+              <option value="30" selected>By 30 minutes</option>
+              <option value="15">By 15 minutes</option>
+              <option value="10">By 10 minutes</option>
+              <option value="5">By 5 minutes</option>
+              <option value="1">Any minute</option>
+            </select>
+          </div>
+          <!-- Problems per Sheet -->
           <div class="control-group" style="margin-bottom:12px;">
-        <label for="problemsPerSheet">Problems per Sheet</label>
-        <select id="problemsPerSheet">
-          <option value="6">6</option>
-          <option value="8">8</option>
-          <option value="10" selected>10</option>
-          <option value="12">12</option>
-        </select>
-      </div>
+            <label for="problemsPerSheet">Problems per Sheet</label>
+            <select id="problemsPerSheet">
+              <option value="6" selected>6</option>
+              <option value="9">9</option>
+            </select>
+          </div>
 
+          <!-- Show tick marks -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="showTickMarks" checked />
+            <label for="showTickMarks">Show tick marks</label>
+          </div>
+          <div class="adv-sub" id="tickStyleOptions">
+            <label for="tickStyle">Style</label>
+            <select id="tickStyle">
+              <option value="hours">Hours Only</option>
+              <option value="minutes" selected>Hours &amp; Minutes</option>
+            </select>
+          </div>
+
+          <!-- Numbered -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="numbered" checked />
+            <label for="numbered">Numbered</label>
+          </div>
+
+
+          <!-- Customize titles -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="customTitleEnabled" />
+            <label for="customTitleEnabled">Customize titles</label>
+          </div>
+          <div class="adv-sub" id="customTitleOptions" style="display:none;">
+            <div class="adv-checkbox-row" style="margin-bottom:8px;">
+              <input type="checkbox" id="showTitle" checked />
+              <label for="showTitle">Show title</label>
+            </div>
+            <div id="titleInputWrap">
+              <label for="headerText">Title</label>
+              <input type="text" id="headerText" value="Telling Time by Minutes: Draw the Hands" />
+            </div>
+            <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
+              <input type="checkbox" id="showSubtitle" checked />
+              <label for="showSubtitle">Show subtitle</label>
+            </div>
+            <div id="subtitleInputWrap">
+              <label for="subtitleText">Subtitle</label>
+              <input type="text" id="subtitleText" value="Draw the hands on each clock to show the time." />
+            </div>
+          </div>
 
           <!-- Name / Date -->
           <div class="adv-checkbox-row">
@@ -521,36 +562,6 @@
             </select>
           </div>
 
-          <!-- Numbered -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="numbered" checked />
-            <label for="numbered">Numbered</label>
-          </div>
-
-          <!-- Customize titles -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="customTitleEnabled" />
-            <label for="customTitleEnabled">Customize titles</label>
-          </div>
-          <div class="adv-sub" id="customTitleOptions" style="display:none;">
-            <div class="adv-checkbox-row" style="margin-bottom:8px;">
-              <input type="checkbox" id="showTitle" checked />
-              <label for="showTitle">Show title</label>
-            </div>
-            <div id="titleInputWrap">
-              <label for="headerText">Title</label>
-              <input type="text" id="headerText" value="Tally Marks" />
-            </div>
-            <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
-              <input type="checkbox" id="showSubtitle" checked />
-              <label for="showSubtitle">Show subtitle</label>
-            </div>
-            <div id="subtitleInputWrap">
-              <label for="subtitleText">Subtitle</label>
-              <input type="text" id="subtitleText" value="Count the tally marks and write the number." />
-            </div>
-          </div>
-
           <!-- Branding -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="branded" checked />
@@ -562,7 +573,7 @@
 
       <div class="button-group">
         <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
-<button class="btn-print" id="btnPrint">&#128424; Print</button>
+        <button class="btn-print" id="btnPrint">&#128424; Print</button>
       </div>
     </div>
 
@@ -581,16 +592,38 @@
       return el;
     }
 
+    // ===== Time to Words =====
+    function timeToWords(hour, minute) {
+      const ones = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+        'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+      const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty'];
+      function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+      const hourWord = ones[hour];
+      if (minute === 0) {
+        return capitalize(hourWord) + " o'clock";
+      }
+      let minuteWord;
+      if (minute < 20) {
+        minuteWord = ones[minute];
+      } else {
+        minuteWord = tens[Math.floor(minute / 10)];
+        if (minute % 10 > 0) minuteWord += '-' + ones[minute % 10];
+      }
+      if (minute < 10) {
+        minuteWord = 'oh ' + minuteWord;
+      }
+      return capitalize(hourWord) + ' ' + minuteWord;
+    }
+
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
-    const elMode = document.getElementById("modeSelect");
-    const elRange = document.getElementById("rangeSelect");
-    const elProblems = document.getElementById("problemsPerSheet");
+    const elClockType = document.getElementById("clockType");
     const elNumSheets = document.getElementById("numWorksheets");
-    const elAnswerKey = document.getElementById("answerKey");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
     const elHeaderMode = document.getElementById("headerMode");
     const elHeaderModeOptions = document.getElementById("headerModeOptions");
+    const elBranded = document.getElementById("branded");
+    const elAnswerKey = document.getElementById("answerKey");
     const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
     const elCustomTitleOptions = document.getElementById("customTitleOptions");
     const elHeaderText = document.getElementById("headerText");
@@ -599,19 +632,21 @@
     const elShowSubtitle = document.getElementById("showSubtitle");
     const elTitleInputWrap = document.getElementById("titleInputWrap");
     const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
-    const elBranded = document.getElementById("branded");
-    const elNumbered = document.getElementById("numbered");
-    const elIncludeExample = document.getElementById("includeExample") || { checked: false, addEventListener: function(){} };
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
     const advArrow = document.getElementById("advArrow");
+    const elShowTickMarks = document.getElementById("showTickMarks");
+    const elTickStyle = document.getElementById("tickStyle");
+    const elTickStyleOptions = document.getElementById("tickStyleOptions");
+    const elMinuteIncrement = document.getElementById("minuteIncrement");
+    const elProblemsPerSheet = document.getElementById("problemsPerSheet");
+    const elMinuteIncrementGroup = document.getElementById("minuteIncrementGroup");
+    const elNumbered = document.getElementById("numbered");
 
     // ===== Advanced panel toggle =====
-    advToggle.addEventListener("click", () => {
-      advPanel.classList.toggle("open");
-      advArrow.classList.toggle("open");
-    });
+    advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
 
+    // ===== Helper functions =====
     function getHeaderMode() {
       return elShowHeaderEnabled.checked ? elHeaderMode.value : "none";
     }
@@ -620,115 +655,317 @@
       if (elCustomTitleEnabled.checked) {
         return elShowTitle.checked ? elHeaderText.value : "";
       }
-      return "Tally Marks";
+      return elClockType.value === "hours" ? "Telling Time by Hours: Draw the Hands" : "Telling Time by Minutes: Draw the Hands";
     }
 
     function getSubtitle() {
       if (elCustomTitleEnabled.checked) {
         return elShowSubtitle.checked ? elSubtitleText.value : "";
       }
-      const mode = elMode.value;
-      if (mode === "count") return "Count the tally marks and write the number.";
-      return "Draw the tally marks for each number.";
+      return "Draw the hands on each clock to show the time.";
+    }
+
+    // ===== Gather options =====
+    function gatherOptions() {
+      const showHeader = getHeaderMode();
+      const title = getTitle();
+      const subtitle = getSubtitle();
+
+      const showTicks = elShowTickMarks.checked;
+      const tickStyle = showTicks ? elTickStyle.value : "none"; // "none", "hours", "minutes"
+
+      return {
+        clockType: elClockType.value,
+        numWorksheets: parseInt(elNumSheets.value, 10),
+        showHeader,
+        title,
+        subtitle,
+        branded: elBranded.checked,
+        answerKey: elAnswerKey.checked,
+        tickStyle,
+        showArrows: true,
+        numbered: elNumbered.checked,
+        minuteIncrement: parseInt(elMinuteIncrement.value, 10),
+        problemsPerSheet: parseInt(elProblemsPerSheet.value, 10),
+      };
     }
 
     // ===== State =====
     let currentState = { sheets: [] };
 
-    // ===== Problem generation =====
-    function generateProblems(count, maxVal) {
-      const problems = [];
-      const available = [];
-      for (let i = 1; i <= maxVal; i++) available.push(i);
-
-      // Shuffle and cycle to fill count
-      for (let i = available.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [available[i], available[j]] = [available[j], available[i]];
+    // ===== Generate random times =====
+    function generateRandomTime(clockType, minuteIncrement) {
+      const hour = Math.floor(Math.random() * 12) + 1;
+      let minute;
+      if (clockType === "hours") {
+        minute = 0;
+      } else {
+        const inc = minuteIncrement || 1;
+        const steps = Math.floor(60 / inc);
+        minute = Math.floor(Math.random() * steps) * inc;
       }
-
-      for (let i = 0; i < count; i++) {
-        if (i < available.length) {
-          problems.push(available[i]);
-        } else {
-          // Pick randomly from the range for extras
-          problems.push(1 + Math.floor(Math.random() * maxVal));
-        }
-      }
-
-      // Shuffle final list
-      for (let i = problems.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [problems[i], problems[j]] = [problems[j], problems[i]];
-      }
-
-      return problems;
+      return { hour, minute };
     }
 
-    // ===== Draw tally marks into SVG =====
-    function drawTallyMarks(svg, num, cx, cy, tallyH, color) {
-      // Draw tally marks centered around (cx, cy)
-      // Each vertical stroke is tallyH tall
-      // Groups of 5: four verticals + diagonal
-      const groups = Math.floor(num / 5);
-      const singles = num % 5;
-      const strokeW = Math.max(1.5, tallyH * 0.08);
-      const gap = Math.max(6, tallyH * 0.35);       // gap between strokes within a group
-      const groupGap = Math.max(10, tallyH * 0.55);  // gap between groups
-
-      // Calculate total width
-      let totalW = 0;
-      if (groups > 0) {
-        totalW += groups * (3 * gap); // 4 lines = 3 gaps width per group
-        if (groups > 1 || singles > 0) totalW += (groups > 1 ? (groups - 1) * groupGap : 0);
-        if (singles > 0) totalW += groupGap;
+    function generateSheet(opts) {
+      const times = [];
+      const numProblems = opts.problemsPerSheet || 9;
+      for (let i = 0; i < numProblems; i++) {
+        times.push(generateRandomTime(opts.clockType, opts.minuteIncrement));
       }
-      if (singles > 0) {
-        totalW += (singles - 1) * gap;
-      }
+      return times;
+    }
 
-      let x = cx - totalW / 2;
-      const yTop = cy - tallyH / 2;
-      const yBot = cy + tallyH / 2;
+    // ===== Draw a single clock face (no hands version for worksheet) =====
+    function drawClockFace(svg, cx, cy, radius, tickStyle) {
+      const color = "#2d3748";
+      const hasTicks = tickStyle !== "none";
+      const hasMinuteTicks = tickStyle === "minutes";
 
-      // Draw groups of 5
-      for (let g = 0; g < groups; g++) {
-        const groupStartX = x;
-        // Draw 4 vertical lines
-        for (let j = 0; j < 4; j++) {
+      // Clock circle
+      svg.appendChild(svgEl("circle", {
+        cx, cy, r: radius,
+        fill: "none", stroke: color, "stroke-width": "2"
+      }));
+
+      // Tick marks and numbers
+      for (let i = 1; i <= 12; i++) {
+        const angle = (i * 30 - 90) * Math.PI / 180;
+
+        // Hour tick marks
+        if (hasTicks) {
+          const tickOuter = radius * 0.93;
+          const tickInner = radius * 0.86;
           svg.appendChild(svgEl("line", {
-            x1: x, y1: yTop, x2: x, y2: yBot,
-            stroke: color, "stroke-width": strokeW, "stroke-linecap": "round"
+            x1: cx + Math.cos(angle) * tickInner,
+            y1: cy + Math.sin(angle) * tickInner,
+            x2: cx + Math.cos(angle) * tickOuter,
+            y2: cy + Math.sin(angle) * tickOuter,
+            stroke: color, "stroke-width": "1.5"
           }));
-          if (j < 3) x += gap;
         }
-        // Draw diagonal crossing line
-        const diagPad = tallyH * 0.15;
-        svg.appendChild(svgEl("line", {
-          x1: groupStartX - gap * 0.3, y1: yBot - diagPad,
-          x2: x + gap * 0.3, y2: yTop + diagPad,
-          stroke: color, "stroke-width": strokeW, "stroke-linecap": "round"
-        }));
-        x += groupGap;
+
+        // Minute tick marks (between hours)
+        if (hasMinuteTicks) {
+          for (let m = 1; m <= 4; m++) {
+            const mAngle = ((i - 1) * 30 + m * 6 - 90) * Math.PI / 180;
+            const mTickOuter = radius * 0.93;
+            const mTickInner = radius * 0.88;
+            svg.appendChild(svgEl("line", {
+              x1: cx + Math.cos(mAngle) * mTickInner,
+              y1: cy + Math.sin(mAngle) * mTickInner,
+              x2: cx + Math.cos(mAngle) * mTickOuter,
+              y2: cy + Math.sin(mAngle) * mTickOuter,
+              stroke: color, "stroke-width": "0.7"
+            }));
+          }
+        }
+
+        // Numbers
+        const numR = hasTicks ? radius * 0.72 : radius * 0.84;
+        const fontSize = radius * 0.22;
+        const numX = cx + Math.cos(angle) * numR;
+        const numY = cy + Math.sin(angle) * numR;
+        const el = svgEl("text", {
+          x: numX, y: numY + fontSize * 0.35,
+          "text-anchor": "middle",
+          "font-family": "'Google Sans Flex', sans-serif",
+          "font-size": String(fontSize),
+          "font-weight": "500",
+          fill: color
+        });
+        el.textContent = String(i);
+        svg.appendChild(el);
       }
 
-      // Draw remaining singles
-      for (let j = 0; j < singles; j++) {
-        svg.appendChild(svgEl("line", {
-          x1: x, y1: yTop, x2: x, y2: yBot,
-          stroke: color, "stroke-width": strokeW, "stroke-linecap": "round"
-        }));
-        if (j < singles - 1) x += gap;
+      // Center dot only (no hands)
+      svg.appendChild(svgEl("circle", {
+        cx, cy, r: radius * 0.04,
+        fill: color
+      }));
+    }
+
+    // ===== Draw a clock face WITH hands (for answer key) =====
+    function drawClockWithHands(svg, cx, cy, radius, hour, minute, tickStyle, showArrows) {
+      const color = "#2d3748";
+      const hasTicks = tickStyle !== "none";
+      const hasMinuteTicks = tickStyle === "minutes";
+
+      // Clock circle
+      svg.appendChild(svgEl("circle", {
+        cx, cy, r: radius,
+        fill: "none", stroke: color, "stroke-width": "2"
+      }));
+
+      // Tick marks and numbers
+      for (let i = 1; i <= 12; i++) {
+        const angle = (i * 30 - 90) * Math.PI / 180;
+
+        if (hasTicks) {
+          const tickOuter = radius * 0.93;
+          const tickInner = radius * 0.86;
+          svg.appendChild(svgEl("line", {
+            x1: cx + Math.cos(angle) * tickInner,
+            y1: cy + Math.sin(angle) * tickInner,
+            x2: cx + Math.cos(angle) * tickOuter,
+            y2: cy + Math.sin(angle) * tickOuter,
+            stroke: color, "stroke-width": "1.5"
+          }));
+        }
+
+        if (hasMinuteTicks) {
+          for (let m = 1; m <= 4; m++) {
+            const mAngle = ((i - 1) * 30 + m * 6 - 90) * Math.PI / 180;
+            const mTickOuter = radius * 0.93;
+            const mTickInner = radius * 0.88;
+            svg.appendChild(svgEl("line", {
+              x1: cx + Math.cos(mAngle) * mTickInner,
+              y1: cy + Math.sin(mAngle) * mTickInner,
+              x2: cx + Math.cos(mAngle) * mTickOuter,
+              y2: cy + Math.sin(mAngle) * mTickOuter,
+              stroke: color, "stroke-width": "0.7"
+            }));
+          }
+        }
+
+        const numR = hasTicks ? radius * 0.72 : radius * 0.84;
+        const fontSize = radius * 0.22;
+        const numX = cx + Math.cos(angle) * numR;
+        const numY = cy + Math.sin(angle) * numR;
+        const el = svgEl("text", {
+          x: numX, y: numY + fontSize * 0.35,
+          "text-anchor": "middle",
+          "font-family": "'Google Sans Flex', sans-serif",
+          "font-size": String(fontSize),
+          "font-weight": "500",
+          fill: color
+        });
+        el.textContent = String(i);
+        svg.appendChild(el);
       }
+
+      // Hand angles
+      const hourAngle = ((hour % 12) * 30 + minute * 0.5 - 90) * Math.PI / 180;
+      const minuteAngle = (minute * 6 - 90) * Math.PI / 180;
+
+      const minuteLen = hasTicks ? radius * 0.57 : radius * 0.68;
+      const hourLen = hasTicks ? radius * 0.44 : radius * 0.48;
+
+      // Arrowhead helper
+      function drawArrow(x2, y2, angle, size) {
+        const ux = Math.cos(angle), uy = Math.sin(angle);
+        const ax = -ux * size, ay = -uy * size;
+        const px = -uy * size * 0.7, py = ux * size * 0.7;
+        svg.appendChild(svgEl("polygon", {
+          points: [
+            x2 + "," + y2,
+            (x2 + ax + px) + "," + (y2 + ay + py),
+            (x2 + ax - px) + "," + (y2 + ay - py)
+          ].join(" "),
+          fill: color
+        }));
+      }
+
+      // Hour hand
+      const hourArrowPullback = showArrows ? radius * 0.1 : 0;
+      const hx2 = cx + Math.cos(hourAngle) * (hourLen - hourArrowPullback);
+      const hy2 = cy + Math.sin(hourAngle) * (hourLen - hourArrowPullback);
+      svg.appendChild(svgEl("line", {
+        x1: cx, y1: cy, x2: hx2, y2: hy2,
+        stroke: color, "stroke-width": "3.5", "stroke-linecap": "round"
+      }));
+      if (showArrows) {
+        const htx = cx + Math.cos(hourAngle) * hourLen;
+        const hty = cy + Math.sin(hourAngle) * hourLen;
+        drawArrow(htx, hty, hourAngle, radius * 0.12);
+      }
+
+      // Minute hand
+      const minArrowPullback = showArrows ? radius * 0.08 : 0;
+      const mx2 = cx + Math.cos(minuteAngle) * (minuteLen - minArrowPullback);
+      const my2 = cy + Math.sin(minuteAngle) * (minuteLen - minArrowPullback);
+      svg.appendChild(svgEl("line", {
+        x1: cx, y1: cy, x2: mx2, y2: my2,
+        stroke: color, "stroke-width": "2", "stroke-linecap": "round"
+      }));
+      if (showArrows) {
+        const mtx = cx + Math.cos(minuteAngle) * minuteLen;
+        const mty = cy + Math.sin(minuteAngle) * minuteLen;
+        drawArrow(mtx, mty, minuteAngle, radius * 0.1);
+      }
+
+      // Center dot on top
+      svg.appendChild(svgEl("circle", {
+        cx, cy, r: radius * 0.04,
+        fill: color
+      }));
+    }
+
+    // ===== Draw written time text box above the clock =====
+    function drawTimeWordsBox(svg, cx, boxTopY, boxW, boxH, time) {
+      const color = "#2d3748";
+      const text = timeToWords(time.hour, time.minute);
+
+      // Auto-scale font size based on text length
+      let fontSize = boxH * 0.52;
+      if (text.length > 18) fontSize = boxH * 0.42;
+      if (text.length > 22) fontSize = boxH * 0.36;
+      if (text.length > 26) fontSize = boxH * 0.32;
+
+      const textEl = svgEl("text", {
+        x: cx, y: boxTopY + boxH / 2 + fontSize * 0.35,
+        "text-anchor": "middle",
+        "font-family": "'Google Sans Flex', sans-serif",
+        "font-size": String(fontSize),
+        "font-weight": "600",
+        fill: color
+      });
+      textEl.textContent = text;
+      svg.appendChild(textEl);
+
+      // Answer underlines with colon below the text
+      const underlineY = boxTopY + boxH - 2;
+      const lineW = boxW * 0.22;
+      const colonGap = 8;
+      const colonFontSize = fontSize * 0.9;
+
+      // Colon
+      const colonEl = svgEl("text", {
+        x: cx, y: underlineY - 3,
+        "text-anchor": "middle",
+        "font-family": "'Google Sans Flex', sans-serif",
+        "font-size": String(colonFontSize),
+        "font-weight": "700",
+        fill: color
+      });
+      colonEl.textContent = ":";
+      svg.appendChild(colonEl);
+
+      // Left underline (hours)
+      svg.appendChild(svgEl("line", {
+        x1: cx - colonGap - lineW, y1: underlineY,
+        x2: cx - colonGap, y2: underlineY,
+        stroke: "#cbd5e1", "stroke-width": "1.5"
+      }));
+
+      // Right underline (minutes)
+      svg.appendChild(svgEl("line", {
+        x1: cx + colonGap, y1: underlineY,
+        x2: cx + colonGap + lineW, y2: underlineY,
+        stroke: "#cbd5e1", "stroke-width": "1.5"
+      }));
     }
 
     // ===== SVG Rendering =====
-    function renderWorksheetSVG(problems, options, wsCode) {
-      const { mode, showHeader, title, subtitle, branded, showAnswers, numbered, includeExample, isAnswerKey } = options;
+    function renderWorksheetSVG(sheetTimes, options, wsCode) {
+      const { showHeader, title, subtitle, branded, isAnswerKey, tickStyle, showArrows, numbered } = options;
+      const color = "#2d3748";
       const pageW = 612, pageH = 792, margin = 36;
+
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
 
+      // Header
       const midX = pageW / 2;
       let topGridY;
       {
@@ -806,7 +1043,7 @@
         });
         bLine2.textContent = "\u00A9 2026 Eggroll Games";
         svg.appendChild(bLine2);
-        // Worksheet code — bottom center
+        // Worksheet code -- bottom center
         if (!wsCode) wsCode = '(1)';
         const wsCodeEl = svgEl("text", {
           x: pageW / 2, y: pageH - 4,
@@ -817,158 +1054,70 @@
         svg.appendChild(wsCodeEl);
       }
 
-      const count = problems.length;
       const bottomMargin = branded ? 56 : 24;
-      const gridTop = topGridY;
-      const availH = pageH - bottomMargin - gridTop;
+      const availH = pageH - bottomMargin - topGridY;
       const availW = pageW - margin * 2;
 
-      // Two-column layout
-      const cols = 2;
-      const rows = Math.ceil(count / cols);
-      const colW = availW / cols;
-      const rowH = availH / rows;
+      const totalProbs = sheetTimes.length;
+      const cols = totalProbs <= 6 ? 2 : 3;
+      const rows = Math.ceil(totalProbs / cols);
+      const cellW = availW / cols;
+      const cellH = availH / rows;
 
-      // Sizing
-      const fontSize = Math.min(28, Math.max(16, Math.floor(rowH * 0.35)));
-      const tallyH = Math.min(30, Math.max(16, Math.floor(rowH * 0.4)));
-      const probNumSize = 10;
+      // Layout: text box on top, clock below
+      const textBoxH = Math.min(cellH * 0.17, 36);
+      const textBoxGap = cellH * 0.01;
+      const clockAreaH = cellH - textBoxH - textBoxGap;
+      const radius = Math.min(cellW * 0.38, clockAreaH * 0.46);
+      const textBoxW = cellW * 0.88;
 
-      for (let i = 0; i < problems.length; i++) {
+      for (let i = 0; i < totalProbs; i++) {
         const col = i % cols;
         const row = Math.floor(i / cols);
-        const cellLeft = margin + col * colW;
-        const cellTop = gridTop + row * rowH;
-        const cy = cellTop + rowH / 2;
-
-        const num = problems[i];
+        const cellX = margin + col * cellW;
+        const cellY = topGridY + row * cellH;
+        const ccx = cellX + cellW / 2;
+        const time = sheetTimes[i];
 
         // Problem number
         if (numbered !== false) {
-          const probNumX = cellLeft + 8;
-          const probNumY = cy + probNumSize * 0.35;
-          const numEl = svgEl("text", { x: probNumX, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
+          const probNumSize = 10;
+          const numEl = svgEl("text", { x: cellX + 2, y: cellY + 12, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
           numEl.textContent = (i + 1) + ".";
           svg.appendChild(numEl);
         }
 
-        const contentLeft = cellLeft + 28;
-        const contentRight = cellLeft + colW - 10;
-        const contentMid = (contentLeft + contentRight) / 2;
+        // Written time text box at top of cell
+        const textBoxY = cellY + 4;
+        drawTimeWordsBox(svg, ccx, textBoxY, textBoxW, textBoxH, time);
 
-        // Dividing the cell: left half for prompt, right half for answer area
-        const leftZoneCenter = contentLeft + (contentRight - contentLeft) * 0.35;
-        const rightZoneCenter = contentLeft + (contentRight - contentLeft) * 0.7;
-        const answerLineW = (contentRight - contentLeft) * 0.25;
+        // Clock center below the text box
+        const clockTopY = textBoxY + textBoxH + textBoxGap;
+        const ccy = clockTopY + clockAreaH / 2;
 
-        const isExample = (i === 0 && includeExample && !showAnswers);
-
-        if (mode === "count") {
-          // Show tally marks on left, blank line (or answer) on right
-          drawTallyMarks(svg, num, leftZoneCenter, cy, tallyH, "#1a202c");
-
-          if (isExample) {
-            // Show answer in green with badge
-            const lineY = cy + fontSize * 0.45;
-            const badgeW = 42, badgeH = 13, badgeX = rightZoneCenter + answerLineW / 2 - badgeW, badgeY = lineY - badgeH - 4;
-            svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: badgeW, height: badgeH, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
-            const bt = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
-            bt.textContent = "Example"; svg.appendChild(bt);
-            const ansEl = svgEl("text", {
-              x: rightZoneCenter, y: lineY - 3,
-              "text-anchor": "middle", "font-family": "Fredoka, sans-serif",
-              "font-size": String(fontSize), "font-weight": "700", fill: "#16a34a"
-            });
-            ansEl.textContent = String(num);
-            svg.appendChild(ansEl);
-          } else if (showAnswers) {
-            // Show the number
-            const ansEl = svgEl("text", {
-              x: rightZoneCenter, y: cy + fontSize * 0.35,
-              "text-anchor": "middle", "font-family": "Fredoka, sans-serif",
-              "font-size": String(fontSize), "font-weight": "700", fill: "#3182ce"
-            });
-            ansEl.textContent = String(num);
-            svg.appendChild(ansEl);
-          } else {
-            // Blank line for writing
-            const lineY = cy + fontSize * 0.45;
-            svg.appendChild(svgEl("line", {
-              x1: rightZoneCenter - answerLineW / 2, y1: lineY,
-              x2: rightZoneCenter + answerLineW / 2, y2: lineY,
-              stroke: "#000", "stroke-width": 1
-            }));
-          }
+        if (isAnswerKey) {
+          // Answer key: draw clock WITH hands
+          drawClockWithHands(svg, ccx, ccy, radius, time.hour, time.minute, tickStyle, showArrows);
         } else {
-          // "Draw tallies" mode: show number on left, empty space (or answer tallies) on right
-          const numTextEl = svgEl("text", {
-            x: contentLeft + 20, y: cy + fontSize * 0.35,
-            "font-family": "Fredoka, sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c"
-          });
-          numTextEl.textContent = String(num);
-          svg.appendChild(numTextEl);
-
-          if (isExample) {
-            // Draw the correct tallies in green with badge
-            drawTallyMarks(svg, num, rightZoneCenter, cy, tallyH, "#16a34a");
-            const badgeW = 42, badgeH = 13, badgeX = rightZoneCenter + answerLineW / 2 - badgeW, badgeY = cy - tallyH / 2 - badgeH - 2;
-            svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: badgeW, height: badgeH, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
-            const bt = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
-            bt.textContent = "Example"; svg.appendChild(bt);
-          } else if (showAnswers) {
-            // Draw the correct tallies
-            drawTallyMarks(svg, num, rightZoneCenter, cy, tallyH, "#3182ce");
-          }
-          // In worksheet mode: leave empty space for drawing
-        }
-
-        // Separator line between rows (except last row)
-        if (row < rows - 1 && i + cols < count + (count % cols === 0 ? 0 : cols - count % cols)) {
-          // Only draw if not last row
-        }
-
-        // Column separator
-        if (col === 0 && count > 1) {
-          svg.appendChild(svgEl("line", {
-            x1: cellLeft + colW, y1: cellTop + 4,
-            x2: cellLeft + colW, y2: cellTop + rowH - 4,
-            stroke: "#e2e8f0", "stroke-width": 0.5
-          }));
-        }
-
-        // Row separator
-        if (row < rows - 1) {
-          const sepY = cellTop + rowH;
-          const sepX1 = cellLeft + 4;
-          const sepX2 = cellLeft + colW - 4;
-          svg.appendChild(svgEl("line", {
-            x1: sepX1, y1: sepY, x2: sepX2, y2: sepY,
-            stroke: "#e2e8f0", "stroke-width": 0.5
-          }));
+          // Worksheet: draw clock WITHOUT hands
+          drawClockFace(svg, ccx, ccy, radius, tickStyle);
         }
       }
 
       return svg;
     }
 
-    // ===== Gather options =====
-    function gatherOptions() {
-      const showHeader = getHeaderMode();
-      const title = getTitle();
-      const subtitle = getSubtitle();
-      const mode = elMode.value;
+    // ===== Render helpers =====
+    function buildRenderOptions(opts, isAnswerKey) {
       return {
-        mode: mode,
-        maxVal: parseInt(elRange.value, 10),
-        numWorksheets: parseInt(elNumSheets.value, 10),
-        problemsPerSheet: parseInt(elProblems.value, 10),
-        showHeader: showHeader,
-        title: title,
-        subtitle: subtitle,
-        branded: elBranded.checked,
-        answerKey: elAnswerKey.checked,
-        numbered: elNumbered.checked,
-        includeExample: elIncludeExample.checked,
+        showHeader: isAnswerKey ? "none" : opts.showHeader,
+        title: opts.title,
+        subtitle: opts.subtitle,
+        branded: opts.branded,
+        isAnswerKey: !!isAnswerKey,
+        tickStyle: opts.tickStyle,
+        showArrows: opts.showArrows,
+        numbered: opts.numbered,
       };
     }
 
@@ -976,7 +1125,7 @@
       const opts = gatherOptions();
       currentState.sheets = [];
       for (let s = 0; s < opts.numWorksheets; s++) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.maxVal));
+        currentState.sheets.push(generateSheet(opts));
       }
       renderWorksheet();
     }
@@ -984,7 +1133,7 @@
     function renderWithoutRandomization() {
       const opts = gatherOptions();
       while (currentState.sheets.length < opts.numWorksheets) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.maxVal));
+        currentState.sheets.push(generateSheet(opts));
       }
       if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
       renderWorksheet();
@@ -994,6 +1143,7 @@
 
     function renderWorksheet() {
       const opts = gatherOptions();
+      const ro = buildRenderOptions(opts, false);
       const numSheets = currentState.sheets.length;
       sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
       const sheetWidth = 612, sheetHeight = 792;
@@ -1001,8 +1151,8 @@
       if (isMobile()) {
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { mode: opts.mode, showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
-          p.appendChild(v); sheetWrap.appendChild(p);
+          p.appendChild(renderWorksheetSVG(currentState.sheets[s], ro, '(' + (s + 1) + ')'));
+          sheetWrap.appendChild(p);
         }
         return;
       }
@@ -1011,55 +1161,70 @@
         sheetWrap.classList.add("grid-view");
         const ep = numSheets >= 3 ? 12 : 0;
         const aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
-        let cols;
-        if (numSheets <= 3) { cols = numSheets; if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        else { cols = Math.min(3, numSheets); if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        const msw = (aw - (cols - 1) * gap) / cols, msh = numSheets <= 3 ? ah : ah * 0.8;
+        let cs;
+        if (numSheets <= 3) { cs = numSheets; if ((aw - (cs - 1) * gap) / cs < mrw) cs = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        else { cs = Math.min(3, numSheets); if ((aw - (cs - 1) * gap) / cs < mrw) cs = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
+        const msw = (aw - (cs - 1) * gap) / cs, msh = numSheets <= 3 ? ah : ah * 0.8;
         const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
         const sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
-        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
+        sheetWrap.style.gridTemplateColumns = "repeat(" + cs + ", " + (sw + 24) + "px)";
         sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { mode: opts.mode, showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          const v = renderWorksheetSVG(currentState.sheets[s], ro, '(' + (s + 1) + ')');
           v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
         }
       } else {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], { mode: opts.mode, showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }, '(1)');
-        p.appendChild(v); sheetWrap.appendChild(p);
+        p.appendChild(renderWorksheetSVG(currentState.sheets[0], ro, '(1)'));
+        sheetWrap.appendChild(p);
       }
     }
 
-    // ===== Print =====
     function handlePrint() {
       if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
       const opts = gatherOptions();
+      const ro = buildRenderOptions(opts, false);
       const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
       sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
       const wsCodes = currentState.sheets.map((_, i) => '(' + (i + 1) + ')');
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { mode: opts.mode, showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }, wsCodes[i]));
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], ro, wsCodes[i]));
         sheetWrap.appendChild(p);
       }
-      const answerKeyPages = [];
       if (opts.answerKey) {
+        const roAns = buildRenderOptions(opts, true);
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { mode: opts.mode, showHeader: "none", title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: true, isAnswerKey: true, includeExample: false, numbered: opts.numbered }, wsCodes[i]));
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], roAns, wsCodes[i]));
           sheetWrap.appendChild(p);
-          answerKeyPages.push(p);
         }
       }
-      window.print();
-      setTimeout(() => { answerKeyPages.forEach(p => p.remove()); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 500);
+      setTimeout(() => { window.print(); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 50);
+    }
+
+    // ===== Sync tick marks UI =====
+    function syncTickMarksUI() {
+      elTickStyleOptions.style.display = elShowTickMarks.checked ? "block" : "none";
     }
 
     // ===== Event Listeners =====
-    elMode.addEventListener("change", () => renderWithNewRandomization());
-    elRange.addEventListener("change", () => renderWithNewRandomization());
-    elProblems.addEventListener("change", () => renderWithNewRandomization());
+    function syncMinuteIncrementUI() {
+      elMinuteIncrementGroup.style.display = elClockType.value === "minutes" ? "block" : "none";
+    }
+
+    elClockType.addEventListener("change", () => {
+      elShowTickMarks.checked = true;
+      elTickStyle.value = elClockType.value === "minutes" ? "minutes" : "hours";
+      syncTickMarksUI();
+      syncMinuteIncrementUI();
+      renderWithNewRandomization();
+    });
+
+    elNumbered.addEventListener("change", () => renderWithoutRandomization());
+    elShowTickMarks.addEventListener("change", () => { syncTickMarksUI(); renderWithoutRandomization(); });
+    elTickStyle.addEventListener("change", () => renderWithoutRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elShowHeaderEnabled.addEventListener("change", () => {
       elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
@@ -1067,8 +1232,6 @@
     });
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
     elBranded.addEventListener("change", () => renderWithoutRandomization());
-    elNumbered.addEventListener("change", () => renderWithoutRandomization());
-    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
       renderWithoutRandomization();
@@ -1083,13 +1246,18 @@
     });
     elHeaderText.addEventListener("input", () => renderWithoutRandomization());
     elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
-    elAnswerKey.addEventListener("change", () => {});
+    elAnswerKey.addEventListener("change", () => { });
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
-let resizeTimeout;
+    let resizeTimeout;
     window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150); });
 
+    elProblemsPerSheet.addEventListener("change", () => renderWithNewRandomization());
+    elMinuteIncrement.addEventListener("change", () => renderWithNewRandomization());
+
     // Init
+    syncTickMarksUI();
+    syncMinuteIncrementUI();
     renderWithNewRandomization();
 
     // Expose answer key capture for favorites pack system
@@ -1098,7 +1266,7 @@ let resizeTimeout;
       var opts = gatherOptions();
       return currentState.sheets.map(function(sheet, idx) {
         try {
-          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true, includeExample: false }), '(' + (idx + 1) + ')');
+          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true }), '(' + (idx + 1) + ')');
           return sv.outerHTML;
         } catch(e) { return ''; }
       }).filter(Boolean);

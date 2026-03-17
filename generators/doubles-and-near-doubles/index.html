@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Comparing Numbers Worksheet Generator</title>
+  <title>Doubles &amp; Near Doubles Worksheet Generator</title>
   <style>
     * {
       margin: 0;
@@ -215,7 +215,8 @@
       padding-left: 26px;
     }
 
-    .adv-sub select {
+    .adv-sub select,
+    .adv-sub input[type="text"] {
       width: 100%;
       padding: 8px 10px;
       font-size: 13px;
@@ -231,16 +232,6 @@
       font-weight: 600;
       display: block;
       margin-bottom: 4px;
-    }
-
-    .adv-sub input[type="text"] {
-      width: 100%;
-      padding: 8px 10px;
-      font-size: 13px;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      background: white;
-      color: #2d3748;
     }
 
     /* ===== Checkboxes ===== */
@@ -450,40 +441,35 @@
     </div>
   </header>
   <div class="main-container">
-    <!-- Left sidebar controls -->
     <div class="sidebar">
       
-      <h2>Comparing Numbers Worksheet Generator</h2>
+      <h2>Doubles &amp; Near Doubles</h2>
 
       <div class="control-group">
-        <label for="numberRange">Number Range</label>
-        <select id="numberRange">
+        <label for="modeSelect">Mode</label>
+        <select id="modeSelect">
+          <option value="doubles" selected>Doubles only</option>
+          <option value="near">Near doubles only</option>
+          <option value="mixed">Mixed</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="rangeSelect">Number Range</label>
+        <select id="rangeSelect">
           <option value="5">Within 5</option>
           <option value="10" selected>Within 10</option>
           <option value="20">Within 20</option>
-          <option value="50">Within 50</option>
-          <option value="100">Within 100</option>
-          <option value="custom">Custom</option>
         </select>
       </div>
-      <div class="control-group" id="customRangeGroup" style="display:none;">
-        <label for="customRange">Custom value</label>
-        <input type="number" id="customRange" value="25" min="2" max="9999" />
+<div class="checkbox-row" style="margin-bottom:12px;">
+        <label>
+          <input type="checkbox" id="showDots">
+          <span>Show visual dots</span>
+        </label>
       </div>
 
-      <div class="control-group">
-        <label for="visualAids">Visual Aids</label>
-        <select id="visualAids">
-          <option value="none" selected>Numbers only</option>
-          <option value="dots">With dot groups</option>
-          <option value="numberline">With number line</option>
-        </select>
-      </div>
       <div class="checkbox-row" style="margin-bottom:12px;">
-        <label>
-          <input type="checkbox" id="includeEqual" checked>
-          <span>Include equal comparisons</span>
-        </label>
         <label>
           <input type="checkbox" id="answerKey">
           <span>Include Answer Key Sheets</span>
@@ -492,7 +478,7 @@
 
       <!-- Advanced Options -->
       <div class="advanced-toggle" id="advToggle">
-        <span class="toggle-arrow" id="advArrow">&#9654;</span>
+        <span class="toggle-arrow" id="advArrow">&#x25B6;</span>
         <span>Advanced Options</span>
       </div>
       <div class="advanced-panel" id="advPanel">
@@ -527,7 +513,7 @@
       </div>
 
 
-          <!-- Show header -->
+          <!-- Name / Date -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="showHeaderEnabled" checked />
             <label for="showHeaderEnabled">Name / Date</label>
@@ -546,7 +532,7 @@
             <label for="numbered">Numbered</label>
           </div>
 
-          <!-- Customize titles -->
+          <!-- Customize worksheet titles -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="customTitleEnabled" />
             <label for="customTitleEnabled">Customize titles</label>
@@ -558,7 +544,7 @@
             </div>
             <div id="titleInputWrap">
               <label for="headerText">Title</label>
-              <input type="text" id="headerText" value="Comparing Numbers" />
+              <input type="text" id="headerText" value="Doubles & Near Doubles" />
             </div>
             <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
               <input type="checkbox" id="showSubtitle" checked />
@@ -566,7 +552,7 @@
             </div>
             <div id="subtitleInputWrap">
               <label for="subtitleText">Subtitle</label>
-              <input type="text" id="subtitleText" value="Compare the numbers using >, <, or =." />
+              <input type="text" id="subtitleText" value="Solve each doubles problem." />
             </div>
           </div>
 
@@ -580,9 +566,9 @@
       </div>
 
       <div class="button-group">
-        <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
-        <button class="btn-print" id="btnPrint">&#128424; Print</button>
-</div>
+        <button class="btn-generate" id="btnGenerate">&#x1f504; Generate New</button>
+<button class="btn-print" id="btnPrint">&#x1f5a8;&#xfe0f; Print</button>
+      </div>
     </div>
 
     <!-- Preview area -->
@@ -599,17 +585,14 @@
       if (children) children.forEach(c => el.appendChild(c));
       return el;
     }
-    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
-    const elNumberRange = document.getElementById("numberRange");
-    const elCustomRangeGroup = document.getElementById("customRangeGroup");
-    const elCustomRange = document.getElementById("customRange");
-    const elVisualAids = document.getElementById("visualAids");
+    const elMode = document.getElementById("modeSelect");
+    const elRange = document.getElementById("rangeSelect");
     const elProblems = document.getElementById("problemsPerSheet");
+    const elShowDots = document.getElementById("showDots");
     const elNumSheets = document.getElementById("numWorksheets");
-    const elIncludeEqual = document.getElementById("includeEqual");
     const elAnswerKey = document.getElementById("answerKey");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
     const elHeaderMode = document.getElementById("headerMode");
@@ -630,18 +613,10 @@
     const advArrow = document.getElementById("advArrow");
 
     // ===== Advanced panel toggle =====
-    advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
-
-    // ===== Range dropdown =====
-    function getRangeValue() {
-      return elNumberRange.value === "custom" ? (parseInt(elCustomRange.value, 10) || 10) : parseInt(elNumberRange.value, 10);
-    }
-
-    elNumberRange.addEventListener("change", () => {
-      elCustomRangeGroup.style.display = elNumberRange.value === "custom" ? "block" : "none";
-      renderWithNewRandomization();
+    advToggle.addEventListener("click", () => {
+      advPanel.classList.toggle("open");
+      advArrow.classList.toggle("open");
     });
-    elCustomRange.addEventListener("input", () => renderWithNewRandomization());
 
     function getHeaderMode() {
       return elShowHeaderEnabled.checked ? elHeaderMode.value : "none";
@@ -651,14 +626,14 @@
       if (elCustomTitleEnabled.checked) {
         return elShowTitle.checked ? elHeaderText.value : "";
       }
-      return "Comparing Numbers";
+      return "Doubles & Near Doubles";
     }
 
     function getSubtitle() {
       if (elCustomTitleEnabled.checked) {
         return elShowSubtitle.checked ? elSubtitleText.value : "";
       }
-      return "Compare the numbers using >, <, or =.";
+      return "Solve each doubles problem.";
     }
 
         // ===== State =====
@@ -666,156 +641,104 @@
 
     // ===== Problem generation =====
     function generateProblems(count, opts) {
-      const { maxNum, includeEqual } = opts;
+      const { mode, range } = opts;
+      const maxNum = parseInt(range, 10);
       const problems = [];
       const seen = new Set();
 
-      // Decide how many of each type: greater, less, equal
-      let numEqual = 0;
-      if (includeEqual) {
-        numEqual = Math.max(1, Math.round(count * 0.2)); // ~20% equal
-        if (numEqual > Math.floor(count / 3)) numEqual = Math.floor(count / 3);
-      }
-      const numGT = Math.ceil((count - numEqual) / 2);
-      const numLT = count - numEqual - numGT;
+      // Build pool of valid doubles/near-doubles facts
+      const pool = [];
 
-      // Track quotas
-      let gtLeft = numGT, ltLeft = numLT, eqLeft = numEqual;
-
-      let attempts = 0;
-      while (problems.length < count && attempts < count * 500) {
-        attempts++;
-
-        // Pick which type we still need
-        const available = [];
-        if (gtLeft > 0) available.push("gt");
-        if (ltLeft > 0) available.push("lt");
-        if (eqLeft > 0) available.push("eq");
-        if (available.length === 0) break;
-        const type = available[Math.floor(Math.random() * available.length)];
-
-        let left, right;
-        if (type === "eq") {
-          left = 1 + Math.floor(Math.random() * maxNum);
-          right = left;
-        } else if (type === "gt") {
-          // left > right, avoid trivially obvious (too far apart)
-          left = 2 + Math.floor(Math.random() * (maxNum - 1));
-          right = 1 + Math.floor(Math.random() * (left - 1));
-          // For ranges > 20, avoid differences larger than half the range
-          if (maxNum > 20 && (left - right) > Math.ceil(maxNum * 0.6)) continue;
-        } else {
-          // left < right
-          right = 2 + Math.floor(Math.random() * (maxNum - 1));
-          left = 1 + Math.floor(Math.random() * (right - 1));
-          // Avoid trivially obvious
-          if (maxNum > 20 && (right - left) > Math.ceil(maxNum * 0.6)) continue;
+      if (mode === "doubles" || mode === "mixed") {
+        // Doubles: n + n where n is 0..maxNum
+        for (let n = 0; n <= maxNum; n++) {
+          pool.push({ a: n, b: n, type: "double" });
         }
-
-        // Clamp values
-        left = clamp(left, 0, maxNum);
-        right = clamp(right, 0, maxNum);
-
-        // Deduplicate
-        const key = left + "," + right;
-        if (seen.has(key)) continue;
-        seen.add(key);
-
-        // Determine correct answer
-        let answer;
-        if (left > right) answer = ">";
-        else if (left < right) answer = "<";
-        else answer = "=";
-
-        problems.push({ left, right, answer });
-
-        if (type === "gt") gtLeft--;
-        else if (type === "lt") ltLeft--;
-        else eqLeft--;
       }
 
-      // Fill any remaining (fallback)
-      let fa = 0;
-      while (problems.length < count && fa < count * 500) {
-        fa++;
-        const left = 1 + Math.floor(Math.random() * maxNum);
-        const right = 1 + Math.floor(Math.random() * maxNum);
-        if (!includeEqual && left === right) continue;
-        const key = left + "," + right;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        let answer;
-        if (left > right) answer = ">";
-        else if (left < right) answer = "<";
-        else answer = "=";
-        problems.push({ left, right, answer });
-      }
-
-      // Final fallback
-      while (problems.length < count) {
-        const l = 1 + Math.floor(Math.random() * maxNum);
-        const r = 1 + Math.floor(Math.random() * (maxNum - 1));
-        const answer = l > r ? ">" : l < r ? "<" : "=";
-        problems.push({ left: l, right: r, answer });
-      }
-
-      // Shuffle
-      for (let i = problems.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [problems[i], problems[j]] = [problems[j], problems[i]];
-      }
-      return problems;
-    }
-
-    // ===== Dot pattern positions (like dice faces) =====
-    function getDotPositions(n, cx, cy, size) {
-      // Returns array of {x, y} for dots arranged in familiar patterns
-      // size is the bounding box side length
-      const r = size * 0.12; // dot radius
-      const s = size * 0.3; // spread from center
-      const positions = [];
-
-      if (n === 0) return { dots: positions, radius: r };
-
-      if (n <= 9) {
-        // Use grid-based layout for clarity
-        const layouts = {
-          1: [[0, 0]],
-          2: [[-1, -1], [1, 1]],
-          3: [[-1, -1], [0, 0], [1, 1]],
-          4: [[-1, -1], [1, -1], [-1, 1], [1, 1]],
-          5: [[-1, -1], [1, -1], [0, 0], [-1, 1], [1, 1]],
-          6: [[-1, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]],
-          7: [[-1, -1], [0, -1], [1, -1], [0, 0], [-1, 1], [0, 1], [1, 1]],
-          8: [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]],
-          9: [[-1, -1], [0, -1], [1, -1], [-1, 0], [0, 0], [1, 0], [-1, 1], [0, 1], [1, 1]],
-        };
-        const layout = layouts[n];
-        for (const [dx, dy] of layout) {
-          positions.push({ x: cx + dx * s, y: cy + dy * s });
-        }
-      } else {
-        // For n > 9, use rows of dots
-        const cols = Math.ceil(Math.sqrt(n));
-        const rows = Math.ceil(n / cols);
-        const spacing = size / (Math.max(cols, rows) + 1);
-        const startX = cx - (cols - 1) * spacing / 2;
-        const startY = cy - (rows - 1) * spacing / 2;
-        let count = 0;
-        for (let row = 0; row < rows && count < n; row++) {
-          for (let col = 0; col < cols && count < n; col++) {
-            positions.push({ x: startX + col * spacing, y: startY + row * spacing });
-            count++;
+      if (mode === "near" || mode === "mixed") {
+        // Near doubles: n + (n+1) where both addends are within range
+        for (let n = 0; n < maxNum; n++) {
+          if (n + 1 <= maxNum) {
+            pool.push({ a: n, b: n + 1, type: "near" });
           }
         }
       }
 
-      return { dots: positions, radius: r };
+      // Shuffle pool
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+
+      // Pick from pool, avoiding duplicates
+      let idx = 0;
+      let passes = 0;
+      while (problems.length < count && passes < 3) {
+        const item = pool[idx % pool.length];
+        // Randomly swap order for near doubles to get both n+(n+1) and (n+1)+n
+        let a = item.a, b = item.b;
+        if (item.type === "near" && Math.random() < 0.5) {
+          [a, b] = [b, a];
+        }
+        const key = a + "+" + b;
+        if (!seen.has(key)) {
+          seen.add(key);
+          problems.push({ a, b, answer: a + b, type: item.type });
+        }
+        idx++;
+        if (idx % pool.length === 0) passes++;
+      }
+
+      // If we still need more, allow repeats with different ordering
+      let attempts = 0;
+      while (problems.length < count && attempts < count * 100) {
+        attempts++;
+        const item = pool[Math.floor(Math.random() * pool.length)];
+        let a = item.a, b = item.b;
+        if (item.type === "near" && Math.random() < 0.5) {
+          [a, b] = [b, a];
+        }
+        problems.push({ a, b, answer: a + b, type: item.type });
+      }
+
+      // Final shuffle
+      for (let i = problems.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [problems[i], problems[j]] = [problems[j], problems[i]];
+      }
+
+      return problems.slice(0, count);
     }
 
     // ===== SVG Rendering =====
+    function renderDotGroup(svg, cx, cy, count, dotR, color) {
+      // Arrange dots in a grid pattern: up to 5 columns wide
+      const maxCols = 5;
+      const cols = Math.min(count, maxCols);
+      const rows = Math.ceil(count / cols);
+      const spacing = dotR * 2.6;
+      const startX = cx - ((cols - 1) * spacing) / 2;
+      const startY = cy - ((rows - 1) * spacing) / 2;
+
+      let placed = 0;
+      for (let r = 0; r < rows && placed < count; r++) {
+        const colsInRow = Math.min(cols, count - placed);
+        const rowStartX = cx - ((colsInRow - 1) * spacing) / 2;
+        for (let c = 0; c < colsInRow && placed < count; c++) {
+          svg.appendChild(svgEl("circle", {
+            cx: rowStartX + c * spacing,
+            cy: startY + r * spacing,
+            r: dotR,
+            fill: color
+          }));
+          placed++;
+        }
+      }
+    }
+
     function renderWorksheetSVG(problems, options, wsCode) {
-      const { showHeader, title, subtitle, branded, showAnswers, visualAids, numbered, includeExample, isAnswerKey } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, showDots, numbered, includeExample, isAnswerKey } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
@@ -914,228 +837,148 @@
       const availH = pageH - bottomMargin - gridTop;
       const availW = pageW - margin * 2;
 
-      // Single column layout, each problem on its own row
-      const rowH = availH / count;
+      // Layout: 2 columns for most problem counts
+      const cols = count <= 8 ? 1 : 2;
+      const rows = Math.ceil(count / cols);
+      const colW = availW / cols;
+      const rowH = availH / rows;
 
-      // Scale font to fit rows comfortably
-      const fontSize = Math.min(32, Math.max(16, Math.floor(rowH * 0.45)));
-      const charW = fontSize * 0.65;
-      const circleR = fontSize * 0.6; // radius of comparison circle
-
-      // Determine max digits for alignment
-      let maxDigits = 1;
-      for (const p of problems) {
-        maxDigits = Math.max(maxDigits, String(p.left).length, String(p.right).length);
-      }
+      // Size text to fit
+      const maxTextH = rowH * (showDots ? 0.45 : 0.8);
+      const fontSize = Math.min(36, Math.max(14, Math.floor(maxTextH)));
+      const charW = fontSize * 0.62;
+      const boxH = fontSize * 1.7;
 
       // Fixed problem number size
       const probNumSize = 10;
       const probNumW = probNumSize * (count >= 10 ? 2.0 : 1.6);
 
-      // Layout dimensions
-      const numberW = maxDigits * charW; // width reserved for each number
-      const circleSpace = circleR * 2 + charW * 1.2; // space for circle + padding
-      const gapBetween = charW * 0.8; // gap between number and circle
+      // Dot rendering parameters
+      const dotR = Math.min(6, Math.max(3, rowH * 0.04));
+      const dotAreaH = showDots ? rowH * 0.38 : 0;
 
-      // Calculate visual aid space
-      let dotBoxSize = 0;
-      let numberLineW = 0;
-      if (visualAids === "dots") {
-        dotBoxSize = Math.min(rowH * 0.7, fontSize * 1.8);
-      } else if (visualAids === "numberline") {
-        numberLineW = Math.min(availW * 0.7, 360);
+      // First pass: find widest equation per column
+      const eqGap = charW * 0.8;
+      const colMaxEqW = new Array(cols).fill(0);
+      for (let i = 0; i < problems.length; i++) {
+        const col = i % cols;
+        const aStr = String(problems[i].a), bStr = String(problems[i].b);
+        const eqW = probNumW + aStr.length * charW + charW * 0.8 + charW + charW * 1.6 + bStr.length * charW + charW * 0.8 + charW + eqGap;
+        if (eqW > colMaxEqW[col]) colMaxEqW[col] = eqW;
+      }
+
+      // Calculate box width per column
+      const cellPadLeft = 8;
+      const cellPadRight = 12;
+      const colBoxW = [];
+      for (let c = 0; c < cols; c++) {
+        const availBoxW = colW - cellPadLeft - colMaxEqW[c] - cellPadRight;
+        colBoxW.push(Math.max(boxH * 1.3, Math.min(availBoxW, boxH * 2.5)));
       }
 
       for (let i = 0; i < problems.length; i++) {
-        const cellTop = gridTop + i * rowH;
-        const { left: pLeft, right: pRight, answer: pAnswer } = problems[i];
-        const leftStr = String(pLeft), rightStr = String(pRight);
+        const col = i % cols, row = Math.floor(i / cols);
+        const cellLeft = margin + col * colW;
+        const cellTop = gridTop + row * rowH;
+        const { a, b, answer, type } = problems[i];
+        const aStr = String(a), bStr = String(b);
+        const ansStr = String(answer);
         const isExample = (i === 0 && includeExample && !showAnswers);
 
-        // Vertical center
-        const cy = cellTop + rowH / 2 + fontSize * 0.35;
-        const centerY = cellTop + rowH / 2;
+        // Vertical position for equation text
+        const eqZoneH = showDots ? rowH * 0.5 : rowH;
+        const cy = cellTop + eqZoneH / 2 + fontSize * 0.35;
 
-        if (visualAids === "numberline") {
-          // Number line mode: show comparison above, number line below
-          const nlY = centerY + fontSize * 0.6;
-          const textY = centerY - fontSize * 0.15;
+        // Build equation left-to-right
+        let x = cellLeft + cellPadLeft;
 
-          // Center the problem text
-          const totalTextW = probNumW + numberW + gapBetween + circleSpace + gapBetween + numberW;
-          const textStartX = pageW / 2 - totalTextW / 2;
+        // Problem number
+        if (numbered !== false) {
+          const probNumY = cy - 0.72 * (fontSize - probNumSize);
+          const numEl = svgEl("text", { x: x, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
+          numEl.textContent = (i + 1) + "."; svg.appendChild(numEl);
+        }
+        x += probNumW;
 
-          let x = textStartX;
+        // First number
+        const topEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        topEl.textContent = aStr; svg.appendChild(topEl);
+        x += aStr.length * charW + charW * 0.8;
 
-          // Problem number
-          if (numbered !== false) {
-            const probNumY = textY - 0.72 * (fontSize - probNumSize);
-            const numEl = svgEl("text", { x: x, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
-            numEl.textContent = (i + 1) + "."; svg.appendChild(numEl);
-          }
-          x += probNumW;
+        // Operator (+)
+        const opEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        opEl.textContent = "+"; svg.appendChild(opEl);
+        x += charW * 1.6;
 
-          // Left number (right-aligned within its space)
-          const leftNumX = x + numberW - leftStr.length * charW;
-          const leftEl = svgEl("text", { x: leftNumX, y: textY, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.85), "font-weight": "500", fill: "#1a202c" });
-          leftEl.textContent = leftStr; svg.appendChild(leftEl);
-          x += numberW + gapBetween;
+        // Second number
+        const botEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        botEl.textContent = bStr; svg.appendChild(botEl);
+        x += bStr.length * charW + charW * 0.8;
 
-          // Circle
-          const circleCX = x + circleR;
-          const circleCY = textY - fontSize * 0.25;
-          svg.appendChild(svgEl("circle", { cx: circleCX, cy: circleCY, r: circleR, fill: isExample ? "#f0fdf4" : "none", stroke: isExample ? "#22c55e" : "#cbd5e0", "stroke-width": "1.5" }));
-          if (isExample) {
-            const badgeW = 42, badgeH = 13;
-            const badgeX = circleCX - 21;
-            const badgeY = circleCY - circleR - 15;
-            svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: badgeW, height: badgeH, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
-            const bt = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
-            bt.textContent = "Example"; svg.appendChild(bt);
-            const ansEl = svgEl("text", { x: circleCX, y: circleCY + fontSize * 0.3, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.7), "font-weight": "500", fill: "#16a34a" });
-            ansEl.textContent = pAnswer; svg.appendChild(ansEl);
-          } else if (showAnswers) {
-            const ansEl = svgEl("text", { x: circleCX, y: circleCY + fontSize * 0.3, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.7), "font-weight": "500", fill: "#3182ce" });
-            ansEl.textContent = pAnswer; svg.appendChild(ansEl);
-          }
-          x += circleSpace + gapBetween;
+        // Equals sign
+        const eqEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        eqEl.textContent = "="; svg.appendChild(eqEl);
 
-          // Right number
-          const rightEl = svgEl("text", { x: x, y: textY, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.85), "font-weight": "500", fill: "#1a202c" });
-          rightEl.textContent = rightStr; svg.appendChild(rightEl);
+        // Answer box
+        const boxX = cellLeft + cellPadLeft + colMaxEqW[col];
+        const bW = colBoxW[col];
+        const boxY = cy - boxH * 0.7;
+        svg.appendChild(svgEl("rect", { x: boxX, y: boxY, width: bW, height: boxH, rx: 4, ry: 4, fill: isExample ? "#f0fdf4" : "none", stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": "1.5" }));
 
-          // Draw number line
-          const maxNum = getRangeValue();
-          const nlWidth = numberLineW;
-          const nlStartX = pageW / 2 - nlWidth / 2;
-          const nlEndX = nlStartX + nlWidth;
-          const tickH = 4;
+        if (isExample) {
+          const ansEl = svgEl("text", { x: boxX + bW / 2, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#16a34a" });
+          ansEl.textContent = ansStr; svg.appendChild(ansEl);
+          // Example badge
+          const badgeX = boxX + bW - 2 - 42, badgeY = boxY - 15;
+          svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
+          const badgeText = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
+          badgeText.textContent = "Example"; svg.appendChild(badgeText);
+        } else if (showAnswers) {
+          const ansEl = svgEl("text", { x: boxX + bW / 2, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
+          ansEl.textContent = ansStr; svg.appendChild(ansEl);
+        }
 
-          // Main line
-          svg.appendChild(svgEl("line", { x1: nlStartX, y1: nlY, x2: nlEndX, y2: nlY, stroke: "#a0aec0", "stroke-width": "1" }));
+        // Visual dots
+        if (showDots && !showAnswers) {
+          const dotY = cellTop + eqZoneH + dotAreaH / 2;
+          const dotZoneW = colW - cellPadLeft - cellPadRight;
+          const dotCenterX = cellLeft + cellPadLeft + dotZoneW / 2;
 
-          // Determine tick interval
-          let tickInterval = 1;
-          if (maxNum > 50) tickInterval = 10;
-          else if (maxNum > 20) tickInterval = 5;
-          else if (maxNum > 10) tickInterval = 2;
+          // Two groups side by side
+          const groupGap = dotR * 4;
+          const leftGroupX = dotCenterX - groupGap / 2;
+          const rightGroupX = dotCenterX + groupGap / 2;
 
-          // Draw ticks and labels
-          const tickFontSize = Math.min(8, fontSize * 0.3);
-          for (let t = 0; t <= maxNum; t += tickInterval) {
-            const tx = nlStartX + (t / maxNum) * nlWidth;
-            svg.appendChild(svgEl("line", { x1: tx, y1: nlY - tickH, x2: tx, y2: nlY + tickH, stroke: "#a0aec0", "stroke-width": "1" }));
-            const tLabel = svgEl("text", { x: tx, y: nlY + tickH + tickFontSize + 1, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(tickFontSize), fill: "#718096" });
-            tLabel.textContent = String(t); svg.appendChild(tLabel);
+          // Left group (first addend) in blue
+          if (a > 0) {
+            renderDotGroup(svg, leftGroupX - dotR * 3, dotY, a, dotR, "#4299e1");
           }
 
-          // Highlight left number on number line
-          const leftX = nlStartX + (pLeft / maxNum) * nlWidth;
-          svg.appendChild(svgEl("circle", { cx: leftX, cy: nlY, r: 3.5, fill: "#e53e3e" }));
-
-          // Highlight right number on number line
-          const rightX = nlStartX + (pRight / maxNum) * nlWidth;
-          // If same position, offset slightly
-          if (pLeft !== pRight) {
-            svg.appendChild(svgEl("circle", { cx: rightX, cy: nlY, r: 3.5, fill: "#3182ce" }));
-          } else {
-            svg.appendChild(svgEl("circle", { cx: rightX, cy: nlY, r: 3.5, fill: "#805ad5" }));
+          // Right group (second addend) in green/teal
+          if (b > 0) {
+            renderDotGroup(svg, rightGroupX + dotR * 3, dotY, b, dotR, "#48bb78");
           }
 
-        } else {
-          // Numbers only or dot groups mode
-
-          // Calculate total width for centering
-          let totalW = probNumW + numberW + gapBetween + circleSpace + gapBetween + numberW;
-          if (visualAids === "dots") {
-            totalW += dotBoxSize * 2 + gapBetween * 2; // dot boxes on each side
-          }
-          const startX = pageW / 2 - totalW / 2;
-
-          let x = startX;
-
-          // Problem number
-          if (numbered !== false) {
-            const probNumY = cy - 0.72 * (fontSize - probNumSize);
-            const numEl = svgEl("text", { x: x, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
-            numEl.textContent = (i + 1) + "."; svg.appendChild(numEl);
-          }
-          x += probNumW;
-
-          // Left dot group (if enabled)
-          if (visualAids === "dots") {
-            const dotCX = x + dotBoxSize / 2;
-            const dotCY = centerY;
-            // Draw dot box border
-            svg.appendChild(svgEl("rect", {
-              x: x, y: dotCY - dotBoxSize / 2,
-              width: dotBoxSize, height: dotBoxSize,
-              rx: 4, ry: 4, fill: "#f7fafc", stroke: "#e2e8f0", "stroke-width": "0.75"
+          // Separator line between groups
+          if (a > 0 && b > 0) {
+            svg.appendChild(svgEl("line", {
+              x1: dotCenterX, y1: dotY - dotAreaH * 0.35,
+              x2: dotCenterX, y2: dotY + dotAreaH * 0.35,
+              stroke: "#cbd5e0", "stroke-width": "1", "stroke-dasharray": "3,3"
             }));
-            // Draw dots
-            const dotData = getDotPositions(pLeft, dotCX, dotCY, dotBoxSize);
-            for (const dot of dotData.dots) {
-              svg.appendChild(svgEl("circle", { cx: dot.x, cy: dot.y, r: dotData.radius, fill: "#4a5568" }));
-            }
-            x += dotBoxSize + gapBetween;
-          }
-
-          // Left number (right-aligned within its space)
-          const leftNumX = x + numberW - leftStr.length * charW;
-          const leftEl = svgEl("text", { x: leftNumX, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
-          leftEl.textContent = leftStr; svg.appendChild(leftEl);
-          x += numberW + gapBetween;
-
-          // Comparison circle
-          const circleCX = x + circleR;
-          const circleCY = cy - fontSize * 0.25;
-          svg.appendChild(svgEl("circle", { cx: circleCX, cy: circleCY, r: circleR, fill: isExample ? "#f0fdf4" : "none", stroke: isExample ? "#22c55e" : "#cbd5e0", "stroke-width": "1.5" }));
-
-          if (isExample) {
-            const badgeW = 42, badgeH = 13;
-            const badgeX = circleCX - 21;
-            const badgeY = circleCY - circleR - 15;
-            svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: badgeW, height: badgeH, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
-            const bt = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
-            bt.textContent = "Example"; svg.appendChild(bt);
-            const ansEl = svgEl("text", { x: circleCX, y: circleCY + fontSize * 0.3, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.7), "font-weight": "500", fill: "#16a34a" });
-            ansEl.textContent = pAnswer; svg.appendChild(ansEl);
-          } else if (showAnswers) {
-            const ansEl = svgEl("text", { x: circleCX, y: circleCY + fontSize * 0.3, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.7), "font-weight": "500", fill: "#3182ce" });
-            ansEl.textContent = pAnswer; svg.appendChild(ansEl);
-          }
-          x += circleSpace + gapBetween;
-
-          // Right number
-          const rightEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
-          rightEl.textContent = rightStr; svg.appendChild(rightEl);
-          x += rightStr.length * charW;
-
-          // Right dot group (if enabled)
-          if (visualAids === "dots") {
-            x += gapBetween;
-            const dotCX = x + dotBoxSize / 2;
-            const dotCY = centerY;
-            svg.appendChild(svgEl("rect", {
-              x: x, y: dotCY - dotBoxSize / 2,
-              width: dotBoxSize, height: dotBoxSize,
-              rx: 4, ry: 4, fill: "#f7fafc", stroke: "#e2e8f0", "stroke-width": "0.75"
-            }));
-            const dotData = getDotPositions(pRight, dotCX, dotCY, dotBoxSize);
-            for (const dot of dotData.dots) {
-              svg.appendChild(svgEl("circle", { cx: dot.x, cy: dot.y, r: dotData.radius, fill: "#4a5568" }));
-            }
           }
         }
       }
-
       return svg;
     }
 
     // ===== Auto title =====
     function generateAutoTitle() {
-      const w = getRangeValue();
-      return "Comparing Numbers Within " + w;
+      const mode = elMode.value;
+      const range = elRange.value;
+      if (mode === "doubles") return "Doubles Within " + range;
+      if (mode === "near") return "Near Doubles Within " + range;
+      return "Doubles & Near Doubles Within " + range;
     }
 
     // ===== Gather options =====
@@ -1144,11 +987,11 @@
       const title = getTitle();
       const subtitle = getSubtitle();
       return {
-        maxNum: getRangeValue(),
-        includeEqual: elIncludeEqual.checked,
-        visualAids: elVisualAids.value,
-        numWorksheets: parseInt(elNumSheets.value, 10),
+        mode: elMode.value,
+        range: elRange.value,
         problemsPerSheet: parseInt(elProblems.value, 10),
+        numWorksheets: parseInt(elNumSheets.value, 10),
+        showDots: elShowDots.checked,
         showHeader: showHeader,
         title: title,
         subtitle: subtitle,
@@ -1188,7 +1031,7 @@
       if (isMobile()) {
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, visualAids: opts.visualAids, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showDots: opts.showDots, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
           p.appendChild(v); sheetWrap.appendChild(p);
         }
         return;
@@ -1199,22 +1042,22 @@
         sheetWrap.classList.add("grid-view");
         const ep = numSheets >= 3 ? 12 : 0;
         const aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
-        let cols;
-        if (numSheets <= 3) { cols = numSheets; if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        else { cols = Math.min(3, numSheets); if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        const msw = (aw - (cols - 1) * gap) / cols, msh = numSheets <= 3 ? ah : ah * 0.8;
-        const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
-        const sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
-        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
+        let gridCols;
+        if (numSheets <= 3) { gridCols = numSheets; if ((aw - (gridCols-1)*gap)/gridCols < mrw) gridCols = Math.max(1, Math.floor((aw+gap)/(mrw+gap))); }
+        else { gridCols = Math.min(3, numSheets); if ((aw - (gridCols-1)*gap)/gridCols < mrw) gridCols = Math.max(1, Math.floor((aw+gap)/(mrw+gap))); }
+        const msw = (aw - (gridCols-1)*gap)/gridCols, msh = numSheets <= 3 ? ah : ah*0.8;
+        const scale = Math.min(msw/sheetWidth, msh/sheetHeight);
+        const sw = Math.floor(sheetWidth*scale), sh = Math.floor(sheetHeight*scale);
+        sheetWrap.style.gridTemplateColumns = "repeat(" + gridCols + ", " + (sw+24) + "px)";
         sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, visualAids: opts.visualAids, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showDots: opts.showDots, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
           v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
         }
       } else {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, visualAids: opts.visualAids, numbered: opts.numbered, includeExample: opts.includeExample }, '(1)');
+        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showDots: opts.showDots, numbered: opts.numbered, includeExample: opts.includeExample }, '(1)');
         p.appendChild(v); sheetWrap.appendChild(p);
       }
     }
@@ -1228,14 +1071,14 @@
       const wsCodes = currentState.sheets.map((_, i) => '(' + (i + 1) + ')');
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, visualAids: opts.visualAids, numbered: opts.numbered, includeExample: opts.includeExample }, wsCodes[i]));
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, showDots: opts.showDots, numbered: opts.numbered, includeExample: opts.includeExample }, wsCodes[i]));
         sheetWrap.appendChild(p);
       }
       const answerKeyPages = [];
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: true, visualAids: opts.visualAids, numbered: opts.numbered, includeExample: false, isAnswerKey: true }, wsCodes[i]));
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: true, showDots: false, numbered: opts.numbered, isAnswerKey: true, includeExample: false }, wsCodes[i]));
           sheetWrap.appendChild(p);
           answerKeyPages.push(p);
         }
@@ -1243,11 +1086,13 @@
       window.print();
       setTimeout(() => { answerKeyPages.forEach(p => p.remove()); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 500);
     }
+
     // ===== Event Listeners =====
+    elMode.addEventListener("change", () => renderWithNewRandomization());
+    elRange.addEventListener("change", () => renderWithNewRandomization());
     elProblems.addEventListener("change", () => renderWithNewRandomization());
+    elShowDots.addEventListener("change", () => renderWithoutRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
-    elIncludeEqual.addEventListener("change", () => renderWithNewRandomization());
-    elVisualAids.addEventListener("change", () => renderWithNewRandomization());
     elShowHeaderEnabled.addEventListener("change", () => {
       elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
       renderWithoutRandomization();
@@ -1255,7 +1100,6 @@
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
     elNumbered.addEventListener("change", () => renderWithoutRandomization());
     elBranded.addEventListener("change", () => renderWithoutRandomization());
-    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
       renderWithoutRandomization();
@@ -1271,6 +1115,7 @@
     elHeaderText.addEventListener("input", () => renderWithoutRandomization());
     elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
     elAnswerKey.addEventListener("change", () => {});
+    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
 let resizeTimeout;
