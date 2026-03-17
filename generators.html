@@ -2232,12 +2232,15 @@
       pdfjsLib.getDocument(pdfUrl).promise.then(pdfDoc => {
         pdfDoc.getPage(1).then(page => {
           const viewport = page.getViewport({ scale: 1 });
-          const maxWidth = card.offsetWidth || 300;
-          const scale = maxWidth / viewport.width;
+          const displayWidth = card.offsetWidth || 300;
+          const hiDpiScale = 2;
+          const scale = (displayWidth / viewport.width) * hiDpiScale;
           const scaledViewport = page.getViewport({ scale });
           const canvas = document.createElement('canvas');
           canvas.width = scaledViewport.width;
           canvas.height = scaledViewport.height;
+          canvas.style.width = displayWidth + 'px';
+          canvas.style.height = (scaledViewport.height / hiDpiScale) + 'px';
           page.render({ canvasContext: canvas.getContext('2d'), viewport: scaledViewport }).promise.then(() => {
             card.innerHTML = '';
             card.appendChild(canvas);
