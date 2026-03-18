@@ -1,5 +1,6 @@
 {
   "title": "Expanded Form",
-  "description": "Break numbers into hundreds, tens, and ones or combine expanded form back into standard form. Reinforces place value understanding for 2–4 digit numbers.",
-  "grades": "1st — 3rd"
+  "description": "Break numbers into hundreds, tens, and ones or combine expanded form back into standard form. Reinforces place value understanding for 2â€“4 digit numbers.",
+  "grades": "1st — 3rd",
+  "order": 30
 }

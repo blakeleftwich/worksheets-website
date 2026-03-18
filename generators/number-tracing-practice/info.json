@@ -1,5 +1,6 @@
 {
   "title": "Number Tracing Practice",
   "description": "Dotted and dashed number outlines for tracing and handwriting practice. Customizable number ranges and repetitions for Pre-K and kindergarten learners.",
-  "grades": "Pre-K — K"
+  "grades": "Pre-K — K",
+  "order": 4
 }

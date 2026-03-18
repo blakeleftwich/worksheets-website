@@ -1,5 +1,6 @@
 {
   "title": "Ten Frames Counting",
-  "description": "Count dots in ten frames or fill empty frames to match a number. Supports single and double frames for numbers 1–20 with multiple dot styles.",
-  "grades": "Pre-K — 1st"
+  "description": "Count dots in ten frames or fill empty frames to match a number. Supports single and double frames for numbers 1â€“20 with multiple dot styles.",
+  "grades": "Pre-K — 1st",
+  "order": 7
 }

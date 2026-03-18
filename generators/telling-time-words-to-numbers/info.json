@@ -2,5 +2,6 @@
   "title": "Telling Time: Words to Numbers",
   "description": "Read the time written in words and write it as numbers.",
   "grades": "1st — 3rd",
-  "category": "telling-time"
+  "category": "telling-time",
+  "order": 17
 }

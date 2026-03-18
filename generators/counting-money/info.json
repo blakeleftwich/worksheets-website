@@ -1,5 +1,6 @@
 {
   "title": "Counting Money",
   "description": "Count groups of coins (and optionally bills) to find the total value. Progressive difficulty from pennies only to mixed coins and dollar bills.",
-  "grades": "1st — 2nd"
+  "grades": "1st — 2nd",
+  "order": 40
 }

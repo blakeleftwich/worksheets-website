@@ -1,5 +1,6 @@
 {
   "title": "Dot-to-Dot",
   "description": "Connect numbered dots in order to reveal a picture. Supports counting by 1s, 2s, 5s, and 10s with multiple fun picture templates.",
-  "grades": "Pre-K — 1st"
+  "grades": "Pre-K — 1st",
+  "order": 44
 }

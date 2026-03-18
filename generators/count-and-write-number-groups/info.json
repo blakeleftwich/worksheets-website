@@ -1,5 +1,6 @@
 {
   "title": "Count & Write Number Groups",
   "description": "Students count objects and record the correct number. Customize number ranges and layouts for kindergarten and early elementary group counting practice.",
-  "grades": "Pre-K — K"
+  "grades": "Pre-K — K",
+  "order": 5
 }

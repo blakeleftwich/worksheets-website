@@ -1,5 +1,6 @@
 {
   "title": "Column Math Equations",
   "description": "Column-style addition, subtraction, multiplication, or division for vertical problem solving. Supports regrouping and standard algorithm practice for elementary students.",
-  "grades": "K — 2nd"
+  "grades": "K — 2nd",
+  "order": 12
 }

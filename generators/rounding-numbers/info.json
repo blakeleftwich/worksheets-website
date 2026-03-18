@@ -1,5 +1,6 @@
 {
   "title": "Rounding Numbers",
   "description": "Round numbers to the nearest 10, 100, or 1,000 with optional number line hints. Visual aids help students understand rounding rules intuitively.",
-  "grades": "2nd — 3rd"
+  "grades": "2nd — 3rd",
+  "order": 29
 }

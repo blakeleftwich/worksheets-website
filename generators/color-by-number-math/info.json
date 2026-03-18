@@ -1,5 +1,6 @@
 {
   "title": "Color by Number Math",
   "description": "Solve math problems to reveal a colorful picture! Each answer maps to a color. Combines math practice with creative coloring fun.",
-  "grades": "K — 2nd"
+  "grades": "K — 2nd",
+  "order": 43
 }
