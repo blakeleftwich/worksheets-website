@@ -837,35 +837,39 @@
     }
 
     function estimateProblemHeight(prob) {
-      const fontSize = 14;
+      const fontSize = 17;
       const lineHeight = fontSize * 1.45;
       const textW = 612 - 36 * 2 - 22; // pageW - margins - number indent
       const lines = wrapText(prob.text, textW, fontSize);
       const textH = fontSize + (lines.length - 1) * lineHeight + 8;
       const answerLines = prob.answers ? prob.answers.length : 1;
       const ansH = answerLines > 1 ? answerLines * 20 : 20;
-      return textH + 10 + ansH + lineHeight; // text + gap + answers + extra line under
+      return textH + 10 + ansH + 10; // text + gap + answers + spacing
     }
 
     function generateSheet() {
       const mode = elMode.value;
       const bank = buildQuestionBank();
-      const fontSize = 14;
+      const fontSize = 17;
       const lineHeight = fontSize * 1.45;
-      const lineGap = lineHeight; // one text line height between problems
-      // Estimate available height: pageH(792) - header area(~120) - bottom margin(~56) - buffer(~40)
-      const availH = 792 - 120 - 56 - 40; // ~576
+      const lineGap = lineHeight * 0.45; // tighter gap between problems
+      // Available height: pageH(792) - header area(~130 with gap) - bottom margin(~76 for footer breathing room)
+      const availH = 792 - 130 - 76;
+      // Target 5 problems; generate them first, then check if they fit
+      const target = 5;
       const problems = [];
       const usedIndices = new Set();
+      for (let i = 0; i < target; i++) {
+        problems.push(generateProblem(mode, usedIndices, bank));
+      }
+      // Check total height
       let totalH = 0;
-      const maxProblems = 8;
-      for (let i = 0; i < maxProblems; i++) {
-        const prob = generateProblem(mode, usedIndices, bank);
-        const h = estimateProblemHeight(prob);
-        const neededH = totalH + h + (problems.length > 0 ? lineGap : 0);
-        if (neededH > availH && problems.length >= 3) break;
-        problems.push(prob);
-        totalH = neededH;
+      for (let i = 0; i < problems.length; i++) {
+        totalH += estimateProblemHeight(problems[i]) + (i > 0 ? lineGap : 0);
+      }
+      // If 5 don't fit, drop to 4
+      if (totalH > availH && problems.length > 4) {
+        problems.length = 4;
       }
       return problems;
     }
@@ -923,10 +927,10 @@
           curY += 28;
         } else if (showHeader === "name") {
           svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+            x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Name")]));
           svg.appendChild(svgEl("line", {
-            x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
+            x1: midX + 58, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
             stroke: "#718096", "stroke-width": 0.75
           }));
           curY += 28;
@@ -943,7 +947,7 @@
           }, [document.createTextNode(subtitle)]));
           curY += 20;
         }
-        topGridY = curY + 22;
+        topGridY = curY + 36;
       }
 
       // Branding footer
@@ -985,7 +989,7 @@
       const availH = pageH - bottomMargin - gridTop;
       const availW = pageW - margin * 2;
       const numProblems = problems.length;
-      const fontSize = 14;
+      const fontSize = 17;
       const lineHeight = fontSize * 1.45;
       const textMaxW = availW - 20;
       const ansColor = showAnswers ? "#3182ce" : "#3182ce";
@@ -998,9 +1002,20 @@
         const textH = fontSize + (lines.length - 1) * lineHeight + 8;
         const answers = prob.answers || [];
         const ansH = answers.length > 1 ? answers.length * ansLineH : ansLineH;
-        return textH + 10 + ansH + lineHeight; // text + gap + answers + extra line under
+        return textH + 10 + ansH + 10; // text + gap + answers + spacing
       });
-      const gap = lineHeight; // one text line height between problems
+      var gap = lineHeight * 0.45; // base gap between problems
+
+      // If fewer than 5 problems, distribute extra vertical space as additional gap
+      var totalContentH = 0;
+      for (var hi = 0; hi < probHeights.length; hi++) {
+        totalContentH += probHeights[hi];
+      }
+      var totalGapsH = (numProblems - 1) * gap;
+      var extraSpace = availH - totalContentH - totalGapsH;
+      if (extraSpace > 0 && numProblems > 1) {
+        gap += (extraSpace * 0.5) / (numProblems - 1);
+      }
 
       // Render each problem
       let curY = gridTop;

@@ -418,6 +418,49 @@
       size: letter;
       margin: 0.5in 0.4in 0in 0.4in;
     }
+
+    /* ===== Operation Chips ===== */
+    .ops-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .op-chip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      padding: 6px 0;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .op-chip input[type="checkbox"] {
+      display: none;
+    }
+
+    .op-chip span {
+      font-size: 18px;
+      font-weight: 700;
+      color: #a0aec0;
+      line-height: 1;
+    }
+
+    .op-chip:has(input:checked) {
+      border-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .op-chip:has(input:checked) span {
+      color: #f59e0b;
+    }
+
+    .op-chip:hover {
+      border-color: #cbd5e0;
+    }
   </style>
   <link rel="stylesheet" href="../../fonts/fonts.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -446,16 +489,13 @@
       <h2>Word Problems Generator</h2>
 
       <div class="control-group">
-        <label for="modeSelect">Mode</label>
-        <select id="modeSelect">
-          <option value="addition">Addition</option>
-          <option value="subtraction">Subtraction</option>
-          <option value="multiplication">Multiplication</option>
-          <option value="division">Division</option>
-          <option value="add-sub" selected>Addition and Subtraction</option>
-          <option value="mult-div">Multiplication and Division</option>
-          <option value="mixed">Mixed</option>
-        </select>
+        <label>Operations</label>
+        <div class="ops-row">
+          <label class="op-chip"><input type="checkbox" id="opAdd" checked /><span>＋</span></label>
+          <label class="op-chip"><input type="checkbox" id="opSub" checked /><span>－</span></label>
+          <label class="op-chip"><input type="checkbox" id="opMul" /><span>×</span></label>
+          <label class="op-chip"><input type="checkbox" id="opDiv" /><span>÷</span></label>
+        </div>
       </div>
 
       <div class="control-group">
@@ -579,7 +619,10 @@
 
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
-    const elMode = document.getElementById("modeSelect");
+    const elOpAdd = document.getElementById("opAdd");
+    const elOpSub = document.getElementById("opSub");
+    const elOpMul = document.getElementById("opMul");
+    const elOpDiv = document.getElementById("opDiv");
     const elRange = document.getElementById("rangeSelect");
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
@@ -933,43 +976,59 @@
     }
 
     function estimateProblemHeight(prob) {
-      const fontSize = 14;
+      const fontSize = 17;
       const lineHeight = fontSize * 1.45;
       const textW = 612 - 36 * 2 - 22; // pageW - margins - number indent
       const lines = wrapText(prob.text, textW, fontSize);
       const textH = fontSize + (lines.length - 1) * lineHeight + 8;
       const answerLines = prob.answers ? prob.answers.length : 1;
       const ansH = answerLines > 1 ? answerLines * 20 : 20;
-      return textH + 10 + ansH + lineHeight; // text + gap + answers + extra line under
+      return textH + 10 + ansH + 10; // text + gap + answers + spacing
     }
 
     function generateSheet() {
-      const mode = elMode.value;
+      const mode = getModeFromOps();
       const bank = buildQuestionBank();
-      const fontSize = 14;
+      const fontSize = 17;
       const lineHeight = fontSize * 1.45;
-      const lineGap = lineHeight; // one text line height between problems
-      // Estimate available height: pageH(792) - header area(~120) - bottom margin(~56) - buffer(~40)
-      const availH = 792 - 120 - 56 - 40; // ~576
+      const lineGap = lineHeight * 0.45;
+      // Available height: pageH(792) - header area(~130 with gap) - bottom margin(~76 for footer breathing room)
+      const availH = 792 - 130 - 76;
+      // Target 5 problems; generate them first, then check if they fit
+      const target = 5;
       const problems = [];
       const usedIndices = new Set();
+      for (let i = 0; i < target; i++) {
+        problems.push(generateProblem(mode, usedIndices, bank));
+      }
+      // Check total height
       let totalH = 0;
-      const maxProblems = 8;
-      for (let i = 0; i < maxProblems; i++) {
-        const prob = generateProblem(mode, usedIndices, bank);
-        const h = estimateProblemHeight(prob);
-        const neededH = totalH + h + (problems.length > 0 ? lineGap : 0);
-        if (neededH > availH && problems.length >= 3) break;
-        problems.push(prob);
-        totalH = neededH;
+      for (let i = 0; i < problems.length; i++) {
+        totalH += estimateProblemHeight(problems[i]) + (i > 0 ? lineGap : 0);
+      }
+      // If 5 don't fit, drop to 4
+      if (totalH > availH && problems.length > 4) {
+        problems.length = 4;
       }
       return problems;
     }
 
     // ===== Gather options =====
+    function getModeFromOps() {
+      const a = elOpAdd.checked, s = elOpSub.checked, m = elOpMul.checked, d = elOpDiv.checked;
+      if (a && s && m && d) return "mixed";
+      if (a && s && !m && !d) return "add-sub";
+      if (!a && !s && m && d) return "mult-div";
+      if (a && !s && !m && !d) return "addition";
+      if (!a && s && !m && !d) return "subtraction";
+      if (!a && !s && m && !d) return "multiplication";
+      if (!a && !s && !m && d) return "division";
+      return "mixed"; // any other combination
+    }
+
     function gatherOptions() {
       return {
-        mode: elMode.value,
+        mode: getModeFromOps(),
         range: elRange.value,
         numWorksheets: parseInt(elNumSheets.value, 10),
         showHeader: getHeaderMode(),
@@ -1019,10 +1078,10 @@
           curY += 28;
         } else if (showHeader === "name") {
           svg.appendChild(svgEl("text", {
-            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+            x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
           }, [document.createTextNode("Name")]));
           svg.appendChild(svgEl("line", {
-            x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
+            x1: midX + 58, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
             stroke: "#718096", "stroke-width": 0.75
           }));
           curY += 28;
@@ -1039,7 +1098,7 @@
           }, [document.createTextNode(subtitle)]));
           curY += 20;
         }
-        topGridY = curY + 22;
+        topGridY = curY + 36;
       }
 
       // Branding footer
@@ -1081,7 +1140,7 @@
       const availH = pageH - bottomMargin - gridTop;
       const availW = pageW - margin * 2;
       const numProblems = problems.length;
-      const fontSize = 14;
+      const fontSize = 17;
       const lineHeight = fontSize * 1.45;
       const textMaxW = availW - 20;
       const ansColor = showAnswers ? "#3182ce" : "#3182ce";
@@ -1094,9 +1153,20 @@
         const textH = fontSize + (lines.length - 1) * lineHeight + 8;
         const answers = prob.answers || [];
         const ansH = answers.length > 1 ? answers.length * ansLineH : ansLineH;
-        return textH + 10 + ansH + lineHeight; // text + gap + answers + extra line under
+        return textH + 10 + ansH + 10; // text + gap + answers + spacing
       });
-      const gap = lineHeight; // one text line height between problems
+      var gap = lineHeight * 0.45; // base gap between problems
+
+      // If fewer than 5 problems, distribute extra vertical space as additional gap
+      var totalContentH = 0;
+      for (var hi = 0; hi < probHeights.length; hi++) {
+        totalContentH += probHeights[hi];
+      }
+      var totalGapsH = (numProblems - 1) * gap;
+      var extraSpace = availH - totalContentH - totalGapsH;
+      if (extraSpace > 0 && numProblems > 1) {
+        gap += (extraSpace * 0.5) / (numProblems - 1);
+      }
 
       // Render each problem
       let curY = gridTop;
@@ -1271,7 +1341,16 @@
     }
 
     // ===== Event Listeners =====
-    elMode.addEventListener("change", () => renderWithNewRandomization());
+    // Ensure at least one operation is always checked
+    [elOpAdd, elOpSub, elOpMul, elOpDiv].forEach(el => {
+      el.addEventListener("change", () => {
+        if (!(elOpAdd.checked || elOpSub.checked || elOpMul.checked || elOpDiv.checked)) {
+          el.checked = true;
+          return;
+        }
+        renderWithNewRandomization();
+      });
+    });
     elRange.addEventListener("change", () => renderWithNewRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elAnswerKey.addEventListener("change", () => {});

@@ -740,8 +740,8 @@
           svg.appendChild(svgEl("line", { x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
           curY += 28;
         } else if (showHeader === "name") {
-          svg.appendChild(svgEl("text", { x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode("Name")]));
-          svg.appendChild(svgEl("line", { x1: margin + 38, y1: curY + 18, x2: pageW - margin, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
+          svg.appendChild(svgEl("text", { x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode("Name")]));
+          svg.appendChild(svgEl("line", { x1: midX + 58, y1: curY + 18, x2: pageW - margin, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
           curY += 28;
         }
         if (title) {
