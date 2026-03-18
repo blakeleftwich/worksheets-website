@@ -418,6 +418,29 @@
       size: letter;
       margin: 0.5in 0.4in 0in 0.4in;
     }
+
+    /* Number toggle buttons */
+    .num-toggle-btn {
+      width: 42px;
+      height: 42px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      font-size: 16px;
+      font-weight: 700;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .num-toggle-btn:hover { border-color: #f59e0b; }
+    .num-toggle-btn.active {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      color: #92400e;
+    }
   </style>
   <link rel="stylesheet" href="../../fonts/fonts.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -448,19 +471,35 @@
       <div class="control-group">
         <label for="numberRange">Number Range</label>
         <select id="numberRange">
-          <option value="1-5" selected>1 – 5</option>
           <option value="0-4">0 – 4</option>
+          <option value="1-5">1 – 5</option>
+          <option value="5-9" selected>5 – 9</option>
           <option value="6-10">6 – 10</option>
-          <option value="5-9">5 – 9</option>
+          <option value="0-9">0 – 9</option>
+          <option value="1-10">1 – 10</option>
+          <option value="custom">Custom...</option>
         </select>
       </div>
 
+      <div id="customNumberSection" style="display:none;margin-bottom:20px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:#2d3748;margin-bottom:6px;">Select Numbers</label>
+        <div id="numberToggleGrid" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+      </div>
+
       <div class="control-group">
-        <label for="rowsPerPage">Rows per Page</label>
-        <select id="rowsPerPage">
-          <option value="4" selected>4</option>
-          <option value="5">5</option>
+        <label for="sizeSelect">Size</label>
+        <select id="sizeSelect">
+          <option value="large" selected>Large (5 rows)</option>
+          <option value="medium">Medium (6 rows)</option>
+          <option value="small">Small (7 rows)</option>
         </select>
+      </div>
+
+      <div class="checkbox-row" style="margin-bottom:12px;">
+        <label>
+          <input type="checkbox" id="onePerPage">
+          <span>One per page</span>
+        </label>
       </div>
 
       <!-- Advanced Options -->
@@ -524,6 +563,18 @@
             </div>
           </div>
 
+          <!-- Fade away -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="fadeAway" checked />
+            <label for="fadeAway">Fade away</label>
+          </div>
+
+          <!-- Hide example -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="hideExample" />
+            <label for="hideExample">Hide example</label>
+          </div>
+
           <!-- Branding -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="branded" checked />
@@ -557,8 +608,36 @@
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
     const elNumberRange = document.getElementById("numberRange");
-    const elRowsPerPage = document.getElementById("rowsPerPage");
     const elNumSheets = document.getElementById("numWorksheets");
+    const elHideExample = document.getElementById("hideExample");
+    const elFadeAway = document.getElementById("fadeAway");
+    const elSizeSelect = document.getElementById("sizeSelect");
+    const elOnePerPage = document.getElementById("onePerPage");
+    const customNumberSection = document.getElementById("customNumberSection");
+    const numberToggleGrid = document.getElementById("numberToggleGrid");
+
+    // Build toggle buttons 0-10
+    for (var n = 0; n <= 10; n++) {
+      var btn = document.createElement("button");
+      btn.className = "num-toggle-btn";
+      btn.textContent = n;
+      btn.dataset.num = n;
+      btn.type = "button";
+      btn.addEventListener("click", function() {
+        this.classList.toggle("active");
+        regenerate();
+      });
+      numberToggleGrid.appendChild(btn);
+    }
+
+    function getCustomNumbers() {
+      var nums = [];
+      numberToggleGrid.querySelectorAll(".num-toggle-btn.active").forEach(function(b) {
+        nums.push(parseInt(b.dataset.num));
+      });
+      nums.sort(function(a, b) { return a - b; });
+      return nums;
+    }
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
     const elHeaderMode = document.getElementById("headerMode");
     const elHeaderModeOptions = document.getElementById("headerModeOptions");
@@ -599,19 +678,30 @@
       return "Trace each number, then practice writing it on your own.";
     }
 
+    function getRowsPerPage() {
+      var size = elSizeSelect.value;
+      if (size === "medium") return 6;
+      if (size === "small") return 7;
+      return 5; // large
+    }
+
     function gatherOptions() {
       return {
         numberRange: elNumberRange.value,
-        rowsPerPage: parseInt(elRowsPerPage.value, 10),
+        rowsPerPage: getRowsPerPage(),
+        onePerPage: elOnePerPage.checked,
         numWorksheets: parseInt(elNumSheets.value, 10),
         showHeader: getHeaderMode(),
         title: getTitle(),
         subtitle: getSubtitle(),
         branded: elBranded.checked,
+        hideExample: elHideExample.checked,
+        fadeAway: elFadeAway.checked,
       };
     }
 
     function parseRange(val) {
+      if (val === "custom") return getCustomNumbers();
       const [a, b] = val.split("-").map(Number);
       const nums = [];
       for (let i = a; i <= b; i++) nums.push(i);
@@ -629,7 +719,7 @@
       },
       2: {
         strokes: [
-          { d: "M 0.22 0.20 C 0.22 0.05, 0.82 0.05, 0.82 0.28 C 0.82 0.50, 0.20 0.70, 0.15 0.95", start: [0.22, 0.20], dir: [0.10, -0.12] },
+          { d: "M 0.22 0.20 C 0.22 0.05, 0.82 0.05, 0.82 0.28 C 0.82 0.48, 0.40 0.68, 0.15 0.95", start: [0.22, 0.20], dir: [0.10, -0.12] },
           { d: "M 0.15 0.95 L 0.85 0.95", start: [0.15, 0.95], dir: [0.15, 0.0] }
         ]
       },
@@ -787,13 +877,13 @@
       });
     }
 
-    function drawTracingRow(svg, num, rowTop, rowH, margin, pageW, scale) {
+    function drawTracingRow(svg, num, rowTop, rowH, margin, pageW, scale, hideExample, fadeAway) {
       scale = scale || 1;
       var lineRight = pageW - margin;
       var digits = String(num).split("").map(Number);
       var isMultiDigit = digits.length > 1;
 
-      var digitH = rowH * 0.72;
+      var digitH = rowH * 0.88;
       var digitTop = rowTop + (rowH - digitH) / 2;
 
       var halfStroke = 1.4;
@@ -801,30 +891,53 @@
       var actualBot = digitTop + 0.95 * digitH + halfStroke;
       var actualMid = (actualTop + actualBot) / 2;
 
-      var guideAreaW = isMultiDigit ? 160 : 100;
-      var guideAreaX = margin;
+      if (!hideExample) {
+        // Show guide example on the left
+        var guideAreaW = isMultiDigit ? 160 : 100;
+        var guideAreaX = margin;
 
-      var guideCx = guideAreaX + guideAreaW / 2;
-      var iScale = Math.pow(scale, 1.5);
-      drawNumber(svg, num, guideCx, digitTop, digitH, { opacity: 0.85, showGuide: true, strokeWidth: 2.8, indicatorScale: iScale });
+        var guideCx = guideAreaX + guideAreaW / 2;
+        var iScale = Math.pow(scale, 1.5);
+        drawNumber(svg, num, guideCx, digitTop, digitH, { opacity: 0.85, showGuide: true, strokeWidth: 2.8, indicatorScale: iScale });
 
-      var linesStart = guideAreaX + guideAreaW + 8;
+        var linesStart = guideAreaX + guideAreaW + 8;
 
-      svg.appendChild(svgEl("line", { x1: String(linesStart), y1: String(actualTop), x2: String(lineRight), y2: String(actualTop), stroke: "#aaa", "stroke-width": "1" }));
-      svg.appendChild(svgEl("line", { x1: String(linesStart), y1: String(actualMid), x2: String(lineRight), y2: String(actualMid), stroke: "#ccc", "stroke-width": "0.75", "stroke-dasharray": "8 5" }));
-      svg.appendChild(svgEl("line", { x1: String(linesStart), y1: String(actualBot), x2: String(lineRight), y2: String(actualBot), stroke: "#aaa", "stroke-width": "1" }));
+        svg.appendChild(svgEl("line", { x1: String(linesStart), y1: String(actualTop), x2: String(lineRight), y2: String(actualTop), stroke: "#aaa", "stroke-width": "1" }));
+        svg.appendChild(svgEl("line", { x1: String(linesStart), y1: String(actualMid), x2: String(lineRight), y2: String(actualMid), stroke: "#ccc", "stroke-width": "0.75", "stroke-dasharray": "8 5" }));
+        svg.appendChild(svgEl("line", { x1: String(linesStart), y1: String(actualBot), x2: String(lineRight), y2: String(actualBot), stroke: "#aaa", "stroke-width": "1" }));
 
-      var traceAreaW = lineRight - linesStart;
-      var numTraced = isMultiDigit ? 2 : 4;
-      var spacing = isMultiDigit ? traceAreaW / 2 : traceAreaW / numTraced;
+        var traceAreaW = lineRight - linesStart;
+        var numTraced = isMultiDigit ? 2 : 4;
+        var spacing = isMultiDigit ? traceAreaW / 2 : traceAreaW / numTraced;
 
-      var opacities = [0.80, 0.50, 0.25, 0.10];
-      for (var i = 0; i < numTraced; i++) {
-        var cx = linesStart + spacing * (i + 0.5);
-        drawNumber(svg, num, cx, digitTop, digitH, {
-          opacity: opacities[i] || 0.08,
-          strokeWidth: 2.2,
-        });
+        var opacities = fadeAway ? [0.80, 0.50, 0.25, 0.10] : [0.60, 0.60, 0.60, 0.60];
+        for (var i = 0; i < numTraced; i++) {
+          var cx = linesStart + spacing * (i + 0.5);
+          drawNumber(svg, num, cx, digitTop, digitH, {
+            opacity: opacities[i] || (fadeAway ? 0.08 : 0.60),
+            strokeWidth: 2.2,
+          });
+        }
+      } else {
+        // No guide — guidelines extend to margin, one extra traced number
+        var linesStartH = margin;
+
+        svg.appendChild(svgEl("line", { x1: String(linesStartH), y1: String(actualTop), x2: String(lineRight), y2: String(actualTop), stroke: "#aaa", "stroke-width": "1" }));
+        svg.appendChild(svgEl("line", { x1: String(linesStartH), y1: String(actualMid), x2: String(lineRight), y2: String(actualMid), stroke: "#ccc", "stroke-width": "0.75", "stroke-dasharray": "8 5" }));
+        svg.appendChild(svgEl("line", { x1: String(linesStartH), y1: String(actualBot), x2: String(lineRight), y2: String(actualBot), stroke: "#aaa", "stroke-width": "1" }));
+
+        var traceAreaWH = lineRight - linesStartH;
+        var numTracedH = isMultiDigit ? 3 : 5;
+        var spacingH = traceAreaWH / numTracedH;
+
+        var opacitiesH = fadeAway ? [0.80, 0.50, 0.25, 0.10, 0.05] : [0.60, 0.60, 0.60, 0.60, 0.60];
+        for (var j = 0; j < numTracedH; j++) {
+          var cxH = linesStartH + spacingH * (j + 0.5);
+          drawNumber(svg, num, cxH, digitTop, digitH, {
+            opacity: opacitiesH[j] || (fadeAway ? 0.05 : 0.60),
+            strokeWidth: 2.2,
+          });
+        }
       }
     }
 
@@ -834,6 +947,9 @@
       var title = options.title;
       var subtitle = options.subtitle;
       var branded = options.branded;
+      var hideExample = options.hideExample || false;
+      var onePerPage = options.onePerPage || false;
+      var fadeAway = options.fadeAway !== false;
 
       var pageW = 612, pageH = 792, margin = 36;
       var svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
@@ -896,21 +1012,66 @@
       var scale = numRows <= 4 ? 1 : (4 / numRows);
 
       for (var r = 0; r < numRows; r++) {
-        drawTracingRow(svg, numbers[r], gridTop + r * rowH, rowH, margin, pageW, scale);
+        // In one-per-page mode, only first row gets example; rest are hidden
+        var rowHideExample = hideExample || (onePerPage && r > 0);
+        drawTracingRow(svg, numbers[r], gridTop + r * rowH, rowH, margin, pageW, scale, rowHideExample, fadeAway);
       }
 
       return svg;
     }
 
     // ===== Pagination =====
+    // Distribute numbers across rows with minimum 5 rows per page.
+    // If onePerPage, each number gets its own page of 5 rows.
     function buildPages() {
       var opts = gatherOptions();
       var allNumbers = parseRange(opts.numberRange);
-      var perPage = opts.rowsPerPage;
+      if (allNumbers.length === 0) { currentState.pages = []; return; }
+
       var basePages = [];
-      for (var i = 0; i < allNumbers.length; i += perPage) {
-        basePages.push(allNumbers.slice(i, i + perPage));
+      var rpp = opts.rowsPerPage;
+
+      if (opts.onePerPage) {
+        // Each number gets its own page with rpp rows of that number
+        for (var n = 0; n < allNumbers.length; n++) {
+          var page = [];
+          for (var r = 0; r < rpp; r++) page.push(allNumbers[n]);
+          basePages.push(page);
+        }
+      } else {
+        // Distribute numbers to fill pages of rpp rows each
+        var count = allNumbers.length;
+        if (count <= rpp) {
+          // All fit on one page — distribute rpp rows evenly
+          var page = [];
+          var rowsPerNum = Math.floor(rpp / count);
+          var extra = rpp % count;
+          for (var i = 0; i < count; i++) {
+            var numRows = rowsPerNum + (i < extra ? 1 : 0);
+            for (var r = 0; r < numRows; r++) page.push(allNumbers[i]);
+          }
+          basePages.push(page);
+        } else {
+          // More than rpp numbers — paginate in groups of rpp
+          for (var i = 0; i < count; i += rpp) {
+            var chunk = allNumbers.slice(i, i + rpp);
+            if (chunk.length < rpp) {
+              // Pad last page to rpp rows by repeating
+              var page = [];
+              var rowsPerNum = Math.floor(rpp / chunk.length);
+              var extra = rpp % chunk.length;
+              for (var j = 0; j < chunk.length; j++) {
+                var numRows = rowsPerNum + (j < extra ? 1 : 0);
+                for (var r = 0; r < numRows; r++) page.push(chunk[j]);
+              }
+              basePages.push(page);
+            } else {
+              basePages.push(chunk);
+            }
+          }
+        }
       }
+
       var result = [];
       for (var s = 0; s < opts.numWorksheets; s++) {
         for (var j = 0; j < basePages.length; j++) {
@@ -985,9 +1146,15 @@
     }
 
     // ===== Event Listeners =====
-    elNumberRange.addEventListener("change", regenerate);
-    elRowsPerPage.addEventListener("change", regenerate);
+    elNumberRange.addEventListener("change", function() {
+      customNumberSection.style.display = elNumberRange.value === "custom" ? "block" : "none";
+      regenerate();
+    });
     elNumSheets.addEventListener("change", regenerate);
+    elSizeSelect.addEventListener("change", regenerate);
+    elOnePerPage.addEventListener("change", regenerate);
+    elHideExample.addEventListener("change", regenerate);
+    elFadeAway.addEventListener("change", regenerate);
     elShowHeaderEnabled.addEventListener("change", function() {
       elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
       regenerate();

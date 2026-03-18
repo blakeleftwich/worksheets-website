@@ -445,6 +445,15 @@
       <h2>Ten Frame Making Ten Worksheet Generator</h2>
 
       <div class="control-group">
+        <label for="modeSelect">Mode</label>
+        <select id="modeSelect">
+          <option value="addition" selected>Addition</option>
+          <option value="subtraction">Subtraction</option>
+          <option value="both">Both</option>
+        </select>
+      </div>
+
+      <div class="control-group">
         <label for="targetSelect">Target Number</label>
         <select id="targetSelect">
           <option value="5">Make 5</option>
@@ -575,6 +584,7 @@
 
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
+    const elMode = document.getElementById("modeSelect");
     const elTarget = document.getElementById("targetSelect");
     const elProblems = document.getElementById("problemsPerSheet");
     const elNumSheets = document.getElementById("numWorksheets");
@@ -604,25 +614,32 @@
     let currentState = { sheets: [] };
 
     // ===== Problem generation =====
-    function generateProblems(count, target) {
+    function generateProblems(count, target, mode) {
       const problems = [];
-      // Valid dot counts: 1 to (target - 1) so the missing addend is always >= 1
+      // Valid dot counts: 1 to (target - 1) so the missing part is always >= 1
       const lo = 1, hi = target - 1;
       const range = hi - lo + 1;
 
+      function makeProblem(dots) {
+        const missing = target - dots;
+        // Decide if this problem is addition or subtraction
+        let type;
+        if (mode === "addition") type = "addition";
+        else if (mode === "subtraction") type = "subtraction";
+        else type = Math.random() < 0.5 ? "addition" : "subtraction";
+
+        const blankFirst = Math.random() < 0.5;
+        return { dots, missing, target, blankFirst, type };
+      }
+
       if (count <= range) {
-        // Pick unique values from [lo..hi]
         const pool = [];
         for (let n = lo; n <= hi; n++) pool.push(n);
         for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
         for (let i = 0; i < count; i++) {
-          const dots = pool[i];
-          const missing = target - dots;
-          const blankFirst = Math.random() < 0.5;
-          problems.push({ dots, missing, target, blankFirst });
+          problems.push(makeProblem(pool[i]));
         }
       } else {
-        // More problems than range: fill with full shuffled sets + remainder
         const fullSets = Math.floor(count / range);
         const remainder = count % range;
         for (let s = 0; s < fullSets; s++) {
@@ -630,9 +647,7 @@
           for (let n = lo; n <= hi; n++) pool.push(n);
           for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
           for (const dots of pool) {
-            const missing = target - dots;
-            const blankFirst = Math.random() < 0.5;
-            problems.push({ dots, missing, target, blankFirst });
+            problems.push(makeProblem(dots));
           }
         }
         if (remainder > 0) {
@@ -640,10 +655,7 @@
           for (let n = lo; n <= hi; n++) pool.push(n);
           for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
           for (let i = 0; i < remainder; i++) {
-            const dots = pool[i];
-            const missing = target - dots;
-            const blankFirst = Math.random() < 0.5;
-            problems.push({ dots, missing, target, blankFirst });
+            problems.push(makeProblem(pool[i]));
           }
         }
       }
@@ -856,144 +868,105 @@
         const eqY = frameY + singleFrameH + gapBetween + eqFontSize * 0.8 + 14;
 
         // Build the equation string parts
-        // blankFirst: ___ + dots = target
-        // !blankFirst: dots + ___ = target
         const isExample = (i === 0 && includeExample && !showAnswers);
         const dotsStr = String(prob.dots);
         const missingStr = String(prob.missing);
         const targetStr = String(prob.target);
-        const blankW = eqFontSize * 2.0; // width of the blank underline
-
-        // Measure approximate equation width to center it
+        const blankW = eqFontSize * 2.0;
         const charW = eqFontSize * 0.62;
         const spaceW = eqFontSize * 0.35;
-        const plusW = charW;
+        const opW = charW;
         const equalsW = charW;
 
-        let eqTotalW;
-        if (prob.blankFirst) {
-          // ___ + dotsStr = targetStr
-          eqTotalW = blankW + spaceW + plusW + spaceW + dotsStr.length * charW + spaceW + equalsW + spaceW + targetStr.length * charW;
+        const isSub = prob.type === "subtraction";
+        // Addition: ___ + dots = target  OR  dots + ___ = target
+        // Subtraction: target - ___ = dots  OR  target - dots = ___
+
+        // Build equation parts as an array of {type, text, width}
+        const parts = [];
+        if (isSub) {
+          if (prob.blankFirst) {
+            // target - ___ = dots  (blank is the subtrahend, answer is missing = target - dots)
+            parts.push({ kind: "num", text: targetStr, w: targetStr.length * charW });
+            parts.push({ kind: "sp", w: spaceW });
+            parts.push({ kind: "op", text: "\u2212", w: opW });
+            parts.push({ kind: "sp", w: spaceW });
+            parts.push({ kind: "blank", answer: missingStr, w: blankW });
+            parts.push({ kind: "sp", w: spaceW });
+            parts.push({ kind: "op", text: "=", w: equalsW });
+            parts.push({ kind: "sp", w: spaceW });
+            parts.push({ kind: "num", text: dotsStr, w: dotsStr.length * charW });
+          } else {
+            // target - dots = ___  (blank is the difference)
+            parts.push({ kind: "num", text: targetStr, w: targetStr.length * charW });
+            parts.push({ kind: "sp", w: spaceW });
+            parts.push({ kind: "op", text: "\u2212", w: opW });
+            parts.push({ kind: "sp", w: spaceW });
+            parts.push({ kind: "num", text: dotsStr, w: dotsStr.length * charW });
+            parts.push({ kind: "sp", w: spaceW });
+            parts.push({ kind: "op", text: "=", w: equalsW });
+            parts.push({ kind: "sp", w: spaceW });
+            parts.push({ kind: "blank", answer: missingStr, w: blankW });
+          }
         } else {
-          // dotsStr + ___ = targetStr
-          eqTotalW = dotsStr.length * charW + spaceW + plusW + spaceW + blankW + spaceW + equalsW + spaceW + targetStr.length * charW;
+          if (prob.blankFirst) {
+            // ___ + dots = target
+            parts.push({ kind: "blank", answer: missingStr, w: blankW });
+            parts.push({ kind: "sp", w: spaceW });
+            parts.push({ kind: "op", text: "+", w: opW });
+            parts.push({ kind: "sp", w: spaceW });
+            parts.push({ kind: "num", text: dotsStr, w: dotsStr.length * charW });
+            parts.push({ kind: "sp", w: spaceW });
+            parts.push({ kind: "op", text: "=", w: equalsW });
+            parts.push({ kind: "sp", w: spaceW });
+            parts.push({ kind: "num", text: targetStr, w: targetStr.length * charW });
+          } else {
+            // dots + ___ = target
+            parts.push({ kind: "num", text: dotsStr, w: dotsStr.length * charW });
+            parts.push({ kind: "sp", w: spaceW });
+            parts.push({ kind: "op", text: "+", w: opW });
+            parts.push({ kind: "sp", w: spaceW });
+            parts.push({ kind: "blank", answer: missingStr, w: blankW });
+            parts.push({ kind: "sp", w: spaceW });
+            parts.push({ kind: "op", text: "=", w: equalsW });
+            parts.push({ kind: "sp", w: spaceW });
+            parts.push({ kind: "num", text: targetStr, w: targetStr.length * charW });
+          }
         }
 
+        const eqTotalW = parts.reduce((sum, p) => sum + p.w, 0);
         let eqX = contentCenterX - eqTotalW / 2;
 
-        if (prob.blankFirst) {
-          // Draw blank (underline) or answer
-          if (showAnswers || isExample) {
-            const ansColor = showAnswers ? "#3182ce" : "#16a34a";
-            const ansEl = svgEl("text", {
-              x: eqX + blankW / 2, y: eqY,
-              "text-anchor": "middle",
+        for (const part of parts) {
+          if (part.kind === "sp") {
+            eqX += part.w;
+          } else if (part.kind === "num" || part.kind === "op") {
+            const el = svgEl("text", {
+              x: eqX, y: eqY,
               "font-family": "'Google Sans Flex', sans-serif",
-              "font-size": String(eqFontSize), "font-weight": "500", fill: ansColor
+              "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
             });
-            ansEl.textContent = missingStr; svg.appendChild(ansEl);
-          } else {
-            // Underline for blank
-            const lineY2 = eqY + 4;
-            svg.appendChild(svgEl("line", {
-              x1: eqX + 2, y1: lineY2, x2: eqX + blankW - 2, y2: lineY2,
-              stroke: "#000", "stroke-width": "2.5"
-            }));
+            el.textContent = part.text; svg.appendChild(el);
+            eqX += part.w;
+          } else if (part.kind === "blank") {
+            if (showAnswers || isExample) {
+              const ansColor = showAnswers ? "#3182ce" : "#16a34a";
+              const ansEl = svgEl("text", {
+                x: eqX + blankW / 2, y: eqY,
+                "text-anchor": "middle",
+                "font-family": "'Google Sans Flex', sans-serif",
+                "font-size": String(eqFontSize), "font-weight": "500", fill: ansColor
+              });
+              ansEl.textContent = part.answer; svg.appendChild(ansEl);
+            } else {
+              const lineY2 = eqY + 4;
+              svg.appendChild(svgEl("line", {
+                x1: eqX + 2, y1: lineY2, x2: eqX + blankW - 2, y2: lineY2,
+                stroke: "#000", "stroke-width": "2.5"
+              }));
+            }
+            eqX += part.w;
           }
-          eqX += blankW + spaceW;
-
-          // Plus sign
-          const plusEl = svgEl("text", {
-            x: eqX, y: eqY,
-            "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
-          });
-          plusEl.textContent = "+"; svg.appendChild(plusEl);
-          eqX += plusW + spaceW;
-
-          // Dots number
-          const dotsEl = svgEl("text", {
-            x: eqX, y: eqY,
-            "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
-          });
-          dotsEl.textContent = dotsStr; svg.appendChild(dotsEl);
-          eqX += dotsStr.length * charW + spaceW;
-
-          // Equals sign
-          const eqEl = svgEl("text", {
-            x: eqX, y: eqY,
-            "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
-          });
-          eqEl.textContent = "="; svg.appendChild(eqEl);
-          eqX += equalsW + spaceW;
-
-          // Target number
-          const tgtEl = svgEl("text", {
-            x: eqX, y: eqY,
-            "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
-          });
-          tgtEl.textContent = targetStr; svg.appendChild(tgtEl);
-
-        } else {
-          // dotsStr + ___ = targetStr
-
-          // Dots number
-          const dotsEl = svgEl("text", {
-            x: eqX, y: eqY,
-            "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
-          });
-          dotsEl.textContent = dotsStr; svg.appendChild(dotsEl);
-          eqX += dotsStr.length * charW + spaceW;
-
-          // Plus sign
-          const plusEl = svgEl("text", {
-            x: eqX, y: eqY,
-            "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
-          });
-          plusEl.textContent = "+"; svg.appendChild(plusEl);
-          eqX += plusW + spaceW;
-
-          // Draw blank (underline) or answer
-          if (showAnswers || isExample) {
-            const ansColor = showAnswers ? "#3182ce" : "#16a34a";
-            const ansEl = svgEl("text", {
-              x: eqX + blankW / 2, y: eqY,
-              "text-anchor": "middle",
-              "font-family": "'Google Sans Flex', sans-serif",
-              "font-size": String(eqFontSize), "font-weight": "500", fill: ansColor
-            });
-            ansEl.textContent = missingStr; svg.appendChild(ansEl);
-          } else {
-            // Underline for blank
-            const lineY2 = eqY + 4;
-            svg.appendChild(svgEl("line", {
-              x1: eqX + 2, y1: lineY2, x2: eqX + blankW - 2, y2: lineY2,
-              stroke: "#000", "stroke-width": "2.5"
-            }));
-          }
-          eqX += blankW + spaceW;
-
-          // Equals sign
-          const eqEl = svgEl("text", {
-            x: eqX, y: eqY,
-            "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
-          });
-          eqEl.textContent = "="; svg.appendChild(eqEl);
-          eqX += equalsW + spaceW;
-
-          // Target number
-          const tgtEl = svgEl("text", {
-            x: eqX, y: eqY,
-            "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(eqFontSize), "font-weight": "500", fill: "#1a202c"
-          });
-          tgtEl.textContent = targetStr; svg.appendChild(tgtEl);
         }
 
         // Example badge
@@ -1024,6 +997,9 @@
         return elShowTitle.checked ? elHeaderText.value : "";
       }
       const target = parseInt(elTarget.value, 10);
+      const mode = elMode.value;
+      if (mode === "subtraction") return "Subtract from " + target;
+      if (mode === "both") return "Making " + target + " (Add & Subtract)";
       return "Making " + target;
     }
 
@@ -1031,7 +1007,11 @@
       if (elCustomTitleEnabled.checked) {
         return elShowSubtitle.checked ? elSubtitleText.value : "";
       }
-      return "Find the missing number to make ten.";
+      const target = parseInt(elTarget.value, 10);
+      const mode = elMode.value;
+      if (mode === "subtraction") return "Find the missing number.";
+      if (mode === "both") return "Find the missing number to complete each equation.";
+      return "Find the missing number to make " + target + ".";
     }
 
     // ===== Gather options =====
@@ -1040,6 +1020,7 @@
       const title = getTitle();
       const subtitle = getSubtitle();
       return {
+        mode: elMode.value,
         target: parseInt(elTarget.value, 10),
         problemsPerSheet: parseInt(elProblems.value, 10),
         numWorksheets: parseInt(elNumSheets.value, 10),
@@ -1057,7 +1038,7 @@
       const opts = gatherOptions();
       currentState.sheets = [];
       for (let s = 0; s < opts.numWorksheets; s++) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.target));
+        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.target, opts.mode));
       }
       renderWorksheet();
     }
@@ -1065,7 +1046,7 @@
     function renderWithoutRandomization() {
       const opts = gatherOptions();
       while (currentState.sheets.length < opts.numWorksheets) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.target));
+        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.target, opts.mode));
       }
       if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
       renderWorksheet();
@@ -1142,6 +1123,7 @@
     // ===== Event Listeners =====
     elNumbered.addEventListener("change", () => renderWithoutRandomization());
     elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
+    elMode.addEventListener("change", () => renderWithNewRandomization());
     elTarget.addEventListener("change", () => renderWithNewRandomization());
     elProblems.addEventListener("change", () => renderWithNewRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ten Frames Worksheet Generator</title>
+  <title>Ten Frames Counting Worksheet Generator</title>
   <style>
     * {
       margin: 0;
@@ -442,7 +442,7 @@
   </header>
   <div class="main-container">
     <div class="sidebar">
-      <h2>Ten Frames Worksheet Generator</h2>
+      <h2>Ten Frames Counting</h2>
 
       <div class="control-group">
         <label for="modeSelect">Mode</label>
@@ -492,15 +492,6 @@
             </select>
           </div>
 
-          <!-- Problems per sheet -->
-          <div class="control-group" style="margin-bottom:12px;">
-            <label for="problemsPerSheet">Problems per Sheet</label>
-            <select id="problemsPerSheet">
-              <option value="6" selected>6</option>
-              <option value="8">8</option>
-            </select>
-          </div>
-
           <!-- Number line hint -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="numberLineHint" />
@@ -538,7 +529,7 @@
             </div>
             <div id="titleInputWrap">
               <label for="headerText">Title</label>
-              <input type="text" id="headerText" value="Ten Frames" />
+              <input type="text" id="headerText" value="Ten Frames Counting" />
             </div>
             <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
               <input type="checkbox" id="showSubtitle" checked />
@@ -586,7 +577,7 @@
     const sheetWrap = document.getElementById("sheetWrap");
     const elMode = document.getElementById("modeSelect");
     const elRange = document.getElementById("rangeSelect");
-    const elProblems = document.getElementById("problemsPerSheet");
+    // problemsPerSheet is auto-calculated based on range
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
     const elNumberLineHint = document.getElementById("numberLineHint");
@@ -619,7 +610,7 @@
       if (elCustomTitleEnabled.checked) {
         return elShowTitle.checked ? elHeaderText.value : "";
       }
-      return "Ten Frames";
+      return "Ten Frames Counting";
     }
 
     function getSubtitle() {
@@ -842,7 +833,8 @@
       // Determine grid layout
       const isDouble = range === "1-20";
       let cols, rows;
-      if (count <= 8) { cols = 2; }
+      if (count <= 4) { cols = 2; }
+      else if (count <= 6) { cols = 2; }
       else { cols = 3; }
       rows = Math.ceil(count / cols);
 
@@ -855,11 +847,11 @@
 
       let cellSize;
       if (isDouble) {
-        // Two frames side-by-side: total width = 5*cell*2 + gap, height = 2*cell + answerLine
-        const gapEst = 8;
+        // Two frames stacked vertically: width = 5*cell, height = 2*cell*2 + gap + answer
+        const stackGapEst = 6;
         cellSize = Math.min(
-          Math.floor((maxCellW - gapEst) / 10),   // fit width for 10 columns + gap
-          Math.floor((maxCellH - 30) / 2)          // fit height for 2 rows + answer area
+          Math.floor(maxCellW / 5),                         // fit width for 5 columns
+          Math.floor((maxCellH - 30 - stackGapEst) / 4)    // fit height for 4 rows (2 frames) + gap + answer
         );
         cellSize = clamp(cellSize, 14, 40);
       } else {
@@ -872,8 +864,10 @@
 
       const singleFrameW = 5 * cellSize;
       const singleFrameH = 2 * cellSize;
-      const doubleGap = 8;
-      const totalFrameW = isDouble ? singleFrameW * 2 + doubleGap : singleFrameW;
+      const stackGap = 6;
+      // For double: frames are stacked, so total width = single frame width, total height = 2 frames + gap
+      const totalFrameW = singleFrameW;
+      const totalFrameH = isDouble ? singleFrameH * 2 + stackGap : singleFrameH;
 
       // Problem number font size
       const probNumSize = 11;
@@ -898,25 +892,23 @@
           numLabel.textContent = (i + 1) + "."; svg.appendChild(numLabel);
         }
 
-        // Position content higher within each cell (0.43 instead of 0.5)
+        // Position content higher within each cell
         const contentCenterY = cellTop + rowH * 0.47;
         // Horizontally center the frame block within the cell
-        // For 1-20 range, center single frames when num <= 10
-        const thisFrameW = (isDouble && num <= 10) ? singleFrameW : totalFrameW;
-        const contentStartX = cellLeft + (colW - thisFrameW) / 2 + 6;
+        const contentStartX = cellLeft + (colW - singleFrameW) / 2 + 6;
 
         if (mode === "count") {
           // "Count the dots" mode: show filled ten frame, student writes the number in a box
           const answerGap = Math.max(8, cellSize * 0.25);
           if (isDouble && num > 10) {
-            const totalBlockH = singleFrameH + answerGap + boxH;
-            const frameBlockY = contentCenterY - totalBlockH / 2;
+            // Stacked: top frame + gap + bottom frame + answer
+            const blockH = singleFrameH + stackGap + singleFrameH + answerGap + boxH;
+            const frameBlockY = contentCenterY - blockH / 2;
             drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 10, null, true);
-            drawTenFrame(svg, contentStartX + singleFrameW + doubleGap, frameBlockY, cellSize, num - 10, null, true);
+            drawTenFrame(svg, contentStartX, frameBlockY + singleFrameH + stackGap, cellSize, num - 10, null, true);
 
-            // Answer underline below
-            const lineY = frameBlockY + singleFrameH + answerGap + boxH;
-            const boxCx = contentStartX + totalFrameW / 2;
+            const lineY = frameBlockY + singleFrameH + stackGap + singleFrameH + answerGap + boxH;
+            const boxCx = contentStartX + singleFrameW / 2;
             svg.appendChild(svgEl("line", { x1: boxCx - boxW / 2, y1: lineY, x2: boxCx + boxW / 2, y2: lineY, stroke: "#cbd5e1", "stroke-width": "1.5" }));
 
             if (showAnswers || isExample) {
@@ -925,11 +917,10 @@
               ansEl.textContent = String(num); svg.appendChild(ansEl);
             }
           } else {
-            const totalBlockH = singleFrameH + answerGap + boxH;
-            const frameBlockY = contentCenterY - totalBlockH / 2;
+            const blockH = singleFrameH + answerGap + boxH;
+            const frameBlockY = contentCenterY - blockH / 2;
             drawTenFrame(svg, contentStartX, frameBlockY, cellSize, num, null, true);
 
-            // Answer underline below
             const lineY = frameBlockY + singleFrameH + answerGap + boxH;
             const boxCx = contentStartX + singleFrameW / 2;
             svg.appendChild(svgEl("line", { x1: boxCx - boxW / 2, y1: lineY, x2: boxCx + boxW / 2, y2: lineY, stroke: "#cbd5e1", "stroke-width": "1.5" }));
@@ -941,27 +932,29 @@
             }
           }
         } else {
-          // "Fill the frame" mode: show the number (big, Google Sans Flex), student fills the empty frame
+          // "Fill the frame" mode: show the number, student fills the empty frame
           const fillNumSize = Math.max(28, Math.round(cellSize * 0.9));
           const numLabelGap = Math.max(10, cellSize * 0.35);
           if (isDouble && num > 10) {
-            const totalBlockH = fillNumSize + numLabelGap + singleFrameH;
-            const blockStartY = contentCenterY - totalBlockH / 2;
+            // Stacked: number label + gap + top frame + gap + bottom frame
+            const framesH = singleFrameH + stackGap + singleFrameH;
+            const blockH = fillNumSize + numLabelGap + framesH;
+            const blockStartY = contentCenterY - blockH / 2;
             const numY = blockStartY + fillNumSize * 0.85;
-            const numEl = svgEl("text", { x: contentStartX + totalFrameW / 2, y: numY, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fillNumSize), "font-weight": "700", "text-anchor": "middle", fill: "#1a202c" });
+            const numEl = svgEl("text", { x: contentStartX + singleFrameW / 2, y: numY, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fillNumSize), "font-weight": "700", "text-anchor": "middle", fill: "#1a202c" });
             numEl.textContent = String(num); svg.appendChild(numEl);
 
             const frameBlockY = numY + numLabelGap;
             if (showAnswers || isExample) {
               drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 10, null, true);
-              drawTenFrame(svg, contentStartX + singleFrameW + doubleGap, frameBlockY, cellSize, num - 10, null, true);
+              drawTenFrame(svg, contentStartX, frameBlockY + singleFrameH + stackGap, cellSize, num - 10, null, true);
             } else {
               drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 0, null, false);
-              drawTenFrame(svg, contentStartX + singleFrameW + doubleGap, frameBlockY, cellSize, 0, null, false);
+              drawTenFrame(svg, contentStartX, frameBlockY + singleFrameH + stackGap, cellSize, 0, null, false);
             }
           } else {
-            const totalBlockH = fillNumSize + numLabelGap + singleFrameH;
-            const blockStartY = contentCenterY - totalBlockH / 2;
+            const blockH = fillNumSize + numLabelGap + singleFrameH;
+            const blockStartY = contentCenterY - blockH / 2;
             const numY = blockStartY + fillNumSize * 0.85;
             const numEl = svgEl("text", { x: contentStartX + singleFrameW / 2, y: numY, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fillNumSize), "font-weight": "700", "text-anchor": "middle", fill: "#1a202c" });
             numEl.textContent = String(num); svg.appendChild(numEl);
@@ -998,10 +991,13 @@
       const showHeader = getHeaderMode();
       const title = getTitle();
       const subtitle = getSubtitle();
+      const range = elRange.value;
+      // Auto-calculate problems per sheet: 4 for 1-20 (stacked frames need more room), 6 otherwise
+      const problemsPerSheet = range === "1-20" ? 4 : 6;
       return {
         mode: elMode.value,
-        range: elRange.value,
-        problemsPerSheet: parseInt(elProblems.value, 10),
+        range: range,
+        problemsPerSheet: problemsPerSheet,
         dotStyle: "circles",
         numWorksheets: parseInt(elNumSheets.value, 10),
         answerKey: elAnswerKey.checked,
@@ -1102,7 +1098,6 @@
     elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     elMode.addEventListener("change", () => renderWithNewRandomization());
     elRange.addEventListener("change", () => renderWithNewRandomization());
-    elProblems.addEventListener("change", () => renderWithNewRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elNumberLineHint.addEventListener("change", () => renderWithoutRandomization());
     elShowHeaderEnabled.addEventListener("change", () => {

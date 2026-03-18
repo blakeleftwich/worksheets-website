@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Number Selection UI Mockup</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    h1 { font-size: 22px; color: #1a202c; margin-bottom: 20px; }
+    .mode-picker {
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .mode-picker label { font-size: 14px; font-weight: 600; color: #2d3748; }
+    .mode-picker select {
+      padding: 8px 12px; font-size: 14px;
+      border: 2px solid #e2e8f0; border-radius: 8px; background: white; color: #2d3748;
+    }
+    .mockup {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      padding: 32px 24px;
+      width: 340px;
+      display: none;
+    }
+    .mockup.active { display: block; }
+    .mockup h2 {
+      font-size: 18px; font-weight: 700; color: #1a202c; margin-bottom: 20px;
+    }
+    .control-group { margin-bottom: 20px; }
+    .control-group > label {
+      display: block; font-size: 13px; font-weight: 600; color: #2d3748; margin-bottom: 6px;
+    }
+    .control-group select {
+      width: 100%; padding: 10px 12px; font-size: 14px;
+      border: 2px solid #e2e8f0; border-radius: 8px; background: white; color: #2d3748;
+    }
+
+    /* ===== Option A: Toggle Buttons (Custom mode) ===== */
+    .toggle-grid {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+    }
+    .toggle-btn {
+      width: 42px; height: 42px; border: 2px solid #e2e8f0; border-radius: 8px;
+      background: white; font-size: 16px; font-weight: 700; color: #94a3b8;
+      cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center;
+    }
+    .toggle-btn:hover { border-color: #f59e0b; }
+    .toggle-btn.active {
+      background: #fef3c7; border-color: #f59e0b; color: #92400e;
+    }
+
+    /* ===== Option B: Checkboxes Grid ===== */
+    .checkbox-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px;
+    }
+    .checkbox-item {
+      display: flex; align-items: center; gap: 6px; cursor: pointer;
+    }
+    .checkbox-item input[type="checkbox"] {
+      width: 18px; height: 18px; accent-color: #f59e0b; cursor: pointer;
+    }
+    .checkbox-item span { font-size: 15px; font-weight: 600; color: #2d3748; }
+
+    /* ===== Option C: Always-visible toggles + quick presets ===== */
+    .always-toggle-grid {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px;
+    }
+    .always-toggle-btn {
+      width: 42px; height: 42px; border: 2px solid #e2e8f0; border-radius: 8px;
+      background: white; font-size: 16px; font-weight: 700; color: #94a3b8;
+      cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center;
+    }
+    .always-toggle-btn:hover { border-color: #f59e0b; }
+    .always-toggle-btn.active {
+      background: #fef3c7; border-color: #f59e0b; color: #92400e;
+    }
+    .quick-presets { display: flex; gap: 6px; flex-wrap: wrap; }
+    .preset-btn {
+      padding: 6px 12px; border: 2px solid #e2e8f0; border-radius: 6px;
+      background: white; font-size: 12px; font-weight: 600; color: #64748b;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .preset-btn:hover { border-color: #f59e0b; color: #92400e; }
+    .preset-btn.active { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+
+    .sub-label {
+      font-size: 12px; color: #718096; font-weight: 600; margin-bottom: 6px; display: block;
+    }
+    .custom-section { margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <h1>Number Selection UI Mockup</h1>
+
+  <div class="mode-picker">
+    <label for="mockupMode">View option:</label>
+    <select id="mockupMode">
+      <option value="A">A: Toggle Buttons (with Custom in dropdown)</option>
+      <option value="B">B: Checkboxes Grid (with Custom in dropdown)</option>
+      <option value="C">C: Always-visible Toggles + Quick Presets</option>
+    </select>
+  </div>
+
+  <!-- ===== OPTION A: Toggle Buttons ===== -->
+  <div class="mockup active" id="mockupA">
+    <h2>Number Tracing Practice</h2>
+    <div class="control-group">
+      <label for="rangeA">Number Range</label>
+      <select id="rangeA">
+        <option value="0-4">0 – 4</option>
+        <option value="1-5">1 – 5</option>
+        <option value="5-9" selected>5 – 9</option>
+        <option value="6-10">6 – 10</option>
+        <option value="0-9">0 – 9</option>
+        <option value="1-10">1 – 10</option>
+        <option value="custom">Custom...</option>
+      </select>
+    </div>
+    <div class="custom-section" id="customA" style="display:none;">
+      <span class="sub-label">Select Numbers</span>
+      <div class="toggle-grid" id="toggleGridA"></div>
+    </div>
+  </div>
+
+  <!-- ===== OPTION B: Checkboxes Grid ===== -->
+  <div class="mockup" id="mockupB">
+    <h2>Number Tracing Practice</h2>
+    <div class="control-group">
+      <label for="rangeB">Number Range</label>
+      <select id="rangeB">
+        <option value="0-4">0 – 4</option>
+        <option value="1-5">1 – 5</option>
+        <option value="5-9" selected>5 – 9</option>
+        <option value="6-10">6 – 10</option>
+        <option value="0-9">0 – 9</option>
+        <option value="1-10">1 – 10</option>
+        <option value="custom">Custom...</option>
+      </select>
+    </div>
+    <div class="custom-section" id="customB" style="display:none;">
+      <span class="sub-label">Select Numbers</span>
+      <div class="checkbox-grid" id="checkboxGridB"></div>
+    </div>
+  </div>
+
+  <!-- ===== OPTION C: Always-visible Toggles ===== -->
+  <div class="mockup" id="mockupC">
+    <h2>Number Tracing Practice</h2>
+    <div class="control-group">
+      <label>Numbers to Practice</label>
+      <div class="always-toggle-grid" id="toggleGridC"></div>
+      <span class="sub-label">Quick Select</span>
+      <div class="quick-presets">
+        <button class="preset-btn" data-range="0-4">0 – 4</button>
+        <button class="preset-btn" data-range="1-5">1 – 5</button>
+        <button class="preset-btn active" data-range="5-9">5 – 9</button>
+        <button class="preset-btn" data-range="6-10">6 – 10</button>
+        <button class="preset-btn" data-range="0-9">0 – 9</button>
+        <button class="preset-btn" data-range="1-10">1 – 10</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Mode switcher =====
+    const modeSelect = document.getElementById("mockupMode");
+    const mockups = { A: document.getElementById("mockupA"), B: document.getElementById("mockupB"), C: document.getElementById("mockupC") };
+    modeSelect.addEventListener("change", () => {
+      Object.values(mockups).forEach(m => m.classList.remove("active"));
+      mockups[modeSelect.value].classList.add("active");
+    });
+
+    // ===== Option A: Toggle Buttons =====
+    const toggleGridA = document.getElementById("toggleGridA");
+    for (let n = 0; n <= 10; n++) {
+      const btn = document.createElement("button");
+      btn.className = "toggle-btn";
+      btn.textContent = n;
+      btn.dataset.num = n;
+      btn.addEventListener("click", () => btn.classList.toggle("active"));
+      toggleGridA.appendChild(btn);
+    }
+    document.getElementById("rangeA").addEventListener("change", function() {
+      const customA = document.getElementById("customA");
+      if (this.value === "custom") {
+        customA.style.display = "block";
+      } else {
+        customA.style.display = "none";
+        // Auto-select the range on the toggle buttons for visual feedback
+        const [lo, hi] = this.value.split("-").map(Number);
+        toggleGridA.querySelectorAll(".toggle-btn").forEach(b => {
+          const num = parseInt(b.dataset.num);
+          b.classList.toggle("active", num >= lo && num <= hi);
+        });
+      }
+    });
+
+    // ===== Option B: Checkboxes Grid =====
+    const checkboxGridB = document.getElementById("checkboxGridB");
+    for (let n = 0; n <= 10; n++) {
+      const item = document.createElement("label");
+      item.className = "checkbox-item";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.dataset.num = n;
+      const span = document.createElement("span");
+      span.textContent = n;
+      item.appendChild(cb);
+      item.appendChild(span);
+      checkboxGridB.appendChild(item);
+    }
+    document.getElementById("rangeB").addEventListener("change", function() {
+      const customB = document.getElementById("customB");
+      if (this.value === "custom") {
+        customB.style.display = "block";
+      } else {
+        customB.style.display = "none";
+        const [lo, hi] = this.value.split("-").map(Number);
+        checkboxGridB.querySelectorAll("input").forEach(cb => {
+          const num = parseInt(cb.dataset.num);
+          cb.checked = num >= lo && num <= hi;
+        });
+      }
+    });
+
+    // ===== Option C: Always-visible Toggles =====
+    const toggleGridC = document.getElementById("toggleGridC");
+    function setRangeC(lo, hi) {
+      toggleGridC.querySelectorAll(".always-toggle-btn").forEach(b => {
+        const num = parseInt(b.dataset.num);
+        b.classList.toggle("active", num >= lo && num <= hi);
+      });
+      // Update active preset button
+      document.querySelectorAll("#mockupC .preset-btn").forEach(pb => {
+        const [plo, phi] = pb.dataset.range.split("-").map(Number);
+        // Check if current selection exactly matches this preset
+        const selected = [...toggleGridC.querySelectorAll(".always-toggle-btn.active")].map(b => parseInt(b.dataset.num));
+        const presetNums = [];
+        for (let i = plo; i <= phi; i++) presetNums.push(i);
+        const matches = selected.length === presetNums.length && presetNums.every(n => selected.includes(n));
+        pb.classList.toggle("active", matches);
+      });
+    }
+    for (let n = 0; n <= 10; n++) {
+      const btn = document.createElement("button");
+      btn.className = "always-toggle-btn";
+      btn.textContent = n;
+      btn.dataset.num = n;
+      btn.addEventListener("click", () => {
+        btn.classList.toggle("active");
+        // Clear active preset
+        document.querySelectorAll("#mockupC .preset-btn").forEach(pb => pb.classList.remove("active"));
+      });
+      toggleGridC.appendChild(btn);
+    }
+    // Init with 5-9
+    setRangeC(5, 9);
+
+    document.querySelectorAll("#mockupC .preset-btn").forEach(pb => {
+      pb.addEventListener("click", () => {
+        const [lo, hi] = pb.dataset.range.split("-").map(Number);
+        setRangeC(lo, hi);
+      });
+    });
+  </script>
+</body>
+</html>
