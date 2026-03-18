@@ -485,7 +485,7 @@
       <div class="checkbox-row" style="margin-bottom:12px;">
         <label>
           <input type="checkbox" id="onePerPage">
-          <span>One per page</span>
+          <span>One number per page</span>
         </label>
       </div>
 
@@ -497,21 +497,17 @@
       <div class="advanced-panel" id="advPanel">
         <div class="advanced-panel-inner">
 
-          <div class="control-group">
-        <label for="numWorksheets">Number of Worksheets</label>
-        <select id="numWorksheets">
-          <option value="1" selected>1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-          <option value="10">10</option>
-        </select>
-      </div>
+          <!-- Hide example -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="hideExample" />
+            <label for="hideExample">Hide example</label>
+          </div>
+
+          <!-- Fade away -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="fadeAway" checked />
+            <label for="fadeAway">Fade away</label>
+          </div>
 
           <!-- Name / Date -->
           <div class="adv-checkbox-row">
@@ -550,17 +546,22 @@
             </div>
           </div>
 
-          <!-- Fade away -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="fadeAway" checked />
-            <label for="fadeAway">Fade away</label>
-          </div>
-
-          <!-- Hide example -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="hideExample" />
-            <label for="hideExample">Hide example</label>
-          </div>
+          <!-- Number of Worksheets -->
+          <div class="control-group">
+        <label for="numWorksheets">Number of Worksheets</label>
+        <select id="numWorksheets">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
 
           <!-- Branding -->
           <div class="adv-checkbox-row">
