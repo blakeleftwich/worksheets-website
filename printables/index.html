@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Printable Worksheets — UX Prototype</title>
+  <title>Printable Worksheets — Animal Math</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- PDF.js for rendering PDF thumbnails -->
+  <!-- PDF.js only used for hover preview of full packs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -174,7 +174,7 @@
     .generator-link .arrow { font-size: 14px; transition: transform 0.15s; }
     .generator-link:hover .arrow { transform: translateX(2px); }
 
-    /* ===== Layout Switcher ===== */
+    /* ===== Toolbar ===== */
     .toolbar {
       max-width: 1200px;
       margin: 0 auto;
@@ -184,25 +184,6 @@
       justify-content: space-between;
     }
     .toolbar-left { font-size: 14px; color: #64748b; }
-    .layout-toggle {
-      display: flex;
-      background: #f1f5f9;
-      border-radius: 8px;
-      padding: 3px;
-      gap: 2px;
-    }
-    .layout-btn {
-      border: none;
-      background: transparent;
-      padding: 6px 14px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #94a3b8;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .layout-btn.active { background: white; color: #1e293b; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
 
     /* ===== Worksheet Cards ===== */
     .ws-grid {
@@ -211,9 +192,8 @@
       padding: 20px 24px 60px;
       display: grid;
       gap: 24px;
+      grid-template-columns: repeat(3, 1fr);
     }
-    .ws-grid.layout-a { grid-template-columns: repeat(3, 1fr); }
-    .ws-grid.layout-b { grid-template-columns: repeat(4, 1fr); }
 
     .ws-card {
       background: white;
@@ -237,60 +217,14 @@
       border-bottom: 1px solid #f1f5f9;
       overflow: hidden;
       cursor: pointer;
+      height: 220px;
     }
-
-    /* Layout A: cropped top portion */
-    .layout-a .ws-preview { height: 220px; }
-    .layout-a .ws-preview canvas,
-    .layout-a .ws-preview .page-img {
+    .ws-preview img {
       width: 100%;
       position: absolute;
       top: 0;
       left: 0;
     }
-
-    /* Layout B: full page scaled down */
-    .layout-b .ws-preview {
-      height: 200px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px;
-    }
-    .layout-b .ws-preview canvas,
-    .layout-b .ws-preview .page-img {
-      width: auto;
-      height: 100%;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-      border-radius: 4px;
-      transition: transform 0.3s;
-    }
-    .layout-b .ws-card:hover .ws-preview canvas,
-    .layout-b .ws-card:hover .ws-preview .page-img {
-      transform: scale(1.08);
-    }
-
-    /* Loading spinner */
-    .preview-loading {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      color: #cbd5e0;
-      font-size: 13px;
-      font-weight: 500;
-      gap: 8px;
-    }
-    .preview-loading .spinner {
-      width: 18px;
-      height: 18px;
-      border: 2px solid #e2e8f0;
-      border-top-color: #f59e0b;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Pack badge */
     .pack-badge {
@@ -362,7 +296,6 @@
     .download-btn.downloading { background: #16a34a; pointer-events: none; }
     .download-btn svg { width: 16px; height: 16px; }
 
-
     /* ===== Hover Preview Overlay — 5-page grid ===== */
     .hover-preview {
       display: none;
@@ -403,24 +336,15 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.12);
       background: #f8fafc;
     }
-    /* Center the last item if odd count */
     .hover-grid canvas:nth-child(5) { grid-column: 1 / -1; justify-self: center; max-width: calc(50% - 5px); }
-    .hover-page-label {
-      font-size: 8px;
-      font-weight: 600;
-      color: #94a3b8;
-      text-align: center;
-      margin-top: 2px;
-    }
 
     /* ===== Responsive ===== */
     @media (max-width: 900px) {
-      .ws-grid.layout-a { grid-template-columns: repeat(2, 1fr); }
-      .ws-grid.layout-b { grid-template-columns: repeat(3, 1fr); }
+      .ws-grid { grid-template-columns: repeat(2, 1fr); }
       .cat-grid { grid-template-columns: repeat(3, 1fr); }
     }
     @media (max-width: 600px) {
-      .ws-grid.layout-a, .ws-grid.layout-b { grid-template-columns: repeat(2, 1fr); }
+      .ws-grid { grid-template-columns: repeat(2, 1fr); }
       .cat-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
@@ -456,38 +380,7 @@
     </div>
     <div class="section">
       <div class="section-title">Browse by Topic</div>
-      <div class="cat-grid">
-        <a href="#" class="cat-card" onclick="showLesson('count'); return false;">
-          <div class="cat-icon" style="background:#fef3c7;">🔢</div>
-          <h3>Count &amp; Write</h3>
-          <div class="count">4 worksheet sets</div>
-        </a>
-        <a href="#" class="cat-card" onclick="showLesson('base10'); return false;">
-          <div class="cat-icon" style="background:#dbeafe;">🧱</div>
-          <h3>Base Ten Blocks</h3>
-          <div class="count">4 worksheet sets</div>
-        </a>
-        <a href="#" class="cat-card" onclick="showLesson('time'); return false;">
-          <div class="cat-icon" style="background:#f3e8ff;">🕐</div>
-          <h3>Telling Time</h3>
-          <div class="count">5 worksheet sets</div>
-        </a>
-        <a href="#" class="cat-card" onclick="showLesson('add'); return false;">
-          <div class="cat-icon" style="background:#dcfce7;">➕</div>
-          <h3>Addition Within 10</h3>
-          <div class="count">5 worksheet sets</div>
-        </a>
-        <a href="#" class="cat-card" onclick="showLesson('sub'); return false;">
-          <div class="cat-icon" style="background:#fee2e2;">➖</div>
-          <h3>Subtraction</h3>
-          <div class="count">4 worksheet sets</div>
-        </a>
-        <a href="#" class="cat-card" onclick="showLesson('pattern'); return false;">
-          <div class="cat-icon" style="background:#e0f2fe;">🔷</div>
-          <h3>Pattern Recognition</h3>
-          <div class="count">3 worksheet sets</div>
-        </a>
-      </div>
+      <div class="cat-grid" id="catGrid"></div>
     </div>
   </div>
 
@@ -495,18 +388,17 @@
   <div id="lessonPage" style="display:none;">
     <div class="lesson-header">
       <div class="lesson-header-inner">
-        <div class="breadcrumb"><a href="#" onclick="showHome(); return false;">Printables</a> &nbsp;/&nbsp; <span id="lessonBreadcrumb">Count &amp; Write</span></div>
-        <h1 id="lessonTitle">Count &amp; Write Worksheets</h1>
-        <p id="lessonDesc">Count the objects and write the number.</p>
-        <a href="#" class="generator-link" id="generatorLink">Need something specific? Create your own worksheet <span class="arrow">→</span></a>
+        <div class="breadcrumb"><a href="#" onclick="showHome(); return false;">Printables</a> &nbsp;/&nbsp; <span id="lessonBreadcrumb"></span></div>
+        <h1 id="lessonTitle"></h1>
+        <p id="lessonDesc"></p>
+        <a href="#" class="generator-link" id="generatorLink" style="display:none;">Need something specific? Create your own worksheet <span class="arrow">→</span></a>
       </div>
     </div>
     <div class="toolbar">
-      <div class="toolbar-left"><span id="wsCount">6</span> worksheet sets</div>
+      <div class="toolbar-left"><span id="wsCount">0</span> worksheet sets</div>
     </div>
-    <div class="ws-grid layout-a" id="wsGrid"></div>
+    <div class="ws-grid" id="wsGrid"></div>
   </div>
-
 
   <!-- ===== Hover Preview — 5-page grid ===== -->
   <div class="hover-preview" id="hoverPreview">
@@ -515,181 +407,80 @@
   </div>
 
   <script>
-    // ===== Configure PDF.js worker =====
+    // ===== Configure PDF.js worker (for hover preview only) =====
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    // ===== Worksheet Data =====
-    // Items with a `pdf` field load a real file from pdfs/; others show a placeholder
-    const worksheets = {
-      count: {
-        title: 'Count & Write Worksheets',
-        breadcrumb: 'Count & Write',
+    // ===== Printable folder registry =====
+    // Each folder must contain: info.json, pack.pdf, preview.png
+    const printableFolders = [
+      'count-and-write-1-to-5',
+      'count-and-write-1-to-10',
+      'count-and-write-1-to-20',
+      'count-and-write-10-to-20',
+    ];
+
+    // Category display config (icon, color, description)
+    const categoryConfig = {
+      'Count & Write': {
+        icon: '🔢',
+        color: '#fef3c7',
         desc: 'Count the objects and write the number. Each pack includes 5 unique worksheets with different objects and quantities, plus an answer key.',
-        generator: '../generators/count-and-write-number-groups/index.html',
-        items: [
-          { title: 'Count & Write 1 to 5',   grade: 'Pre-K – K', pdf: 'pdfs/count-and-write-1-to-5-pack.pdf' },
-          { title: 'Count & Write 1 to 10',  grade: 'Pre-K – K', pdf: 'pdfs/count-and-write-1-to-10-pack.pdf' },
-          { title: 'Count & Write 1 to 20',  grade: 'K – 1st',   pdf: 'pdfs/count-and-write-1-to-20-pack.pdf' },
-          { title: 'Count & Write 10 to 20', grade: '1st – 2nd', pdf: 'pdfs/count-and-write-10-to-20-pack.pdf' },
-        ]
       },
-      base10: {
-        title: 'Base Ten Blocks Worksheets',
-        breadcrumb: 'Base Ten Blocks',
-        desc: 'Practice place value with tens and ones blocks. Each pack includes 5 unique worksheets plus an answer key.',
-        items: [
-          { title: 'Count the Blocks',          grade: 'K – 1st' },
-          { title: 'Draw the Blocks',            grade: '1st – 2nd' },
-          { title: 'Match Blocks to Numbers',    grade: 'K – 1st' },
-          { title: 'Expanded Form with Blocks',  grade: '1st – 2nd' },
-        ]
-      },
-      time: {
-        title: 'Telling Time Worksheets',
-        breadcrumb: 'Telling Time',
-        desc: 'Read clocks and write the time. Each pack includes 5 unique worksheets plus an answer key.',
-        items: [
-          { title: 'Read Clocks – Hours',         grade: 'K – 1st' },
-          { title: 'Read Clocks – Half Hours',     grade: '1st' },
-          { title: 'Read Clocks – Quarter Hours',  grade: '1st – 2nd' },
-          { title: 'Time to 5 Minutes',            grade: '2nd' },
-          { title: 'Elapsed Time',                 grade: '2nd – 3rd' },
-        ]
-      },
-      add: {
-        title: 'Addition Within 10 Worksheets',
-        breadcrumb: 'Addition Within 10',
-        desc: 'Practice adding numbers within 10. Each pack includes 5 unique worksheets plus an answer key.',
-        items: [
-          { title: 'Add Within 5',           grade: 'Pre-K – K' },
-          { title: 'Add Within 10',          grade: 'K – 1st' },
-          { title: 'Addition with Pictures', grade: 'Pre-K – K' },
-          { title: 'Missing Addend',         grade: 'K – 1st' },
-          { title: 'Doubles Facts',          grade: 'K – 1st' },
-        ]
-      },
-      sub: {
-        title: 'Subtraction Worksheets',
-        breadcrumb: 'Subtraction',
-        desc: 'Practice subtracting within 10 and 20. Each pack includes 5 unique worksheets plus an answer key.',
-        items: [
-          { title: 'Subtract Within 5',            grade: 'K' },
-          { title: 'Subtract Within 10',           grade: 'K – 1st' },
-          { title: 'Subtraction with Pictures',    grade: 'Pre-K – K' },
-          { title: 'Missing Number Subtraction',   grade: '1st' },
-        ]
-      },
-      pattern: {
-        title: 'Pattern Recognition Worksheets',
-        breadcrumb: 'Pattern Recognition',
-        desc: 'Identify and extend patterns with shapes and colors. Each pack includes 5 unique worksheets plus an answer key.',
-        items: [
-          { title: 'AB Patterns',       grade: 'Pre-K – K' },
-          { title: 'ABC Patterns',      grade: 'K – 1st' },
-          { title: 'Growing Patterns',  grade: '1st – 2nd' },
-        ]
-      }
     };
 
-    // ===== PDF Cache & Loading =====
-    const pdfCache = {}; // key → { pdfUrl, pdfDoc }
+    // ===== Data loading =====
+    let allPrintables = []; // { folder, title, description, grades, category, worksheetCount, relatedGenerator }
+    let categories = {};    // category name → { items: [...], config: {...} }
 
-    function loadPdf(category, index) {
-      const key = `${category}-${index}`;
-      if (pdfCache[key]) return Promise.resolve(pdfCache[key]);
+    async function loadAllPrintables() {
+      const results = await Promise.all(
+        printableFolders.map(async (folder) => {
+          try {
+            const resp = await fetch(folder + '/info.json');
+            const info = await resp.json();
+            return { folder, ...info };
+          } catch (e) {
+            console.warn('Failed to load ' + folder + '/info.json', e);
+            return null;
+          }
+        })
+      );
+      allPrintables = results.filter(Boolean);
 
-      const ws = worksheets[category].items[index];
-      if (!ws.pdf) return Promise.resolve(null);
-
-      return pdfjsLib.getDocument(ws.pdf).promise.then(pdfDoc => {
-        pdfCache[key] = { pdfUrl: ws.pdf, pdfDoc };
-        return pdfCache[key];
+      // Group by category
+      categories = {};
+      allPrintables.forEach(p => {
+        if (!categories[p.category]) {
+          categories[p.category] = {
+            items: [],
+            config: categoryConfig[p.category] || { icon: '📄', color: '#f1f5f9', desc: '' },
+          };
+        }
+        categories[p.category].items.push(p);
       });
+
+      renderHome();
     }
 
-    // ===== Render a PDF page to a canvas =====
-    function renderPdfPage(pdfDoc, pageNum, canvas, maxWidth) {
-      return pdfDoc.getPage(pageNum).then(page => {
-        const viewport = page.getViewport({ scale: 1 });
-        const scale = maxWidth / viewport.width;
-        const scaledViewport = page.getViewport({ scale });
-        canvas.width = scaledViewport.width;
-        canvas.height = scaledViewport.height;
-        return page.render({
-          canvasContext: canvas.getContext('2d'),
-          viewport: scaledViewport
-        }).promise.then(() => canvas);
-      });
-    }
-
-    // ===== Render Cards =====
-    function renderCards(category) {
-      const data = worksheets[category];
-      const grid = document.getElementById('wsGrid');
+    // ===== Render Home Page =====
+    function renderHome() {
+      const grid = document.getElementById('catGrid');
       grid.innerHTML = '';
-
-      data.items.forEach((ws, i) => {
-        const card = document.createElement('div');
-        card.className = 'ws-card';
-        if (ws.pdf) {
-          card.addEventListener('mouseenter', (e) => showHover(e, category, i));
-          card.addEventListener('mouseleave', hideHover);
-        }
-        const cardId = `card-${category}-${i}`;
-        const hasPdf = !!ws.pdf;
-        const pageCount = hasPdf ? 5 : 0;
-
-        card.innerHTML = `
-          <div class="ws-preview">
-            <div class="page-img" id="${cardId}">
-              ${hasPdf
-                ? '<div class="preview-loading"><div class="spinner"></div>Loading PDF...</div>'
-                : '<div class="preview-loading" style="color:#cbd5e0;">Coming soon</div>'}
-            </div>
-            ${hasPdf ? `<div class="pack-badge">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 8h20"/></svg>
-              5 worksheets
-            </div>` : ''}
-          </div>
-          <div class="ws-body">
-            <h3>${ws.title}</h3>
-            <div class="ws-meta"><span class="grade">${ws.grade}</span></div>
-            <button class="download-btn" onclick="doDownload('${category}', ${i}, this)" ${hasPdf ? '' : 'disabled style="opacity:0.4;cursor:default;"'}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              ${hasPdf ? 'Download 5 Worksheets' : 'Coming Soon'}
-            </button>
-          </div>
-        `;
+      Object.keys(categories).forEach(catName => {
+        const cat = categories[catName];
+        const card = document.createElement('a');
+        card.href = '#';
+        card.className = 'cat-card';
+        card.onclick = function(e) { e.preventDefault(); showLesson(catName); };
+        card.innerHTML = '<div class="cat-icon" style="background:' + cat.config.color + ';">' + cat.config.icon + '</div>' +
+          '<h3>' + catName + '</h3>' +
+          '<div class="count">' + cat.items.length + ' worksheet set' + (cat.items.length !== 1 ? 's' : '') + '</div>';
         grid.appendChild(card);
-
-        // Load real PDF and render page 1 as preview
-        if (hasPdf) {
-          loadPdf(category, i).then(result => {
-            if (!result) return;
-            const container = document.getElementById(cardId);
-            const canvas = document.createElement('canvas');
-            renderPdfPage(result.pdfDoc, 1, canvas, 600).then(() => {
-              container.innerHTML = '';
-              container.appendChild(canvas);
-            });
-          });
-        }
-      });
-    }
-
-    // ===== Layout Toggle =====
-    let currentLayout = 'a';
-    function setLayout(layout) {
-      currentLayout = layout;
-      const grid = document.getElementById('wsGrid');
-      grid.className = `ws-grid layout-${layout}`;
-      document.querySelectorAll('.layout-btn').forEach((btn, i) => {
-        btn.classList.toggle('active', (layout === 'a' && i === 0) || (layout === 'b' && i === 1));
       });
     }
 
     // ===== Page Navigation =====
-    let currentCategory = 'count';
+    let currentCategoryName = '';
 
     function showHome() {
       document.getElementById('homePage').style.display = '';
@@ -698,120 +489,168 @@
       window.scrollTo(0, 0);
     }
 
-    function showLesson(category) {
-      currentCategory = category;
-      const data = worksheets[category];
+    function showLesson(catName) {
+      currentCategoryName = catName;
+      var cat = categories[catName];
+      if (!cat) return;
       document.getElementById('homePage').style.display = 'none';
       document.getElementById('lessonPage').style.display = '';
-      document.getElementById('lessonTitle').textContent = data.title;
-      document.getElementById('lessonBreadcrumb').textContent = data.breadcrumb;
-      document.getElementById('lessonDesc').textContent = data.desc;
-      document.getElementById('wsCount').textContent = data.items.length;
-      const genLink = document.getElementById('generatorLink');
-      if (data.generator) {
-        genLink.href = data.generator;
+      document.getElementById('lessonTitle').textContent = catName + ' Worksheets';
+      document.getElementById('lessonBreadcrumb').textContent = catName;
+      document.getElementById('lessonDesc').textContent = cat.config.desc;
+      document.getElementById('wsCount').textContent = cat.items.length;
+
+      // Generator link — use first item's relatedGenerator if available
+      var genLink = document.getElementById('generatorLink');
+      var gen = cat.items.find(function(p) { return p.relatedGenerator; });
+      if (gen) {
+        genLink.href = '../generators/' + gen.relatedGenerator + '/index.html';
         genLink.style.display = '';
       } else {
         genLink.style.display = 'none';
       }
+
       document.body.className = 'page-lesson';
-      renderCards(category);
+      renderCards(cat.items);
       window.scrollTo(0, 0);
     }
 
-    // ===== Direct PDF Download =====
-    function doDownload(category, index, btn) {
-      const ws = worksheets[category].items[index];
-      if (!ws.pdf) return;
+    // ===== Render Worksheet Cards =====
+    function renderCards(items) {
+      var grid = document.getElementById('wsGrid');
+      grid.innerHTML = '';
 
-      const orig = btn.innerHTML;
-      btn.innerHTML = `<div class="spinner" style="width:14px;height:14px;border-width:2px;"></div> Preparing...`;
-      btn.classList.add('downloading');
+      items.forEach(function(p, i) {
+        var card = document.createElement('div');
+        card.className = 'ws-card';
+        card.addEventListener('mouseenter', function(e) { showHover(e, p, i); });
+        card.addEventListener('mouseleave', hideHover);
 
-      loadPdf(category, index).then(result => {
-        if (!result) return;
-        // Trigger real browser download
-        const a = document.createElement('a');
-        a.href = result.pdfUrl;
-        a.download = ws.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-pack.pdf';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        var wsCount = p.worksheetCount || 5;
 
-        // Show success feedback
-        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polyline points="20 6 9 17 4 12"/></svg> Downloaded!`;
-        btn.style.background = '#16a34a';
-        setTimeout(() => {
-          btn.innerHTML = orig;
-          btn.style.background = '';
-          btn.classList.remove('downloading');
-        }, 1500);
+        card.innerHTML =
+          '<div class="ws-preview">' +
+            '<img src="' + p.folder + '/preview.png" alt="' + p.title + ' preview" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;height:100%;color:#cbd5e0;font-size:13px;font-weight:500;\\\'>Preview not available</div>\'">' +
+            '<div class="pack-badge">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 8h20"/></svg>' +
+              wsCount + ' worksheets' +
+            '</div>' +
+          '</div>' +
+          '<div class="ws-body">' +
+            '<h3>' + p.title + '</h3>' +
+            '<div class="ws-meta"><span class="grade">' + p.grades + '</span></div>' +
+            '<button class="download-btn" data-folder="' + p.folder + '" data-title="' + p.title + '">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+              'Download ' + wsCount + ' Worksheets' +
+            '</button>' +
+          '</div>';
+        grid.appendChild(card);
+
+        // Download handler
+        var btn = card.querySelector('.download-btn');
+        btn.addEventListener('click', function() { doDownload(p, this); });
       });
     }
 
-    // ===== Hover Preview — 5-page grid =====
-    let hoverTimer = null;
-    let hideTimer = null;
-    let activeHoverCard = null;
-    let popupHovered = false;
-    const hoverCanvasCache = {};
+    // ===== Direct PDF Download =====
+    function doDownload(printable, btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<div style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;"></div> Preparing...';
+      btn.classList.add('downloading');
 
-    function showHover(e, category, index) {
-      const key = `${category}-${index}`;
-      const cached = pdfCache[key];
-      if (!cached) return;
+      var a = document.createElement('a');
+      a.href = printable.folder + '/pack.pdf';
+      a.download = printable.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-pack.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
 
-      // If user is currently hovering over the popup, ignore new card hovers
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polyline points="20 6 9 17 4 12"/></svg> Downloaded!';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = orig;
+        btn.style.background = '';
+        btn.classList.remove('downloading');
+      }, 1500);
+    }
+
+    // ===== Hover Preview — 5-page grid (uses PDF.js) =====
+    var hoverTimer = null;
+    var hideTimer = null;
+    var activeHoverCard = null;
+    var popupHovered = false;
+    var pdfCache = {};
+    var hoverCanvasCache = {};
+
+    function renderPdfPage(pdfDoc, pageNum, canvas, maxWidth) {
+      return pdfDoc.getPage(pageNum).then(function(page) {
+        var viewport = page.getViewport({ scale: 1 });
+        var scale = maxWidth / viewport.width;
+        var scaledViewport = page.getViewport({ scale: scale });
+        canvas.width = scaledViewport.width;
+        canvas.height = scaledViewport.height;
+        return page.render({
+          canvasContext: canvas.getContext('2d'),
+          viewport: scaledViewport
+        }).promise.then(function() { return canvas; });
+      });
+    }
+
+    function showHover(e, printable, index) {
+      var key = printable.folder;
       if (popupHovered) return;
-
-      // Cancel any pending hide
       clearTimeout(hideTimer);
-
-      // 200ms delay to avoid flashing on casual mouse movement
       clearTimeout(hoverTimer);
-      hoverTimer = setTimeout(() => {
-        const preview = document.getElementById('hoverPreview');
-        const grid = document.getElementById('hoverGrid');
-        const title = document.getElementById('hoverTitle');
-        const ws = worksheets[category].items[index];
+
+      hoverTimer = setTimeout(function() {
+        var preview = document.getElementById('hoverPreview');
+        var grid = document.getElementById('hoverGrid');
+        var title = document.getElementById('hoverTitle');
 
         activeHoverCard = e.target.closest('.ws-card');
-        title.textContent = ws.title + ' — Set Preview';
+        title.textContent = printable.title + ' — Set Preview';
         grid.innerHTML = '';
 
-        // Render 5 worksheet pages (skip answer keys which are pages 6–10)
-        const thumbRenderWidth = 600;
-        for (let p = 1; p <= 5; p++) {
-          const cacheKey = `${key}-p${p}`;
-          if (hoverCanvasCache[cacheKey]) {
-            grid.appendChild(hoverCanvasCache[cacheKey]);
-          } else {
-            const canvas = document.createElement('canvas');
-            grid.appendChild(canvas);
-            renderPdfPage(cached.pdfDoc, p, canvas, thumbRenderWidth).then(() => {
-              hoverCanvasCache[cacheKey] = canvas;
-            });
+        var pdfUrl = printable.folder + '/pack.pdf';
+        var wsCount = printable.worksheetCount || 5;
+
+        function renderPages(pdfDoc) {
+          for (var p = 1; p <= wsCount; p++) {
+            var cacheKey = key + '-p' + p;
+            if (hoverCanvasCache[cacheKey]) {
+              grid.appendChild(hoverCanvasCache[cacheKey]);
+            } else {
+              var canvas = document.createElement('canvas');
+              grid.appendChild(canvas);
+              (function(c, ck) {
+                renderPdfPage(pdfDoc, p, c, 600).then(function() {
+                  hoverCanvasCache[ck] = c;
+                });
+              })(canvas, cacheKey);
+            }
           }
         }
 
+        if (pdfCache[key]) {
+          renderPages(pdfCache[key]);
+        } else {
+          pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc) {
+            pdfCache[key] = pdfDoc;
+            renderPages(pdfDoc);
+          });
+        }
+
         // Position near the card
-        const rect = activeHoverCard.getBoundingClientRect();
-        const popupW = Math.round(window.innerWidth / 3);
-        const margin = 12;
-
-        // Position top just below the site header
-        const header = document.querySelector('.site-header');
-        const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
-        let top = headerBottom + 4;
-
-        // Position to the right of the card, allow partial overlap
-        let left = rect.right - 20;
-
-        // Flip left if overflowing right
+        var rect = activeHoverCard.getBoundingClientRect();
+        var popupW = Math.round(window.innerWidth / 3);
+        var margin = 12;
+        var header = document.querySelector('.site-header');
+        var headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+        var top = headerBottom + 4;
+        var left = rect.right - 20;
         if (left + popupW > window.innerWidth - margin) {
           left = rect.left - popupW + 20;
         }
-        // Clamp to viewport
         left = Math.max(margin, Math.min(left, window.innerWidth - popupW - margin));
 
         preview.style.left = left + 'px';
@@ -822,35 +661,30 @@
 
     function hideHover() {
       clearTimeout(hoverTimer);
-      // If popup is being hovered, don't hide
       if (popupHovered) return;
-      // Delay hide so user can move mouse to popup
-      hideTimer = setTimeout(() => {
+      hideTimer = setTimeout(function() {
         if (popupHovered) return;
-        const preview = document.getElementById('hoverPreview');
-        preview.classList.remove('visible');
+        document.getElementById('hoverPreview').classList.remove('visible');
         activeHoverCard = null;
       }, 150);
     }
 
     // Keep popup open when mouse is over it
     (function() {
-      const preview = document.getElementById('hoverPreview');
-      preview.addEventListener('mouseenter', () => {
+      var preview = document.getElementById('hoverPreview');
+      preview.addEventListener('mouseenter', function() {
         popupHovered = true;
         clearTimeout(hideTimer);
         clearTimeout(hoverTimer);
       });
-      preview.addEventListener('mouseleave', () => {
+      preview.addEventListener('mouseleave', function() {
         popupHovered = false;
-        hideTimer = setTimeout(() => {
+        hideTimer = setTimeout(function() {
           preview.classList.remove('visible');
           activeHoverCard = null;
         }, 150);
       });
-      // Close on click outside
-      document.addEventListener('click', (e) => {
-        const preview = document.getElementById('hoverPreview');
+      document.addEventListener('click', function(e) {
         if (!preview.classList.contains('visible')) return;
         if (preview.contains(e.target)) return;
         if (activeHoverCard && activeHoverCard.contains(e.target)) return;
@@ -859,6 +693,8 @@
       });
     })();
 
+    // ===== Init =====
+    loadAllPrintables();
   </script>
 </body>
 </html>

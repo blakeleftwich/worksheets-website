@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- PDF.js removed — previews now use static PNG images -->
   <style>
     * {
       margin: 0;
@@ -238,9 +238,7 @@
       border-bottom: 1px solid #edf0f7;
     }
 
-    .card-preview[data-preview-pdf] {
-      align-items: flex-start;
-    }
+    /* removed data-preview-pdf CSS — now using img tags */
 
     .card-preview canvas {
       width: 100%;
@@ -758,7 +756,7 @@
     <div class="generators-grid">
       <!-- Card: Base-ten Blocks Place Value -->
       <a href="generators/base-ten-blocks-place-value/" class="generator-card">
-        <div class="card-preview" data-preview-pdf="generators/base-ten-blocks-place-value/preview.pdf"></div>
+        <div class="card-preview"><img src="generators/base-ten-blocks-place-value/preview.png" alt="Base-ten Blocks Place Value preview"></div>
         <div class="card-body">
           <h3>Base-ten Blocks Place Value</h3>
           <p>Students identify the number of hundreds, tens, and ones shown by base-ten block images. Each problem includes a place value chart to fill in.</p>
@@ -771,7 +769,7 @@
 
       <!-- Card: Word Problems -->
       <a href="generators/word-problems/" class="generator-card">
-        <div class="card-preview" data-preview-pdf="generators/word-problems/preview.pdf"></div>
+        <div class="card-preview"><img src="generators/word-problems/preview.png" alt="Word Problems preview"></div>
         <div class="card-body">
           <h3>Word Problems</h3>
           <p>Traditional math word problems for addition, subtraction, multiplication, and division. Choose single operations or mixed modes.</p>
@@ -784,7 +782,7 @@
 
       <!-- Card: Base-ten Manipulatives -->
       <a href="generators/base-ten-manipulatives/" class="generator-card">
-        <div class="card-preview" data-preview-pdf="generators/base-ten-manipulatives/preview.pdf"></div>
+        <div class="card-preview"><img src="generators/base-ten-manipulatives/preview.png" alt="Base-ten Manipulatives preview"></div>
         <div class="card-body">
           <h3>Base-ten Manipulatives</h3>
           <p>Word problems that students solve using base-ten blocks. Modes include ones, tens, and mixed.</p>
@@ -2224,46 +2222,7 @@
   </footer>
 
   <!-- ===== PDF Preview Thumbnails ===== -->
-  <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-    function renderPdfPreview(card) {
-      const pdfUrl = card.getAttribute('data-preview-pdf');
-      if (!pdfUrl) return;
-      pdfjsLib.getDocument(pdfUrl).promise.then(pdfDoc => {
-        pdfDoc.getPage(1).then(page => {
-          const viewport = page.getViewport({ scale: 1 });
-          const displayWidth = card.offsetWidth || 300;
-          const hiDpiScale = 2;
-          const scale = (displayWidth / viewport.width) * hiDpiScale;
-          const scaledViewport = page.getViewport({ scale });
-          const canvas = document.createElement('canvas');
-          canvas.width = scaledViewport.width;
-          canvas.height = scaledViewport.height;
-          canvas.style.width = displayWidth + 'px';
-          canvas.style.height = (scaledViewport.height / hiDpiScale) + 'px';
-          page.render({ canvasContext: canvas.getContext('2d'), viewport: scaledViewport }).promise.then(() => {
-            card.innerHTML = '';
-            card.appendChild(canvas);
-          });
-        });
-      });
-    }
-
-    // Lazy-load PDF previews as cards scroll into view
-    const previewObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          previewObserver.unobserve(entry.target);
-          renderPdfPreview(entry.target);
-        }
-      });
-    }, { rootMargin: '200px' });
-
-    document.querySelectorAll('.card-preview[data-preview-pdf]').forEach(card => {
-      previewObserver.observe(card);
-    });
-  </script>
+  <!-- PDF.js preview script removed — previews now use static PNG images -->
 
 </body>
 </html>
