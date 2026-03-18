@@ -189,13 +189,13 @@
           {
             // Stroke 1: stem — from bottom up to where circle begins
             d: "M 0.38 0.95 C 0.70 0.95, 0.88 0.75, 0.88 0.38",
-            start: [0.86, 0.37],
+            start: [0.86, 0.35],
             dir: [0.0, -0.14],  // arrow pointing up
           },
           {
             // Stroke 2: circle — from top of stem around the loop back to meeting point
             d: "M 0.88 0.38 C 0.88 0.22, 0.72 0.05, 0.50 0.05 C 0.28 0.05, 0.18 0.22, 0.18 0.34 C 0.18 0.48, 0.28 0.58, 0.50 0.58 C 0.70 0.58, 0.84 0.50, 0.86 0.42",
-            start: [0.86, 0.47],
+            start: [0.86, 0.49],
             dir: [0.0, 0.14],  // arrow pointing down
           }
         ]
@@ -317,8 +317,8 @@
           // Number label inside circle
           const numEl = svgEl("text", {
             x: String(dotX), y: String(dotY + 4 * indicatorScale),
-            "font-family": "Arial, sans-serif", "font-size": String(11 * indicatorScale),
-            "font-weight": "700", fill: "white",
+            "font-family": "Arial, sans-serif", "font-size": String(12 * indicatorScale),
+            "font-weight": "900", fill: "white",
             "text-anchor": "middle",
           });
           numEl.textContent = String(num);
