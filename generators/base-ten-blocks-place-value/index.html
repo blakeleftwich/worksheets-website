@@ -657,7 +657,9 @@
       const { min, max } = getRangeMinMax();
       const rows = [];
       const seen = new Set();
-      const numRows = parseInt(elProblems.value, 10) || 4;
+      const baseRows = parseInt(elProblems.value, 10) || 4;
+      // 3 rows × 2 columns = 6 problems for two-column layout (range max ≤ 20)
+      const numRows = max <= 20 ? 6 : baseRows;
       for (let r = 0; r < numRows; r++) {
         rows.push(pickNumber(min, max, seen));
       }
@@ -858,8 +860,17 @@
       const availW = pageW - margin * 2;
       const numRows = sheetRows.length;
 
+      // Determine if two-column layout (range max ≤ 20)
+      const { max: rangeMax } = getRangeMinMax();
+      const useTwoCols = rangeMax <= 20;
+      const colCount = useTwoCols ? 2 : 1;
+      const colGap = useTwoCols ? 16 : 0;
+      const layoutColW = useTwoCols ? (availW - colGap) / 2 : availW;
+      const visualRows = useTwoCols ? Math.ceil(numRows / 2) : numRows;
+
       // Block dimensions helper — computes sizes for a given scale
-      const blocksAreaW = availW * 0.55;
+      // Always use full-page width for block sizing so blocks are same scale in 1-col and 2-col
+      const blocksAreaWRef = availW * 0.55;
       const strokeColor = "#333";
       const strokeW = 0.75;
 
@@ -870,22 +881,26 @@
 
       function computeBlockDims(scaleType) {
         // scaleType: "large" (< 151), "small" (151-250), "xsmall" (251+)
-        const refRowH = scaleType === "large" ? availH / numRows : availH / 4;
+        // Use visualRows (rows per column) so 2-col mode gets same scale as 1-col with same row count
+        const refRowH = scaleType === "large" ? availH / visualRows : availH / 4;
         const bMaxH = refRowH - 12;
         const sc = scaleType === "large" ? largeScaleVal : scaleType === "xsmall" ? xsmallScaleVal : 0.7;
-        const us = Math.max(4, Math.round(Math.min(Math.floor(bMaxH / 10), 14, Math.floor(blocksAreaW / 16)) * sc));
+        const twoColScale = 1;
+        const us = Math.max(4, Math.round(Math.min(Math.floor(bMaxH / 10), 14, Math.floor(blocksAreaWRef / 16)) * sc * twoColScale));
         const groupGap = Math.round(us * gapMult);
         const itemGap = Math.max(1, Math.round(us * itemGapMult));
+        // In 2-col mode, use a narrower chart to fit within the column
+        const baseChartW = useTwoCols ? Math.min(120, layoutColW * 0.48) : 180 - us;
         return {
           unitSize: us, rodW: us, rodH: us * 10,
           rodGap: itemGap,
           unitGap: itemGap,
           flatSize: us * 10, flatGap: itemGap,
           groupGap: groupGap,
-          chartW: 180 - us, chartHeaderH: 22,
+          chartW: baseChartW, chartHeaderH: 22,
           chartBodyH: 36 + us * 2,
           chartTotalH: 22 + 36 + us * 2,
-          chartFontSize: 11
+          chartFontSize: useTwoCols ? 10 : 11
         };
       }
 
@@ -909,7 +924,7 @@
         cumY += rowHeights[r];
       }
 
-      // Render each row (single column)
+      // Render each row (single or two-column layout)
       for (let r = 0; r < numRows; r++) {
         const num = sheetRows[r];
         const hundreds = Math.floor(num / 100);
@@ -920,10 +935,15 @@
         const { unitSize, rodW, rodH, rodGap, unitGap, flatSize, flatGap, groupGap } = dims;
         // Use xsmall chart dimensions for all rows so charts are uniform
         const { chartW, chartHeaderH, chartBodyH, chartTotalH, chartFontSize } = xsmallDims;
-        const rowH = rowHeights[r];
 
-        const cellTop = rowTops[r];
-        const cellLeft = margin;
+        // In 2-col mode, compute grid position
+        const layoutCol = useTwoCols ? (r % 2) : 0;
+        const layoutRow = useTwoCols ? Math.floor(r / 2) : r;
+        const twoColShift = 6; // move top row up, adjust gap
+        const rowH = useTwoCols ? (availH + twoColShift) / visualRows : rowHeights[r];
+
+        const cellTop = useTwoCols ? (gridTop - twoColShift) + layoutRow * rowH : rowTops[r];
+        const cellLeft = margin + layoutCol * (layoutColW + colGap);
 
         // Problem number
         if (numbered) {
@@ -935,17 +955,19 @@
         // Draw blocks on the left side
         const contentLeft = cellLeft + 20;
         const contentTop = cellTop + 10;
-        const blocksW = blocksAreaW - 24;
+        const cellAvailW = useTwoCols ? layoutColW : availW;
+        const cellBlocksAreaW = cellAvailW * 0.55;
+        const blocksW = cellBlocksAreaW - 24;
         const blocksH = rowH - 12;
 
         drawBlocksBW(svg, hundreds, tens, ones, contentLeft, contentTop, blocksW, blocksH, useHundreds, unitSize, rodW, rodH, rodGap, unitGap, flatSize, flatGap, strokeColor, strokeW, groupGap);
 
-        // Draw place value chart on the right side, vertically centered within the row
-        const chartX = cellLeft + availW - chartW;
+        // Draw place value chart — in 2-col mode, place right after blocks; in 1-col, right-align
+        const chartX = useTwoCols ? (contentLeft + blocksW + 8 - 24) : (cellLeft + cellAvailW - chartW);
         const blocksTallestH = (useHundreds && hundreds > 0) ? Math.max(rodH, flatSize) : rodH;
         const chartY = contentTop + blocksTallestH / 2 - chartTotalH / 2;
         const numCols = useHundreds ? 3 : 2;
-        const colW = chartW / numCols;
+        const chartColW = chartW / numCols;
 
         // Chart outer border
         svg.appendChild(svgEl("rect", {
@@ -969,28 +991,28 @@
         // Vertical dividers
         for (let ci = 1; ci < numCols; ci++) {
           svg.appendChild(svgEl("line", {
-            x1: chartX + colW * ci, y1: chartY,
-            x2: chartX + colW * ci, y2: chartY + chartTotalH,
+            x1: chartX + chartColW * ci, y1: chartY,
+            x2: chartX + chartColW * ci, y2: chartY + chartTotalH,
             stroke: "#000", "stroke-width": 1
           }));
         }
 
         // Header labels
         if (useHundreds) {
-          const hLabel = svgEl("text", { x: chartX + colW * 0.5, y: chartY + 15, "font-family": "Fredoka, sans-serif", "font-size": chartFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2d3748" });
+          const hLabel = svgEl("text", { x: chartX + chartColW * 0.5, y: chartY + 15, "font-family": "Fredoka, sans-serif", "font-size": chartFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2d3748" });
           hLabel.textContent = "hundreds";
           svg.appendChild(hLabel);
-          const tLabel = svgEl("text", { x: chartX + colW * 1.5, y: chartY + 15, "font-family": "Fredoka, sans-serif", "font-size": chartFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2d3748" });
+          const tLabel = svgEl("text", { x: chartX + chartColW * 1.5, y: chartY + 15, "font-family": "Fredoka, sans-serif", "font-size": chartFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2d3748" });
           tLabel.textContent = "tens";
           svg.appendChild(tLabel);
-          const oLabel = svgEl("text", { x: chartX + colW * 2.5, y: chartY + 15, "font-family": "Fredoka, sans-serif", "font-size": chartFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2d3748" });
+          const oLabel = svgEl("text", { x: chartX + chartColW * 2.5, y: chartY + 15, "font-family": "Fredoka, sans-serif", "font-size": chartFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2d3748" });
           oLabel.textContent = "ones";
           svg.appendChild(oLabel);
         } else {
-          const tLabel = svgEl("text", { x: chartX + colW * 0.5, y: chartY + 15, "font-family": "Fredoka, sans-serif", "font-size": chartFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2d3748" });
+          const tLabel = svgEl("text", { x: chartX + chartColW * 0.5, y: chartY + 15, "font-family": "Fredoka, sans-serif", "font-size": chartFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2d3748" });
           tLabel.textContent = "tens";
           svg.appendChild(tLabel);
-          const oLabel = svgEl("text", { x: chartX + colW * 1.5, y: chartY + 15, "font-family": "Fredoka, sans-serif", "font-size": chartFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2d3748" });
+          const oLabel = svgEl("text", { x: chartX + chartColW * 1.5, y: chartY + 15, "font-family": "Fredoka, sans-serif", "font-size": chartFontSize, "font-weight": 700, "text-anchor": "middle", fill: "#2d3748" });
           oLabel.textContent = "ones";
           svg.appendChild(oLabel);
         }
@@ -1001,20 +1023,20 @@
           const ansFontSize = 16;
           const ansY = chartY + chartHeaderH + chartBodyH / 2 + 6;
           if (useHundreds) {
-            const hAns = svgEl("text", { x: chartX + colW * 0.5, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": ansFontSize, "font-weight": 700, "text-anchor": "middle", fill: ansColor });
+            const hAns = svgEl("text", { x: chartX + chartColW * 0.5, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": ansFontSize, "font-weight": 700, "text-anchor": "middle", fill: ansColor });
             hAns.textContent = String(hundreds);
             svg.appendChild(hAns);
-            const tAns = svgEl("text", { x: chartX + colW * 1.5, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": ansFontSize, "font-weight": 700, "text-anchor": "middle", fill: ansColor });
+            const tAns = svgEl("text", { x: chartX + chartColW * 1.5, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": ansFontSize, "font-weight": 700, "text-anchor": "middle", fill: ansColor });
             tAns.textContent = String(tens);
             svg.appendChild(tAns);
-            const oAns = svgEl("text", { x: chartX + colW * 2.5, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": ansFontSize, "font-weight": 700, "text-anchor": "middle", fill: ansColor });
+            const oAns = svgEl("text", { x: chartX + chartColW * 2.5, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": ansFontSize, "font-weight": 700, "text-anchor": "middle", fill: ansColor });
             oAns.textContent = String(ones);
             svg.appendChild(oAns);
           } else {
-            const tAns = svgEl("text", { x: chartX + colW * 0.5, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": ansFontSize, "font-weight": 700, "text-anchor": "middle", fill: ansColor });
+            const tAns = svgEl("text", { x: chartX + chartColW * 0.5, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": ansFontSize, "font-weight": 700, "text-anchor": "middle", fill: ansColor });
             tAns.textContent = String(tens);
             svg.appendChild(tAns);
-            const oAns = svgEl("text", { x: chartX + colW * 1.5, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": ansFontSize, "font-weight": 700, "text-anchor": "middle", fill: ansColor });
+            const oAns = svgEl("text", { x: chartX + chartColW * 1.5, y: ansY, "font-family": "Fredoka, sans-serif", "font-size": ansFontSize, "font-weight": 700, "text-anchor": "middle", fill: ansColor });
             oAns.textContent = String(ones);
             svg.appendChild(oAns);
           }
