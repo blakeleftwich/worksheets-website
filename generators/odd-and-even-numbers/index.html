@@ -419,6 +419,19 @@
         display: block !important;
       }
     }
+
+    /* Odd/Even toggle buttons */
+    .ops-row { display: flex; gap: 6px; }
+    .op-chip {
+      display: flex; align-items: center; justify-content: center;
+      flex: 1; padding: 8px 0; border: 2px solid #e2e8f0;
+      border-radius: 8px; cursor: pointer; transition: all 0.15s; text-align: center;
+    }
+    .op-chip input[type="checkbox"], .op-chip input[type="radio"] { display: none; }
+    .op-chip span { font-size: 14px; font-weight: 700; color: #a0aec0; line-height: 1; }
+    .op-chip:has(input:checked) { border-color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
+    .op-chip:has(input:checked) span { color: #f59e0b; }
+    .op-chip:hover { border-color: #cbd5e0; }
   </style>
   <link rel="stylesheet" href="../../fonts/fonts.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -450,10 +463,18 @@
       <div class="control-group">
         <label for="modeSelect">Mode</label>
         <select id="modeSelect">
-          <option value="circle" selected>Circle odd or even</option>
+          <option value="circle" selected>Circle the number</option>
           <option value="sort">Sort into columns</option>
           <option value="write">Write odd or even</option>
         </select>
+      </div>
+
+      <div class="control-group" id="circleTargetGroup">
+        <label>Circle which?</label>
+        <div class="ops-row">
+          <label class="op-chip"><input type="radio" name="circleTarget" id="includeOdd" value="odd" checked /><span>Odd</span></label>
+          <label class="op-chip"><input type="radio" name="circleTarget" id="includeEven" value="even" /><span>Even</span></label>
+        </div>
       </div>
 
       <div class="control-group">
@@ -495,18 +516,6 @@
               <option value="10">10</option>
             </select>
           </div>
-
-          <!-- Problems per sheet -->
-          <div class="control-group" style="margin-bottom:12px;">
-        <label for="problemsPerSheet">Problems per Sheet</label>
-        <select id="problemsPerSheet">
-          <option value="10">10</option>
-          <option value="15">15</option>
-          <option value="20" selected>20</option>
-          <option value="25">25</option>
-        </select>
-      </div>
-
 
           <!-- Name / Date -->
           <div class="adv-checkbox-row">
@@ -585,7 +594,9 @@
     const sheetWrap = document.getElementById("sheetWrap");
     const elMode = document.getElementById("modeSelect");
     const elRange = document.getElementById("rangeSelect");
-    const elProblems = document.getElementById("problemsPerSheet");
+    const elIncludeOdd = document.getElementById("includeOdd");
+    const elIncludeEven = document.getElementById("includeEven");
+    const elCircleTargetGroup = document.getElementById("circleTargetGroup");
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
@@ -652,18 +663,30 @@
       return "Odd and Even Numbers";
     }
 
+    function getCircleTarget() {
+      return elIncludeOdd.checked ? "odd" : "even";
+    }
+
     function getSubtitle() {
       if (elCustomTitleEnabled.checked) {
         return elShowSubtitle.checked ? elSubtitleText.value : "";
       }
       const mode = elMode.value;
-      if (mode === "circle") return "Circle all the odd numbers.";
+      if (mode === "circle") return "Circle all the " + getCircleTarget() + " numbers.";
       if (mode === "sort") return "Sort the numbers into odd and even.";
       if (mode === "write") return "Write whether each number is odd or even.";
       return "Circle all the odd numbers.";
     }
 
     // ===== Gather options =====
+    function getProblemsPerSheet() {
+      const mode = elMode.value;
+      if (mode === "circle") return 20;
+      if (mode === "sort") return 12;
+      if (mode === "write") return 12;
+      return 20;
+    }
+
     function gatherOptions() {
       const showHeader = getHeaderMode();
       const title = getTitle();
@@ -672,7 +695,7 @@
         mode: elMode.value,
         maxVal: parseInt(elRange.value, 10),
         numWorksheets: parseInt(elNumSheets.value, 10),
-        problemsPerSheet: parseInt(elProblems.value, 10),
+        problemsPerSheet: getProblemsPerSheet(),
         showHeader,
         title,
         subtitle,
@@ -680,6 +703,7 @@
         answerKey: elAnswerKey.checked,
         numbered: elNumbered.checked,
         includeExample: elIncludeExample.checked,
+        circleTarget: getCircleTarget(),
       };
     }
 
@@ -741,7 +765,7 @@
           }, [document.createTextNode(subtitle)]));
           curY += 20;
         }
-        topGridY = curY + 6;
+        topGridY = curY + 20;
       }
 
       if (branded) {
@@ -795,28 +819,18 @@
 
     // ===== Circle Mode =====
     function renderCircleMode(svg, numbers, topGridY, availW, availH, margin, pageW, showAnswers, targetType, includeExample) {
-      // Instruction line
-      const instrY = topGridY + 24;
-      const instrEl = svgEl("text", { x: pageW / 2, y: instrY, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 600, "text-anchor": "middle", fill: "#2d3748" });
-      instrEl.textContent = "Circle all the " + targetType.toUpperCase() + " numbers.";
-      svg.appendChild(instrEl);
-
-      const gridTop = instrY + 20;
+      // No instruction text — subtitle already says it
+      const gridTop = topGridY + 10;
       const gridAvailH = availH - (gridTop - topGridY);
       const count = numbers.length;
 
       // Calculate grid layout
-      let cols, rows;
-      if (count <= 10) { cols = 5; }
-      else if (count <= 15) { cols = 5; }
-      else if (count <= 20) { cols = 5; }
-      else { cols = 5; }
-      rows = Math.ceil(count / cols);
+      let cols = 5;
+      const rows = Math.ceil(count / cols);
 
       const cellW = availW / cols;
       const cellH = gridAvailH / rows;
-      const circleR = Math.min(cellW, cellH) * 0.35;
-      const fontSize = Math.min(28, circleR * 1.1);
+      const fontSize = Math.min(36, Math.max(22, Math.floor(Math.min(cellW, cellH) * 0.45)));
 
       for (let i = 0; i < count; i++) {
         const col = i % cols;
@@ -827,27 +841,35 @@
         const isTarget = targetType === "odd" ? (num % 2 !== 0) : (num % 2 === 0);
         const isExample = (i === 0 && includeExample && !showAnswers);
 
-        // Draw circle
-        const circleFill = isExample ? (isTarget ? "rgba(34,197,94,0.15)" : "none") : (showAnswers && isTarget) ? "rgba(245, 158, 11, 0.15)" : "none";
-        const circleStroke = isExample ? (isTarget ? "#22c55e" : "#2d3748") : (showAnswers && isTarget) ? "#f59e0b" : "#2d3748";
-        const circleWidth = (isExample && isTarget) || (showAnswers && isTarget) ? 3 : 1.5;
-        svg.appendChild(svgEl("circle", {
-          cx: cx, cy: cy, r: circleR,
-          fill: circleFill, stroke: circleStroke, "stroke-width": circleWidth
-        }));
-
-        // Example badge above first circle
+        // Example badge above number
         if (isExample) {
-          const badgeX = cx - 21, badgeY = cy - circleR - 16;
+          const badgeX = cx - 21, badgeY = cy - fontSize * 0.6 - 16;
           svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
           const bt = svgEl("text", { x: cx, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
           bt.textContent = "Example"; svg.appendChild(bt);
         }
 
-        // Draw number
+        // Answer key: circle around target numbers
+        if (showAnswers && isTarget) {
+          const circleR = fontSize * 0.7;
+          svg.appendChild(svgEl("circle", {
+            cx: cx, cy: cy, r: circleR,
+            fill: "rgba(245, 158, 11, 0.15)", stroke: "#f59e0b", "stroke-width": 3
+          }));
+        }
+        // Example: circle around first if target
+        if (isExample && isTarget) {
+          const circleR = fontSize * 0.7;
+          svg.appendChild(svgEl("circle", {
+            cx: cx, cy: cy, r: circleR,
+            fill: "rgba(34,197,94,0.15)", stroke: "#22c55e", "stroke-width": 3
+          }));
+        }
+
+        // Draw number — larger, using header font
         const numEl = svgEl("text", {
           x: cx, y: cy + fontSize * 0.35,
-          "font-family": "Fredoka, sans-serif", "font-size": fontSize, "font-weight": 700,
+          "font-family": "'Google Sans Flex', sans-serif", "font-size": fontSize, "font-weight": 700,
           "text-anchor": "middle",
           fill: (isExample && isTarget) ? "#16a34a" : (showAnswers && isTarget) ? "#f59e0b" : "#1a202c"
         });
@@ -858,22 +880,17 @@
 
     // ===== Sort Mode =====
     function renderSortMode(svg, numbers, topGridY, availW, availH, margin, pageW, pageH, showAnswers, bottomMargin, includeExample) {
-      const instrY = topGridY + 24;
-      const instrEl = svgEl("text", { x: pageW / 2, y: instrY, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 600, "text-anchor": "middle", fill: "#2d3748" });
-      instrEl.textContent = "Sort the numbers into odd and even.";
-      svg.appendChild(instrEl);
-
-      // Numbers to sort - show them in a row/rows below instruction
-      const numRowY = instrY + 30;
+      // No instruction text — subtitle already says it
+      const numRowY = topGridY + 30;
       const count = numbers.length;
-      const numFontSize = Math.min(20, Math.max(14, Math.floor(availW / (count * 2.2))));
+      const numFontSize = Math.min(28, Math.max(18, Math.floor(availW / (count * 1.8))));
       const numSpacing = availW / count;
 
       for (let i = 0; i < count; i++) {
         const x = margin + i * numSpacing + numSpacing / 2;
         const numEl = svgEl("text", {
           x: x, y: numRowY,
-          "font-family": "Fredoka, sans-serif", "font-size": numFontSize, "font-weight": 700,
+          "font-family": "'Google Sans Flex', sans-serif", "font-size": numFontSize, "font-weight": 700,
           "text-anchor": "middle", fill: "#1a202c"
         });
         numEl.textContent = numbers[i];
@@ -884,13 +901,13 @@
       const dividerY = numRowY + 20;
       svg.appendChild(svgEl("line", { x1: margin, y1: dividerY, x2: pageW - margin, y2: dividerY, stroke: "#2d3748", "stroke-width": 1.5 }));
 
-      // Two column layout
+      // Two column layout — bottom stops 2 returns above footer
       const colAreaTop = dividerY + 10;
-      const colAreaH = pageH - bottomMargin - colAreaTop;
+      const colAreaH = pageH - bottomMargin - colAreaTop - 40;
       const halfW = availW / 2;
       const gapBetween = 20;
 
-      // Center divider line
+      // Center divider line — shortened to match column area
       const centerX = pageW / 2;
       svg.appendChild(svgEl("line", { x1: centerX, y1: colAreaTop, x2: centerX, y2: colAreaTop + colAreaH, stroke: "#cbd5e0", "stroke-width": 1, "stroke-dasharray": "4,4" }));
 
@@ -917,12 +934,13 @@
       svg.appendChild(svgEl("line", { x1: margin + 20, y1: headerLineY, x2: centerX - 20, y2: headerLineY, stroke: "#2d3748", "stroke-width": 1 }));
       svg.appendChild(svgEl("line", { x1: centerX + 20, y1: headerLineY, x2: pageW - margin - 20, y2: headerLineY, stroke: "#2d3748", "stroke-width": 1 }));
 
-      // Blank lines for student to write answers
+      // Blank lines for student to write answers — fill all the way down
       const lineStartY = headerLineY + 30;
       const oddNums = numbers.filter(n => n % 2 !== 0).sort((a, b) => a - b);
       const evenNums = numbers.filter(n => n % 2 === 0).sort((a, b) => a - b);
-      const maxLines = Math.max(oddNums.length, evenNums.length, Math.ceil(count / 2));
-      const lineSpacing = Math.min(32, (colAreaH - (lineStartY - colAreaTop) - 20) / maxLines);
+      const lineSpacing = 32;
+      const colBottom = colAreaTop + colAreaH;
+      const maxLines = Math.max(oddNums.length, evenNums.length, Math.floor((colBottom - lineStartY) / lineSpacing) + 1);
 
       for (let i = 0; i < maxLines; i++) {
         const y = lineStartY + i * lineSpacing;
@@ -957,12 +975,13 @@
     // ===== Write Mode =====
     function renderWriteMode(svg, numbers, topGridY, availW, availH, margin, pageW, showAnswers, numbered, includeExample) {
       const count = numbers.length;
-      const cols = count > 12 ? 2 : 1;
+      const cols = 2;
       const rows = Math.ceil(count / cols);
       const colW = availW / cols;
-      const rowH = availH / rows;
+      const usableH = availH - 80; // pull bottom rows up
+      const rowH = usableH / rows;
 
-      const fontSize = Math.min(24, Math.max(14, Math.floor(rowH * 0.45)));
+      const fontSize = Math.min(24, Math.max(16, Math.floor(rowH * 0.45)));
       const probNumSize = 10;
 
       for (let i = 0; i < count; i++) {
@@ -1042,15 +1061,18 @@
     }
 
     // ===== Render logic =====
+    function getTargetType(sheetIndex) {
+      return getCircleTarget();
+    }
+
     function renderWithNewRandomization() {
       const opts = gatherOptions();
       currentState.sheets = [];
       currentState.sheetMeta = [];
       for (let s = 0; s < opts.numWorksheets; s++) {
         currentState.sheets.push(generateNumbers(opts.problemsPerSheet, opts.maxVal));
-        // For circle mode, alternate between odd and even targeting
         currentState.sheetMeta.push({
-          targetType: s % 2 === 0 ? "odd" : "even"
+          targetType: getTargetType(s)
         });
       }
       renderWorksheet();
@@ -1061,7 +1083,7 @@
       while (currentState.sheets.length < opts.numWorksheets) {
         currentState.sheets.push(generateNumbers(opts.problemsPerSheet, opts.maxVal));
         currentState.sheetMeta.push({
-          targetType: currentState.sheets.length % 2 === 0 ? "even" : "odd"
+          targetType: getTargetType(currentState.sheets.length - 1)
         });
       }
       if (currentState.sheets.length > opts.numWorksheets) {
@@ -1153,9 +1175,15 @@
       setTimeout(() => { answerKeyPages.forEach(p => p.remove()); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 500);
     }
     // ===== Event Listeners =====
-    elMode.addEventListener("change", () => renderWithNewRandomization());
+    elMode.addEventListener("change", () => { updateCircleTargetVisibility(); renderWithNewRandomization(); });
     elRange.addEventListener("change", () => renderWithNewRandomization());
-    elProblems.addEventListener("change", () => renderWithNewRandomization());
+    // Show/hide circle target buttons based on mode
+    function updateCircleTargetVisibility() {
+      elCircleTargetGroup.style.display = elMode.value === "circle" ? "" : "none";
+    }
+    updateCircleTargetVisibility();
+    elIncludeOdd.addEventListener("change", () => renderWithNewRandomization());
+    elIncludeEven.addEventListener("change", () => renderWithNewRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elShowHeaderEnabled.addEventListener("change", () => {
       elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";

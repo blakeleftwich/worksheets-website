@@ -667,17 +667,48 @@
     // ===== State =====
     let currentState = { sheets: [] };
 
-    // ===== Name bank (popular kid names 2024-2026) =====
+    // ===== Name bank (diverse, kid-readable names) =====
     const NAMES = [
-      "Olivia", "Charlotte", "Amelia", "Sophia", "Mia", "Isabella", "Luna", "Harper",
-      "Evelyn", "Aria", "Ella", "Camila", "Layla", "Willow", "Zoe", "Penelope",
-      "Liam", "Noah", "Oliver", "James", "Elijah", "Theodore", "Henry", "Lucas",
-      "Benjamin", "Jack", "Levi", "Mason", "Ethan", "Mateo", "Owen", "Sebastian"
+      // Common / English
+      "Olivia", "Emma", "Ella", "Mia", "Zoe", "Lily", "Ruby", "Ivy",
+      "Liam", "Noah", "Jack", "Owen", "Leo", "Max", "Ben", "Sam",
+      // Hispanic / Latino
+      "Sofia", "Luna", "Camila", "Rosa", "Elena", "Maya", "Ana", "Lucia",
+      "Mateo", "Carlos", "Diego", "Marco", "Luis", "Jorge", "Rico", "Pedro",
+      // Black / African American
+      "Nia", "Zuri", "Amara", "Kaya", "Aaliyah", "Imani", "Layla", "Aisha",
+      "Malik", "Jalen", "Kai", "Darius", "Andre", "Miles", "Trey", "Omari",
+      // East Asian
+      "Mei", "Yuki", "Hana", "Lin", "Suki", "Jade", "Ming", "Lian",
+      "Jin", "Ryo", "Tao", "Wei", "Kenji", "Sora", "Hiro", "Koji",
+      // South Asian
+      "Priya", "Anaya", "Devi", "Nila", "Riya", "Tara", "Leela", "Sita",
+      "Arjun", "Ravi", "Dev", "Hari", "Vijay", "Amir", "Neel", "Raj",
+      // Additional
+      "Oliver", "Elliott", "Blake", "Michael", "Amanda", "Poppy", "Zayne", "Addie"
     ];
 
     function randItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
     function randInt(min, max) { return min + Math.floor(Math.random() * (max - min + 1)); }
     function randName() { return randItem(NAMES); }
+
+    // Pluralization helper: pl(5, "cookie") => "5 cookies", pl(1, "cookie") => "1 cookie"
+    // Handles irregular plurals and special cases
+    function pl(n, singular, plural) {
+      if (!plural) {
+        // Auto-pluralize
+        if (singular === "fish" || singular === "deer" || singular === "sheep") plural = singular;
+        else if (singular.endsWith("s") || singular.endsWith("sh") || singular.endsWith("ch") || singular.endsWith("x") || singular.endsWith("z")) plural = singular + "es";
+        else if (singular.endsWith("y") && !"aeiou".includes(singular[singular.length - 2])) plural = singular.slice(0, -1) + "ies";
+        else if (singular === "leaf") plural = "leaves";
+        else if (singular === "shelf") plural = "shelves";
+        else if (singular === "half") plural = "halves";
+        else if (singular === "child") plural = "children";
+        else if (singular === "person") plural = "people";
+        else plural = singular + "s";
+      }
+      return n + " " + (n === 1 ? singular : plural);
+    }
 
     // ===== SVG Text Wrapping =====
     function estimateTextWidth(text, fontSize) {
@@ -729,217 +760,217 @@
       // --- ADDITION questions ---
       Q.push({ cat: ["addition"], gen: function() {
         const n = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
-        return { text: n+" found "+a+" seashells on the beach and then found "+b+" more. How many seashells does "+n+" have altogether?", answers: [{label:"seashells", value:String(a+b)}] };
+        return { text: n+" found "+pl(a, "seashell")+" on the beach and then found "+b+" more. How many seashells does "+n+" have altogether?", answers: [{label:"seashells", value:String(a+b)}] };
       }});
       Q.push({ cat: ["addition"], gen: function() {
         const n = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
-        return { text: n+" has "+a+" red marbles and "+b+" blue marbles. How many marbles does "+n+" have in all?", answers: [{label:"marbles", value:String(a+b)}] };
+        return { text: n+" has "+pl(a, "red marble")+" and "+pl(b, "blue marble")+". How many marbles does "+n+" have in all?", answers: [{label:"marbles", value:String(a+b)}] };
       }});
       Q.push({ cat: ["addition"], gen: function() {
         const a = randInt(addLo, addHi), b = randInt(addLo, addHi);
-        return { text: "There are "+a+" boys and "+b+" girls in the class. How many students are there in all?", answers: [{label:"students", value:String(a+b)}] };
+        return { text: "There are "+pl(a, "boy")+" and "+pl(b, "girl")+" in the class. How many students are there in all?", answers: [{label:"students", value:String(a+b)}] };
       }});
       Q.push({ cat: ["addition"], gen: function() {
         const n = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
-        return { text: n+" read "+a+" pages on Monday and "+b+" pages on Tuesday. How many pages did "+n+" read in total?", answers: [{label:"pages", value:String(a+b)}] };
+        return { text: n+" read "+pl(a, "page")+" on Monday and "+pl(b, "page")+" on Tuesday. How many pages did "+n+" read in total?", answers: [{label:"pages", value:String(a+b)}] };
       }});
       Q.push({ cat: ["addition"], gen: function() {
         const n1 = randName(), n2 = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
-        return { text: n1+" picked "+a+" apples. "+n2+" picked "+b+" apples. How many apples did they pick together?", answers: [{label:"apples", value:String(a+b)}] };
+        return { text: n1+" picked "+pl(a, "apple")+". "+n2+" picked "+pl(b, "apple")+". How many apples did they pick together?", answers: [{label:"apples", value:String(a+b)}] };
       }});
       Q.push({ cat: ["addition"], gen: function() {
         const a = randInt(addLo, addHi), b = randInt(addLo, addHi);
-        return { text: "A jar has "+a+" cookies. Mom adds "+b+" more cookies to the jar. How many cookies are in the jar now?", answers: [{label:"cookies", value:String(a+b)}] };
+        return { text: "A jar has "+pl(a, "cookie")+". Mom adds "+b+" more cookies to the jar. How many cookies are in the jar now?", answers: [{label:"cookies", value:String(a+b)}] };
       }});
       Q.push({ cat: ["addition"], gen: function() {
         const n = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
-        return { text: n+" scored "+a+" points in the first half and "+b+" points in the second half. How many points did "+n+" score in total?", answers: [{label:"points", value:String(a+b)}] };
+        return { text: n+" scored "+pl(a, "point")+" in the first half and "+pl(b, "point")+" in the second half. How many points did "+n+" score in total?", answers: [{label:"points", value:String(a+b)}] };
       }});
       Q.push({ cat: ["addition"], gen: function() {
         const a = randInt(addLo, addHi), b = randInt(addLo, addHi);
-        return { text: a+" birds sat in a tree. Then "+b+" more birds landed on the branches. How many birds are in the tree now?", answers: [{label:"birds", value:String(a+b)}] };
+        return { text: pl(a, "bird")+" sat in a tree. Then "+b+" more birds landed on the branches. How many birds are in the tree now?", answers: [{label:"birds", value:String(a+b)}] };
       }});
       Q.push({ cat: ["addition"], gen: function() {
         const n = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
-        return { text: n+" has "+a+" crayons. The teacher gave "+n+" "+b+" more crayons. How many crayons does "+n+" have now?", answers: [{label:"crayons", value:String(a+b)}] };
+        return { text: n+" has "+pl(a, "crayon")+". The teacher gave "+n+" "+b+" more crayons. How many crayons does "+n+" have now?", answers: [{label:"crayons", value:String(a+b)}] };
       }});
       Q.push({ cat: ["addition"], gen: function() {
         const n = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
-        return { text: n+" saw "+a+" cars and "+b+" trucks in the parking lot. How many vehicles did "+n+" see?", answers: [{label:"vehicles", value:String(a+b)}] };
+        return { text: n+" saw "+pl(a, "car")+" and "+pl(b, "truck")+" in the parking lot. How many vehicles did "+n+" see?", answers: [{label:"vehicles", value:String(a+b)}] };
       }});
       Q.push({ cat: ["addition"], gen: function() {
         const n = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
-        return { text: "There were "+a+" flowers in the garden. "+n+" planted "+b+" more flowers. How many flowers are in the garden now?", answers: [{label:"flowers", value:String(a+b)}] };
+        return { text: "There were "+pl(a, "flower")+" in the garden. "+n+" planted "+b+" more flowers. How many flowers are in the garden now?", answers: [{label:"flowers", value:String(a+b)}] };
       }});
       Q.push({ cat: ["addition"], gen: function() {
         const n1 = randName(), n2 = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
-        return { text: n1+" had "+a+" stickers. "+n2+" gave "+n1+" "+b+" more stickers. How many stickers does "+n1+" have now?", answers: [{label:"stickers", value:String(a+b)}] };
+        return { text: n1+" had "+pl(a, "sticker")+". "+n2+" gave "+n1+" "+b+" more stickers. How many stickers does "+n1+" have now?", answers: [{label:"stickers", value:String(a+b)}] };
       }});
       Q.push({ cat: ["addition"], gen: function() {
         const a = randInt(addLo, addHi), b = randInt(addLo, addHi);
-        return { text: "The library got "+a+" new books on Monday and "+b+" new books on Friday. How many new books did the library get?", answers: [{label:"books", value:String(a+b)}] };
+        return { text: "The library got "+pl(a, "new book")+" on Monday and "+pl(b, "new book")+" on Friday. How many new books did the library get?", answers: [{label:"books", value:String(a+b)}] };
       }});
       Q.push({ cat: ["addition"], gen: function() {
         const n = randName(), a = randInt(addLo, addHi), b = randInt(addLo, addHi);
-        return { text: n+" caught "+a+" fish in the morning and "+b+" fish in the afternoon. How many fish did "+n+" catch in all?", answers: [{label:"fish", value:String(a+b)}] };
+        return { text: n+" caught "+pl(a, "fish")+" in the morning and "+pl(b, "fish")+" in the afternoon. How many fish did "+n+" catch in all?", answers: [{label:"fish", value:String(a+b)}] };
       }});
       Q.push({ cat: ["addition"], gen: function() {
         const a = randInt(addLo, addHi), b = randInt(addLo, addHi);
-        return { text: a+" kids are on the swings and "+b+" kids are on the slide. How many kids are at the playground?", answers: [{label:"kids", value:String(a+b)}] };
+        return { text: pl(a, "kid")+" are on the swings and "+pl(b, "kid")+" are on the slide. How many kids are at the playground?", answers: [{label:"kids", value:String(a+b)}] };
       }});
 
       // --- SUBTRACTION questions ---
       Q.push({ cat: ["subtraction"], gen: function() {
         const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
-        return { text: n+" had "+total+" cookies and ate "+some+" of them. How many cookies does "+n+" have left?", answers: [{label:"cookies", value:String(total - some)}] };
+        return { text: n+" had "+pl(total, "cookie")+" and ate "+some+" of them. How many cookies does "+n+" have left?", answers: [{label:"cookies", value:String(total - some)}] };
       }});
       Q.push({ cat: ["subtraction"], gen: function() {
         const total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
-        return { text: "There were "+total+" birds on a fence. "+some+" flew away. How many birds are still on the fence?", answers: [{label:"birds", value:String(total - some)}] };
+        return { text: "There were "+pl(total, "bird")+" on a fence. "+some+" flew away. How many birds are still on the fence?", answers: [{label:"birds", value:String(total - some)}] };
       }});
       Q.push({ cat: ["subtraction"], gen: function() {
         const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
-        return { text: n+" had "+total+" stickers and gave "+some+" to a friend. How many stickers does "+n+" have left?", answers: [{label:"stickers", value:String(total - some)}] };
+        return { text: n+" had "+pl(total, "sticker")+" and gave "+some+" to a friend. How many stickers does "+n+" have left?", answers: [{label:"stickers", value:String(total - some)}] };
       }});
       Q.push({ cat: ["subtraction"], gen: function() {
         const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
-        return { text: "A basket had "+total+" apples. "+n+" took "+some+" apples. How many apples are left in the basket?", answers: [{label:"apples", value:String(total - some)}] };
+        return { text: "A basket had "+pl(total, "apple")+". "+n+" took "+pl(some, "apple")+". How many apples are left in the basket?", answers: [{label:"apples", value:String(total - some)}] };
       }});
       Q.push({ cat: ["subtraction"], gen: function() {
         const total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
-        return { text: total+" students were in class. "+some+" went to lunch early. How many students stayed in class?", answers: [{label:"students", value:String(total - some)}] };
+        return { text: pl(total, "student")+" were in class. "+some+" went to lunch early. How many students stayed in class?", answers: [{label:"students", value:String(total - some)}] };
       }});
       Q.push({ cat: ["subtraction"], gen: function() {
         const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
-        return { text: n+" had "+total+" dollars. "+n+" spent "+some+" dollars on a toy. How much money does "+n+" have left?", answers: [{label:"dollars", value:String(total - some)}] };
+        return { text: n+" had "+pl(total, "dollar")+". "+n+" spent "+pl(some, "dollar")+" on a toy. How much money does "+n+" have left?", answers: [{label:"dollars", value:String(total - some)}] };
       }});
       Q.push({ cat: ["subtraction"], gen: function() {
         const total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
-        return { text: "The store had "+total+" balloons. "+some+" balloons popped. How many balloons are left?", answers: [{label:"balloons", value:String(total - some)}] };
+        return { text: "The store had "+pl(total, "balloon")+". "+pl(some, "balloon")+" popped. How many balloons are left?", answers: [{label:"balloons", value:String(total - some)}] };
       }});
       Q.push({ cat: ["subtraction"], gen: function() {
         const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
-        return { text: n+" baked "+total+" muffins. The family ate "+some+" muffins. How many muffins are left?", answers: [{label:"muffins", value:String(total - some)}] };
+        return { text: n+" baked "+pl(total, "muffin")+". The family ate "+pl(some, "muffin")+". How many muffins are left?", answers: [{label:"muffins", value:String(total - some)}] };
       }});
       Q.push({ cat: ["subtraction"], gen: function() {
         const total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
-        return { text: "There were "+total+" crayons in the box. "+some+" were broken. How many good crayons are left?", answers: [{label:"crayons", value:String(total - some)}] };
+        return { text: "There were "+pl(total, "crayon")+" in the box. "+some+" were broken. How many good crayons are left?", answers: [{label:"crayons", value:String(total - some)}] };
       }});
       Q.push({ cat: ["subtraction"], gen: function() {
         const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
-        return { text: n+" had "+total+" grapes. "+n+" ate "+some+" as a snack. How many grapes does "+n+" have left?", answers: [{label:"grapes", value:String(total - some)}] };
+        return { text: n+" had "+pl(total, "grape")+". "+n+" ate "+some+" as a snack. How many grapes does "+n+" have left?", answers: [{label:"grapes", value:String(total - some)}] };
       }});
       Q.push({ cat: ["subtraction"], gen: function() {
         const total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
-        return { text: "There were "+total+" leaves on the tree. "+some+" blew away in the wind. How many leaves are still on the tree?", answers: [{label:"leaves", value:String(total - some)}] };
+        return { text: "There were "+pl(total, "leaf")+" on the tree. "+some+" blew away in the wind. How many leaves are still on the tree?", answers: [{label:"leaves", value:String(total - some)}] };
       }});
       Q.push({ cat: ["subtraction"], gen: function() {
         const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
-        return { text: n+" had "+total+" marbles. "+n+" lost "+some+" at recess. How many marbles does "+n+" have now?", answers: [{label:"marbles", value:String(total - some)}] };
+        return { text: n+" had "+pl(total, "marble")+". "+n+" lost "+some+" at recess. How many marbles does "+n+" have now?", answers: [{label:"marbles", value:String(total - some)}] };
       }});
       Q.push({ cat: ["subtraction"], gen: function() {
         const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
-        return { text: "A jar had "+total+" candies. "+n+" shared "+some+" with friends. How many candies are left in the jar?", answers: [{label:"candies", value:String(total - some)}] };
+        return { text: "A jar had "+pl(total, "candy")+". "+n+" shared "+some+" with friends. How many candies are left in the jar?", answers: [{label:"candies", value:String(total - some)}] };
       }});
       Q.push({ cat: ["subtraction"], gen: function() {
         const total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
-        return { text: total+" ants were on a hill. "+some+" walked away. How many ants stayed on the hill?", answers: [{label:"ants", value:String(total - some)}] };
+        return { text: pl(total, "ant")+" were on a hill. "+some+" walked away. How many ants stayed on the hill?", answers: [{label:"ants", value:String(total - some)}] };
       }});
       Q.push({ cat: ["subtraction"], gen: function() {
         const n = randName(), total = randInt(subLo, subHi), some = randInt(1, Math.max(1, total - 1));
-        return { text: n+" had "+total+" puzzle pieces. "+some+" were missing. How many puzzle pieces did "+n+" have?", answers: [{label:"pieces", value:String(total - some)}] };
+        return { text: n+" had "+pl(total, "puzzle piece")+". "+some+" were missing. How many puzzle pieces did "+n+" have?", answers: [{label:"pieces", value:String(total - some)}] };
       }});
 
       // --- MULTIPLICATION questions ---
       Q.push({ cat: ["multiplication"], gen: function() {
         const n = randName(), a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
-        return { text: n+" has "+a+" bags with "+b+" candies in each bag. How many candies does "+n+" have in all?", answers: [{label:"candies", value:String(a*b)}] };
+        return { text: n+" has "+pl(a, "bag")+" with "+pl(b, "candy")+" in each bag. How many candies does "+n+" have in all?", answers: [{label:"candies", value:String(a*b)}] };
       }});
       Q.push({ cat: ["multiplication"], gen: function() {
         const a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
-        return { text: "There are "+a+" tables in the room with "+b+" chairs at each table. How many chairs are there in all?", answers: [{label:"chairs", value:String(a*b)}] };
+        return { text: "There are "+pl(a, "table")+" in the room with "+pl(b, "chair")+" at each table. How many chairs are there in all?", answers: [{label:"chairs", value:String(a*b)}] };
       }});
       Q.push({ cat: ["multiplication"], gen: function() {
         const n = randName(), a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
-        return { text: n+" bought "+a+" packs of stickers with "+b+" stickers in each pack. How many stickers did "+n+" buy?", answers: [{label:"stickers", value:String(a*b)}] };
+        return { text: n+" bought "+pl(a, "pack")+" of stickers with "+pl(b, "sticker")+" in each pack. How many stickers did "+n+" buy?", answers: [{label:"stickers", value:String(a*b)}] };
       }});
       Q.push({ cat: ["multiplication"], gen: function() {
         const n = randName(), a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
-        return { text: "Each box holds "+b+" crayons. "+n+" has "+a+" boxes. How many crayons does "+n+" have?", answers: [{label:"crayons", value:String(a*b)}] };
+        return { text: "Each box holds "+pl(b, "crayon")+". "+n+" has "+pl(a, "box")+". How many crayons does "+n+" have?", answers: [{label:"crayons", value:String(a*b)}] };
       }});
       Q.push({ cat: ["multiplication"], gen: function() {
         const a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
-        return { text: a+" friends each brought "+b+" cookies to the party. How many cookies are there altogether?", answers: [{label:"cookies", value:String(a*b)}] };
+        return { text: pl(a, "friend")+" each brought "+pl(b, "cookie")+" to the party. How many cookies are there altogether?", answers: [{label:"cookies", value:String(a*b)}] };
       }});
       Q.push({ cat: ["multiplication"], gen: function() {
         const n = randName(), a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
-        return { text: n+" has "+a+" shelves with "+b+" books on each shelf. How many books does "+n+" have?", answers: [{label:"books", value:String(a*b)}] };
+        return { text: n+" has "+pl(a, "shelf")+" with "+pl(b, "book")+" on each shelf. How many books does "+n+" have?", answers: [{label:"books", value:String(a*b)}] };
       }});
       Q.push({ cat: ["multiplication"], gen: function() {
         const a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
-        return { text: "There are "+a+" rows of desks with "+b+" desks in each row. How many desks are there?", answers: [{label:"desks", value:String(a*b)}] };
+        return { text: "There are "+pl(a, "row")+" of desks with "+pl(b, "desk")+" in each row. How many desks are there?", answers: [{label:"desks", value:String(a*b)}] };
       }});
       Q.push({ cat: ["multiplication"], gen: function() {
         const n = randName(), a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
-        return { text: n+" waters "+a+" plants "+b+" times each week. How many waterings does "+n+" do per week?", answers: [{label:"waterings", value:String(a*b)}] };
+        return { text: n+" waters "+pl(a, "plant")+" "+pl(b, "time")+" each week. How many waterings does "+n+" do per week?", answers: [{label:"waterings", value:String(a*b)}] };
       }});
       Q.push({ cat: ["multiplication"], gen: function() {
         const a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
-        return { text: "A parking lot has "+a+" rows with "+b+" cars in each row. How many cars are in the parking lot?", answers: [{label:"cars", value:String(a*b)}] };
+        return { text: "A parking lot has "+pl(a, "row")+" with "+pl(b, "car")+" in each row. How many cars are in the parking lot?", answers: [{label:"cars", value:String(a*b)}] };
       }});
       Q.push({ cat: ["multiplication"], gen: function() {
         const n = randName(), a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
-        return { text: n+" puts "+b+" photos on each page of an album. The album has "+a+" pages. How many photos are in the album?", answers: [{label:"photos", value:String(a*b)}] };
+        return { text: n+" puts "+pl(b, "photo")+" on each page of an album. The album has "+pl(a, "page")+". How many photos are in the album?", answers: [{label:"photos", value:String(a*b)}] };
       }});
       Q.push({ cat: ["multiplication"], gen: function() {
         const a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
-        return { text: "Each team has "+b+" players. There are "+a+" teams. How many players are there in total?", answers: [{label:"players", value:String(a*b)}] };
+        return { text: "Each team has "+pl(b, "player")+". There are "+pl(a, "team")+". How many players are there in total?", answers: [{label:"players", value:String(a*b)}] };
       }});
       Q.push({ cat: ["multiplication"], gen: function() {
         const n = randName(), a = randInt(minFactor, maxFactor), b = randInt(minFactor, maxFactor);
-        return { text: n+" earns "+b+" dollars each day. How much will "+n+" earn in "+a+" days?", answers: [{label:"dollars", value:String(a*b)}] };
+        return { text: n+" earns "+pl(b, "dollar")+" each day. How much will "+n+" earn in "+pl(a, "day")+"?", answers: [{label:"dollars", value:String(a*b)}] };
       }});
 
       // --- DIVISION questions ---
       Q.push({ cat: ["division"], gen: function() {
         const n = randName(), divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
-        return { text: n+" has "+total+" candies to share equally among "+divisor+" friends. How many candies does each friend get?", answers: [{label:"candies", value:String(multiplier)}] };
+        return { text: n+" has "+pl(total, "candy")+" to share equally among "+pl(divisor, "friend")+". How many candies does each friend get?", answers: [{label:"candies", value:String(multiplier)}] };
       }});
       Q.push({ cat: ["division"], gen: function() {
         const divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
-        return { text: "There are "+total+" students to split into "+divisor+" equal groups. How many students are in each group?", answers: [{label:"students", value:String(multiplier)}] };
+        return { text: "There are "+pl(total, "student")+" to split into "+pl(divisor, "equal group")+". How many students are in each group?", answers: [{label:"students", value:String(multiplier)}] };
       }});
       Q.push({ cat: ["division"], gen: function() {
         const n = randName(), divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
-        return { text: n+" has "+total+" stickers to put equally on "+divisor+" pages. How many stickers go on each page?", answers: [{label:"stickers", value:String(multiplier)}] };
+        return { text: n+" has "+pl(total, "sticker")+" to put equally on "+pl(divisor, "page")+". How many stickers go on each page?", answers: [{label:"stickers", value:String(multiplier)}] };
       }});
       Q.push({ cat: ["division"], gen: function() {
         const divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
-        return { text: total+" apples need to be shared equally among "+divisor+" baskets. How many apples go in each basket?", answers: [{label:"apples", value:String(multiplier)}] };
+        return { text: pl(total, "apple")+" need to be shared equally among "+pl(divisor, "basket")+". How many apples go in each basket?", answers: [{label:"apples", value:String(multiplier)}] };
       }});
       Q.push({ cat: ["division"], gen: function() {
         const n = randName(), divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
-        return { text: n+" has "+total+" minutes to finish "+divisor+" chores. How many minutes can "+n+" spend on each chore?", answers: [{label:"minutes", value:String(multiplier)}] };
+        return { text: n+" has "+pl(total, "minute")+" to finish "+pl(divisor, "chore")+". How many minutes can "+n+" spend on each chore?", answers: [{label:"minutes", value:String(multiplier)}] };
       }});
       Q.push({ cat: ["division"], gen: function() {
         const divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
-        return { text: "There are "+total+" flowers planted in "+divisor+" equal rows. How many flowers are in each row?", answers: [{label:"flowers", value:String(multiplier)}] };
+        return { text: "There are "+pl(total, "flower")+" planted in "+pl(divisor, "equal row")+". How many flowers are in each row?", answers: [{label:"flowers", value:String(multiplier)}] };
       }});
       Q.push({ cat: ["division"], gen: function() {
         const divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
-        return { text: "A pizza has "+total+" slices to be shared equally by "+divisor+" people. How many slices does each person get?", answers: [{label:"slices", value:String(multiplier)}] };
+        return { text: "A pizza has "+pl(total, "slice")+" to be shared equally by "+pl(divisor, "person", "people")+". How many slices does each person get?", answers: [{label:"slices", value:String(multiplier)}] };
       }});
       Q.push({ cat: ["division"], gen: function() {
         const n = randName(), divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
-        return { text: n+" has "+total+" beads to make "+divisor+" necklaces. If each necklace has the same number of beads, how many beads go on each one?", answers: [{label:"beads", value:String(multiplier)}] };
+        return { text: n+" has "+pl(total, "bead")+" to make "+pl(divisor, "necklace")+". If each necklace has the same number of beads, how many beads go on each one?", answers: [{label:"beads", value:String(multiplier)}] };
       }});
       Q.push({ cat: ["division"], gen: function() {
         const divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
-        return { text: "There are "+total+" books to put on "+divisor+" shelves equally. How many books go on each shelf?", answers: [{label:"books", value:String(multiplier)}] };
+        return { text: "There are "+pl(total, "book")+" to put on "+pl(divisor, "shelf")+" equally. How many books go on each shelf?", answers: [{label:"books", value:String(multiplier)}] };
       }});
       Q.push({ cat: ["division"], gen: function() {
         const n = randName(), divisor = randInt(divMinFactor, divMaxFactor), multiplier = randInt(divMinFactor, divMaxFactor), total = divisor * multiplier;
-        return { text: n+" packs "+total+" toys equally into "+divisor+" boxes. How many toys go in each box?", answers: [{label:"toys", value:String(multiplier)}] };
+        return { text: n+" packs "+pl(total, "toy")+" equally into "+pl(divisor, "box")+". How many toys go in each box?", answers: [{label:"toys", value:String(multiplier)}] };
       }});
 
       return Q;

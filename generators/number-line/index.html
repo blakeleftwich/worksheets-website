@@ -496,18 +496,6 @@
             </select>
           </div>
 
-          <!-- Problems per sheet -->
-          <div class="control-group" style="margin-bottom:12px;">
-        <label for="problemsPerSheet">Problems per Sheet</label>
-        <select id="problemsPerSheet">
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5" selected>5</option>
-          <option value="6">6</option>
-        </select>
-      </div>
-
-
           <!-- Name / Date -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="showHeaderEnabled" checked />
@@ -601,7 +589,7 @@
     const sheetWrap = document.getElementById("sheetWrap");
     const elMode = document.getElementById("modeSelect");
     const elRange = document.getElementById("rangeSelect");
-    const elProblems = document.getElementById("problemsPerSheet");
+    // Problems per sheet removed — always 4
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
@@ -900,7 +888,7 @@
         mode: elMode.value,
         rangeMax: parseInt(elRange.value, 10),
         numWorksheets: parseInt(elNumSheets.value, 10),
-        problemsPerSheet: parseInt(elProblems.value, 10),
+        problemsPerSheet: 4,
         showHeader,
         title,
         subtitle,
@@ -950,7 +938,7 @@
           svg.appendChild(svgEl("text", { x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode(subtitle)]));
           curY += 20;
         }
-        topGridY = curY + 6;
+        topGridY = curY + 28;
       }
 
       if (branded) {
@@ -1019,9 +1007,9 @@
         const lineX2 = margin + availW - lineRightPad;
         const lineW = lineX2 - lineX1;
 
-        // Vertical positioning within slot
-        const instructionY = slotTop + 20;
-        const lineY = slotTop + slotH * 0.55;
+        // Vertical positioning within slot — equation closer to number line, tighter spacing
+        const instructionY = slotTop + 24;
+        const lineY = slotTop + slotH * 0.58;
         const tickH = 8;
         const labelY = lineY + tickH + 14;
 
@@ -1042,24 +1030,31 @@
           bt.textContent = "Example"; svg.appendChild(bt);
         }
 
-        // Instruction text above the line
+        // Instruction text above the line — large header font for equations
         const instrX = margin + 18;
-        const instrFontSize = 14;
+        const eqFontSize = 20;
+        const textFontSize = 16;
 
         if (prob.mode === "addition") {
-          const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": instrFontSize, "font-weight": "700", fill: "#1a202c" });
-          instrEl.textContent = prob.a + " + " + prob.b + " = ____";
+          const eqText = prob.a + " + " + prob.b + " = ";
+          const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "'Google Sans Flex', sans-serif", "font-size": eqFontSize, "font-weight": "700", fill: "#1a202c" });
+          instrEl.textContent = eqText;
           svg.appendChild(instrEl);
+          const lineStartX = instrX + eqText.length * eqFontSize * 0.55;
+          svg.appendChild(svgEl("line", { x1: lineStartX, y1: instructionY + 4, x2: lineStartX + 60, y2: instructionY + 4, stroke: "#cbd5e1", "stroke-width": 1.5 }));
         } else if (prob.mode === "subtraction") {
-          const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": instrFontSize, "font-weight": "700", fill: "#1a202c" });
-          instrEl.textContent = prob.a + " \u2212 " + prob.b + " = ____";
+          const eqText = prob.a + " \u2212 " + prob.b + " = ";
+          const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "'Google Sans Flex', sans-serif", "font-size": eqFontSize, "font-weight": "700", fill: "#1a202c" });
+          instrEl.textContent = eqText;
           svg.appendChild(instrEl);
+          const lineStartX = instrX + eqText.length * eqFontSize * 0.55;
+          svg.appendChild(svgEl("line", { x1: lineStartX, y1: instructionY + 4, x2: lineStartX + 60, y2: instructionY + 4, stroke: "#cbd5e1", "stroke-width": 1.5 }));
         } else if (prob.mode === "place") {
-          const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": instrFontSize, "font-weight": "600", fill: "#1a202c" });
+          const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": textFontSize, "font-weight": "600", fill: "#1a202c" });
           instrEl.textContent = "Mark " + prob.target + " on the number line with an X.";
           svg.appendChild(instrEl);
         } else if (prob.mode === "missing") {
-          const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": instrFontSize, "font-weight": "600", fill: "#1a202c" });
+          const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": textFontSize, "font-weight": "600", fill: "#1a202c" });
           instrEl.textContent = "Fill in the missing numbers on the number line.";
           svg.appendChild(instrEl);
         }
@@ -1134,16 +1129,16 @@
           if (prob.mode === "addition") {
             drawHops(svg, prob.a, prob.a + prob.b, 1, lineX1, lineY, lineW, tickCount, lineStart, step, "#16a34a");
             const ansEl = svgEl("text", {
-              x: instrX + String(prob.a + " + " + prob.b + " = ").length * instrFontSize * 0.55,
-              y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": instrFontSize, "font-weight": "700", fill: "#16a34a"
+              x: instrX + String(prob.a + " + " + prob.b + " = ").length * eqFontSize * 0.55,
+              y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": eqFontSize, "font-weight": "700", fill: "#16a34a"
             });
             ansEl.textContent = prob.answer;
             svg.appendChild(ansEl);
           } else if (prob.mode === "subtraction") {
             drawHops(svg, prob.a, prob.a - prob.b, -1, lineX1, lineY, lineW, tickCount, lineStart, step, "#16a34a");
             const ansEl = svgEl("text", {
-              x: instrX + String(prob.a + " \u2212 " + prob.b + " = ").length * instrFontSize * 0.55,
-              y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": instrFontSize, "font-weight": "700", fill: "#16a34a"
+              x: instrX + String(prob.a + " \u2212 " + prob.b + " = ").length * eqFontSize * 0.55,
+              y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": eqFontSize, "font-weight": "700", fill: "#16a34a"
             });
             ansEl.textContent = prob.answer;
             svg.appendChild(ansEl);
@@ -1160,8 +1155,8 @@
             drawHops(svg, prob.a, prob.a + prob.b, 1, lineX1, lineY, lineW, tickCount, lineStart, step, "#3182ce");
             // Show answer next to equation
             const ansEl = svgEl("text", {
-              x: instrX + String(prob.a + " + " + prob.b + " = ").length * instrFontSize * 0.55,
-              y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": instrFontSize, "font-weight": "700", fill: "#3182ce"
+              x: instrX + String(prob.a + " + " + prob.b + " = ").length * eqFontSize * 0.55,
+              y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": eqFontSize, "font-weight": "700", fill: "#3182ce"
             });
             ansEl.textContent = prob.answer;
             svg.appendChild(ansEl);
@@ -1171,8 +1166,8 @@
             drawHops(svg, prob.a, prob.a - prob.b, -1, lineX1, lineY, lineW, tickCount, lineStart, step, "#e53e3e");
             // Show answer
             const ansEl = svgEl("text", {
-              x: instrX + String(prob.a + " \u2212 " + prob.b + " = ").length * instrFontSize * 0.55,
-              y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": instrFontSize, "font-weight": "700", fill: "#3182ce"
+              x: instrX + String(prob.a + " \u2212 " + prob.b + " = ").length * eqFontSize * 0.55,
+              y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": eqFontSize, "font-weight": "700", fill: "#3182ce"
             });
             ansEl.textContent = prob.answer;
             svg.appendChild(ansEl);
@@ -1384,7 +1379,7 @@
     // ===== Event Listeners =====
     elMode.addEventListener("change", () => renderWithNewRandomization());
     elRange.addEventListener("change", () => renderWithNewRandomization());
-    elProblems.addEventListener("change", () => renderWithNewRandomization());
+    // elProblems removed — always 4 problems
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elShowHeaderEnabled.addEventListener("change", () => {
       elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
