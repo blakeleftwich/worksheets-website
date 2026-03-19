@@ -881,38 +881,46 @@
     }
 
     // ===== Draw time display box below a clock =====
-    function drawTimeBox(svg, cx, boxTopY, boxH, time) {
+    function drawTimeBox(svg, cx, boxTopY, boxH, time, sixProb) {
       const color = "#2d3748";
-      const boxW = boxH * 3.2;
-      const startX = cx - boxW / 2;
+      const yShift = sixProb ? 10 : 16;
 
-      svg.appendChild(svgEl("rect", {
-        x: startX, y: boxTopY, width: boxW, height: boxH,
-        fill: "none", stroke: color, "stroke-width": "1.5", rx: 3
-      }));
-
-      // Colon
-      const colonY = boxTopY + boxH / 2;
-      const colonGap = boxH * 0.08;
-      const dotR = boxH * 0.07;
-      svg.appendChild(svgEl("circle", { cx, cy: colonY - boxH * 0.15, r: dotR, fill: color }));
-      svg.appendChild(svgEl("circle", { cx, cy: colonY + boxH * 0.15, r: dotR, fill: color }));
-
-      // Always show the time (this IS the prompt)
       const fontSize = boxH * 0.75;
       const hourStr = String(time.hour);
       const minStr = String(time.minute).padStart(2, "0");
 
+      // Estimate character widths for centering the group
+      const charW = fontSize * 0.58;
+      const colonW = fontSize * 0.35;
+      const hourW = hourStr.length * charW;
+      const minW = minStr.length * charW;
+      const totalW = hourW + colonW + minW;
+      const groupLeft = cx - totalW / 2;
+
+      // Positions
+      const hourCenterX = groupLeft + hourW / 2;
+      const colonCenterX = groupLeft + hourW + colonW / 2;
+      const minCenterX = groupLeft + hourW + colonW + minW / 2;
+      const textY = boxTopY + boxH / 2 - yShift + fontSize * 0.35;
+
+      // Colon dots
+      const colonY = boxTopY + boxH / 2 - yShift;
+      const dotR = boxH * 0.07;
+      svg.appendChild(svgEl("circle", { cx: colonCenterX, cy: colonY - boxH * 0.15, r: dotR, fill: color }));
+      svg.appendChild(svgEl("circle", { cx: colonCenterX, cy: colonY + boxH * 0.15, r: dotR, fill: color }));
+
+      // Hour text
       const hEl = svgEl("text", {
-        x: cx - colonGap, y: boxTopY + boxH / 2 + fontSize * 0.35,
+        x: colonCenterX - colonW / 2, y: textY,
         "text-anchor": "end", "font-family": "'Google Sans Flex', sans-serif",
         "font-size": String(fontSize), "font-weight": "500", fill: color
       });
       hEl.textContent = hourStr;
       svg.appendChild(hEl);
 
+      // Minute text
       const mEl = svgEl("text", {
-        x: cx + colonGap, y: boxTopY + boxH / 2 + fontSize * 0.35,
+        x: colonCenterX + colonW / 2, y: textY,
         "text-anchor": "start", "font-family": "'Google Sans Flex', sans-serif",
         "font-size": String(fontSize), "font-weight": "500", fill: color
       });
@@ -1031,7 +1039,9 @@
       const boxH = Math.min(cellH * 0.17, 36);
       const boxGap = cellH * 0.04;
       const clockAreaH = cellH - boxH - boxGap;
-      const radius = Math.min(cellW * 0.38, clockAreaH * 0.46);
+      // Scale down 2% more when showing 6 problems
+      const sixProbScale = totalProbs <= 6 ? 0.98 : 1;
+      const radius = Math.min(cellW * 0.38, clockAreaH * 0.46) * sixProbScale;
 
       for (let i = 0; i < totalProbs; i++) {
         const col = i % cols;
@@ -1087,7 +1097,7 @@
 
         // Time box always shows the time (it's the prompt)
         const boxTopY = cellY + clockAreaH + boxGap;
-        drawTimeBox(svg, ccx, boxTopY, boxH, time);
+        drawTimeBox(svg, ccx, boxTopY, boxH, time, totalProbs <= 6);
 
         // Example badge above clock
         if (isExample) {

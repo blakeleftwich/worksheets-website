@@ -160,13 +160,7 @@
           <option value="10">10</option>
         </select>
       </div>
-          <div class="control-group">
-            <label for="problems">Problems per Sheet</label>
-            <select id="problems">
-              <option value="4">4</option>
-              <option value="6" selected>6</option>
-            </select>
-          </div>
+          <!-- Problems per sheet removed — always 4 -->
 
           <div class="control-group">
             <label for="groupsPerProblem">Groups per Problem</label>
@@ -258,7 +252,7 @@ const elMode = document.getElementById("mode");
 const elComparison = document.getElementById("comparison");
 const elNumRange = document.getElementById("numRange");
 const elNumSheets = document.getElementById("numSheets");
-const elProblems = document.getElementById("problems");
+const elProblems = { value: "4", addEventListener: function(){} };
 const elGroupsPerProblem = document.getElementById("groupsPerProblem");
 const elObjectLayout = document.getElementById("objectLayout");
 const elObjectLayoutGroup = document.getElementById("objectLayoutGroup");
@@ -536,7 +530,7 @@ function getSubtitle() {
   if (elCustomTitleEnabled.checked) {
     return elShowSubtitle.checked ? elSubtitleText.value : "";
   }
-  return buildDefaultSubtitle();
+  return "Read each problem and circle the correct answer.";
 }
 
 function showStatus(msg) {
@@ -552,7 +546,7 @@ function gatherOptions() {
     comparison: elComparison.value,
     range: getRange(),
     numWorksheets: parseInt(elNumSheets.value, 10),
-    problemsPerSheet: parseInt(elProblems.value, 10),
+    problemsPerSheet: 4,
     groupsPerProblem: parseInt(elGroupsPerProblem.value, 10),
     objectLayout: elObjectLayout.value,
     wording: elWording.value,
@@ -781,25 +775,25 @@ function renderWorksheetSVG(problems, options, wsCode) {
   // Title
   if (title) {
     svg.appendChild(svgEl("text", {
-      x: midX, y: curY + 22, "text-anchor": "middle",
-      "font-family": "'Google Sans Flex', sans-serif", "font-size": 26, "font-weight": 700, fill: "#9ca3af"
+      x: margin, y: curY + 38,
+      "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af"
     }, [document.createTextNode(title)]));
-    curY += 34;
+    curY += 46;
   }
 
   // Subtitle
   if (subtitle && !isAnswerKey) {
     svg.appendChild(svgEl("text", {
-      x: midX, y: curY + 14, "text-anchor": "middle",
-      "font-family": "Fredoka, sans-serif", "font-size": 14, "font-weight": 400, fill: "#4a5568"
+      x: margin, y: curY + 14,
+      "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568"
     }, [document.createTextNode(subtitle)]));
-    curY += 22;
+    curY += 20;
   }
 
   curY += 8;
 
   // Calculate problem layout
-  const bottomReserve = branded ? 40 : 20;
+  const bottomReserve = branded ? 56 : 24;
   const availableH = pageH - curY - bottomReserve;
   const numProblems = problems.length;
   const problemH = Math.floor(availableH / numProblems);
@@ -825,30 +819,58 @@ function renderWorksheetSVG(problems, options, wsCode) {
 
     // Instruction text
     const instrEl = svgEl("text", {
-      x: margin + labelOffset, y: py + 16,
-      "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+      x: margin + labelOffset, y: py + 18,
+      "font-family": "Fredoka, sans-serif", "font-size": 15, "font-weight": 400, fill: "#4a5568"
     });
     instrEl.textContent = instrText;
     svg.appendChild(instrEl);
 
-    // Group boxes
-    const boxTop = py + 24;
-    const boxH = problemH - 32;
+    // Group layout — standard gap between rightmost item of one group and leftmost of next
+    const boxTop = py + 22;
+    const boxH = problemH - 30;
     const boxAreaW = contentW - labelOffset;
-    const gapBetween = 12;
-    const boxW = (boxAreaW - (numGroups - 1) * gapBetween) / numGroups;
-    const boxStartX = margin + labelOffset;
+    const groupGap = 40; // ← standard gap between groups (adjustable)
+    // Allocate equal box widths for layout calculation
+    const usableW = boxAreaW;
+    const boxW = (usableW - (numGroups - 1) * groupGap) / numGroups;
+    const boxStartX = margin + labelOffset + (numGroups <= 2 ? 30 : 0);
+
+    // Find the largest group count to scale icons relative to it
+    const maxCount = Math.max(...prob.counts);
+
+    // First pass: calculate actual content widths for each group
+    const groupContentWidths = [];
+    for (let g = 0; g < numGroups; g++) {
+      const count = prob.counts[g];
+      if (mode === "objects" && objectLayout === "neat") {
+        const maxPerRow = Math.min(5, maxCount);
+        const maxRows = maxPerRow > 0 ? Math.ceil(maxCount / maxPerRow) : 0;
+        const pad = 6;
+        const innerW = boxW - pad * 2;
+        const innerH = boxH - pad * 2;
+        const iconW = (maxRows > 0 && maxPerRow > 0) ? Math.min(innerW / maxPerRow, innerH / maxRows) : 32;
+        const perRow = Math.min(5, count);
+        const rows = perRow > 0 ? Math.ceil(count / perRow) : 0;
+        groupContentWidths.push(perRow * iconW);
+      } else {
+        groupContentWidths.push(boxW); // fallback: full box width
+      }
+    }
+
+    // Second pass: position groups with groupGap between actual content edges
+    let groupPositions = [];
+    let curX = boxStartX;
+    for (let g = 0; g < numGroups; g++) {
+      groupPositions.push(curX);
+      curX += groupContentWidths[g] + groupGap;
+    }
 
     for (let g = 0; g < numGroups; g++) {
-      const bx = boxStartX + g * (boxW + gapBetween);
+      const bx = groupPositions[g];
       const count = prob.counts[g];
       const iconIdx = prob.iconIndices[g];
 
-      // Box border
-      svg.appendChild(svgEl("rect", {
-        x: bx, y: boxTop, width: boxW, height: boxH,
-        rx: 8, ry: 8, fill: "none", stroke: "#e2e8f0", "stroke-width": 1.5
-      }));
+      // No box border — groups are shown without outlines
 
       if (mode === "objects") {
         // Draw icons inside box
@@ -859,15 +881,18 @@ function renderWorksheetSVG(problems, options, wsCode) {
         const innerY = boxTop + pad;
 
         if (objectLayout === "neat") {
-          // Neat rows: max 5 per row
+          // Neat rows: scale based on largest group to fill the box
+          const maxPerRow = Math.min(5, maxCount);
+          const maxRows = maxPerRow > 0 ? Math.ceil(maxCount / maxPerRow) : 0;
           const perRow = Math.min(5, count);
           const rows = perRow > 0 ? Math.ceil(count / perRow) : 0;
+          // Size icons based on the largest group so all groups use same icon size
+          const iconW = (maxRows > 0 && maxPerRow > 0) ? Math.min(innerW / maxPerRow, innerH / maxRows) : 32;
           if (rows > 0 && perRow > 0) {
-            const iconW = Math.min(innerW / perRow, innerH / rows, 32);
             const iconSize = iconW * 0.85;
             const totalW = perRow * iconW;
             const totalH = rows * iconW;
-            const startX = innerX + (innerW - totalW) / 2;
+            const startX = innerX;
             const startY = innerY + (innerH - totalH) / 2;
             for (let idx = 0; idx < count; idx++) {
               const col = idx % perRow;
@@ -880,41 +905,60 @@ function renderWorksheetSVG(problems, options, wsCode) {
             }
           }
         } else {
-          // Scattered placement
-          const iconSize = Math.min(28, innerW / 4, innerH / 3);
+          // Scattered placement — use grid-jittered approach for guaranteed no overlap
+          const scatterMaxPerRow = Math.min(5, maxCount);
+          const scatterMaxRows = Math.ceil(maxCount / scatterMaxPerRow);
+          const iconSize = Math.min(innerW / scatterMaxPerRow, innerH / scatterMaxRows) * 0.75;
+          // Use grid cells with random jitter — guarantees no overlap
+          const gridCols = Math.min(5, Math.max(2, Math.ceil(Math.sqrt(count * 1.5))));
+          const gridRows = Math.ceil(count / gridCols);
+          const cellW = innerW / gridCols;
+          const cellH = innerH / gridRows;
+          const jitterX = Math.max(0, (cellW - iconSize) * 0.4);
+          const jitterY = Math.max(0, (cellH - iconSize) * 0.4);
+
+          // Shuffle grid positions for randomness
+          const cells = [];
+          for (let r = 0; r < gridRows; r++) {
+            for (let c = 0; c < gridCols; c++) {
+              cells.push({ r, c });
+            }
+          }
+          for (let i = cells.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [cells[i], cells[j]] = [cells[j], cells[i]];
+          }
+
           const positions = [];
-          const minDist = iconSize * 0.8;
           for (let idx = 0; idx < count; idx++) {
-            let px, py2, placed = false;
-            for (let att = 0; att < 100; att++) {
-              px = innerX + Math.random() * (innerW - iconSize);
-              py2 = innerY + Math.random() * (innerH - iconSize);
-              let ok = true;
-              for (const pos of positions) {
-                const dx = px - pos.x, dy = py2 - pos.y;
-                if (Math.sqrt(dx * dx + dy * dy) < minDist) { ok = false; break; }
-              }
-              if (ok) { placed = true; break; }
+            const cell = cells[idx % cells.length];
+            const baseCx = innerX + cell.c * cellW + cellW / 2;
+            const baseCy = innerY + cell.r * cellH + cellH / 2;
+            const px = baseCx - iconSize / 2 + (Math.random() - 0.5) * 2 * jitterX;
+            const py2 = baseCy - iconSize / 2 + (Math.random() - 0.5) * 2 * jitterY;
+            positions.push({ x: px, y: py2, rot: (Math.random() - 0.5) * 20 });
+          }
+          // Shift all positions left so leftmost item starts at innerX
+          if (positions.length > 0) {
+            const minPosX = Math.min(...positions.map(p => p.x));
+            const shiftX = innerX - minPosX;
+            for (const pos of positions) {
+              const fx = pos.x + shiftX;
+              const fy = pos.y;
+              const cxc = fx + iconSize / 2;
+              const cyc = fy + iconSize / 2;
+              svg.appendChild(svgEl("use", {
+                href: "#" + icons[iconIdx], x: fx, y: fy, width: iconSize, height: iconSize,
+                transform: `rotate(${pos.rot.toFixed(1)} ${cxc.toFixed(1)} ${cyc.toFixed(1)})`
+              }));
             }
-            if (!placed) {
-              px = innerX + Math.random() * (innerW - iconSize);
-              py2 = innerY + Math.random() * (innerH - iconSize);
-            }
-            positions.push({ x: px, y: py2 });
-            const rot = (Math.random() - 0.5) * 20;
-            const cxc = px + iconSize / 2;
-            const cyc = py2 + iconSize / 2;
-            svg.appendChild(svgEl("use", {
-              href: "#" + icons[iconIdx], x: px, y: py2, width: iconSize, height: iconSize,
-              transform: `rotate(${rot.toFixed(1)} ${cxc.toFixed(1)} ${cyc.toFixed(1)})`
-            }));
           }
         }
       } else {
-        // Numbers mode: large centered number
+        // Numbers mode: left-aligned number
         const numText = svgEl("text", {
-          x: bx + boxW / 2, y: boxTop + boxH / 2 + 18,
-          "text-anchor": "middle",
+          x: bx + 6, y: boxTop + boxH / 2 + 18,
+          "text-anchor": "start",
           "font-family": "'Google Sans Flex', sans-serif",
           "font-size": Math.min(48, boxH * 0.5),
           "font-weight": 700,
@@ -937,27 +981,20 @@ function renderWorksheetSVG(problems, options, wsCode) {
 
   // Branding footer
   if (branded) {
-    const logoImg = svgEl("image", {
-      x: margin, y: pageH - 30, width: 20, height: 20,
-      href: "../../branding/animal-math-logo-bw.png"
-    });
-    svg.appendChild(logoImg);
-    const brandText = svgEl("text", {
-      x: margin + 24, y: pageH - 15,
-      "font-family": "Fredoka, sans-serif", "font-size": 9, "font-weight": 400, fill: "#b0b0b0"
-    });
-    brandText.textContent = "\u00A9 Animal Math";
-    svg.appendChild(brandText);
-  }
-
-  // Worksheet code
-  if (wsCode) {
-    const codeEl = svgEl("text", {
-      x: midX, y: pageH - 10, "text-anchor": "middle",
-      "font-family": "'Google Sans Flex', sans-serif", "font-size": 8, fill: "#cbd5e0"
-    });
-    codeEl.textContent = wsCode;
-    svg.appendChild(codeEl);
+    const brandY = pageH - 48;
+    const logoH = 38;
+    const logoW = Math.round(logoH * 2.79);
+    svg.appendChild(svgEl("image", { href: "../branding/emma-logo.jpg", x: margin, y: brandY, width: logoW, height: logoH }));
+    const bLine1 = svgEl("text", { x: pageW - margin, y: brandY + 14, "font-family": "Fredoka, sans-serif", "font-size": 11, fill: "#4a5568", "text-anchor": "end" });
+    bLine1.textContent = "Find worksheets, teacher tools, and more at animalmath.com";
+    svg.appendChild(bLine1);
+    const bLine2 = svgEl("text", { x: pageW - margin, y: brandY + 26, "font-family": "Fredoka, sans-serif", "font-size": 9.5, fill: "#718096", "text-anchor": "end" });
+    bLine2.textContent = "\u00A9 2026 Eggroll Games";
+    svg.appendChild(bLine2);
+    if (!wsCode) wsCode = '(1)';
+    const wsCodeEl = svgEl("text", { x: pageW / 2, y: pageH - 4, "font-family": "Fredoka, sans-serif", "font-size": 8.5, fill: "#94a3b8", "text-anchor": "middle", "letter-spacing": "1" });
+    wsCodeEl.textContent = wsCode;
+    svg.appendChild(wsCodeEl);
   }
 
   return svg;

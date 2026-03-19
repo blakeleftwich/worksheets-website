@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Missing Numbers Grid Worksheet Generator</title>
+  <title>Number Charts Worksheet Generator</title>
   <style>
     * {
       margin: 0;
@@ -474,7 +474,7 @@
     <!-- Left sidebar controls -->
     <div class="sidebar">
 	
-      <h2>Missing Numbers Grid Worksheet Generator</h2>
+      <h2>Number Charts</h2>
 
       <div class="control-group">
         <label for="withinSelect">Range</label>
@@ -559,7 +559,7 @@
             </div>
             <div id="titleInputWrap">
               <label for="headerText">Title</label>
-              <input type="text" id="headerText" value="Missing Numbers" />
+              <input type="text" id="headerText" value="Number Chart" />
             </div>
             <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
               <input type="checkbox" id="showSubtitle" checked />
@@ -665,7 +665,7 @@
         return elShowTitle.checked ? elHeaderText.value : "";
       }
       const w = getWithinValue();
-      return "Missing Numbers 1\u2013" + w;
+      return "Number Chart 1\u2013" + w;
     }
 
     function getSubtitle() {
@@ -978,8 +978,10 @@
         const gridData = sheetGrids[0];
         const { cols, rows } = getSquareGridDimensions(totalNumbers, availW, availH);
 
-        const maxCellW = availW / cols;
-        const maxCellH = availH / rows;
+        // Scale down slightly for Within 50 to add breathing room
+        const gridScale = (totalNumbers <= 50) ? 0.90 : 1;
+        const maxCellW = (availW * gridScale) / cols;
+        const maxCellH = (availH * gridScale) / rows;
         const cellSize = Math.floor(Math.min(maxCellW, maxCellH));
 
         const gridW = cellSize * cols;

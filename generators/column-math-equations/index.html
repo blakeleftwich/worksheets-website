@@ -539,12 +539,9 @@
           <option value="20">Within 20</option>
           <option value="50">Within 50</option>
           <option value="100">Within 100</option>
-          <option value="custom">Custom</option>
+          <option value="10-20">10 to 20</option>
+          <option value="50-100">50 to 100</option>
         </select>
-      </div>
-      <div class="control-group" id="customWithinGroup" style="display:none;">
-        <label for="customWithin">Custom value</label>
-        <input type="number" id="customWithin" value="25" min="2" max="9999" />
       </div>
       <div class="checkbox-row" style="margin-bottom:12px;">
         <label>
@@ -768,8 +765,8 @@
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
     const elWithin = document.getElementById("withinSelect");
-    const elCustomWithinGroup = document.getElementById("customWithinGroup");
-    const elCustomWithin = document.getElementById("customWithin");
+    const elCustomWithinGroup = { style: { display: '' } };
+    const elCustomWithin = { value: "25", addEventListener: function(){} };
     const elOverridesEnabled = document.getElementById("overridesEnabled");
     const elOverridesPanel = document.getElementById("overridesPanel");
     const elAdvMin1 = document.getElementById("advMin1");
@@ -851,6 +848,22 @@
       return { min: Math.pow(10, n - 1), max: Math.pow(10, n) - 1 };
     }
 
+    function updateDigitOptions() {
+      var range = getRangeMinMax();
+      var maxDigits = String(range.max).length;
+      var minDigits = range.min >= 10 ? String(range.min).length : 1;
+      var options = elDigitLockMode.options;
+      for (var i = 0; i < options.length; i++) {
+        var d = parseInt(options[i].value, 10);
+        options[i].disabled = (d < minDigits || d > maxDigits);
+      }
+      if (elDigitLockMode.selectedOptions[0] && elDigitLockMode.selectedOptions[0].disabled) {
+        for (var j = 0; j < options.length; j++) {
+          if (!options[j].disabled) { elDigitLockMode.value = options[j].value; break; }
+        }
+      }
+    }
+
     function applyDigitLock() {
       const d = getDigitCount();
       if (!d) return;
@@ -860,11 +873,8 @@
       for (const p of presets) { if (p >= r.max) { bestPreset = p; break; } }
       if (bestPreset) {
         elWithin.value = String(bestPreset);
-        elCustomWithinGroup.style.display = "none";
       } else {
-        elWithin.value = "custom";
-        elCustomWithin.value = r.max + r.max;
-        elCustomWithinGroup.style.display = "block";
+        elWithin.value = "100";
       }
       syncAdvancedFromWithin();
       elAdvMin1.value = r.min; elAdvMax1.value = r.max;
@@ -902,23 +912,36 @@
 
     // ===== Within dropdown =====
     function getWithinValue() {
-      return elWithin.value === "custom" ? (parseInt(elCustomWithin.value, 10) || 10) : parseInt(elWithin.value, 10);
+      var v = elWithin.value;
+      if (v.indexOf("-") !== -1) {
+        var parts = v.split("-").map(Number);
+        return parts[1];
+      }
+      return parseInt(v, 10);
+    }
+
+    function getRangeMinMax() {
+      var v = elWithin.value;
+      if (v.indexOf("-") !== -1) {
+        var parts = v.split("-").map(Number);
+        return { min: parts[0], max: parts[1] };
+      }
+      return { min: 1, max: parseInt(v, 10) };
     }
 
     function syncAdvancedFromWithin() {
-      if (elOverridesEnabled.checked) return; // don't overwrite manual overrides
-      const w = getWithinValue();
-      const lo = 1;
-      const d = getDigitCount();
+      if (elOverridesEnabled.checked) return;
+      var range = getRangeMinMax();
+      var d = getDigitCount();
       if (d) {
-        const r = digitRange(d);
-        elAdvMin1.value = r.min; elAdvMax1.value = r.max;
-        elAdvMin2.value = r.min; elAdvMax2.value = r.max;
-        elAdvMaxAnswer.value = w;
+        var r = digitRange(d);
+        elAdvMin1.value = Math.max(range.min, r.min); elAdvMax1.value = Math.min(range.max, r.max);
+        elAdvMin2.value = Math.max(range.min, r.min); elAdvMax2.value = Math.min(range.max, r.max);
+        elAdvMaxAnswer.value = range.max;
       } else {
-        elAdvMin1.value = lo; elAdvMax1.value = w;
-        elAdvMin2.value = lo; elAdvMax2.value = w;
-        elAdvMaxAnswer.value = w;
+        elAdvMin1.value = range.min; elAdvMax1.value = range.max;
+        elAdvMin2.value = range.min; elAdvMax2.value = range.max;
+        elAdvMaxAnswer.value = range.max;
       }
     }
 
@@ -936,11 +959,10 @@
     }
 
     elWithin.addEventListener("change", () => {
-      elCustomWithinGroup.style.display = elWithin.value === "custom" ? "block" : "none";
+      updateDigitOptions();
       syncWithinFromRange();
       renderWithNewRandomization();
     });
-    elCustomWithin.addEventListener("input", () => { syncWithinFromRange(); renderWithNewRandomization(); });
 
     function getHeaderMode() {
       return elShowHeaderEnabled.checked ? elHeaderMode.value : "none";
@@ -1502,6 +1524,7 @@
 
     // Init
     updateAdvancedVisibility();
+    updateDigitOptions();
     syncAdvancedFromWithin();
     renderWithNewRandomization();
 

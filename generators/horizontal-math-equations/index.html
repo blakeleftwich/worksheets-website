@@ -532,17 +532,14 @@
       <div class="control-group">
         <label for="withinSelect">Range</label>
         <select id="withinSelect">
-          <option value="5" selected>1 to 5</option>
-          <option value="10">1 to 10</option>
-          <option value="20">1 to 20</option>
-          <option value="50">1 to 50</option>
-          <option value="100">1 to 100</option>
-          <option value="custom">Custom</option>
+          <option value="5" selected>Within 5</option>
+          <option value="10">Within 10</option>
+          <option value="20">Within 20</option>
+          <option value="50">Within 50</option>
+          <option value="100">Within 100</option>
+          <option value="10-20">10 to 20</option>
+          <option value="50-100">50 to 100</option>
         </select>
-      </div>
-      <div class="control-group" id="customWithinGroup" style="display:none;">
-        <label for="customWithin">Custom value</label>
-        <input type="number" id="customWithin" value="25" min="2" max="9999" />
       </div>
       <div class="checkbox-row" style="margin-bottom:12px;">
         <label>
@@ -588,7 +585,7 @@
 
           <!-- Allow zero -->
           <div class="adv-checkbox-row">
-            <input type="checkbox" id="useZero" checked />
+            <input type="checkbox" id="useZero" />
             <label for="useZero">Allow zero</label>
           </div>
           <div class="adv-sub" id="zeroPercentOptions" style="display:none;">
@@ -772,8 +769,8 @@
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
     const elWithin = document.getElementById("withinSelect");
-    const elCustomWithinGroup = document.getElementById("customWithinGroup");
-    const elCustomWithin = document.getElementById("customWithin");
+    const elCustomWithinGroup = { style: { display: '' } };
+    const elCustomWithin = { value: "25", addEventListener: function(){} };
     const elOverridesEnabled = document.getElementById("overridesEnabled");
     const elOverridesPanel = document.getElementById("overridesPanel");
     const elAdvMin1 = document.getElementById("advMin1");
@@ -834,10 +831,7 @@
 
     // ===== Allow Zero =====
     function updateRangeLabels() {
-      const lo = elUseZero.checked ? '0' : '1';
-      const vals = [5, 10, 20, 50, 100];
-      const opts = elWithin.querySelectorAll('option[value]:not([value="custom"])');
-      opts.forEach((o, i) => { o.text = lo + ' to ' + vals[i]; });
+      // Range labels are now fixed ("Within X" / "X to Y"), no dynamic update needed
     }
     elUseZero.addEventListener("change", () => {
       elZeroPercentOptions.style.display = elUseZero.checked ? "block" : "none";
@@ -875,11 +869,8 @@
       for (const p of presets) { if (p >= r.max) { bestPreset = p; break; } }
       if (bestPreset) {
         elWithin.value = String(bestPreset);
-        elCustomWithinGroup.style.display = "none";
       } else {
-        elWithin.value = "custom";
-        elCustomWithin.value = r.max + r.max;
-        elCustomWithinGroup.style.display = "block";
+        elWithin.value = "100";
       }
       syncAdvancedFromWithin();
       elAdvMin1.value = r.min; elAdvMax1.value = r.max;
@@ -917,23 +908,36 @@
 
     // ===== Within dropdown =====
     function getWithinValue() {
-      return elWithin.value === "custom" ? (parseInt(elCustomWithin.value, 10) || 10) : parseInt(elWithin.value, 10);
+      var v = elWithin.value;
+      if (v.indexOf("-") !== -1) {
+        var parts = v.split("-").map(Number);
+        return parts[1];
+      }
+      return parseInt(v, 10);
+    }
+
+    function getRangeMinMax() {
+      var v = elWithin.value;
+      if (v.indexOf("-") !== -1) {
+        var parts = v.split("-").map(Number);
+        return { min: parts[0], max: parts[1] };
+      }
+      return { min: 1, max: parseInt(v, 10) };
     }
 
     function syncAdvancedFromWithin() {
-      if (elOverridesEnabled.checked) return; // don't overwrite manual overrides
-      const w = getWithinValue();
-      const lo = 1; // Always generate with min=1; zero injection is handled in post-processing
-      const d = getDigitCount();
+      if (elOverridesEnabled.checked) return;
+      var range = getRangeMinMax();
+      var d = getDigitCount();
       if (d) {
-        const r = digitRange(d);
-        elAdvMin1.value = r.min; elAdvMax1.value = r.max;
-        elAdvMin2.value = r.min; elAdvMax2.value = r.max;
-        elAdvMaxAnswer.value = w;
+        var r = digitRange(d);
+        elAdvMin1.value = Math.max(range.min, r.min); elAdvMax1.value = Math.min(range.max, r.max);
+        elAdvMin2.value = Math.max(range.min, r.min); elAdvMax2.value = Math.min(range.max, r.max);
+        elAdvMaxAnswer.value = range.max;
       } else {
-        elAdvMin1.value = lo; elAdvMax1.value = w;
-        elAdvMin2.value = lo; elAdvMax2.value = w;
-        elAdvMaxAnswer.value = w;
+        elAdvMin1.value = range.min; elAdvMax1.value = range.max;
+        elAdvMin2.value = range.min; elAdvMax2.value = range.max;
+        elAdvMaxAnswer.value = range.max;
       }
     }
 
@@ -951,11 +955,9 @@
     }
 
     elWithin.addEventListener("change", () => {
-      elCustomWithinGroup.style.display = elWithin.value === "custom" ? "block" : "none";
       syncWithinFromRange();
       renderWithNewRandomization();
     });
-    elCustomWithin.addEventListener("input", () => { syncWithinFromRange(); renderWithNewRandomization(); });
 
     function getHeaderMode() {
       return elShowHeaderEnabled.checked ? elHeaderMode.value : "none";

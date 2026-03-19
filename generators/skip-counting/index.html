@@ -447,10 +447,10 @@
       <div class="control-group">
         <label for="skipBy">Skip Count By</label>
         <select id="skipBy">
-          <option value="2" selected>2s</option>
+          <option value="2">2s</option>
           <option value="3">3s</option>
           <option value="4">4s</option>
-          <option value="5">5s</option>
+          <option value="5" selected>5s</option>
           <option value="10">10s</option>
           <option value="25">25s</option>
           <option value="100">100s</option>
@@ -459,36 +459,36 @@
 
       <div class="control-group">
         <label for="startNum">Starting Number</label>
-        <input type="number" id="startNum" value="0" min="0" max="9999" />
+        <input type="number" id="startNum" value="5" min="0" max="9999" />
       </div>
 
       <div class="control-group">
         <label for="numsPerSeq">Numbers per Sequence</label>
         <select id="numsPerSeq">
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6" selected>6</option>
+          <option value="7">7</option>
           <option value="8">8</option>
-          <option value="10" selected>10</option>
-          <option value="12">12</option>
         </select>
       </div>
 
       <div class="control-group">
         <label for="blanksPerSeq">Blanks per Sequence</label>
         <select id="blanksPerSeq">
+          <option value="1" selected>1</option>
           <option value="2">2</option>
-          <option value="3" selected>3</option>
+          <option value="3">3</option>
           <option value="4">4</option>
           <option value="5">5</option>
         </select>
       </div>
 
-      <div class="control-group">
-        <label for="seqPerSheet">Sequences per Sheet</label>
-        <select id="seqPerSheet">
-          <option value="4">4</option>
-          <option value="6" selected>6</option>
-          <option value="8">8</option>
-          <option value="10">10</option>
-        </select>
+      <div class="checkbox-row" style="margin-bottom:12px;">
+        <label>
+          <input type="checkbox" id="randomPlacement">
+          <span>Random placement</span>
+        </label>
       </div>
 
       <div class="checkbox-row" style="margin-bottom:12px;">
@@ -505,6 +505,16 @@
       </div>
       <div class="advanced-panel" id="advPanel">
         <div class="advanced-panel-inner">
+
+          <div class="control-group">
+            <label for="seqPerSheet">Sequences per Sheet</label>
+            <select id="seqPerSheet">
+              <option value="4">4</option>
+              <option value="6" selected>6</option>
+              <option value="8">8</option>
+              <option value="10">10</option>
+            </select>
+          </div>
 
           <div class="control-group">
             <label for="numWorksheets">Number of Worksheets</label>
@@ -601,6 +611,7 @@
     const elStartNum = document.getElementById("startNum");
     const elNumsPerSeq = document.getElementById("numsPerSeq");
     const elBlanksPerSeq = document.getElementById("blanksPerSeq");
+    const elRandomPlacement = document.getElementById("randomPlacement");
     const elSeqPerSheet = document.getElementById("seqPerSheet");
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
@@ -651,57 +662,45 @@
 
     // ===== Sequence generation =====
     function generateSequences(count, opts) {
-      const { skipBy, startNum, numsPerSeq, blanksPerSeq } = opts;
+      const { skipBy, startNum, numsPerSeq, blanksPerSeq, randomPlacement } = opts;
       const sequences = [];
 
       for (let s = 0; s < count; s++) {
-        // Generate the full sequence of numbers
         const numbers = [];
-        // Each sequence on the same sheet starts from a different offset
-        // to add variety: sequence 0 starts at startNum, sequence 1 at startNum + skipBy, etc.
         const seqStart = startNum + s * skipBy * numsPerSeq;
         for (let i = 0; i < numsPerSeq; i++) {
           numbers.push(seqStart + i * skipBy);
         }
 
-        // Choose which positions to blank out
-        // Ensure first and last are usually shown (only blank them if blanksPerSeq is high)
-        const blankCount = Math.min(blanksPerSeq, numsPerSeq - 2);
+        const blankCount = Math.min(blanksPerSeq, numsPerSeq - 1);
         const blanks = new Set();
 
-        // Inner positions (not first or last)
-        const innerPositions = [];
-        for (let i = 1; i < numsPerSeq - 1; i++) {
-          innerPositions.push(i);
-        }
-
-        // Shuffle inner positions
-        for (let i = innerPositions.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [innerPositions[i], innerPositions[j]] = [innerPositions[j], innerPositions[i]];
-        }
-
-        // Pick blanks from inner positions first
-        let blanksNeeded = blankCount;
-        for (let i = 0; i < innerPositions.length && blanksNeeded > 0; i++) {
-          blanks.add(innerPositions[i]);
-          blanksNeeded--;
-        }
-
-        // If we still need more blanks (very high blank count), allow first/last
-        if (blanksNeeded > 0 && blanksPerSeq > numsPerSeq - 2) {
-          // Add remaining blanks from all positions
-          const allPositions = [];
-          for (let i = 0; i < numsPerSeq; i++) {
-            if (!blanks.has(i)) allPositions.push(i);
+        if (!randomPlacement) {
+          // Blanks on the right side of the sequence
+          for (let i = numsPerSeq - 1; i >= 0 && blanks.size < blankCount; i--) {
+            blanks.add(i);
           }
-          for (let i = allPositions.length - 1; i > 0; i--) {
+        } else {
+          // Random placement: pick from inner positions first, then edges
+          const innerPositions = [];
+          for (let i = 1; i < numsPerSeq - 1; i++) innerPositions.push(i);
+          for (let i = innerPositions.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [allPositions[i], allPositions[j]] = [allPositions[j], allPositions[i]];
+            [innerPositions[i], innerPositions[j]] = [innerPositions[j], innerPositions[i]];
           }
-          for (let i = 0; i < allPositions.length && blanksNeeded > 0; i++) {
-            blanks.add(allPositions[i]);
-            blanksNeeded--;
+          let blanksNeeded = blankCount;
+          for (let i = 0; i < innerPositions.length && blanksNeeded > 0; i++) {
+            blanks.add(innerPositions[i]); blanksNeeded--;
+          }
+          if (blanksNeeded > 0) {
+            const edgePositions = [0, numsPerSeq - 1].filter(p => !blanks.has(p));
+            for (let i = edgePositions.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [edgePositions[i], edgePositions[j]] = [edgePositions[j], edgePositions[i]];
+            }
+            for (let i = 0; i < edgePositions.length && blanksNeeded > 0; i++) {
+              blanks.add(edgePositions[i]); blanksNeeded--;
+            }
           }
         }
 
@@ -810,7 +809,7 @@
       const bottomMargin = branded ? 56 : 24;
       const availH = pageH - bottomMargin - topGridY;
       const availW = pageW - margin * 2;
-      const rowH = availH / seqCount;
+      const rowH = (availH / seqCount) * 0.95;
 
       // Determine sizing based on numbers per sequence
       const numsPerSeq = sequences[0].numbers.length;
@@ -838,15 +837,15 @@
       // Box dimensions - scale width based on max digit count
       const minBoxW = Math.max(maxNumStr * 8 + 8, 28);
       const boxW = Math.max(minBoxW, Math.min(maxBoxW, 48));
-      const boxH = Math.min(rowH * 0.55, 36);
+      const boxH = boxW; // square boxes
       // Scale font to fit within the box, considering digit count
       const maxFontForBox = (boxW - 6) / (maxNumStr * 0.62);
       const fontSize = Math.min(boxH * 0.6, 18, maxFontForBox);
       const commaSize = fontSize * 0.9;
 
-      // Recalculate total row width to center it
+      // Left-align problems
       const totalRowW = leftPad + numsPerSeq * boxW + (numsPerSeq - 1) * (commaSpace + boxGap);
-      const rowLeftOffset = margin + Math.max(0, (availW - totalRowW) / 2);
+      const rowLeftOffset = margin;
 
       for (let s = 0; s < seqCount; s++) {
         const seq = sequences[s];
@@ -1000,6 +999,7 @@
         startNum: parseInt(elStartNum.value, 10) || 0,
         numsPerSeq: parseInt(elNumsPerSeq.value, 10),
         blanksPerSeq: parseInt(elBlanksPerSeq.value, 10),
+        randomPlacement: elRandomPlacement.checked,
         seqPerSheet: parseInt(elSeqPerSheet.value, 10),
         numWorksheets: parseInt(elNumSheets.value, 10),
         showHeader: showHeader,
@@ -1101,6 +1101,7 @@
     elStartNum.addEventListener("input", () => renderWithNewRandomization());
     elNumsPerSeq.addEventListener("change", () => renderWithNewRandomization());
     elBlanksPerSeq.addEventListener("change", () => renderWithNewRandomization());
+    elRandomPlacement.addEventListener("change", () => renderWithNewRandomization());
     elSeqPerSheet.addEventListener("change", () => renderWithNewRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elShowHeaderEnabled.addEventListener("change", () => {

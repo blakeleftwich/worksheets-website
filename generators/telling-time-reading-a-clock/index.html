@@ -824,7 +824,7 @@
       const color = "#2d3748";
       const boxW = boxH * 3.2;
       const startX = cx - boxW / 2;
-      const yShift = 6;
+      const yShift = 16;
 
       // Underlines on each side of the colon
       const lineY = boxTopY + boxH - yShift;
@@ -973,7 +973,9 @@
       const boxH = Math.min(cellH * 0.17, 36);
       const boxGap = cellH * 0.04;
       const clockAreaH = cellH - boxH - boxGap;
-      const radius = Math.min(cellW * 0.38, clockAreaH * 0.46);
+      // Scale down 2% more when showing 6 problems
+      const sixProbScale = totalProbs <= 6 ? 0.98 : 1;
+      const radius = Math.min(cellW * 0.38, clockAreaH * 0.46) * sixProbScale;
 
       for (let i = 0; i < totalProbs; i++) {
         const col = i % cols;

@@ -492,15 +492,7 @@
             </select>
           </div>
 
-          <!-- Problems per sheet -->
-          <div class="control-group" style="margin-bottom:12px;">
-        <label for="problemsPerSheet">Problems per Sheet</label>
-        <select id="problemsPerSheet">
-          <option value="6">6</option>
-          <option value="8" selected>8</option>
-          <option value="10">10</option>
-        </select>
-      </div>
+          <!-- Problems per sheet removed — always 6 -->
 
 
           <!-- Show header -->
@@ -586,7 +578,7 @@
     const sheetWrap = document.getElementById("sheetWrap");
     const elMode = document.getElementById("modeSelect");
     const elTarget = document.getElementById("targetSelect");
-    const elProblems = document.getElementById("problemsPerSheet");
+    const elProblems = { value: "6", addEventListener: function(){} };
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
@@ -745,7 +737,7 @@
           svg.appendChild(svgEl("text", { x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode(subtitle)]));
           curY += 20;
         }
-        topGridY = curY + 6;
+        topGridY = curY - 10;
       }
 
       // Branding
@@ -785,7 +777,7 @@
 
       // Layout grid
       const count = problems.length;
-      const bottomMargin = branded ? 56 : 40;
+      const bottomMargin = branded ? 46 : 30;
       const gridTop = topGridY;
       const availH = pageH - bottomMargin - gridTop;
       const availW = pageW - margin * 2;
@@ -831,7 +823,9 @@
         const col = i % cols;
         const row = Math.floor(i / cols);
         const cellLeft = margin + col * colW;
-        const cellTop = gridTop + row * rowH;
+        // Keep top row fixed, compress spacing between subsequent rows
+        const rowCompress = row > 0 ? row * 8 : 0;
+        const cellTop = gridTop + row * rowH - rowCompress;
         const prob = problems[i];
 
         // Problem number
@@ -1022,7 +1016,7 @@
       return {
         mode: elMode.value,
         target: parseInt(elTarget.value, 10),
-        problemsPerSheet: parseInt(elProblems.value, 10),
+        problemsPerSheet: 6,
         numWorksheets: parseInt(elNumSheets.value, 10),
         answerKey: elAnswerKey.checked,
         showHeader,
