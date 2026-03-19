@@ -669,7 +669,7 @@
     }
 
     // ===== Draw a single ten frame =====
-    function drawTenFrame(svg, x, y, cellSize, filledCount, _unused, showDots) {
+    function drawTenFrame(svg, x, y, cellSize, filledCount, _unused, showDots, showEmptyOutlines) {
       const cols = 5, rows = 2;
       const frameW = cols * cellSize;
       const frameH = rows * cellSize;
@@ -684,12 +684,21 @@
           const cy = y + r * cellSize;
           svg.appendChild(svgEl("rect", { x: cx, y: cy, width: cellSize, height: cellSize, fill: "none", stroke: "#2d3748", "stroke-width": "1" }));
 
-          if (showDots) {
-            const cellIndex = r * cols + c; // left-to-right, top-to-bottom
-            if (cellIndex < filledCount) {
-              const dotR = cellSize * 0.28;
-              drawDot(svg, cx + cellSize / 2, cy + cellSize / 2, dotR);
-            }
+          const cellIndex = r * cols + c;
+          const centerX = cx + cellSize / 2;
+          const centerY = cy + cellSize / 2;
+
+          if (showDots && cellIndex < filledCount) {
+            const dotR = cellSize * 0.28;
+            drawDot(svg, centerX, centerY, dotR);
+          } else if (showEmptyOutlines) {
+            // Dashed circle outline for empty cells (fill mode)
+            svg.appendChild(svgEl("ellipse", {
+              cx: centerX, cy: centerY,
+              rx: cellSize * 0.30, ry: cellSize * 0.30,
+              fill: "none", stroke: "#cbd5e0", "stroke-width": "1.2",
+              "stroke-dasharray": "3,2"
+            }));
           }
         }
       }
@@ -853,13 +862,13 @@
           Math.floor(maxCellW / 5),                         // fit width for 5 columns
           Math.floor((maxCellH - 30 - stackGapEst) / 4)    // fit height for 4 rows (2 frames) + gap + answer
         );
-        cellSize = clamp(cellSize, 14, 40);
+        cellSize = clamp(cellSize, 10, 40);
       } else {
         cellSize = Math.min(
           Math.floor(maxCellW / 5),                // fit width for 5 columns
           Math.floor((maxCellH - 30) / 2)          // fit height for 2 rows + answer area
         );
-        cellSize = clamp(cellSize, 16, 50);
+        cellSize = clamp(cellSize, 10, 50);
       }
 
       const singleFrameW = 5 * cellSize;
@@ -868,6 +877,12 @@
       // For double: frames are stacked, so total width = single frame width, total height = 2 frames + gap
       const totalFrameW = singleFrameW;
       const totalFrameH = isDouble ? singleFrameH * 2 + stackGap : singleFrameH;
+
+      // Shift all rows up when showing 6 problems; slight down-shift for 1-5 and 1-10 ranges
+      const rangeDownShift = (range === "1-5" || range === "1-10") ? 6 : 0;
+      // Fill mode: no row shift needed (content fits naturally); count mode shifts rows up
+      const baseShift = (count >= 6) ? singleFrameH * 0.5 + 45 : 0;
+      const rowShift = (mode === "fill") ? 0 : baseShift - rangeDownShift;
 
       // Problem number font size
       const probNumSize = 11;
@@ -880,7 +895,9 @@
         const col = i % cols;
         const row = Math.floor(i / cols);
         const cellLeft = margin + col * colW;
-        const cellTop = gridTop + row * rowH;
+        // When 6 problems (3 rows): move top row down 5px, keep bottom row fixed, interpolate middle
+        const topRowNudge = (count >= 6 && rows > 1) ? 5 * (1 - row / (rows - 1)) : 0;
+        const cellTop = gridTop + row * rowH - rowShift + topRowNudge;
         const num = problems[i];
         const isExample = (i === 0 && includeExample && !showAnswers);
 
@@ -898,72 +915,60 @@
         const contentStartX = cellLeft + (colW - singleFrameW) / 2 + 6;
 
         if (mode === "count") {
-          // "Count the dots" mode: show filled ten frame, student writes the number in a box
-          const answerGap = Math.max(8, cellSize * 0.25);
+          // "Count the dots" mode
+          const boxCx = contentStartX + singleFrameW / 2;
+          const fixedFrameTopY = cellTop + (rows >= 3 ? 6 : 30);
+          const answerLineOffset = 49;
+          // Bottom frame Y (same for single and double — single aligns with bottom frame of double)
+          const bottomFrameY = fixedFrameTopY + singleFrameH + stackGap;
+          // Fixed answer line Y based on double-frame layout so all underlines align
+          const fixedLineY = bottomFrameY + singleFrameH + answerLineOffset;
+
           if (isDouble && num > 10) {
-            // Stacked: top frame + gap + bottom frame + answer
-            const blockH = singleFrameH + stackGap + singleFrameH + answerGap + boxH;
-            const frameBlockY = contentCenterY - blockH / 2;
-            drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 10, null, true);
-            drawTenFrame(svg, contentStartX, frameBlockY + singleFrameH + stackGap, cellSize, num - 10, null, true);
-
-            const lineY = frameBlockY + singleFrameH + stackGap + singleFrameH + answerGap + boxH;
-            const boxCx = contentStartX + singleFrameW / 2;
-            svg.appendChild(svgEl("line", { x1: boxCx - boxW / 2, y1: lineY, x2: boxCx + boxW / 2, y2: lineY, stroke: "#cbd5e1", "stroke-width": "1.5" }));
-
-            if (showAnswers || isExample) {
-              const ansColor = showAnswers ? "#3182ce" : "#16a34a";
-              const ansEl = svgEl("text", { x: boxCx, y: lineY - boxH * 0.2, "font-family": "Fredoka, sans-serif", "font-size": String(Math.round(boxH * 0.6)), "font-weight": "700", "text-anchor": "middle", fill: ansColor });
-              ansEl.textContent = String(num); svg.appendChild(ansEl);
-            }
+            drawTenFrame(svg, contentStartX, fixedFrameTopY, cellSize, 10, null, true);
+            drawTenFrame(svg, contentStartX, bottomFrameY, cellSize, num - 10, null, true);
           } else {
-            const blockH = singleFrameH + answerGap + boxH;
-            const frameBlockY = contentCenterY - blockH / 2;
-            drawTenFrame(svg, contentStartX, frameBlockY, cellSize, num, null, true);
+            // Single frame aligned with bottom frame position of doubles
+            drawTenFrame(svg, contentStartX, bottomFrameY, cellSize, num, null, true);
+          }
 
-            const lineY = frameBlockY + singleFrameH + answerGap + boxH;
-            const boxCx = contentStartX + singleFrameW / 2;
-            svg.appendChild(svgEl("line", { x1: boxCx - boxW / 2, y1: lineY, x2: boxCx + boxW / 2, y2: lineY, stroke: "#cbd5e1", "stroke-width": "1.5" }));
-
-            if (showAnswers || isExample) {
-              const ansColor = showAnswers ? "#3182ce" : "#16a34a";
-              const ansEl = svgEl("text", { x: boxCx, y: lineY - boxH * 0.2, "font-family": "Fredoka, sans-serif", "font-size": String(Math.round(boxH * 0.6)), "font-weight": "700", "text-anchor": "middle", fill: ansColor });
-              ansEl.textContent = String(num); svg.appendChild(ansEl);
-            }
+          // Answer line at fixed position across all cells
+          svg.appendChild(svgEl("line", { x1: boxCx - boxW / 2, y1: fixedLineY, x2: boxCx + boxW / 2, y2: fixedLineY, stroke: "#cbd5e1", "stroke-width": "1.5" }));
+          if (showAnswers || isExample) {
+            const ansColor = showAnswers ? "#3182ce" : "#16a34a";
+            const ansEl = svgEl("text", { x: boxCx, y: fixedLineY - boxH * 0.2, "font-family": "Fredoka, sans-serif", "font-size": String(Math.round(boxH * 0.6)), "font-weight": "700", "text-anchor": "middle", fill: ansColor });
+            ansEl.textContent = String(num); svg.appendChild(ansEl);
           }
         } else {
-          // "Fill the frame" mode: show the number, student fills the empty frame
+          // "Fill the frame" mode: single frames align with TOP frame of doubles
           const fillNumSize = Math.max(28, Math.round(cellSize * 0.9));
-          const numLabelGap = Math.max(10, cellSize * 0.35);
-          if (isDouble && num > 10) {
-            // Stacked: number label + gap + top frame + gap + bottom frame
-            const framesH = singleFrameH + stackGap + singleFrameH;
-            const blockH = fillNumSize + numLabelGap + framesH;
-            const blockStartY = contentCenterY - blockH / 2;
-            const numY = blockStartY + fillNumSize * 0.85;
-            const numEl = svgEl("text", { x: contentStartX + singleFrameW / 2, y: numY, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fillNumSize), "font-weight": "700", "text-anchor": "middle", fill: "#1a202c" });
-            numEl.textContent = String(num); svg.appendChild(numEl);
+          // 40px gap between number and frame at base size, scaled for tighter layouts
+          const baseNumGap = 40;
+          const numGap = Math.min(baseNumGap, rowH * 0.12);
+          // Position: number first, then gap, then frame(s)
+          const rawFillNumY = cellTop + (rows >= 3 ? 6 : 22) + fillNumSize * 0.85;
+          const fixedNumY = Math.max(rawFillNumY, gridTop + fillNumSize * 0.85);
+          const fillFrameTopY = fixedNumY + numGap;
+          const fillBottomFrameY = fillFrameTopY + singleFrameH + stackGap;
 
-            const frameBlockY = numY + numLabelGap;
+          // Number label at fixed position
+          const numEl = svgEl("text", { x: contentStartX + singleFrameW / 2, y: fixedNumY, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fillNumSize), "font-weight": "700", "text-anchor": "middle", fill: "#1a202c" });
+          numEl.textContent = String(num); svg.appendChild(numEl);
+
+          if (isDouble && num > 10) {
             if (showAnswers || isExample) {
-              drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 10, null, true);
-              drawTenFrame(svg, contentStartX, frameBlockY + singleFrameH + stackGap, cellSize, num - 10, null, true);
+              drawTenFrame(svg, contentStartX, fillFrameTopY, cellSize, 10, null, true);
+              drawTenFrame(svg, contentStartX, fillBottomFrameY, cellSize, num - 10, null, true);
             } else {
-              drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 0, null, false);
-              drawTenFrame(svg, contentStartX, frameBlockY + singleFrameH + stackGap, cellSize, 0, null, false);
+              drawTenFrame(svg, contentStartX, fillFrameTopY, cellSize, 0, null, false, true);
+              drawTenFrame(svg, contentStartX, fillBottomFrameY, cellSize, 0, null, false, true);
             }
           } else {
-            const blockH = fillNumSize + numLabelGap + singleFrameH;
-            const blockStartY = contentCenterY - blockH / 2;
-            const numY = blockStartY + fillNumSize * 0.85;
-            const numEl = svgEl("text", { x: contentStartX + singleFrameW / 2, y: numY, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fillNumSize), "font-weight": "700", "text-anchor": "middle", fill: "#1a202c" });
-            numEl.textContent = String(num); svg.appendChild(numEl);
-
-            const frameBlockY = numY + numLabelGap;
+            // Single frame aligned with TOP frame position of doubles
             if (showAnswers || isExample) {
-              drawTenFrame(svg, contentStartX, frameBlockY, cellSize, num, null, true);
+              drawTenFrame(svg, contentStartX, fillFrameTopY, cellSize, num, null, true);
             } else {
-              drawTenFrame(svg, contentStartX, frameBlockY, cellSize, 0, null, false);
+              drawTenFrame(svg, contentStartX, fillFrameTopY, cellSize, 0, null, false, true);
             }
           }
         }
