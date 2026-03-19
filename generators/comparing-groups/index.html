@@ -215,14 +215,15 @@
           </div>
 
           <div class="adv-checkbox-row">
-            <input type="checkbox" id="showHeaderEnabled" checked />
-            <label for="showHeaderEnabled">Name / Date</label>
+            <input type="checkbox" id="showHeaderEnabled" />
+            <label for="showHeaderEnabled">Change Name / Date</label>
           </div>
-          <div class="adv-sub" id="headerModeOptions">
+          <div class="adv-sub" id="headerModeOptions" style="display:none;">
             <label for="showHeader">Show</label>
             <select id="showHeader">
               <option value="both" selected>Name &amp; Date</option>
               <option value="name">Name Only</option>
+              <option value="none">Neither</option>
             </select>
           </div>
 
@@ -433,7 +434,7 @@ function getRange() {
 }
 
 function getHeaderMode() {
-  return elShowHeaderEnabled.checked ? elShowHeader.value : "none";
+  return elShowHeaderEnabled.checked ? elShowHeader.value : "both";
 }
 
 // ===== Comparison label logic =====
