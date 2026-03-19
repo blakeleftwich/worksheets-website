@@ -451,18 +451,18 @@
       <div class="control-group">
         <label for="modeSelect">Mode</label>
         <select id="modeSelect">
-          <option value="count" selected>Count tallies (write the number)</option>
-          <option value="draw">Draw tallies (given a number)</option>
+          <option value="count" selected>Count tallies</option>
+          <option value="draw">Draw tallies</option>
         </select>
       </div>
 
       <div class="control-group">
         <label for="rangeSelect">Number Range</label>
         <select id="rangeSelect">
-          <option value="5">1 - 5</option>
-          <option value="10" selected>1 - 10</option>
-          <option value="15">1 - 15</option>
-          <option value="20">1 - 20</option>
+          <option value="5">Within 5</option>
+          <option value="10" selected>Within 10</option>
+          <option value="20">Within 20</option>
+          <option value="10-20">10 to 20</option>
         </select>
       </div>
       <div class="checkbox-row" style="margin-bottom:12px;">
@@ -501,9 +501,7 @@
         <label for="problemsPerSheet">Problems per Sheet</label>
         <select id="problemsPerSheet">
           <option value="6">6</option>
-          <option value="8">8</option>
-          <option value="10" selected>10</option>
-          <option value="12">12</option>
+          <option value="8" selected>8</option>
         </select>
       </div>
 
@@ -636,10 +634,11 @@
     let currentState = { sheets: [] };
 
     // ===== Problem generation =====
-    function generateProblems(count, maxVal) {
+    function generateProblems(count, maxVal, minVal) {
+      minVal = minVal || 1;
       const problems = [];
       const available = [];
-      for (let i = 1; i <= maxVal; i++) available.push(i);
+      for (let i = minVal; i <= maxVal; i++) available.push(i);
 
       // Shuffle and cycle to fill count
       for (let i = available.length - 1; i > 0; i--) {
@@ -651,8 +650,7 @@
         if (i < available.length) {
           problems.push(available[i]);
         } else {
-          // Pick randomly from the range for extras
-          problems.push(1 + Math.floor(Math.random() * maxVal));
+          problems.push(minVal + Math.floor(Math.random() * (maxVal - minVal + 1)));
         }
       }
 
@@ -666,35 +664,16 @@
     }
 
     // ===== Draw tally marks into SVG =====
-    function drawTallyMarks(svg, num, cx, cy, tallyH, color) {
-      // Draw tally marks centered around (cx, cy)
-      // Each vertical stroke is tallyH tall
-      // Groups of 5: four verticals + diagonal
+    function drawTallyRowInternal(svg, num, startX, yTop, yBot, tallyH, color) {
+      const strokeW = Math.max(1.5, tallyH * 0.08);
+      const gap = Math.max(6, tallyH * 0.35);
+      const groupGap = Math.max(10, tallyH * 0.55);
       const groups = Math.floor(num / 5);
       const singles = num % 5;
-      const strokeW = Math.max(1.5, tallyH * 0.08);
-      const gap = Math.max(6, tallyH * 0.35);       // gap between strokes within a group
-      const groupGap = Math.max(10, tallyH * 0.55);  // gap between groups
+      let x = startX;
 
-      // Calculate total width
-      let totalW = 0;
-      if (groups > 0) {
-        totalW += groups * (3 * gap); // 4 lines = 3 gaps width per group
-        if (groups > 1 || singles > 0) totalW += (groups > 1 ? (groups - 1) * groupGap : 0);
-        if (singles > 0) totalW += groupGap;
-      }
-      if (singles > 0) {
-        totalW += (singles - 1) * gap;
-      }
-
-      let x = cx - totalW / 2;
-      const yTop = cy - tallyH / 2;
-      const yBot = cy + tallyH / 2;
-
-      // Draw groups of 5
       for (let g = 0; g < groups; g++) {
         const groupStartX = x;
-        // Draw 4 vertical lines
         for (let j = 0; j < 4; j++) {
           svg.appendChild(svgEl("line", {
             x1: x, y1: yTop, x2: x, y2: yBot,
@@ -702,7 +681,6 @@
           }));
           if (j < 3) x += gap;
         }
-        // Draw diagonal crossing line
         const diagPad = tallyH * 0.15;
         svg.appendChild(svgEl("line", {
           x1: groupStartX - gap * 0.3, y1: yBot - diagPad,
@@ -712,13 +690,33 @@
         x += groupGap;
       }
 
-      // Draw remaining singles
       for (let j = 0; j < singles; j++) {
         svg.appendChild(svgEl("line", {
           x1: x, y1: yTop, x2: x, y2: yBot,
           stroke: color, "stroke-width": strokeW, "stroke-linecap": "round"
         }));
         if (j < singles - 1) x += gap;
+      }
+    }
+
+    function drawTallyMarks(svg, num, cx, cy, tallyH, color, align) {
+      const rowGap = tallyH * 0.3;
+      if (num <= 10) {
+        // Single row
+        const yTop = cy - tallyH / 2;
+        const yBot = cy + tallyH / 2;
+        const startX = (align === "left") ? cx : cx;
+        drawTallyRowInternal(svg, num, startX, yTop, yBot, tallyH, color);
+      } else {
+        // Two rows: first row = 10, second row = remainder
+        const totalH = tallyH * 2 + rowGap;
+        const row1Top = cy - totalH / 2;
+        const row1Bot = row1Top + tallyH;
+        const row2Top = row1Bot + rowGap;
+        const row2Bot = row2Top + tallyH;
+        const startX = (align === "left") ? cx : cx;
+        drawTallyRowInternal(svg, 10, startX, row1Top, row1Bot, tallyH, color);
+        drawTallyRowInternal(svg, num - 10, startX, row2Top, row2Bot, tallyH, color);
       }
     }
 
@@ -865,7 +863,7 @@
 
         if (mode === "count") {
           // Show tally marks on left, blank line (or answer) on right
-          drawTallyMarks(svg, num, leftZoneCenter, cy, tallyH, "#1a202c");
+          drawTallyMarks(svg, num, contentLeft + 10, cy, tallyH, "#1a202c", "left");
 
           if (isExample) {
             // Show answer in green with badge
@@ -891,19 +889,21 @@
             ansEl.textContent = String(num);
             svg.appendChild(ansEl);
           } else {
-            // Blank line for writing
-            const lineY = cy + fontSize * 0.45;
+            // Blank line aligned with bottom of stacked tally group
+            const stackedBottomOffset = tallyH * 1.15; // matches 2-row tally bottom
+            const lineY = cy + stackedBottomOffset;
             svg.appendChild(svgEl("line", {
               x1: rightZoneCenter - answerLineW / 2, y1: lineY,
               x2: rightZoneCenter + answerLineW / 2, y2: lineY,
-              stroke: "#000", "stroke-width": 1
+              stroke: "#cbd5e1", "stroke-width": 1.5
             }));
           }
         } else {
-          // "Draw tallies" mode: show number on left, empty space (or answer tallies) on right
+          // "Draw tallies" mode: show number on left (larger, header font), empty space (or answer tallies) on right
+          const drawFontSize = Math.min(38, Math.max(22, Math.floor(rowH * 0.5)));
           const numTextEl = svgEl("text", {
-            x: contentLeft + 20, y: cy + fontSize * 0.35,
-            "font-family": "Fredoka, sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c"
+            x: contentLeft + 20, y: cy + drawFontSize * 0.35,
+            "font-family": "'Google Sans Flex', sans-serif", "font-size": String(drawFontSize), "font-weight": "700", fill: "#1a202c"
           });
           numTextEl.textContent = String(num);
           svg.appendChild(numTextEl);
@@ -927,24 +927,8 @@
           // Only draw if not last row
         }
 
-        // Column separator
-        if (col === 0 && count > 1) {
-          svg.appendChild(svgEl("line", {
-            x1: cellLeft + colW, y1: cellTop + 4,
-            x2: cellLeft + colW, y2: cellTop + rowH - 4,
-            stroke: "#e2e8f0", "stroke-width": 0.5
-          }));
-        }
-
-        // Row separator
-        if (row < rows - 1) {
-          const sepY = cellTop + rowH;
-          const sepX1 = cellLeft + 4;
-          const sepX2 = cellLeft + colW - 4;
-          svg.appendChild(svgEl("line", {
-            x1: sepX1, y1: sepY, x2: sepX2, y2: sepY,
-            stroke: "#e2e8f0", "stroke-width": 0.5
-          }));
+        // Dividers removed
+        if (false) {
         }
       }
 
@@ -959,7 +943,8 @@
       const mode = elMode.value;
       return {
         mode: mode,
-        maxVal: parseInt(elRange.value, 10),
+        maxVal: elRange.value.indexOf("-") !== -1 ? parseInt(elRange.value.split("-")[1], 10) : parseInt(elRange.value, 10),
+        minVal: elRange.value.indexOf("-") !== -1 ? parseInt(elRange.value.split("-")[0], 10) : 1,
         numWorksheets: parseInt(elNumSheets.value, 10),
         problemsPerSheet: parseInt(elProblems.value, 10),
         showHeader: showHeader,
@@ -976,7 +961,7 @@
       const opts = gatherOptions();
       currentState.sheets = [];
       for (let s = 0; s < opts.numWorksheets; s++) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.maxVal));
+        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.maxVal, opts.minVal));
       }
       renderWorksheet();
     }
@@ -984,7 +969,7 @@
     function renderWithoutRandomization() {
       const opts = gatherOptions();
       while (currentState.sheets.length < opts.numWorksheets) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.maxVal));
+        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.maxVal, opts.minVal));
       }
       if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
       renderWorksheet();
