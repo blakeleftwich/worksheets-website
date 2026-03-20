@@ -811,10 +811,14 @@
     // ===== Print PDF =====
     function doPrint(printable) {
       var url = printable.folder + '/pack.pdf';
-      var printWin = window.open(url, '_blank');
-      if (printWin) {
-        printWin.addEventListener('load', function() { printWin.print(); });
-      }
+      var iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = url;
+      document.body.appendChild(iframe);
+      iframe.addEventListener('load', function() {
+        iframe.contentWindow.print();
+        setTimeout(function() { document.body.removeChild(iframe); }, 1000);
+      });
     }
 
     // ===== PDF.js helpers =====
