@@ -520,7 +520,7 @@
           </button>
           <button class="modal-dl" id="modalDl">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download Set
+            Download
           </button>
           <button class="modal-close" id="modalClose">&times;</button>
         </div>
@@ -931,12 +931,21 @@
     });
     modalDl.addEventListener('click', function() {
       if (!modalPrintable) return;
+      var orig = modalDl.innerHTML;
       var a = document.createElement('a');
       a.href = modalPrintable.folder + '/pack.pdf';
       a.download = modalPrintable.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-pack.pdf';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+      modalDl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><polyline points="20 6 9 17 4 12"/></svg> Downloaded!';
+      modalDl.style.background = '#16a34a';
+      modalDl.style.pointerEvents = 'none';
+      setTimeout(function() {
+        modalDl.innerHTML = orig;
+        modalDl.style.background = '';
+        modalDl.style.pointerEvents = '';
+      }, 1500);
     });
     document.getElementById('modalPrint').addEventListener('click', function() {
       if (modalPrintable) doPrint(modalPrintable);
@@ -944,6 +953,22 @@
 
     // ===== Init =====
     loadAllPrintables();
+
+    // MOCKUP TEST: Override preview clicks to navigate to detail page instead of modal
+    // Remove this block when done testing
+    document.addEventListener('click', function(e) {
+      var preview = e.target.closest('.ws-preview');
+      if (preview) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        var card = preview.closest('.ws-card');
+        var btn = card ? card.querySelector('.download-btn') : null;
+        var folder = btn ? btn.getAttribute('data-folder') : null;
+        if (folder) {
+          window.location.href = '../printable-detail-mockup.html?set=' + folder;
+        }
+      }
+    }, true);
   </script>
 </body>
 </html>
