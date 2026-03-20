@@ -2,5 +2,7 @@
   "title": "Basic Fractions",
   "description": "Identify fractions from shaded shapes or shade the correct portion. Uses circles and rectangles divided into equal parts for visual fraction learning.",
   "grades": "1st — 2nd",
-  "order": 37
+  "order": 37,
+  "category": "Geometry & Measurement",
+  "categoryOrder": 8
 }

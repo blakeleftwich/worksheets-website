@@ -2,5 +2,7 @@
   "title": "Telling Time: Draw the Clock Hands",
   "description": "Clock worksheets that ask students to draw the hour and minute hands. Great for reinforcing time concepts and visual learning in early elementary grades.",
   "grades": "K — 2nd",
-  "order": 16
+  "order": 16,
+  "category": "Telling Time",
+  "categoryOrder": 5
 }

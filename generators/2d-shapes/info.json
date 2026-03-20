@@ -2,5 +2,7 @@
   "title": "2D Shapes",
   "description": "Identify, name, and count sides and corners of basic 2D shapes. Includes circles, squares, triangles, rectangles, hexagons, and more.",
   "grades": "K — 2nd",
-  "order": 42
+  "order": 42,
+  "category": "Geometry & Measurement",
+  "categoryOrder": 8
 }

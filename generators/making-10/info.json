@@ -2,5 +2,7 @@
   "title": "Making 10",
   "description": "Find the missing number to make 10 using equations or visual ten frames. Builds the essential \"making ten\" strategy for mental math fluency.",
   "grades": "K — 1st",
-  "order": 27
+  "order": 27,
+  "category": "Addition & Subtraction",
+  "categoryOrder": 1
 }

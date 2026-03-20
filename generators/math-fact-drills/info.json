@@ -1,6 +1,8 @@
 {
   "title": "Math Fact Drills",
-  "description": "Dense timed-drill format with 20â€“100 compact problems per sheet. Perfect for building fluency with addition, subtraction, multiplication, or division facts.",
+  "description": "Dense timed-drill format with 20–100 compact problems per sheet. Perfect for building fluency with addition, subtraction, multiplication, or division facts.",
   "grades": "K — 3rd",
-  "order": 51
+  "order": 51,
+  "category": "Addition & Subtraction",
+  "categoryOrder": 1
 }

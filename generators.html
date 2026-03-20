@@ -81,15 +81,16 @@
 
     /* ===== Hero ===== */
     .hero {
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
       text-align: center;
-      padding: 56px 32px 40px;
+      padding: 48px 24px 40px;
       max-width: 800px;
       margin: 0 auto;
     }
 
     .hero h1 {
       font-family: 'DM Sans', sans-serif;
-      font-size: 42px;
+      font-size: 36px;
       font-weight: 700;
       color: #1a1a2e;
       line-height: 1.15;
@@ -103,11 +104,78 @@
       line-height: 1.6;
       max-width: 560px;
       margin: 0 auto;
+      display: none;
+    }
+
+    .hero .search-bar {
+      max-width: 560px;
+      margin: 0 auto 24px;
+      position: relative;
+    }
+
+    .hero .search-bar input {
+      width: 100%;
+      padding: 16px 20px 16px 48px;
+      font-size: 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      background: white;
+      color: #2d3748;
+      outline: none;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .hero .search-bar input:focus {
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+    }
+
+    .hero .search-bar .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      color: #94a3b8;
+      pointer-events: none;
+    }
+
+    .hero .topic-chips {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hero .topic-chip {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: 1px solid #e2e8f0;
+      background: white;
+      color: #475569;
+      text-decoration: none;
+    }
+
+    .hero .topic-chip:hover {
+      border-color: #f59e0b;
+      background: #fffbeb;
+      color: #92400e;
+    }
+
+    .hero .topic-chip.active {
+      border-color: #f59e0b;
+      background: #fef3c7;
+      color: #92400e;
     }
 
     /* ===== Hero background wrapper ===== */
     .hero-wrapper {
-      background: linear-gradient(180deg, #fffbeb 0%, white 100%);
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
     }
 
     /* ===== Trust Bar ===== */
@@ -204,6 +272,21 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 24px;
+    }
+
+    .category-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #2d3748;
+      margin-top: 36px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #f59e0b;
+    }
+
+    .category-label:first-child {
+      margin-top: 12px;
     }
 
     .generator-card {
@@ -569,14 +652,14 @@
         margin: 0 auto;
       }
       .hero h1 {
-        font-size: 32px;
+        font-size: 28px;
       }
+      .hero .search-bar { max-width: 100%; }
+      .hero .topic-chips { gap: 6px; }
+      .hero .topic-chip { padding: 6px 12px; font-size: 12px; }
       .footer-grid {
         grid-template-columns: 1fr 1fr;
         gap: 32px;
-      }
-      .trust-bar-inner {
-        gap: 16px;
       }
     }
 
@@ -720,35 +803,22 @@
   <!-- ===== Hero ===== -->
   <div class="hero-wrapper">
     <section class="hero">
-      <h1>Free Printable Math<br>Worksheets for Kids K–5</h1>
-      <p>Customize worksheets for addition, subtraction, multiplication, division, counting, number patterns, and telling time.<br>Print or download PDF worksheets instantly.</p>
+      <h1>Math Worksheet Generators</h1>
+      <div class="search-bar">
+        <span class="search-icon">&#128269;</span>
+        <input type="text" id="generatorSearch" placeholder="Search generators... (e.g. addition, ten frames, telling time)">
+      </div>
+      <div class="topic-chips" id="topicChips">
+        <a class="topic-chip" href="#" data-cat="Numbers &amp; Counting">Numbers &amp; Counting</a>
+        <a class="topic-chip" href="#" data-cat="Addition &amp; Subtraction">Addition &amp; Subtraction</a>
+        <a class="topic-chip" href="#" data-cat="Place Value">Place Value</a>
+        <a class="topic-chip" href="#" data-cat="Telling Time">Telling Time</a>
+        <a class="topic-chip" href="#" data-cat="Comparing &amp; Ordering">Comparing</a>
+        <a class="topic-chip" href="#" data-cat="Money">Money</a>
+        <a class="topic-chip" href="#" data-cat="Data &amp; Graphs">Data &amp; Graphs</a>
+        <a class="topic-chip" href="#" data-cat="Geometry &amp; Measurement">Geometry</a>
+      </div>
     </section>
-  </div>
-
-  <!-- ===== Trust Bar ===== -->
-  <div class="trust-bar">
-    <div class="trust-bar-inner">
-      <div class="trust-item">
-        <div class="trust-check">&#10003;</div>
-        50+ Worksheet Types
-      </div>
-      <div class="trust-item">
-        <div class="trust-check">&#10003;</div>
-        PDF Download
-      </div>
-      <div class="trust-item">
-        <div class="trust-check">&#10003;</div>
-        Answer Keys Included
-      </div>
-      <div class="trust-item">
-        <div class="trust-check">&#10003;</div>
-        No Account Needed
-      </div>
-      <div class="trust-item">
-        <div class="trust-check">&#10003;</div>
-        Mobile Friendly
-      </div>
-    </div>
   </div>
 
   <!-- ===== Ad: Leaderboard =====
@@ -757,10 +827,10 @@
   </div> -->
 
   <!-- ===== Generators Grid ===== -->
-  <section class="section-container">
-    <div class="section-label">Worksheet Generators</div>
-    <div class="generators-grid" id="generatorsGrid">
-      <!-- Cards loaded dynamically from info.json -->
+  <section class="section-container" id="generatorsSection">
+    <!-- section label removed -->
+    <div id="generatorsContainer">
+      <!-- Category grids loaded dynamically from info.json -->
     </div>
   </section>
 
@@ -874,56 +944,188 @@
         'ten-frames', 'three-digit-place-value', 'venn-diagram', 'word-problems'
       ];
 
-      var grid = document.getElementById('generatorsGrid');
+      var container = document.getElementById('generatorsContainer');
+
+      // Category display order
+      var categoryOrder = [
+        'Numbers & Counting',
+        'Addition & Subtraction',
+        'Place Value',
+        'Comparing & Ordering',
+        'Word Problems',
+        'Telling Time',
+        'Money',
+        'Data & Graphs',
+        'Geometry & Measurement',
+        'Multiplication & Division',
+        'Fun & Activity'
+      ];
 
       Promise.all(generatorFolders.map(function(folder) {
-        return fetch('generators/' + folder + '/info.json')
+        return fetch('generators/' + folder + '/info.json?v=2')
           .then(function(r) { return r.json(); })
           .then(function(info) { return { folder: folder, info: info }; })
           .catch(function() { return null; });
       })).then(function(results) {
         var items = results.filter(Boolean);
-        items.sort(function(a, b) { return (a.info.order || 999) - (b.info.order || 999); });
 
+        // Group by category
+        var groups = {};
         items.forEach(function(item) {
-          var folder = item.folder;
-          var info = item.info;
-          var card = document.createElement('a');
-          card.href = 'generators/' + folder + '/';
-          card.className = 'generator-card';
+          var cat = item.info.category || 'Other';
+          if (!groups[cat]) groups[cat] = [];
+          groups[cat].push(item);
+        });
 
-          var previewDiv = document.createElement('div');
-          previewDiv.className = 'card-preview';
+        // Sort items within each category by order
+        Object.keys(groups).forEach(function(cat) {
+          groups[cat].sort(function(a, b) { return (a.info.order || 999) - (b.info.order || 999); });
+        });
 
-          var img = document.createElement('img');
-          img.src = 'generators/' + folder + '/preview.webp';
-          img.alt = info.title + ' preview';
-          img.loading = 'lazy';
-          img.onerror = function() {
-            // Try card-icon.svg fallback
-            this.onerror = function() {
-              // Final fallback: styled placeholder
-              this.parentNode.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#f7f8fc;"><span style="font-size:14px;color:#94a3b8;font-weight:500;text-align:center;padding:12px;">' + info.title + '</span></div>';
+        // Render category sections in order
+        categoryOrder.forEach(function(cat) {
+          if (!groups[cat] || groups[cat].length === 0) return;
+
+          // Category header
+          var label = document.createElement('div');
+          label.className = 'category-label';
+          label.textContent = cat;
+          container.appendChild(label);
+
+          // Grid for this category
+          var grid = document.createElement('div');
+          grid.className = 'generators-grid';
+
+          groups[cat].forEach(function(item) {
+            var folder = item.folder;
+            var info = item.info;
+            var card = document.createElement('a');
+            card.href = 'generators/' + folder + '/';
+            card.className = 'generator-card';
+            card.setAttribute('data-category', info.category || cat || '');
+
+            var previewDiv = document.createElement('div');
+            previewDiv.className = 'card-preview';
+
+            var img = document.createElement('img');
+            img.src = 'generators/' + folder + '/preview.webp';
+            img.alt = info.title + ' preview';
+            img.loading = 'lazy';
+            img.onerror = function() {
+              this.onerror = function() {
+                this.parentNode.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#f7f8fc;"><span style="font-size:14px;color:#94a3b8;font-weight:500;text-align:center;padding:12px;">' + info.title + '</span></div>';
+              };
+              this.src = 'generators/' + folder + '/card-icon.svg';
             };
-            this.src = 'generators/' + folder + '/card-icon.svg';
-          };
-          previewDiv.appendChild(img);
+            previewDiv.appendChild(img);
 
-          card.innerHTML = '';
-          card.appendChild(previewDiv);
+            card.appendChild(previewDiv);
 
-          var body = document.createElement('div');
-          body.className = 'card-body';
-          body.innerHTML =
-            '<h3>' + info.title + '</h3>' +
-            '<p>' + (info.description || '') + '</p>' +
-            '<div class="card-meta">' +
-              '<span class="grade-badge">' + (info.grades || '') + '</span>' +
-              '<div class="card-arrow">\u2192</div>' +
-            '</div>';
-          card.appendChild(body);
+            var body = document.createElement('div');
+            body.className = 'card-body';
+            body.innerHTML =
+              '<h3>' + info.title + '</h3>' +
+              '<p>' + (info.description || '') + '</p>' +
+              '<div class="card-meta">' +
+                '<span class="grade-badge">' + (info.grades || '') + '</span>' +
+                '<div class="card-arrow">\u2192</div>' +
+              '</div>';
+            card.appendChild(body);
 
-          grid.appendChild(card);
+            grid.appendChild(card);
+          });
+
+          container.appendChild(grid);
+        });
+
+        // Any uncategorized items
+        var uncategorized = [];
+        items.forEach(function(item) {
+          var cat = item.info.category || 'Other';
+          if (categoryOrder.indexOf(cat) === -1) uncategorized.push(item);
+        });
+        if (uncategorized.length > 0) {
+          var label = document.createElement('div');
+          label.className = 'category-label';
+          label.textContent = 'Other';
+          container.appendChild(label);
+          var grid = document.createElement('div');
+          grid.className = 'generators-grid';
+          uncategorized.forEach(function(item) {
+            // Same card creation logic...
+            var folder = item.folder;
+            var info = item.info;
+            var card = document.createElement('a');
+            card.href = 'generators/' + folder + '/';
+            card.className = 'generator-card';
+            card.setAttribute('data-category', info.category || cat || '');
+            var previewDiv = document.createElement('div');
+            previewDiv.className = 'card-preview';
+            var img = document.createElement('img');
+            img.src = 'generators/' + folder + '/preview.webp';
+            img.alt = info.title + ' preview';
+            img.loading = 'lazy';
+            img.onerror = function() {
+              this.onerror = function() {
+                this.parentNode.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#f7f8fc;"><span style="font-size:14px;color:#94a3b8;font-weight:500;text-align:center;padding:12px;">' + info.title + '</span></div>';
+              };
+              this.src = 'generators/' + folder + '/card-icon.svg';
+            };
+            previewDiv.appendChild(img);
+            card.appendChild(previewDiv);
+            var body = document.createElement('div');
+            body.className = 'card-body';
+            body.innerHTML = '<h3>' + info.title + '</h3><p>' + (info.description || '') + '</p><div class="card-meta"><span class="grade-badge">' + (info.grades || '') + '</span><div class="card-arrow">\u2192</div></div>';
+            card.appendChild(body);
+            grid.appendChild(card);
+          });
+          container.appendChild(grid);
+        }
+        // ===== Search & Filter =====
+        var searchInput = document.getElementById('generatorSearch');
+        var allCards = container.querySelectorAll('.generator-card');
+        var allLabels = container.querySelectorAll('.category-label');
+        var allGrids = container.querySelectorAll('.generators-grid');
+
+        function filterCards() {
+          var query = searchInput.value.toLowerCase().trim();
+          var activeChip = document.querySelector('.topic-chip.active');
+          var activeCat = activeChip ? activeChip.getAttribute('data-cat') : null;
+
+          allCards.forEach(function(card) {
+            var title = card.querySelector('h3').textContent.toLowerCase();
+            var desc = card.querySelector('p') ? card.querySelector('p').textContent.toLowerCase() : '';
+            var matchesSearch = !query || title.indexOf(query) !== -1 || desc.indexOf(query) !== -1;
+            var cardCat = card.getAttribute('data-category');
+            var matchesCat = !activeCat || cardCat === activeCat;
+            card.style.display = (matchesSearch && matchesCat) ? '' : 'none';
+          });
+
+          // Hide empty category sections
+          allLabels.forEach(function(label, i) {
+            var grid = allGrids[i];
+            if (!grid) return;
+            var visibleCards = grid.querySelectorAll('.generator-card:not([style*="display: none"])');
+            label.style.display = visibleCards.length > 0 ? '' : 'none';
+            grid.style.display = visibleCards.length > 0 ? '' : 'none';
+          });
+        }
+
+        searchInput.addEventListener('input', filterCards);
+        searchInput.addEventListener('keyup', filterCards);
+
+        // Topic chip click handlers
+        document.querySelectorAll('.topic-chip').forEach(function(chip) {
+          chip.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (this.classList.contains('active')) {
+              this.classList.remove('active');
+            } else {
+              document.querySelectorAll('.topic-chip').forEach(function(c) { c.classList.remove('active'); });
+              this.classList.add('active');
+            }
+            filterCards();
+          });
         });
       });
     })();

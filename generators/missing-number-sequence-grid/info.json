@@ -2,5 +2,7 @@
   "title": "Number Charts",
   "description": "Number grid worksheets to practice counting patterns, sequencing, and number recognition. Ideal for kindergarten and first grade math centers.",
   "grades": "Pre-K — 1st",
-  "order": 14
+  "order": 14,
+  "category": "Numbers & Counting",
+  "categoryOrder": 0
 }

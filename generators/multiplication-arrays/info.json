@@ -2,5 +2,7 @@
   "title": "Multiplication Arrays",
   "description": "Visual dot arrays help students understand multiplication as repeated addition. Students write the multiplication equation for each array. Great for 2nd and 3rd grade.",
   "grades": "2nd — 3rd",
-  "order": 52
+  "order": 52,
+  "category": "Multiplication & Division",
+  "categoryOrder": 9
 }

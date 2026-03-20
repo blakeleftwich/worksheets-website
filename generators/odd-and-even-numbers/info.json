@@ -2,5 +2,7 @@
   "title": "Odd & Even Numbers",
   "description": "Identify, sort, and classify numbers as odd or even. Multiple activity modes including circling, sorting into columns, and writing answers.",
   "grades": "K — 2nd",
-  "order": 23
+  "order": 23,
+  "category": "Comparing & Ordering",
+  "categoryOrder": 3
 }

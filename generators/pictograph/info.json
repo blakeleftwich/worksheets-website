@@ -2,5 +2,7 @@
   "title": "Pictograph",
   "description": "Read picture graphs where each symbol represents a value. Answer questions about the data including counting, comparing, and finding totals.",
   "grades": "1st — 3rd",
-  "order": 46
+  "order": 46,
+  "category": "Data & Graphs",
+  "categoryOrder": 7
 }

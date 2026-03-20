@@ -2,5 +2,7 @@
   "title": "Telling Time: Reading a Clock",
   "description": "Telling time worksheets where students read analog clocks and write the correct time. Customize for hour, half-hour, quarter-hour, and 5-minute intervals.",
   "grades": "K — 2nd",
-  "order": 15
+  "order": 15,
+  "category": "Telling Time",
+  "categoryOrder": 5
 }

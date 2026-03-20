@@ -1,21 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
   <rect width="200" height="140" fill="#f7f8fc"/>
-  <g transform="translate(10,30)">
-    <rect x="0" y="0" width="80" height="35" rx="3" fill="none" stroke="#cbd5e0" stroke-width="1.2"/>
-    <line x1="16" y1="0" x2="16" y2="35" stroke="#cbd5e0" stroke-width="0.8"/><line x1="32" y1="0" x2="32" y2="35" stroke="#cbd5e0" stroke-width="0.8"/>
-    <line x1="48" y1="0" x2="48" y2="35" stroke="#cbd5e0" stroke-width="0.8"/><line x1="64" y1="0" x2="64" y2="35" stroke="#cbd5e0" stroke-width="0.8"/>
-    <line x1="0" y1="17.5" x2="80" y2="17.5" stroke="#cbd5e0" stroke-width="0.8"/>
-    <circle cx="8" cy="9" r="5" fill="#667eea" opacity="0.6"/><circle cx="24" cy="9" r="5" fill="#667eea" opacity="0.6"/><circle cx="40" cy="9" r="5" fill="#667eea" opacity="0.6"/>
-    <circle cx="56" cy="9" r="5" fill="#667eea" opacity="0.6"/><circle cx="72" cy="9" r="5" fill="#667eea" opacity="0.6"/>
-    <circle cx="8" cy="26" r="5" fill="#667eea" opacity="0.6"/><circle cx="24" cy="26" r="5" fill="#667eea" opacity="0.6"/><circle cx="40" cy="26" r="5" fill="#667eea" opacity="0.6"/>
+  <!-- Two frames: 90px each + 16px plus area = 196px, start at x=2 -->
+  <!-- Left ten frame (5 dots) -->
+  <g transform="translate(2,10)">
+    <rect x="0" y="0" width="90" height="46" rx="2" fill="none" stroke="#2d3748" stroke-width="1.2"/>
+    <line x1="18" y1="0" x2="18" y2="46" stroke="#2d3748" stroke-width="0.7"/>
+    <line x1="36" y1="0" x2="36" y2="46" stroke="#2d3748" stroke-width="0.7"/>
+    <line x1="54" y1="0" x2="54" y2="46" stroke="#2d3748" stroke-width="0.7"/>
+    <line x1="72" y1="0" x2="72" y2="46" stroke="#2d3748" stroke-width="0.7"/>
+    <line x1="0" y1="23" x2="90" y2="23" stroke="#2d3748" stroke-width="0.7"/>
+    <circle cx="9" cy="11.5" r="6.5" fill="#4a5568"/>
+    <circle cx="27" cy="11.5" r="6.5" fill="#4a5568"/>
+    <circle cx="45" cy="11.5" r="6.5" fill="#4a5568"/>
+    <circle cx="63" cy="11.5" r="6.5" fill="#4a5568"/>
+    <circle cx="81" cy="11.5" r="6.5" fill="#4a5568"/>
   </g>
-  <text x="98" y="52" text-anchor="middle" font-size="18" font-weight="700" fill="#a0aec0" font-family="Arial">+</text>
-  <g transform="translate(108,30)">
-    <rect x="0" y="0" width="80" height="35" rx="3" fill="none" stroke="#cbd5e0" stroke-width="1.2"/>
-    <line x1="16" y1="0" x2="16" y2="35" stroke="#cbd5e0" stroke-width="0.8"/><line x1="32" y1="0" x2="32" y2="35" stroke="#cbd5e0" stroke-width="0.8"/>
-    <line x1="48" y1="0" x2="48" y2="35" stroke="#cbd5e0" stroke-width="0.8"/><line x1="64" y1="0" x2="64" y2="35" stroke="#cbd5e0" stroke-width="0.8"/>
-    <line x1="0" y1="17.5" x2="80" y2="17.5" stroke="#cbd5e0" stroke-width="0.8"/>
-    <circle cx="8" cy="9" r="5" fill="#48bb78" opacity="0.6"/><circle cx="24" cy="9" r="5" fill="#48bb78" opacity="0.6"/><circle cx="40" cy="9" r="5" fill="#48bb78" opacity="0.6"/>
+  <!-- Plus sign -->
+  <text x="100" y="40" text-anchor="middle" font-size="22" font-weight="700" fill="#1a202c" font-family="'Google Sans Flex', sans-serif">+</text>
+  <!-- Right ten frame (3 dots) -->
+  <g transform="translate(108,10)">
+    <rect x="0" y="0" width="90" height="46" rx="2" fill="none" stroke="#2d3748" stroke-width="1.2"/>
+    <line x1="18" y1="0" x2="18" y2="46" stroke="#2d3748" stroke-width="0.7"/>
+    <line x1="36" y1="0" x2="36" y2="46" stroke="#2d3748" stroke-width="0.7"/>
+    <line x1="54" y1="0" x2="54" y2="46" stroke="#2d3748" stroke-width="0.7"/>
+    <line x1="72" y1="0" x2="72" y2="46" stroke="#2d3748" stroke-width="0.7"/>
+    <line x1="0" y1="23" x2="90" y2="23" stroke="#2d3748" stroke-width="0.7"/>
+    <circle cx="9" cy="11.5" r="6.5" fill="#4a5568"/>
+    <circle cx="27" cy="11.5" r="6.5" fill="#4a5568"/>
+    <circle cx="45" cy="11.5" r="6.5" fill="#4a5568"/>
   </g>
-  <text x="100" y="100" text-anchor="middle" font-size="16" font-weight="600" fill="#2d3748" font-family="Arial">8 + 3 = __</text>
+  <!-- Equation centered (center=100) -->
+  <line x1="40" y1="100" x2="68" y2="100" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="80" y="96" text-anchor="middle" font-size="20" font-weight="700" fill="#1a202c" font-family="'Google Sans Flex', sans-serif">+</text>
+  <line x1="90" y1="100" x2="118" y2="100" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="130" y="96" text-anchor="middle" font-size="20" font-weight="700" fill="#1a202c" font-family="'Google Sans Flex', sans-serif">=</text>
+  <line x1="140" y1="100" x2="168" y2="100" stroke="#cbd5e1" stroke-width="1.5"/>
 </svg>

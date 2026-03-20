@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
   <rect width="200" height="140" fill="#f7f8fc"/>
-  <g transform="translate(30,25)">
-    <text x="0" y="15" font-size="13" font-weight="600" fill="#2d3748" font-family="Arial">1.</text>
-    <text x="0" y="35" font-size="12" fill="#718096" font-family="Arial">Emma has 5 apples.</text>
-    <text x="0" y="52" font-size="12" fill="#718096" font-family="Arial">She finds 3 more.</text>
-    <text x="0" y="69" font-size="12" fill="#718096" font-family="Arial">How many in all?</text>
-    <line x1="0" y1="80" x2="70" y2="80" stroke="#cbd5e0" stroke-width="1"/>
+  <!-- Text left-aligned, group centered in 200px: ~190px wide text, offset=(200-190)/2=5 -->
+  <g transform="translate(5,0)">
+    <text x="0" y="40" font-size="12" fill="#2d3748" font-family="Fredoka, sans-serif">Dev found 9 seashells on the beach</text>
+    <text x="0" y="58" font-size="12" fill="#2d3748" font-family="Fredoka, sans-serif">and then found 6 more. How many</text>
+    <text x="0" y="76" font-size="12" fill="#2d3748" font-family="Fredoka, sans-serif">seashells does Dev have altogether?</text>
+    <line x1="0" y1="105" x2="60" y2="105" stroke="#cbd5e1" stroke-width="1.5"/>
   </g>
 </svg>

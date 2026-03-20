@@ -2,5 +2,7 @@
   "title": "Comparing Groups",
   "description": "Compare groups of objects or numbers. Students circle the group with more, fewer, or identify bigger and smaller numbers.",
   "grades": "Pre-K — 1st",
-  "order": 20
+  "order": 20,
+  "category": "Comparing & Ordering",
+  "categoryOrder": 3
 }

@@ -2,5 +2,7 @@
   "title": "Word Problems",
   "description": "Traditional math word problems for addition, subtraction, multiplication, and division. Choose single operations or mixed modes.",
   "grades": "1st — 4th",
-  "order": 2
+  "order": 2,
+  "category": "Word Problems",
+  "categoryOrder": 4
 }

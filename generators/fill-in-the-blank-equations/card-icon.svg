@@ -1,5 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
   <rect width="200" height="140" fill="#f7f8fc"/>
-  <text x="100" y="55" text-anchor="middle" font-size="26" font-weight="700" fill="#2d3748" font-family="Arial">5 + __ = 9</text>
-  <text x="100" y="100" text-anchor="middle" font-size="26" font-weight="700" fill="#2d3748" font-family="Arial">__ − 3 = 4</text>
+  <text x="46" y="78" text-anchor="middle" font-size="36" font-weight="700" fill="#2d3748" font-family="'Google Sans Flex', sans-serif">5 +</text>
+  <line x1="80" y1="80" x2="118" y2="80" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="152" y="78" text-anchor="middle" font-size="36" font-weight="700" fill="#2d3748" font-family="'Google Sans Flex', sans-serif">= 9</text>
 </svg>

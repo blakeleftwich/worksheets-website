@@ -2,5 +2,7 @@
   "title": "Comparing Numbers",
   "description": "Greater than, less than, or equal to worksheets. Students compare number pairs using >, <, and = symbols with optional visual aids like dot groups or number lines.",
   "grades": "K — 2nd",
-  "order": 19
+  "order": 19,
+  "category": "Comparing & Ordering",
+  "categoryOrder": 3
 }

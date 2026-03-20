@@ -2,5 +2,7 @@
   "title": "Measurement",
   "description": "Measure objects using rulers (inches or centimeters) or non-standard units like paper clips and blocks. Read, compare, and estimate lengths.",
   "grades": "K — 2nd",
-  "order": 41
+  "order": 41,
+  "category": "Geometry & Measurement",
+  "categoryOrder": 8
 }

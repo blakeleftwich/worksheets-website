@@ -2,5 +2,7 @@
   "title": "Data Table & Survey",
   "description": "Read data tables and answer questions, or collect and record your own survey data with tally marks and counts. Great for hands-on data practice.",
   "grades": "K — 3rd",
-  "order": 48
+  "order": 48,
+  "category": "Data & Graphs",
+  "categoryOrder": 7
 }

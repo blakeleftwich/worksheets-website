@@ -1,6 +1,8 @@
 {
   "title": "Greater Than / Less Than",
-  "description": "Compare two numbers by writing >, <, or = between them. Supports number ranges from 0â€“10 up to 0â€“1,000. Great for building number sense in grades Kâ€“2.",
+  "description": "Compare two numbers by writing >, <, or = between them. Supports number ranges from 0–10 up to 0–1,000. Great for building number sense in grades K–2.",
   "grades": "K — 2nd",
-  "order": 50
+  "order": 50,
+  "category": "Comparing & Ordering",
+  "categoryOrder": 3
 }

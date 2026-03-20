@@ -2,5 +2,7 @@
   "title": "Base-ten Values",
   "description": "Black and white base-ten block worksheets where students identify numbers in standard form, expanded form, or word form. Choose from a variety of number ranges.",
   "grades": "K — 2nd",
-  "order": 6
+  "order": 6,
+  "category": "Place Value",
+  "categoryOrder": 2
 }

@@ -1,10 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
   <rect width="200" height="140" fill="#f7f8fc"/>
-  <rect x="20" y="20" width="55" height="25" rx="3" fill="#f97316" opacity="0.15"/><text x="47" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#f97316" font-family="Arial">Hundreds</text>
-  <rect x="75" y="20" width="50" height="25" rx="3" fill="#22c55e" opacity="0.15"/><text x="100" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#22c55e" font-family="Arial">Tens</text>
-  <rect x="125" y="20" width="55" height="25" rx="3" fill="#3b82f6" opacity="0.15"/><text x="152" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#3b82f6" font-family="Arial">Ones</text>
-  <text x="47" y="75" text-anchor="middle" font-size="30" font-weight="700" fill="#2d3748" font-family="Arial">3</text>
-  <text x="100" y="75" text-anchor="middle" font-size="30" font-weight="700" fill="#2d3748" font-family="Arial">4</text>
-  <text x="152" y="75" text-anchor="middle" font-size="30" font-weight="700" fill="#2d3748" font-family="Arial">7</text>
-  <text x="100" y="115" text-anchor="middle" font-size="14" font-weight="600" fill="#a0aec0" font-family="Arial">= 347</text>
+  <!-- Content group: rod(11) + gap(9) + cubes(39) + gap(30) + chart(90) = 179px, centered: (200-179)/2 = 10.5 -->
+  <g transform="translate(10,0)">
+    <!-- Tens rod: 10 squares of 11x11 -->
+    <g transform="translate(0,16)">
+      <rect x="0" y="0" width="11" height="110" rx="1" fill="none" stroke="#2d3748" stroke-width="1"/>
+      <line x1="0" y1="11" x2="11" y2="11" stroke="#2d3748" stroke-width="0.6"/>
+      <line x1="0" y1="22" x2="11" y2="22" stroke="#2d3748" stroke-width="0.6"/>
+      <line x1="0" y1="33" x2="11" y2="33" stroke="#2d3748" stroke-width="0.6"/>
+      <line x1="0" y1="44" x2="11" y2="44" stroke="#2d3748" stroke-width="0.6"/>
+      <line x1="0" y1="55" x2="11" y2="55" stroke="#2d3748" stroke-width="0.6"/>
+      <line x1="0" y1="66" x2="11" y2="66" stroke="#2d3748" stroke-width="0.6"/>
+      <line x1="0" y1="77" x2="11" y2="77" stroke="#2d3748" stroke-width="0.6"/>
+      <line x1="0" y1="88" x2="11" y2="88" stroke="#2d3748" stroke-width="0.6"/>
+      <line x1="0" y1="99" x2="11" y2="99" stroke="#2d3748" stroke-width="0.6"/>
+    </g>
+    <!-- Three ones cubes: bottom-aligned with rod (rod bottom = 16+110=126) -->
+    <g transform="translate(20,115)">
+      <rect x="0" y="0" width="11" height="11" rx="1" fill="none" stroke="#2d3748" stroke-width="1"/>
+      <rect x="14" y="0" width="11" height="11" rx="1" fill="none" stroke="#2d3748" stroke-width="1"/>
+      <rect x="28" y="0" width="11" height="11" rx="1" fill="none" stroke="#2d3748" stroke-width="1"/>
+    </g>
+    <!-- Place value chart: 30px gap from blocks -->
+    <g transform="translate(89,28)">
+      <rect x="0" y="0" width="90" height="84" fill="none" stroke="#2d3748" stroke-width="1.2"/>
+      <rect x="0" y="0" width="90" height="24" fill="#edf2f7" stroke="#2d3748" stroke-width="1.2"/>
+      <line x1="45" y1="0" x2="45" y2="84" stroke="#2d3748" stroke-width="0.8"/>
+      <text x="22" y="17" font-family="Fredoka, sans-serif" font-size="11" font-weight="700" fill="#2d3748" text-anchor="middle">tens</text>
+      <text x="67" y="17" font-family="Fredoka, sans-serif" font-size="11" font-weight="700" fill="#2d3748" text-anchor="middle">ones</text>
+    </g>
+  </g>
 </svg>

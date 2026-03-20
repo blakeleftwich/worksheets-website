@@ -2,5 +2,7 @@
   "title": "Fact Families",
   "description": "Explore related addition and subtraction (or multiplication and division) facts using triangle diagrams. Write all four equations for each number family.",
   "grades": "1st — 2nd",
-  "order": 26
+  "order": 26,
+  "category": "Addition & Subtraction",
+  "categoryOrder": 1
 }

@@ -2,5 +2,7 @@
   "title": "Number Bonds",
   "description": "Part-part-whole diagrams where students find the missing number that completes the bond. Builds number sense and decomposition skills for addition and subtraction.",
   "grades": "K — 2nd",
-  "order": 21
+  "order": 21,
+  "category": "Addition & Subtraction",
+  "categoryOrder": 1
 }

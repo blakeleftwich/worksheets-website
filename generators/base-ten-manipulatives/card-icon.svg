@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <rect width="200" height="140" fill="#f7f8fc"/>
+  <g transform="translate(5,0)">
+    <text x="0" y="40" font-size="12" fill="#2d3748" font-family="Fredoka, sans-serif">The cafeteria has 6 tables.</text>
+    <text x="0" y="58" font-size="12" fill="#2d3748" font-family="Fredoka, sans-serif">Each table seats 10 students.</text>
+    <text x="0" y="76" font-size="12" fill="#2d3748" font-family="Fredoka, sans-serif">How many students can sit</text>
+    <text x="0" y="94" font-size="12" fill="#2d3748" font-family="Fredoka, sans-serif">down at the same time?</text>
+    <line x1="0" y1="118" x2="60" y2="118" stroke="#cbd5e1" stroke-width="1.5"/>
+  </g>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <rect width="200" height="140" fill="#f7f8fc"/>
+  <!-- Word prompt, large and centered -->
+  <text x="100" y="46" text-anchor="middle" font-size="22" font-weight="600" fill="#2d3748" font-family="Fredoka, sans-serif">half past three</text>
+  <!-- Answer area: two underlines with colon dots between, matching generator style -->
+  <!-- Colon at center x=100, underlines span 50px each side with 4px gap -->
+  <line x1="50" y1="112" x2="96" y2="112" stroke="#cbd5e1" stroke-width="1.5"/>
+  <line x1="104" y1="112" x2="150" y2="112" stroke="#cbd5e1" stroke-width="1.5"/>
+  <!-- Colon as two dots -->
+  <circle cx="100" cy="86" r="2.5" fill="#2d3748"/>
+  <circle cx="100" cy="96" r="2.5" fill="#2d3748"/>
+</svg>
