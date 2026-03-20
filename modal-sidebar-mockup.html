@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modal Sidebar Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .modal-box {
+      background: white; border-radius: 16px; max-width: 920px; width: 100%;
+      height: 85vh; max-height: 720px; position: relative;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    /* Header */
+    .modal-header {
+      padding: 20px 24px 16px; border-bottom: 1px solid #f1f5f9; flex-shrink: 0;
+    }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px; background: #f1f5f9; border: none;
+      width: 32px; height: 32px; border-radius: 8px; font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; color: #64748b;
+    }
+    .modal-close:hover { background: #e2e8f0; }
+    .modal-title { font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .modal-sub { font-size: 13px; color: #64748b; }
+
+    /* Body — sidebar + main */
+    .modal-body {
+      display: flex; flex: 1; min-height: 0; overflow: hidden;
+    }
+
+    /* Thumbnail sidebar */
+    .modal-sidebar {
+      width: 120px; flex-shrink: 0; border-right: 1px solid #f1f5f9;
+      overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px;
+      background: #fafbfc;
+    }
+    .modal-sidebar canvas {
+      width: 100%; border-radius: 4px; border: 2px solid #e2e8f0; cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .modal-sidebar canvas:hover { border-color: #f59e0b; }
+    .modal-sidebar canvas.active { border-color: #f59e0b; box-shadow: 0 2px 8px rgba(245,158,11,0.25); }
+    .modal-sidebar .page-num {
+      font-size: 10px; color: #94a3b8; text-align: center; margin-top: -4px; font-weight: 500;
+    }
+
+    /* Main preview area */
+    .modal-main {
+      flex: 1; display: flex; flex-direction: column; min-width: 0;
+    }
+    .modal-preview {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      background: #f8fafc; overflow: hidden; min-height: 0;
+    }
+    .modal-preview canvas {
+      max-width: 100%; max-height: 100%; display: block; object-fit: contain;
+    }
+
+    /* Footer with download */
+    .modal-footer {
+      padding: 14px 24px; border-top: 1px solid #f1f5f9; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-dl {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px 28px; background: linear-gradient(135deg, #f59e0b, #ea580c);
+      color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .modal-dl:hover { box-shadow: 0 4px 14px rgba(245,158,11,0.4); transform: translateY(-1px); }
+    .modal-dl svg { width: 18px; height: 18px; }
+  </style>
+</head>
+<body>
+  <div class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <button class="modal-close">&times;</button>
+        <div class="modal-title" id="modalTitle">Loading...</div>
+        <div class="modal-sub" id="modalSub"></div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-sidebar" id="modalSidebar"></div>
+        <div class="modal-main">
+          <div class="modal-preview" id="modalPreview"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-dl">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Set
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    var pdfUrl = 'printables/count-and-write-1-to-5/pack.pdf';
+
+    function renderPage(pdfDoc, pageNum, canvas, maxWidth) {
+      return pdfDoc.getPage(pageNum).then(function(page) {
+        var vp = page.getViewport({ scale: 1 });
+        var scale = maxWidth / vp.width;
+        var svp = page.getViewport({ scale: scale });
+        canvas.width = svp.width;
+        canvas.height = svp.height;
+        return page.render({ canvasContext: canvas.getContext('2d'), viewport: svp }).promise;
+      });
+    }
+
+    pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc) {
+      var numPages = pdfDoc.numPages;
+      document.getElementById('modalTitle').textContent = 'Count & Write 1\u20135';
+      document.getElementById('modalSub').textContent = numPages + ' worksheets \u00B7 Pre-K \u2013 K';
+
+      var sidebar = document.getElementById('modalSidebar');
+      var preview = document.getElementById('modalPreview');
+
+      // Render big first page
+      var bigCanvas = document.createElement('canvas');
+      preview.appendChild(bigCanvas);
+      renderPage(pdfDoc, 1, bigCanvas, 700);
+
+      // Render thumbs
+      for (var p = 1; p <= numPages; p++) {
+        (function(pageNum) {
+          var wrap = document.createDocumentFragment();
+          var thumb = document.createElement('canvas');
+          if (pageNum === 1) thumb.classList.add('active');
+          thumb.addEventListener('click', function() {
+            sidebar.querySelectorAll('canvas').forEach(function(c) { c.classList.remove('active'); });
+            thumb.classList.add('active');
+            var bigC = document.createElement('canvas');
+            renderPage(pdfDoc, pageNum, bigC, 700).then(function() {
+              preview.innerHTML = '';
+              preview.appendChild(bigC);
+            });
+          });
+          sidebar.appendChild(thumb);
+          var label = document.createElement('div');
+          label.className = 'page-num';
+          label.textContent = pageNum;
+          sidebar.appendChild(label);
+          renderPage(pdfDoc, pageNum, thumb, 120);
+        })(p);
+      }
+    });
+  </script>
+</body>
+</html>
