@@ -953,22 +953,6 @@
 
     // ===== Init =====
     loadAllPrintables();
-
-    // MOCKUP TEST: Override preview clicks to navigate to detail page instead of modal
-    // Remove this block when done testing
-    document.addEventListener('click', function(e) {
-      var preview = e.target.closest('.ws-preview');
-      if (preview) {
-        e.stopImmediatePropagation();
-        e.preventDefault();
-        var card = preview.closest('.ws-card');
-        var btn = card ? card.querySelector('.download-btn') : null;
-        var folder = btn ? btn.getAttribute('data-folder') : null;
-        if (folder) {
-          window.location.href = '../printable-detail-mockup.html?set=' + folder;
-        }
-      }
-    }, true);
   </script>
 </body>
 </html>
