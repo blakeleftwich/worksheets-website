@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grade Style in Context</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
+    .switcher {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+      background: #1a202c; color: white; padding: 10px 24px;
+      display: flex; align-items: center; gap: 8px; font-size: 13px; flex-wrap: wrap;
+    }
+    .switcher button {
+      padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer;
+      font-size: 11px; font-weight: 600; transition: all 0.15s;
+    }
+    .switcher button.active { background: #f59e0b; color: #1a202c; }
+    .switcher button:not(.active) { background: #2d3748; color: #a0aec0; }
+    .switcher button:hover:not(.active) { background: #4a5568; color: white; }
+
+    .opt { display: none; }
+    .opt.active { display: block; }
+    .wrap { margin-top: 48px; }
+
+    /* Shared hero styles */
+    .hero-bg { background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%); text-align: center; padding: 40px 24px 36px; }
+    .hero-bg h1 { font-family: 'DM Sans', sans-serif; font-size: 36px; font-weight: 700; color: #1a202c; margin-bottom: 20px; }
+    .search-bar { max-width: 560px; margin: 0 auto 20px; position: relative; }
+    .search-bar input { width: 100%; padding: 14px 20px 14px 46px; font-size: 15px; border: 2px solid #e2e8f0; border-radius: 14px; background: white; color: #2d3748; outline: none; font-family: 'Inter', sans-serif; }
+    .search-bar .icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #94a3b8; pointer-events: none; }
+    .filter-label { font-family: 'DM Sans'; font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+    .chip-row { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+    /* Topic chips (same for all) */
+    .topic { padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid #e2e8f0; background: white; color: #475569; cursor: pointer; text-decoration: none; }
+    .topic.on { border-color: #f59e0b; background: #fef3c7; color: #92400e; }
+
+    /* Grade styles */
+    .g-purple { padding: 6px 14px; border-radius: 16px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #c7d2fe; background: white; color: #6366f1; text-decoration: none; }
+    .g-purple.on { border-color: #6366f1; background: #e0e7ff; color: #4338ca; }
+
+    .g-gray { padding: 6px 14px; border-radius: 16px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #e2e8f0; background: white; color: #64748b; text-decoration: none; }
+    .g-gray.on { border-color: #94a3b8; background: #f1f5f9; color: #334155; }
+
+    .g-green { padding: 6px 14px; border-radius: 16px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #bbf7d0; background: white; color: #16a34a; text-decoration: none; }
+    .g-green.on { border-color: #16a34a; background: #dcfce7; color: #15803d; }
+
+    .seg { display: inline-flex; background: #f1f5f9; border-radius: 10px; padding: 4px; gap: 2px; }
+    .seg-btn { padding: 6px 16px; font-size: 12px; font-weight: 600; color: #64748b; border: none; background: transparent; border-radius: 8px; cursor: pointer; }
+    .seg-btn.on { background: white; color: #1a202c; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+    .drop select { padding: 8px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 13px; font-weight: 600; color: #475569; background: white; cursor: pointer; outline: none; }
+
+    .g-link { padding: 4px 10px; font-size: 12px; font-weight: 600; color: #94a3b8; text-decoration: none; cursor: pointer; border-bottom: 2px solid transparent; }
+    .g-link.on { color: #1a202c; border-bottom-color: #f59e0b; }
+
+    /* Cards placeholder */
+    .cards-area { max-width: 1100px; margin: 24px auto 0; padding: 0 24px; }
+    .cat-name { font-family: 'DM Sans'; font-size: 18px; font-weight: 700; color: #2d3748; margin-bottom: 16px; }
+    .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .card { background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+    .card .prev { height: 100px; background: #f7f8fc; display: flex; align-items: center; justify-content: center; color: #cbd5e0; font-size: 18px; }
+    .card .body { padding: 12px; }
+    .card h3 { font-family: 'DM Sans'; font-size: 13px; color: #1a202c; margin-bottom: 3px; }
+    .card p { font-size: 11px; color: #718096; line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <div class="switcher">
+    <span style="font-weight:600;">Grades:</span>
+    <button class="active" onclick="show('a',this)">A: Purple</button>
+    <button onclick="show('b',this)">B: Gray</button>
+    <button onclick="show('c',this)">C: Green</button>
+    <button onclick="show('d',this)">D: Segmented</button>
+    <button onclick="show('e',this)">E: Dropdown</button>
+    <button onclick="show('f',this)">F: Text links</button>
+  </div>
+
+  <div class="wrap">
+    <!-- A: Purple -->
+    <div class="opt active" id="opt-a">
+      <div class="hero-bg">
+        <h1>Math Worksheet Generators</h1>
+        <div class="search-bar"><span class="icon">&#128269;</span><input placeholder="Search generators... (e.g. addition, ten frames, telling time)"></div>
+        <div class="filter-label">TOPICS</div>
+        <div class="chip-row">
+          <a class="topic on">All Topics</a><a class="topic">Numbers & Counting</a><a class="topic">Addition & Subtraction</a><a class="topic">Place Value</a><a class="topic">Telling Time</a><a class="topic">Comparing</a><a class="topic">Money</a><a class="topic">Data & Graphs</a><a class="topic">Geometry</a><a class="topic">Measurement</a>
+        </div>
+        <div class="filter-label">GRADES</div>
+        <div class="chip-row" style="margin-bottom:0;">
+          <a class="g-purple on">All Grades</a><a class="g-purple">Pre-K</a><a class="g-purple">K</a><a class="g-purple">1st</a><a class="g-purple">2nd</a>
+        </div>
+      </div>
+      <div class="cards-area"><div class="cat-name">Numbers & Counting</div><div class="cards-grid"><div class="card"><div class="prev">1 2 3</div><div class="body"><h3>Number Tracing</h3><p>Dotted outlines for tracing.</p></div></div><div class="card"><div class="prev">&#127822;&#127822;&#127822;</div><div class="body"><h3>Count & Write</h3><p>Count objects, write the number.</p></div></div><div class="card"><div class="prev">&#9634;&#9634;&#9634;</div><div class="body"><h3>Ten Frames</h3><p>Count dots in ten frames.</p></div></div></div></div>
+    </div>
+
+    <!-- B: Gray -->
+    <div class="opt" id="opt-b">
+      <div class="hero-bg">
+        <h1>Math Worksheet Generators</h1>
+        <div class="search-bar"><span class="icon">&#128269;</span><input placeholder="Search generators... (e.g. addition, ten frames, telling time)"></div>
+        <div class="filter-label">TOPICS</div>
+        <div class="chip-row">
+          <a class="topic on">All Topics</a><a class="topic">Numbers & Counting</a><a class="topic">Addition & Subtraction</a><a class="topic">Place Value</a><a class="topic">Telling Time</a><a class="topic">Comparing</a><a class="topic">Money</a><a class="topic">Data & Graphs</a><a class="topic">Geometry</a><a class="topic">Measurement</a>
+        </div>
+        <div class="filter-label">GRADES</div>
+        <div class="chip-row" style="margin-bottom:0;">
+          <a class="g-gray on">All Grades</a><a class="g-gray">Pre-K</a><a class="g-gray">K</a><a class="g-gray">1st</a><a class="g-gray">2nd</a>
+        </div>
+      </div>
+      <div class="cards-area"><div class="cat-name">Numbers & Counting</div><div class="cards-grid"><div class="card"><div class="prev">1 2 3</div><div class="body"><h3>Number Tracing</h3><p>Dotted outlines for tracing.</p></div></div><div class="card"><div class="prev">&#127822;&#127822;&#127822;</div><div class="body"><h3>Count & Write</h3><p>Count objects, write the number.</p></div></div><div class="card"><div class="prev">&#9634;&#9634;&#9634;</div><div class="body"><h3>Ten Frames</h3><p>Count dots in ten frames.</p></div></div></div></div>
+    </div>
+
+    <!-- C: Green -->
+    <div class="opt" id="opt-c">
+      <div class="hero-bg">
+        <h1>Math Worksheet Generators</h1>
+        <div class="search-bar"><span class="icon">&#128269;</span><input placeholder="Search generators... (e.g. addition, ten frames, telling time)"></div>
+        <div class="filter-label">TOPICS</div>
+        <div class="chip-row">
+          <a class="topic on">All Topics</a><a class="topic">Numbers & Counting</a><a class="topic">Addition & Subtraction</a><a class="topic">Place Value</a><a class="topic">Telling Time</a><a class="topic">Comparing</a><a class="topic">Money</a><a class="topic">Data & Graphs</a><a class="topic">Geometry</a><a class="topic">Measurement</a>
+        </div>
+        <div class="filter-label">GRADES</div>
+        <div class="chip-row" style="margin-bottom:0;">
+          <a class="g-green on">All Grades</a><a class="g-green">Pre-K</a><a class="g-green">K</a><a class="g-green">1st</a><a class="g-green">2nd</a>
+        </div>
+      </div>
+      <div class="cards-area"><div class="cat-name">Numbers & Counting</div><div class="cards-grid"><div class="card"><div class="prev">1 2 3</div><div class="body"><h3>Number Tracing</h3><p>Dotted outlines for tracing.</p></div></div><div class="card"><div class="prev">&#127822;&#127822;&#127822;</div><div class="body"><h3>Count & Write</h3><p>Count objects, write the number.</p></div></div><div class="card"><div class="prev">&#9634;&#9634;&#9634;</div><div class="body"><h3>Ten Frames</h3><p>Count dots in ten frames.</p></div></div></div></div>
+    </div>
+
+    <!-- D: Segmented -->
+    <div class="opt" id="opt-d">
+      <div class="hero-bg">
+        <h1>Math Worksheet Generators</h1>
+        <div class="search-bar"><span class="icon">&#128269;</span><input placeholder="Search generators... (e.g. addition, ten frames, telling time)"></div>
+        <div class="filter-label">TOPICS</div>
+        <div class="chip-row">
+          <a class="topic on">All Topics</a><a class="topic">Numbers & Counting</a><a class="topic">Addition & Subtraction</a><a class="topic">Place Value</a><a class="topic">Telling Time</a><a class="topic">Comparing</a><a class="topic">Money</a><a class="topic">Data & Graphs</a><a class="topic">Geometry</a><a class="topic">Measurement</a>
+        </div>
+        <div class="filter-label">GRADES</div>
+        <div style="display:flex;justify-content:center;margin-bottom:0;">
+          <div class="seg"><button class="seg-btn on">All</button><button class="seg-btn">Pre-K</button><button class="seg-btn">K</button><button class="seg-btn">1st</button><button class="seg-btn">2nd</button></div>
+        </div>
+      </div>
+      <div class="cards-area"><div class="cat-name">Numbers & Counting</div><div class="cards-grid"><div class="card"><div class="prev">1 2 3</div><div class="body"><h3>Number Tracing</h3><p>Dotted outlines for tracing.</p></div></div><div class="card"><div class="prev">&#127822;&#127822;&#127822;</div><div class="body"><h3>Count & Write</h3><p>Count objects, write the number.</p></div></div><div class="card"><div class="prev">&#9634;&#9634;&#9634;</div><div class="body"><h3>Ten Frames</h3><p>Count dots in ten frames.</p></div></div></div></div>
+    </div>
+
+    <!-- E: Dropdown -->
+    <div class="opt" id="opt-e">
+      <div class="hero-bg">
+        <h1>Math Worksheet Generators</h1>
+        <div class="search-bar"><span class="icon">&#128269;</span><input placeholder="Search generators... (e.g. addition, ten frames, telling time)"></div>
+        <div class="filter-label">TOPICS</div>
+        <div class="chip-row">
+          <a class="topic on">All Topics</a><a class="topic">Numbers & Counting</a><a class="topic">Addition & Subtraction</a><a class="topic">Place Value</a><a class="topic">Telling Time</a><a class="topic">Comparing</a><a class="topic">Money</a><a class="topic">Data & Graphs</a><a class="topic">Geometry</a><a class="topic">Measurement</a>
+        </div>
+        <div class="filter-label">GRADES</div>
+        <div class="drop" style="display:flex;justify-content:center;margin-bottom:0;">
+          <select><option selected>All Grades</option><option>Pre-K</option><option>Kindergarten</option><option>1st Grade</option><option>2nd Grade</option></select>
+        </div>
+      </div>
+      <div class="cards-area"><div class="cat-name">Numbers & Counting</div><div class="cards-grid"><div class="card"><div class="prev">1 2 3</div><div class="body"><h3>Number Tracing</h3><p>Dotted outlines for tracing.</p></div></div><div class="card"><div class="prev">&#127822;&#127822;&#127822;</div><div class="body"><h3>Count & Write</h3><p>Count objects, write the number.</p></div></div><div class="card"><div class="prev">&#9634;&#9634;&#9634;</div><div class="body"><h3>Ten Frames</h3><p>Count dots in ten frames.</p></div></div></div></div>
+    </div>
+
+    <!-- F: Text links -->
+    <div class="opt" id="opt-f">
+      <div class="hero-bg">
+        <h1>Math Worksheet Generators</h1>
+        <div class="search-bar"><span class="icon">&#128269;</span><input placeholder="Search generators... (e.g. addition, ten frames, telling time)"></div>
+        <div class="filter-label">TOPICS</div>
+        <div class="chip-row">
+          <a class="topic on">All Topics</a><a class="topic">Numbers & Counting</a><a class="topic">Addition & Subtraction</a><a class="topic">Place Value</a><a class="topic">Telling Time</a><a class="topic">Comparing</a><a class="topic">Money</a><a class="topic">Data & Graphs</a><a class="topic">Geometry</a><a class="topic">Measurement</a>
+        </div>
+        <div class="filter-label">GRADES</div>
+        <div class="chip-row" style="margin-bottom:0;">
+          <a class="g-link on">All</a><a class="g-link">Pre-K</a><a class="g-link">K</a><a class="g-link">1st</a><a class="g-link">2nd</a>
+        </div>
+      </div>
+      <div class="cards-area"><div class="cat-name">Numbers & Counting</div><div class="cards-grid"><div class="card"><div class="prev">1 2 3</div><div class="body"><h3>Number Tracing</h3><p>Dotted outlines for tracing.</p></div></div><div class="card"><div class="prev">&#127822;&#127822;&#127822;</div><div class="body"><h3>Count & Write</h3><p>Count objects, write the number.</p></div></div><div class="card"><div class="prev">&#9634;&#9634;&#9634;</div><div class="body"><h3>Ten Frames</h3><p>Count dots in ten frames.</p></div></div></div></div>
+    </div>
+  </div>
+
+  <script>
+    function show(id, btn) {
+      document.querySelectorAll('.opt').forEach(function(o) { o.classList.remove('active'); });
+      document.getElementById('opt-' + id).classList.add('active');
+      document.querySelectorAll('.switcher button').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Category Style Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
+    .switcher {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+      background: #1a202c; color: white; padding: 12px 24px;
+      display: flex; align-items: center; gap: 10px; font-size: 14px; flex-wrap: wrap;
+    }
+    .switcher button {
+      padding: 7px 14px; border: none; border-radius: 6px; cursor: pointer;
+      font-size: 12px; font-weight: 600; transition: all 0.15s;
+    }
+    .switcher button.active { background: #f59e0b; color: #1a202c; }
+    .switcher button:not(.active) { background: #2d3748; color: #a0aec0; }
+    .switcher button:hover:not(.active) { background: #4a5568; color: white; }
+    .content { margin-top: 56px; max-width: 1100px; margin-left: auto; margin-right: auto; padding: 32px 24px; }
+
+    .generators-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 40px; }
+    .card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .card .preview { height: 120px; background: #f7f8fc; display: flex; align-items: center; justify-content: center; color: #cbd5e0; font-size: 20px; }
+    .card .body { padding: 14px; }
+    .card h3 { font-family: 'DM Sans', sans-serif; font-size: 14px; color: #1a202c; margin-bottom: 4px; }
+    .card p { font-size: 11px; color: #718096; line-height: 1.4; }
+
+    /* Hide all styles by default */
+    .cat-style { display: none; }
+    .cat-style.active { display: block; }
+
+    /* ===== A: Orange underline (current) ===== */
+    .style-a .cat-label {
+      font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 700; color: #2d3748;
+      margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #f59e0b;
+    }
+
+    /* ===== B: Gray underline ===== */
+    .style-b .cat-label {
+      font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 700; color: #2d3748;
+      margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;
+    }
+
+    /* ===== C: No line, just bold text ===== */
+    .style-c .cat-label {
+      font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 700; color: #2d3748;
+      margin-bottom: 16px;
+    }
+
+    /* ===== D: Uppercase small label (like section headers) ===== */
+    .style-d .cat-label {
+      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px;
+    }
+
+    /* ===== E: Pill badge ===== */
+    .style-e .cat-label {
+      display: inline-block; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+      color: #92400e; background: #fef3c7; padding: 6px 16px; border-radius: 20px; margin-bottom: 16px;
+    }
+
+    /* ===== F: Left border accent ===== */
+    .style-f .cat-label {
+      font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 700; color: #2d3748;
+      margin-bottom: 16px; padding-left: 14px; border-left: 4px solid #f59e0b;
+    }
+
+    /* ===== G: Background bar ===== */
+    .style-g .cat-label {
+      font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; color: #2d3748;
+      margin-bottom: 16px; padding: 10px 16px; background: #f8fafc; border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* ===== H: Dot separator ===== */
+    .style-h .cat-label {
+      font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; color: #2d3748;
+      margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+    }
+    .style-h .cat-label::before {
+      content: ''; width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="switcher">
+    <span style="font-weight:600;">Style:</span>
+    <button class="active" onclick="show('a',this)">A: Orange line</button>
+    <button onclick="show('b',this)">B: Gray line</button>
+    <button onclick="show('c',this)">C: No line</button>
+    <button onclick="show('d',this)">D: Uppercase</button>
+    <button onclick="show('e',this)">E: Pill badge</button>
+    <button onclick="show('f',this)">F: Left border</button>
+    <button onclick="show('g',this)">G: Background bar</button>
+    <button onclick="show('h',this)">H: Dot + text</button>
+  </div>
+
+  <div class="content" id="content"></div>
+
+  <script>
+    var categories = ['Numbers & Counting', 'Addition & Subtraction', 'Place Value'];
+    var cards = [
+      ['Number Tracing', 'Count & Write', 'Ten Frames'],
+      ['Horizontal Math', 'Column Math', 'Fill in Blank'],
+      ['Base-ten Blocks', 'Base-ten Values', 'Expanded Form']
+    ];
+    var styles = ['a','b','c','d','e','f','g','h'];
+
+    function render() {
+      var content = document.getElementById('content');
+      content.innerHTML = '';
+      styles.forEach(function(s) {
+        var wrap = document.createElement('div');
+        wrap.className = 'cat-style style-' + s;
+        wrap.id = 'style-' + s;
+        categories.forEach(function(cat, ci) {
+          var label = document.createElement('div');
+          label.className = 'cat-label';
+          label.textContent = cat;
+          wrap.appendChild(label);
+          var grid = document.createElement('div');
+          grid.className = 'generators-grid';
+          cards[ci].forEach(function(title) {
+            grid.innerHTML += '<div class="card"><div class="preview">' + title.charAt(0) + '</div><div class="body"><h3>' + title + '</h3><p>Sample worksheet generator description text here.</p></div></div>';
+          });
+          wrap.appendChild(grid);
+        });
+        content.appendChild(wrap);
+      });
+      document.getElementById('style-a').classList.add('active');
+    }
+
+    function show(id, btn) {
+      document.querySelectorAll('.cat-style').forEach(function(s) { s.classList.remove('active'); });
+      document.getElementById('style-' + id).classList.add('active');
+      document.querySelectorAll('.switcher button').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+    }
+
+    render();
+  </script>
+</body>
+</html>

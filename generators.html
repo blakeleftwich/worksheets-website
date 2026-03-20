@@ -173,6 +173,54 @@
       color: #92400e;
     }
 
+    .hero .filter-label {
+      display: none;
+    }
+
+    .hero .grade-chips {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hero .grade-chip {
+      padding: 4px 10px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+      border: none;
+      background: none;
+      border-radius: 0;
+    }
+
+    .hero .grade-chip:hover {
+      color: #475569;
+      background: none;
+      border: none;
+    }
+
+    .hero .grade-chip.active {
+      color: #1a202c;
+      background: none;
+      border: none;
+    }
+
+    .hero .grade-chip.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 8px;
+      right: 8px;
+      height: 2px;
+      background: #f59e0b;
+      border-radius: 1px;
+    }
+
     /* ===== Hero background wrapper ===== */
     .hero-wrapper {
       background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
@@ -281,12 +329,11 @@
       color: #2d3748;
       margin-top: 36px;
       margin-bottom: 16px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid #f59e0b;
+      /* no decoration — clean bold text only */
     }
 
     .category-label:first-child {
-      margin-top: 12px;
+      margin-top: 24px;
     }
 
     .generator-card {
@@ -808,7 +855,9 @@
         <span class="search-icon">&#128269;</span>
         <input type="text" id="generatorSearch" placeholder="Search generators... (e.g. addition, ten frames, telling time)">
       </div>
+      <div class="filter-label">TOPICS</div>
       <div class="topic-chips" id="topicChips">
+        <a class="topic-chip" href="#" data-cat="">All Topics</a>
         <a class="topic-chip" href="#" data-cat="Numbers &amp; Counting">Numbers &amp; Counting</a>
         <a class="topic-chip" href="#" data-cat="Addition &amp; Subtraction">Addition &amp; Subtraction</a>
         <a class="topic-chip" href="#" data-cat="Place Value">Place Value</a>
@@ -817,6 +866,15 @@
         <a class="topic-chip" href="#" data-cat="Money">Money</a>
         <a class="topic-chip" href="#" data-cat="Data &amp; Graphs">Data &amp; Graphs</a>
         <a class="topic-chip" href="#" data-cat="Geometry &amp; Measurement">Geometry</a>
+        <a class="topic-chip" href="#" data-cat="Geometry &amp; Measurement">Measurement</a>
+      </div>
+      <div class="filter-label" style="margin-top:12px;">GRADES</div>
+      <div class="grade-chips" id="gradeChips">
+        <a class="grade-chip" href="#" data-grade="">All Grades</a>
+        <a class="grade-chip" href="#" data-grade="Pre-K">Pre-K</a>
+        <a class="grade-chip" href="#" data-grade="K">K</a>
+        <a class="grade-chip" href="#" data-grade="1st">1st</a>
+        <a class="grade-chip" href="#" data-grade="2nd">2nd</a>
       </div>
     </section>
   </div>
@@ -1089,8 +1147,10 @@
 
         function filterCards() {
           var query = searchInput.value.toLowerCase().trim();
-          var activeChip = document.querySelector('.topic-chip.active');
-          var activeCat = activeChip ? activeChip.getAttribute('data-cat') : null;
+          var activeTopicChip = document.querySelector('.topic-chip.active');
+          var activeCat = activeTopicChip ? activeTopicChip.getAttribute('data-cat') : '';
+          var activeGradeChip = document.querySelector('.grade-chip.active');
+          var activeGrade = activeGradeChip ? activeGradeChip.getAttribute('data-grade') : '';
 
           allCards.forEach(function(card) {
             var title = card.querySelector('h3').textContent.toLowerCase();
@@ -1098,7 +1158,14 @@
             var matchesSearch = !query || title.indexOf(query) !== -1 || desc.indexOf(query) !== -1;
             var cardCat = card.getAttribute('data-category');
             var matchesCat = !activeCat || cardCat === activeCat;
-            card.style.display = (matchesSearch && matchesCat) ? '' : 'none';
+            // Grade matching: check if the card's grade badge contains the selected grade
+            var matchesGrade = true;
+            if (activeGrade) {
+              var gradeBadge = card.querySelector('.grade-badge');
+              var gradeText = gradeBadge ? gradeBadge.textContent : '';
+              matchesGrade = gradeText.indexOf(activeGrade) !== -1;
+            }
+            card.style.display = (matchesSearch && matchesCat && matchesGrade) ? '' : 'none';
           });
 
           // Hide empty category sections
@@ -1118,15 +1185,25 @@
         document.querySelectorAll('.topic-chip').forEach(function(chip) {
           chip.addEventListener('click', function(e) {
             e.preventDefault();
-            if (this.classList.contains('active')) {
-              this.classList.remove('active');
-            } else {
-              document.querySelectorAll('.topic-chip').forEach(function(c) { c.classList.remove('active'); });
-              this.classList.add('active');
-            }
+            document.querySelectorAll('.topic-chip').forEach(function(c) { c.classList.remove('active'); });
+            this.classList.add('active');
             filterCards();
           });
         });
+
+        // Grade chip click handlers
+        document.querySelectorAll('.grade-chip').forEach(function(chip) {
+          chip.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.grade-chip').forEach(function(c) { c.classList.remove('active'); });
+            this.classList.add('active');
+            filterCards();
+          });
+        });
+
+        // Set "All" chips as active by default
+        document.querySelector('.topic-chip[data-cat=""]').classList.add('active');
+        document.querySelector('.grade-chip[data-grade=""]').classList.add('active');
       });
     })();
   </script>
