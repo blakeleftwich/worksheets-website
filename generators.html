@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- PDF.js removed — previews now use static PNG images -->
+  <link rel="stylesheet" href="fonts/fonts.css">
   <style>
     * {
       margin: 0;
@@ -1021,7 +1021,7 @@
       ];
 
       Promise.all(generatorFolders.map(function(folder) {
-        return fetch('generators/' + folder + '/info.json?v=2')
+        return fetch('generators/' + folder + '/info.json?v=3')
           .then(function(r) { return r.json(); })
           .then(function(info) { return { folder: folder, info: info }; })
           .catch(function() { return null; });
@@ -1140,11 +1140,55 @@
           });
           container.appendChild(grid);
         }
+        // ===== Popular Section =====
+        // Show top 3 items by order as "Popular" — disappears on any filter/search
+        var popularLabel = document.createElement('div');
+        popularLabel.className = 'category-label';
+        popularLabel.textContent = 'Popular';
+        popularLabel.id = 'popularLabel';
+        var popularGrid = document.createElement('div');
+        popularGrid.className = 'generators-grid';
+        popularGrid.id = 'popularGrid';
+
+        // Pick top 3 by lowest order value
+        var sortedByOrder = items.slice().sort(function(a, b) { return (a.info.order || 999) - (b.info.order || 999); });
+        var top3 = sortedByOrder.slice(0, 3);
+        top3.forEach(function(item) {
+          var folder = item.folder;
+          var info = item.info;
+          var card = document.createElement('a');
+          card.href = 'generators/' + folder + '/';
+          card.className = 'generator-card';
+          var previewDiv = document.createElement('div');
+          previewDiv.className = 'card-preview';
+          var img = document.createElement('img');
+          img.src = 'generators/' + folder + '/preview.webp';
+          img.alt = info.title + ' preview';
+          img.loading = 'lazy';
+          img.onerror = function() {
+            this.onerror = function() {
+              this.parentNode.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#f7f8fc;"><span style="font-size:14px;color:#94a3b8;font-weight:500;text-align:center;padding:12px;">' + info.title + '</span></div>';
+            };
+            this.src = 'generators/' + folder + '/card-icon.svg';
+          };
+          previewDiv.appendChild(img);
+          card.appendChild(previewDiv);
+          var body = document.createElement('div');
+          body.className = 'card-body';
+          body.innerHTML = '<h3>' + info.title + '</h3><p>' + (info.description || '') + '</p><div class="card-meta"><span class="grade-badge">' + (info.grades || '') + '</span><div class="card-arrow">\u2192</div></div>';
+          card.appendChild(body);
+          popularGrid.appendChild(card);
+        });
+
+        container.insertBefore(popularGrid, container.firstChild);
+        container.insertBefore(popularLabel, container.firstChild);
+
         // ===== Search & Filter =====
         var searchInput = document.getElementById('generatorSearch');
         var allCards = container.querySelectorAll('.generator-card');
         var allLabels = container.querySelectorAll('.category-label');
         var allGrids = container.querySelectorAll('.generators-grid');
+        var popularHidden = false;
 
         function filterCards() {
           var query = searchInput.value.toLowerCase().trim();
@@ -1153,13 +1197,25 @@
           var activeGradeChip = document.querySelector('.grade-chip.active');
           var activeGrade = activeGradeChip ? activeGradeChip.getAttribute('data-grade') : '';
 
+          // Hide Popular on any filter/search action
+          var isFiltered = query || activeCat || activeGrade;
+          if (isFiltered && !popularHidden) {
+            popularLabel.style.display = 'none';
+            popularGrid.style.display = 'none';
+            popularHidden = true;
+          }
+
           allCards.forEach(function(card) {
+            // Skip popular grid cards from main filtering
+            if (card.closest('#popularGrid')) {
+              card.style.display = isFiltered ? 'none' : '';
+              return;
+            }
             var title = card.querySelector('h3').textContent.toLowerCase();
             var desc = card.querySelector('p') ? card.querySelector('p').textContent.toLowerCase() : '';
             var matchesSearch = !query || title.indexOf(query) !== -1 || desc.indexOf(query) !== -1;
             var cardCat = card.getAttribute('data-category');
             var matchesCat = !activeCat || cardCat === activeCat;
-            // Grade matching: check if the card's grade badge contains the selected grade
             var matchesGrade = true;
             if (activeGrade) {
               var gradeBadge = card.querySelector('.grade-badge');
@@ -1169,10 +1225,11 @@
             card.style.display = (matchesSearch && matchesCat && matchesGrade) ? '' : 'none';
           });
 
-          // Hide empty category sections
+          // Hide empty category sections (skip popular)
           allLabels.forEach(function(label, i) {
+            if (label.id === 'popularLabel') return;
             var grid = allGrids[i];
-            if (!grid) return;
+            if (!grid || grid.id === 'popularGrid') return;
             var visibleCards = grid.querySelectorAll('.generator-card:not([style*="display: none"])');
             label.style.display = visibleCards.length > 0 ? '' : 'none';
             grid.style.display = visibleCards.length > 0 ? '' : 'none';

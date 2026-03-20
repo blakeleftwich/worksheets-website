@@ -51,9 +51,8 @@
 
     /* ===== Hero ===== */
     .hero {
-      background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
-      border-bottom: 1px solid #fde68a;
-      padding: 48px 24px 40px;
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+      padding: 40px 24px 36px;
       text-align: center;
     }
     .hero h1 {
@@ -61,15 +60,46 @@
       font-size: 36px;
       font-weight: 700;
       color: #1e293b;
-      margin-bottom: 12px;
+      margin-bottom: 20px;
     }
-    .hero p {
-      font-size: 17px;
-      color: #64748b;
-      max-width: 520px;
-      margin: 0 auto;
-      line-height: 1.6;
+    .hero p { display: none; }
+    .hero .search-bar {
+      max-width: 560px; margin: 0 auto 20px; position: relative;
     }
+    .hero .search-bar input {
+      width: 100%; padding: 14px 20px 14px 46px; font-size: 15px;
+      border: 2px solid #e2e8f0; border-radius: 14px; background: white;
+      color: #2d3748; outline: none; font-family: 'Inter', sans-serif; transition: all 0.2s;
+    }
+    .hero .search-bar input:focus { border-color: #f59e0b; box-shadow: 0 0 0 4px rgba(245,158,11,0.1); }
+    .hero .search-bar .search-icon {
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      font-size: 20px; color: #94a3b8; pointer-events: none;
+    }
+    .hero .topic-chips { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .hero .topic-chip {
+      padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; border: 1px solid #e2e8f0; background: white; color: #475569; text-decoration: none;
+    }
+    .hero .topic-chip:hover { border-color: #f59e0b; background: #fffbeb; color: #92400e; }
+    .hero .topic-chip.active { border-color: #f59e0b; background: #fef3c7; color: #92400e; }
+    .hero .grade-chips { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+    .hero .grade-chip {
+      padding: 4px 10px 8px; font-size: 12px; font-weight: 600; color: #94a3b8;
+      text-decoration: none; cursor: pointer; transition: all 0.15s; position: relative;
+      border: none; background: none; border-radius: 0;
+    }
+    .hero .grade-chip:hover { color: #475569; }
+    .hero .grade-chip.active { color: #1a202c; }
+    .hero .grade-chip.active::after {
+      content: ''; position: absolute; bottom: 0; left: 8px; right: 8px;
+      height: 2px; background: #f59e0b; border-radius: 1px;
+    }
+    .category-label {
+      font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 700;
+      color: #2d3748; margin-top: 36px; margin-bottom: 16px;
+    }
+    .category-label:first-child { margin-top: 24px; }
 
     /* ===== Category Grid ===== */
     .section { max-width: 1200px; margin: 0 auto; padding: 40px 24px 60px; }
@@ -372,33 +402,25 @@
     </div>
   </header>
 
-  <!-- ==================== HOME PAGE ==================== -->
-  <div id="homePage">
-    <div class="hero">
-      <h1>Free Printable Math Worksheets</h1>
-      <p>Download ready-to-print worksheet sets. Each set includes 5 unique worksheets plus an answer key.</p>
+  <!-- ===== Hero ===== -->
+  <div class="hero">
+    <h1>Free Printable Math Worksheets</h1>
+    <div class="search-bar">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="printableSearch" placeholder="Search printable worksheets...">
     </div>
-    <div class="section">
-      <div class="section-title">Browse by Topic</div>
-      <div class="cat-grid" id="catGrid"></div>
+    <div class="topic-chips" id="topicChips"></div>
+    <div class="grade-chips" id="gradeChips">
+      <a class="grade-chip active" href="#" data-grade="">All Grades</a>
+      <a class="grade-chip" href="#" data-grade="Pre-K">Pre-K</a>
+      <a class="grade-chip" href="#" data-grade="K">K</a>
+      <a class="grade-chip" href="#" data-grade="1st">1st</a>
+      <a class="grade-chip" href="#" data-grade="2nd">2nd</a>
     </div>
   </div>
 
-  <!-- ==================== LESSON PAGE ==================== -->
-  <div id="lessonPage" style="display:none;">
-    <div class="lesson-header">
-      <div class="lesson-header-inner">
-        <div class="breadcrumb"><a href="#" onclick="showHome(); return false;">Printables</a> &nbsp;/&nbsp; <span id="lessonBreadcrumb"></span></div>
-        <h1 id="lessonTitle"></h1>
-        <p id="lessonDesc"></p>
-        <a href="#" class="generator-link" id="generatorLink" style="display:none;">Need something specific? Create your own worksheet <span class="arrow">→</span></a>
-      </div>
-    </div>
-    <div class="toolbar">
-      <div class="toolbar-left"><span id="wsCount">0</span> worksheet sets</div>
-    </div>
-    <div class="ws-grid" id="wsGrid"></div>
-  </div>
+  <!-- ===== Printables Grid ===== -->
+  <div id="printablesContainer" style="max-width:1200px;margin:0 auto;padding:0 24px 60px;"></div>
 
   <!-- ===== Hover Preview — 5-page grid ===== -->
   <div class="hover-preview" id="hoverPreview">
@@ -459,96 +481,180 @@
         categories[p.category].items.push(p);
       });
 
-      renderHome();
+      renderAllPrintables();
     }
 
-    // ===== Render Home Page =====
-    function renderHome() {
-      const grid = document.getElementById('catGrid');
-      grid.innerHTML = '';
-      Object.keys(categories).forEach(catName => {
-        const cat = categories[catName];
-        const card = document.createElement('a');
-        card.href = '#';
-        card.className = 'cat-card';
-        card.onclick = function(e) { e.preventDefault(); showLesson(catName); };
-        card.innerHTML = '<div class="cat-icon" style="background:' + cat.config.color + ';">' + cat.config.icon + '</div>' +
-          '<h3>' + catName + '</h3>' +
-          '<div class="count">' + cat.items.length + ' worksheet set' + (cat.items.length !== 1 ? 's' : '') + '</div>';
-        grid.appendChild(card);
+    // ===== Render All Printables (flat, grouped by category) =====
+    function renderAllPrintables() {
+      var container = document.getElementById('printablesContainer');
+      container.innerHTML = '';
+
+      // Build topic chips dynamically from categories
+      var topicChipsDiv = document.getElementById('topicChips');
+      topicChipsDiv.innerHTML = '';
+      var allChip = document.createElement('a');
+      allChip.className = 'topic-chip active';
+      allChip.href = '#';
+      allChip.dataset.cat = '';
+      allChip.textContent = 'All Topics';
+      topicChipsDiv.appendChild(allChip);
+      Object.keys(categories).forEach(function(catName) {
+        var chip = document.createElement('a');
+        chip.className = 'topic-chip';
+        chip.href = '#';
+        chip.dataset.cat = catName;
+        chip.textContent = catName;
+        topicChipsDiv.appendChild(chip);
       });
-    }
 
-    // ===== Page Navigation =====
-    let currentCategoryName = '';
+      // Category order
+      var catOrder = Object.keys(categories);
 
-    function showHome() {
-      document.getElementById('homePage').style.display = '';
-      document.getElementById('lessonPage').style.display = 'none';
-      document.body.className = 'page-home';
-      window.scrollTo(0, 0);
-    }
+      catOrder.forEach(function(catName) {
+        var cat = categories[catName];
+        if (!cat || !cat.items.length) return;
 
-    function showLesson(catName) {
-      currentCategoryName = catName;
-      var cat = categories[catName];
-      if (!cat) return;
-      document.getElementById('homePage').style.display = 'none';
-      document.getElementById('lessonPage').style.display = '';
-      document.getElementById('lessonTitle').textContent = catName + ' Worksheets';
-      document.getElementById('lessonBreadcrumb').textContent = catName;
-      document.getElementById('lessonDesc').textContent = cat.config.desc;
-      document.getElementById('wsCount').textContent = cat.items.length;
+        // Category header
+        var label = document.createElement('div');
+        label.className = 'category-label';
+        label.textContent = catName;
+        container.appendChild(label);
 
-      // Generator link — use first item's relatedGenerator if available
-      var genLink = document.getElementById('generatorLink');
-      var gen = cat.items.find(function(p) { return p.relatedGenerator; });
-      if (gen) {
-        genLink.href = '../generators/' + gen.relatedGenerator + '/index.html';
-        genLink.style.display = '';
-      } else {
-        genLink.style.display = 'none';
-      }
+        // Grid for this category
+        var grid = document.createElement('div');
+        grid.className = 'ws-grid';
+        grid.style.padding = '0 0 40px';
 
-      document.body.className = 'page-lesson';
-      renderCards(cat.items);
-      window.scrollTo(0, 0);
-    }
+        cat.items.forEach(function(p, i) {
+          var card = document.createElement('div');
+          card.className = 'ws-card';
+          card.setAttribute('data-category', catName);
+          card.addEventListener('mouseenter', function(e) { showHover(e, p, i); });
+          card.addEventListener('mouseleave', hideHover);
 
-    // ===== Render Worksheet Cards =====
-    function renderCards(items) {
-      var grid = document.getElementById('wsGrid');
-      grid.innerHTML = '';
+          var wsCount = p.worksheetCount || 5;
 
-      items.forEach(function(p, i) {
+          card.innerHTML =
+            '<div class="ws-preview">' +
+              '<img src="' + p.folder + '/preview.png" alt="' + p.title + ' preview" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;height:100%;color:#cbd5e0;font-size:13px;font-weight:500;\\\'>Preview not available</div>\'">' +
+              '<div class="pack-badge">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 8h20"/></svg>' +
+                wsCount + ' worksheets' +
+              '</div>' +
+            '</div>' +
+            '<div class="ws-body">' +
+              '<h3>' + p.title + '</h3>' +
+              '<div class="ws-meta"><span class="grade">' + p.grades + '</span></div>' +
+              '<button class="download-btn" data-folder="' + p.folder + '" data-title="' + p.title + '">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+                'Download ' + wsCount + ' Worksheets' +
+              '</button>' +
+            '</div>';
+          grid.appendChild(card);
+
+          var btn = card.querySelector('.download-btn');
+          btn.addEventListener('click', function() { doDownload(p, this); });
+        });
+
+        container.appendChild(grid);
+      });
+
+      // ===== Popular Section =====
+      var popularLabel = document.createElement('div');
+      popularLabel.className = 'category-label';
+      popularLabel.textContent = 'Popular';
+      popularLabel.id = 'popularLabel';
+      var popularGrid = document.createElement('div');
+      popularGrid.className = 'ws-grid';
+      popularGrid.id = 'popularGrid';
+      popularGrid.style.padding = '0 0 40px';
+
+      var top3 = allPrintables.slice(0, 3);
+      top3.forEach(function(p, i) {
         var card = document.createElement('div');
         card.className = 'ws-card';
         card.addEventListener('mouseenter', function(e) { showHover(e, p, i); });
         card.addEventListener('mouseleave', hideHover);
-
         var wsCount = p.worksheetCount || 5;
-
         card.innerHTML =
           '<div class="ws-preview">' +
-            '<img src="' + p.folder + '/preview.png" alt="' + p.title + ' preview" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;height:100%;color:#cbd5e0;font-size:13px;font-weight:500;\\\'>Preview not available</div>\'">' +
-            '<div class="pack-badge">' +
-              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 8h20"/></svg>' +
-              wsCount + ' worksheets' +
-            '</div>' +
+            '<img src="' + p.folder + '/preview.png" alt="' + p.title + ' preview" onerror="this.style.display=\'none\'">' +
+            '<div class="pack-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 8h20"/></svg>' + wsCount + ' worksheets</div>' +
           '</div>' +
-          '<div class="ws-body">' +
-            '<h3>' + p.title + '</h3>' +
-            '<div class="ws-meta"><span class="grade">' + p.grades + '</span></div>' +
-            '<button class="download-btn" data-folder="' + p.folder + '" data-title="' + p.title + '">' +
-              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
-              'Download ' + wsCount + ' Worksheets' +
-            '</button>' +
-          '</div>';
-        grid.appendChild(card);
+          '<div class="ws-body"><h3>' + p.title + '</h3><div class="ws-meta"><span class="grade">' + p.grades + '</span></div>' +
+            '<button class="download-btn" data-folder="' + p.folder + '" data-title="' + p.title + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download ' + wsCount + ' Worksheets</button></div>';
+        popularGrid.appendChild(card);
+        card.querySelector('.download-btn').addEventListener('click', function() { doDownload(p, this); });
+      });
 
-        // Download handler
-        var btn = card.querySelector('.download-btn');
-        btn.addEventListener('click', function() { doDownload(p, this); });
+      container.insertBefore(popularGrid, container.firstChild);
+      container.insertBefore(popularLabel, container.firstChild);
+
+      // ===== Search & Filter =====
+      var searchInput = document.getElementById('printableSearch');
+      var allCards = container.querySelectorAll('.ws-card');
+      var allLabels = container.querySelectorAll('.category-label');
+      var allGrids = container.querySelectorAll('.ws-grid');
+      var popularHidden = false;
+
+      function filterCards() {
+        var query = searchInput.value.toLowerCase().trim();
+        var activeTopicChip = document.querySelector('.topic-chip.active');
+        var activeCat = activeTopicChip ? activeTopicChip.dataset.cat : '';
+        var activeGradeChip = document.querySelector('.grade-chip.active');
+        var activeGrade = activeGradeChip ? activeGradeChip.dataset.grade : '';
+
+        var isFiltered = query || activeCat || activeGrade;
+        if (isFiltered && !popularHidden) {
+          popularLabel.style.display = 'none';
+          popularGrid.style.display = 'none';
+          popularHidden = true;
+        }
+
+        allCards.forEach(function(card) {
+          if (card.closest('#popularGrid')) {
+            card.style.display = isFiltered ? 'none' : '';
+            return;
+          }
+          var title = card.querySelector('h3').textContent.toLowerCase();
+          var matchesSearch = !query || title.indexOf(query) !== -1;
+          var cardCat = card.getAttribute('data-category');
+          var matchesCat = !activeCat || cardCat === activeCat;
+          var gradeEl = card.querySelector('.grade');
+          var gradeText = gradeEl ? gradeEl.textContent : '';
+          var matchesGrade = !activeGrade || gradeText.indexOf(activeGrade) !== -1;
+          card.style.display = (matchesSearch && matchesCat && matchesGrade) ? '' : 'none';
+        });
+
+        allLabels.forEach(function(label, i) {
+          if (label.id === 'popularLabel') return;
+          var grid = allGrids[i];
+          if (!grid || grid.id === 'popularGrid') return;
+          var visible = grid.querySelectorAll('.ws-card:not([style*="display: none"])');
+          label.style.display = visible.length > 0 ? '' : 'none';
+          grid.style.display = visible.length > 0 ? '' : 'none';
+        });
+      }
+
+      searchInput.addEventListener('input', filterCards);
+      searchInput.addEventListener('keyup', filterCards);
+
+      document.querySelectorAll('.topic-chip').forEach(function(chip) {
+        chip.addEventListener('click', function(e) {
+          e.preventDefault();
+          document.querySelectorAll('.topic-chip').forEach(function(c) { c.classList.remove('active'); });
+          this.classList.add('active');
+          filterCards();
+        });
+      });
+
+      document.querySelectorAll('.grade-chip').forEach(function(chip) {
+        chip.addEventListener('click', function(e) {
+          e.preventDefault();
+          document.querySelectorAll('.grade-chip').forEach(function(c) { c.classList.remove('active'); });
+          this.classList.add('active');
+          filterCards();
+        });
       });
     }
 
