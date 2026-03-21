@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Main pages -->
+  <url><loc>https://animalmath.com/</loc><priority>1.0</priority></url>
+  <url><loc>https://animalmath.com/printables/</loc><priority>0.9</priority></url>
+  <url><loc>https://animalmath.com/generators.html</loc><priority>0.9</priority></url>
+  <url><loc>https://animalmath.com/about.html</loc><priority>0.5</priority></url>
+
+  <!-- Printable detail pages -->
+  <url><loc>https://animalmath.com/printables/count-and-write-1-to-5/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/count-and-write-1-to-10/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/count-and-write-1-to-20/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/count-and-write-10-to-20/</loc><priority>0.8</priority></url>
+
+  <!-- Generator pages -->
+  <url><loc>https://animalmath.com/generators/2d-shapes/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/addition-with-pictures/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/bar-graphs/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/base-ten-blocks-place-value/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/base-ten-manipulatives/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/base-ten-values/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/basic-fractions/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/before-after-between/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/coin-identification/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/color-by-number-math/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/column-math-equations/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/comparing-groups/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/comparing-numbers/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/count-and-write-number-groups/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/counting-money/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/data-table-and-survey/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/division-equal-groups/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/dot-to-dot/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/doubles-and-near-doubles/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/expanded-form/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/fact-families/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/fill-in-the-blank-equations/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/fill-in-the-ten-frame/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/greater-than-less-than/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/horizontal-math-equations/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/line-plot/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/making-10/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/making-10-ten-frames/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/math-fact-drills/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/measurement/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/missing-number-sequence-grid/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/multiplication-arrays/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/number-bonds/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/number-line/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/number-patterns/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/number-tracing-practice/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/number-words/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/odd-and-even-numbers/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/ordinal-numbers/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/pictograph/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/rounding-numbers/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/skip-counting/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/subtraction-with-pictures/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/symmetry/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/tally-marks/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/telling-time-draw-the-clock-hands/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/telling-time-reading-a-clock/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/telling-time-words-to-clock/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/telling-time-words-to-numbers/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/ten-frame-addition/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/ten-frames/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/three-digit-place-value/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/venn-diagram/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/word-problems/</loc><priority>0.7</priority></url>
+</urlset>

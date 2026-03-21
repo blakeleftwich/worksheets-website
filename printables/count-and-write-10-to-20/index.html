@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Count & Write 10-20 &mdash; Free Printable Math Worksheets | Animal Math</title>
+  <meta name="description" content="Download this free Count & Write 10-20 worksheet set for 1st - 2nd. 5 printable pages with counting practice. Includes answer key.">
+  <link rel="canonical" href="https://animalmath.com/printables/count-and-write-10-to-20/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; }
+    .site-header { background: white; border-bottom: 1px solid #e5e7eb; padding: 0 32px; position: sticky; top: 0; z-index: 100; }
+    .header-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .site-logo { display: flex; align-items: center; text-decoration: none; }
+    .site-logo-img { height: 44px; width: auto; display: block; }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: #64748b; text-decoration: none; padding: 8px 14px; border-radius: 8px; transition: all 0.15s; }
+    .nav-links a:hover { background: #f1f5f9; color: #1e293b; }
+    .nav-links a.active { background: #fef3c7; color: #92400e; }
+    .breadcrumb-bar { max-width: 1200px; margin: 0 auto; padding: 16px 32px 0; }
+    .breadcrumb { font-size: 13px; color: #94a3b8; }
+    .breadcrumb a { color: #f59e0b; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 6px; }
+    .detail-container { max-width: 1200px; margin: 0 auto; padding: 24px 32px 60px; display: grid; grid-template-columns: 1fr 380px; gap: 40px; }
+    .preview-col { display: flex; flex-direction: column; gap: 16px; }
+    .big-preview { background: white; border: 1px solid #e5e7eb; border-radius: 16px; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 500px; padding: 24px; }
+    .big-preview canvas { max-width: 100%; max-height: 600px; display: block; border-radius: 4px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .thumb-strip { display: flex; gap: 10px; justify-content: center; padding: 8px 0; overflow-x: auto; }
+    .thumb-strip canvas { height: 80px; width: auto; flex-shrink: 0; border-radius: 6px; border: 2px solid #e2e8f0; cursor: pointer; transition: all 0.15s; }
+    .thumb-strip canvas:hover { border-color: #f59e0b; }
+    .thumb-strip canvas.active { border-color: #f59e0b; box-shadow: 0 2px 8px rgba(245,158,11,0.25); }
+    .info-col { display: flex; flex-direction: column; gap: 20px; }
+    .info-col h1 { font-family: 'DM Sans', sans-serif; font-size: 28px; font-weight: 700; color: #1a1a2e; line-height: 1.2; }
+    .info-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+    .info-badge { font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; }
+    .info-badge.grade { background: #fef3c7; color: #92400e; }
+    .info-badge.count { background: #f1f5f9; color: #475569; }
+    .info-description { font-size: 15px; color: #64748b; line-height: 1.7; }
+    .info-description p { margin-bottom: 12px; }
+    .action-buttons { display: flex; flex-direction: column; gap: 10px; }
+    .btn-download { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; background: linear-gradient(135deg, #f59e0b, #ea580c); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.15s; text-decoration: none; }
+    .btn-download:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .btn-download svg { width: 18px; height: 18px; }
+    .btn-secondary { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; background: white; color: #475569; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; text-decoration: none; }
+    .btn-secondary:hover { border-color: #94a3b8; background: #f8fafc; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .btn-secondary svg { width: 16px; height: 16px; }
+    .gen-callout { display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; font-size: 13px; color: #92400e; text-decoration: none; transition: all 0.2s; }
+    .gen-callout:hover { background: #fef3c7; border-color: #f59e0b; }
+    .gen-callout svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .gen-callout strong { display: block; font-size: 13px; }
+    .gen-callout span { font-size: 12px; color: #b45309; }
+    .whats-included { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; }
+    .whats-included h3 { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .whats-included ul { list-style: none; padding: 0; }
+    .whats-included li { font-size: 14px; color: #475569; padding: 6px 0; display: flex; align-items: center; gap: 8px; }
+    .whats-included li::before { content: '\2713'; color: #16a34a; font-weight: 700; font-size: 13px; }
+    .related-section { margin-top: 16px; }
+    .related-section h3 { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+    .related-cards { display: flex; flex-direction: column; gap: 10px; }
+    .related-card { display: flex; align-items: center; gap: 12px; padding: 10px; background: white; border: 1px solid #e5e7eb; border-radius: 10px; text-decoration: none; color: inherit; transition: all 0.15s; }
+    .related-card:hover { border-color: #fbbf24; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+    .related-card img { width: 56px; height: 56px; object-fit: cover; border-radius: 6px; border: 1px solid #f1f5f9; }
+    .related-card .rc-info { flex: 1; }
+    .related-card .rc-title { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; color: #1e293b; }
+    .related-card .rc-meta { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    @media (max-width: 900px) { .detail-container { grid-template-columns: 1fr; } .info-col { order: -1; } }
+
+    /* Educational content sections */
+    .edu-content { max-width: 1200px; margin: 0 auto; padding: 0 32px 60px; }
+    .edu-section { background: white; border: 1px solid #e5e7eb; border-radius: 16px; padding: 32px; margin-bottom: 24px; }
+    .edu-section h2 { font-family: 'DM Sans', sans-serif; font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 16px; }
+    .edu-section h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; color: #1e293b; margin-top: 20px; margin-bottom: 8px; }
+    .edu-section p { font-size: 15px; color: #475569; line-height: 1.7; margin-bottom: 12px; }
+    .edu-section ul { list-style: none; padding: 0; margin-bottom: 16px; }
+    .edu-section li { font-size: 14px; color: #475569; padding: 5px 0; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+    .edu-section li::before { content: '\2713'; color: #16a34a; font-weight: 700; font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+    .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 32px; }
+    @media (max-width: 600px) { .skills-grid { grid-template-columns: 1fr; } }
+    .standards-list { margin-top: 8px; }
+    .standards-list li::before { content: ''; width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+    .standard-code { font-weight: 600; color: #1e293b; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../../index.html" class="site-logo">
+        <img src="../../images/logo.png" alt="Animal Math" class="site-logo-img">
+      </a>
+      <nav class="nav-links">
+        <a href="../index.html" class="active">Printables</a>
+        <a href="../../generators.html">Generators</a>
+        <a href="../../tools/index.html">Tools</a>
+        <a href="https://apps.apple.com/us/app/animal-math-games-for-kids/id799973028" target="_blank">Apps</a>
+        <a href="../../about.html">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="breadcrumb-bar">
+    <div class="breadcrumb">
+      <a href="../index.html">Printables</a>
+      <span>&rsaquo;</span>
+      <a href="../index.html">Count & Write</a>
+      <span>&rsaquo;</span>
+      Count & Write 10-20
+    </div>
+  </div>
+
+  <div class="detail-container">
+    <div class="preview-col">
+      <div class="big-preview" id="bigPreview">
+        <div style="color:#94a3b8;font-size:14px;">Loading preview...</div>
+      </div>
+      <div class="thumb-strip" id="thumbStrip"></div>
+    </div>
+
+    <div class="info-col">
+      <h1>Count & Write 10-20</h1>
+      <div class="info-badges">
+        <span class="info-badge grade">1st - 2nd</span>
+        <span class="info-badge count">5 worksheets</span>
+      </div>
+      <div class="info-description">
+        <p>Focus on the tricky teen numbers with counting practice from 10 to 20. Students count groups of objects and write the corresponding number. Ideal for students who have mastered 1-10 and are ready for teen numbers.</p>
+      </div>
+      <div class="action-buttons">
+        <a class="btn-download" href="pack.pdf" download="count-and-write-10-to-20.pdf">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Set (PDF)
+        </a>
+        <button class="btn-secondary" id="printBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Print
+        </button>
+      </div>
+
+      <a class="gen-callout" href="../../generators/count-and-write-number-groups/">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <div>
+          <strong>Want to customize?</strong>
+          <span>Open in Generator to change numbers, objects, and layout &rarr;</span>
+        </div>
+      </a>
+
+      <div class="whats-included">
+        <h3>What&rsquo;s Included</h3>
+        <ul>
+          <li>5 unique counting worksheets</li>
+          <li>Focus on teen numbers 10-20</li>
+          <li>Reinforces place value concepts</li>
+          <li>Write-in boxes for number practice</li>
+          <li>Answer key included</li>
+        </ul>
+      </div>
+
+      <div class="related-section">
+        <h3>More Count & Write Sets</h3>
+        <div class="related-cards">
+          <a class="related-card" href="../count-and-write-1-to-5/">
+            <img src="../count-and-write-1-to-5/preview.png" alt="Count & Write 1-5">
+            <div class="rc-info">
+              <div class="rc-title">Count & Write 1-5</div>
+              <div class="rc-meta">Pre-K - K &middot; 5 worksheets</div>
+            </div>
+          </a>
+          <a class="related-card" href="../count-and-write-1-to-10/">
+            <img src="../count-and-write-1-to-10/preview.png" alt="Count & Write 1-10">
+            <div class="rc-info">
+              <div class="rc-title">Count & Write 1-10</div>
+              <div class="rc-meta">Pre-K - K &middot; 5 worksheets</div>
+            </div>
+          </a>
+          <a class="related-card" href="../count-and-write-1-to-20/">
+            <img src="../count-and-write-1-to-20/preview.png" alt="Count & Write 1-20">
+            <div class="rc-info">
+              <div class="rc-title">Count & Write 1-20</div>
+              <div class="rc-meta">K - 1st &middot; 5 worksheets</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="edu-content">
+    <div class="edu-section">
+      <h2>Skills Covered</h2>
+      <div class="skills-grid">
+        <ul>
+          <li>Count objects in groups of 10 to 20</li>
+          <li>Write teen numerals (10-20)</li>
+          <li>Teen number recognition</li>
+        </ul>
+        <ul>
+          <li>Understanding &ldquo;10 and some more&rdquo;</li>
+          <li>Early place value concepts</li>
+          <li>Organized counting of larger groups</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="edu-section">
+      <h2>How to Use These Worksheets</h2>
+      <p>Students count groups of 10 to 20 objects and write the correct number. These worksheets focus specifically on the teen numbers, which are often tricky for young learners because of the irregular naming pattern (eleven, twelve, thirteen) and the challenge of writing two-digit numbers.</p>
+      <h3>In the Classroom</h3>
+      <p>Use these worksheets after introducing teen numbers with base-ten blocks or double ten frames. They work well as targeted practice for students who can count to 10 confidently but struggle with 11-20. Consider using them during small-group instruction where you can provide immediate support.</p>
+      <h3>At Home</h3>
+      <p>Practice teen numbers in everyday situations &mdash; counting steps, counting pieces of cereal, or counting blocks in a tower. Help your child see teen numbers as &ldquo;10 and some more&rdquo; by separating objects into a group of 10 and a smaller group, then counting the total.</p>
+      <h3>Tips for Success</h3>
+      <ul>
+        <li>Practice writing teen numbers separately before using these worksheets</li>
+        <li>Use the phrase &ldquo;10 and __ more makes __&rdquo; to build understanding</li>
+        <li>Have students circle a group of 10 first, then count the remaining objects</li>
+        <li>Watch for number reversals (e.g., writing 51 instead of 15) and provide gentle correction</li>
+      </ul>
+    </div>
+
+    <div class="edu-section">
+      <h2>Common Core Standards Alignment</h2>
+      <p>These worksheets support the following Common Core State Standards for Mathematics:</p>
+      <ul class="standards-list">
+        <li><span class="standard-code">K.NBT.A.1</span> &mdash; Compose and decompose numbers from 11 to 19 into ten ones and some further ones</li>
+        <li><span class="standard-code">K.CC.B.5</span> &mdash; Count to answer &ldquo;how many?&rdquo; questions about as many as 20 things</li>
+        <li><span class="standard-code">1.NBT.B.2</span> &mdash; Understand that the two digits of a two-digit number represent amounts of tens and ones</li>
+        <li><span class="standard-code">K.CC.A.3</span> &mdash; Write numbers from 0 to 20; represent a number of objects with a written numeral</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    var bigPreview = document.getElementById('bigPreview');
+    var thumbStrip = document.getElementById('thumbStrip');
+
+    function renderPage(pdfDoc, pageNum, canvas, maxWidth) {
+      return pdfDoc.getPage(pageNum).then(function(page) {
+        var vp = page.getViewport({ scale: 1 });
+        var scale = maxWidth / vp.width;
+        var svp = page.getViewport({ scale: scale });
+        canvas.width = svp.width;
+        canvas.height = svp.height;
+        return page.render({ canvasContext: canvas.getContext('2d'), viewport: svp }).promise.then(function() { return canvas; });
+      });
+    }
+
+    function showBigPage(pdfDoc, pageNum) {
+      var c = document.createElement('canvas');
+      bigPreview.innerHTML = '';
+      bigPreview.appendChild(c);
+      renderPage(pdfDoc, pageNum, c, 680);
+      thumbStrip.querySelectorAll('canvas').forEach(function(t, i) {
+        t.classList.toggle('active', i === pageNum - 1);
+      });
+    }
+
+    pdfjsLib.getDocument('pack.pdf').promise.then(function(pdfDoc) {
+      for (var p = 1; p <= pdfDoc.numPages; p++) {
+        (function(pageNum) {
+          var thumb = document.createElement('canvas');
+          thumb.addEventListener('click', function() { showBigPage(pdfDoc, pageNum); });
+          thumbStrip.appendChild(thumb);
+          renderPage(pdfDoc, pageNum, thumb, 90).then(function() {
+            if (pageNum === 1) thumb.classList.add('active');
+          });
+        })(p);
+      }
+      showBigPage(pdfDoc, 1);
+    });
+
+    document.getElementById('printBtn').addEventListener('click', function() {
+      var iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = 'pack.pdf';
+      document.body.appendChild(iframe);
+      iframe.onload = function() { iframe.contentWindow.print(); };
+    });
+  </script>
+</body>
+</html>
