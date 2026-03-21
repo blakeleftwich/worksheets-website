@@ -920,21 +920,61 @@
 
       modalOverlay.classList.add('open');
       document.body.style.overflow = 'hidden';
+
+      // Update URL to the detail page path (SEO + shareable links)
+      history.pushState({ modal: true, folder: printable.folder }, '', printable.folder + '/');
     }
 
-    function closeModal() {
+    function closeModal(skipHistory) {
       modalOverlay.classList.remove('open');
       document.body.style.overflow = '';
       modalPrintable = null;
+
+      // Restore URL to printables page (unless triggered by popstate)
+      if (!skipHistory) {
+        history.pushState({}, '', '/printables/');
+      }
     }
 
-    modalClose.addEventListener('click', closeModal);
+    modalClose.addEventListener('click', function() { closeModal(); });
     modalOverlay.addEventListener('click', function(e) {
       if (e.target === modalOverlay) closeModal();
     });
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' && modalOverlay.classList.contains('open')) closeModal();
     });
+
+    // Handle back button — close modal without pushing another history entry
+    window.addEventListener('popstate', function(e) {
+      if (modalOverlay.classList.contains('open')) {
+        closeModal(true);
+      } else if (e.state && e.state.modal && e.state.folder) {
+        // User went forward to a modal state
+        var p = allPrintables.find(function(item) { return item.folder === e.state.folder; });
+        if (p) openModal(p);
+      }
+    });
+
+    // On page load, check if URL matches a printable folder and open its modal
+    (function checkDirectUrl() {
+      var path = window.location.pathname;
+      var match = path.match(/\/printables\/([^\/]+)\/?$/);
+      if (match) {
+        var folder = match[1];
+        // Wait for data to load, then open modal
+        var checkInterval = setInterval(function() {
+          if (allPrintables.length > 0) {
+            clearInterval(checkInterval);
+            var p = allPrintables.find(function(item) { return item.folder === folder; });
+            if (p) {
+              // Replace state so back button goes to printables, not to the URL they landed on
+              history.replaceState({ modal: true, folder: folder }, '', path);
+              openModal(p);
+            }
+          }
+        }, 50);
+      }
+    })();
     modalDl.addEventListener('click', function() {
       if (!modalPrintable) return;
       var orig = modalDl.innerHTML;
