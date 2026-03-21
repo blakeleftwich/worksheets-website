@@ -127,7 +127,7 @@
 
   <div class="breadcrumb-bar">
     <div class="breadcrumb">
-      <a href="printables/index.html">Printables</a>
+      <a href="printables-select-mockup.html">Printables</a>
       <span>›</span>
       <a href="printables/index.html">Count & Write</a>
       <span>›</span>
@@ -233,7 +233,7 @@
       document.querySelector('h1').textContent = info.title;
       document.title = info.title + ' — Free Printable Math Worksheets | Animal Math';
       document.querySelector('meta[name="description"]').content = 'Download this free ' + info.title + ' worksheet set for ' + info.grades + '. ' + wsCount + ' printable pages. Includes answer key.';
-      document.querySelector('.breadcrumb').innerHTML = '<a href="printables/index.html">Printables</a><span>›</span><a href="printables/index.html">' + (info.category || 'Worksheets') + '</a><span>›</span>' + info.title;
+      document.querySelector('.breadcrumb').innerHTML = '<a href="printables-select-mockup.html">Printables</a><span>›</span><a href="printables/index.html">' + (info.category || 'Worksheets') + '</a><span>›</span>' + info.title;
       document.querySelectorAll('.info-badge.grade')[0].textContent = info.grades;
       document.querySelectorAll('.info-badge.count')[0].textContent = wsCount + ' worksheets';
       document.querySelector('.btn-download').href = 'printables/' + setFolder + '/pack.pdf';
