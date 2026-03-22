@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Printable Worksheets — Animal Math</title>
+  <title>Free Printable Math Worksheets for Pre-K to 2nd Grade | Animal Math</title>
+  <meta name="description" content="Download free printable math worksheets for Pre-K through 2nd grade. Counting, addition, subtraction, place value, telling time, and more. Includes answer keys.">
+  <link rel="canonical" href="https://animalmath.com/printables/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -255,6 +257,9 @@
       overflow: hidden;
       cursor: pointer;
       height: 220px;
+      display: block;
+      text-decoration: none;
+      color: inherit;
     }
     .ws-preview img {
       width: 100%;
@@ -505,6 +510,19 @@
   <!-- ===== Printables Grid ===== -->
   <div id="printablesContainer" style="max-width:1200px;margin:0 auto;padding:0 32px 60px;"></div>
 
+  <!-- Crawlable links for search engines that don't run JS -->
+  <noscript>
+    <div style="max-width:1200px;margin:0 auto;padding:20px 32px;">
+      <h2>Count &amp; Write Worksheets</h2>
+      <ul>
+        <li><a href="count-and-write-1-to-5/">Count &amp; Write 1–5 — Free Pre-K to K Math Worksheets (5 pages)</a></li>
+        <li><a href="count-and-write-1-to-10/">Count &amp; Write 1–10 — Free Pre-K to K Math Worksheets (5 pages)</a></li>
+        <li><a href="count-and-write-1-to-20/">Count &amp; Write 1–20 — Free K to 1st Grade Math Worksheets (5 pages)</a></li>
+        <li><a href="count-and-write-10-to-20/">Count &amp; Write 10–20 — Free K to 1st Grade Math Worksheets (5 pages)</a></li>
+      </ul>
+    </div>
+  </noscript>
+
   <!-- ===== Preview Modal (E: Compact + Bottom Thumbs) ===== -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal-box">
@@ -640,13 +658,13 @@
 
           var genUrl = p.relatedGenerator ? 'generators/' + p.relatedGenerator + '/index.html' : '../generators.html';
           card.innerHTML =
-            '<div class="ws-preview">' +
+            '<a class="ws-preview" href="' + p.folder + '/">' +
               '<img src="printables/' + p.folder + '/preview.png" alt="' + p.title + ' preview" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;height:100%;color:#cbd5e0;font-size:13px;font-weight:500;\\\'>Preview not available</div>\'">' +
               '<div class="pack-badge">' +
                 '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 8h20"/></svg>' +
                 wsCount + ' worksheets' +
               '</div>' +
-            '</div>' +
+            '</a>' +
             '<div class="ws-body">' +
               '<h3>' + p.title + '</h3>' +
               '<div class="ws-meta"><span class="grade">' + p.grades + '</span></div>' +
@@ -669,10 +687,10 @@
           var btn = card.querySelector('.download-btn');
           btn.addEventListener('click', function() { doDownload(p, this); });
 
-          // Print button
+          // Print button + preview link (intercept to open modal instead of navigating)
           (function(printable) {
             card.querySelector('.print-btn').addEventListener('click', function() { doPrint(printable); });
-            card.querySelector('.ws-preview').addEventListener('click', function() { openModal(printable); });
+            card.querySelector('.ws-preview').addEventListener('click', function(e) { e.preventDefault(); openModal(printable); });
           })(p);
         });
 
@@ -696,10 +714,10 @@
         var wsCount = p.worksheetCount || 5;
         var genUrl = p.relatedGenerator ? 'generators/' + p.relatedGenerator + '/index.html' : '../generators.html';
         card.innerHTML =
-          '<div class="ws-preview">' +
+          '<a class="ws-preview" href="' + p.folder + '/">' +
             '<img src="printables/' + p.folder + '/preview.png" alt="' + p.title + ' preview" onerror="this.style.display=\'none\'">' +
             '<div class="pack-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 8h20"/></svg>' + wsCount + ' worksheets</div>' +
-          '</div>' +
+          '</a>' +
           '<div class="ws-body"><h3>' + p.title + '</h3><div class="ws-meta"><span class="grade">' + p.grades + '</span></div>' +
             '<div class="btn-row">' +
               '<button class="download-btn" data-folder="' + p.folder + '" data-title="' + p.title + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</button>' +
@@ -711,12 +729,20 @@
         card.querySelector('.download-btn').addEventListener('click', function() { doDownload(p, this); });
         (function(printable) {
           card.querySelector('.print-btn').addEventListener('click', function() { doPrint(printable); });
-          card.querySelector('.ws-preview').addEventListener('click', function() { openModal(printable); });
+          card.querySelector('.ws-preview').addEventListener('click', function(e) { e.preventDefault(); openModal(printable); });
         })(p);
       });
 
       container.insertBefore(popularGrid, container.firstChild);
       container.insertBefore(popularLabel, container.firstChild);
+
+      // ===== Ad Placement B: In-Feed Ad between Popular and Categories =====
+      var adSlot = document.createElement('div');
+      adSlot.id = 'adSlotB';
+      adSlot.style.cssText = 'max-width:728px;margin:0 auto 32px;padding:0;text-align:center;';
+      adSlot.innerHTML = '<div style="width:728px;height:90px;max-width:100%;margin:0 auto;background:#f8f8f4;border:1px solid #e5e7eb;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:13px;font-family:Inter,sans-serif;">Ad &middot; 728 &times; 90 Leaderboard</div>';
+      // Insert after popularGrid
+      popularGrid.parentNode.insertBefore(adSlot, popularGrid.nextSibling);
 
       // ===== Search & Filter =====
       var searchInput = document.getElementById('printableSearch');
@@ -918,21 +944,61 @@
 
       modalOverlay.classList.add('open');
       document.body.style.overflow = 'hidden';
+
+      // Update URL to the detail page path (SEO + shareable links)
+      history.pushState({ modal: true, folder: printable.folder }, '', printable.folder + '/');
     }
 
-    function closeModal() {
+    function closeModal(skipHistory) {
       modalOverlay.classList.remove('open');
       document.body.style.overflow = '';
       modalPrintable = null;
+
+      // Restore URL to printables page (unless triggered by popstate)
+      if (!skipHistory) {
+        history.pushState({}, '', '/printables/');
+      }
     }
 
-    modalClose.addEventListener('click', closeModal);
+    modalClose.addEventListener('click', function() { closeModal(); });
     modalOverlay.addEventListener('click', function(e) {
       if (e.target === modalOverlay) closeModal();
     });
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' && modalOverlay.classList.contains('open')) closeModal();
     });
+
+    // Handle back button — close modal without pushing another history entry
+    window.addEventListener('popstate', function(e) {
+      if (modalOverlay.classList.contains('open')) {
+        closeModal(true);
+      } else if (e.state && e.state.modal && e.state.folder) {
+        // User went forward to a modal state
+        var p = allPrintables.find(function(item) { return item.folder === e.state.folder; });
+        if (p) openModal(p);
+      }
+    });
+
+    // On page load, check if URL matches a printable folder and open its modal
+    (function checkDirectUrl() {
+      var path = window.location.pathname;
+      var match = path.match(/\/printables\/([^\/]+)\/?$/);
+      if (match) {
+        var folder = match[1];
+        // Wait for data to load, then open modal
+        var checkInterval = setInterval(function() {
+          if (allPrintables.length > 0) {
+            clearInterval(checkInterval);
+            var p = allPrintables.find(function(item) { return item.folder === folder; });
+            if (p) {
+              // Replace state so back button goes to printables, not to the URL they landed on
+              history.replaceState({ modal: true, folder: folder }, '', path);
+              openModal(p);
+            }
+          }
+        }, 50);
+      }
+    })();
     modalDl.addEventListener('click', function() {
       if (!modalPrintable) return;
       var orig = modalDl.innerHTML;
@@ -957,21 +1023,6 @@
 
     // ===== Init =====
     loadAllPrintables();
-
-    // Override preview clicks to navigate to detail page instead of modal
-    document.addEventListener('click', function(e) {
-      var preview = e.target.closest('.ws-preview');
-      if (preview) {
-        e.stopImmediatePropagation();
-        e.preventDefault();
-        var card = preview.closest('.ws-card');
-        var btn = card ? card.querySelector('.download-btn') : null;
-        var folder = btn ? btn.getAttribute('data-folder') : null;
-        if (folder) {
-          window.location.href = 'printable-detail-mockup.html?set=' + folder;
-        }
-      }
-    }, true);
   </script>
 </body>
 </html>

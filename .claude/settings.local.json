@@ -44,7 +44,12 @@
       "Bash(pip install opencv-python-headless)",
       "Bash(while read dir)",
       "Bash(do basename \"$dir\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(sed -i 's|src=\"\"../images/|src=\"\"images/|g' ad-test-printables.html)",
+      "Bash(sed -i 's|href=\"\"../generators.html\"\"|href=\"\"generators.html\"\"|g' ad-test-printables.html)",
+      "Bash(sed -i 's|href=\"\"../tools/|href=\"\"tools/|g' ad-test-printables.html)",
+      "Bash(sed -i 's|href=\"\"../about.html\"\"|href=\"\"about.html\"\"|g' ad-test-printables.html)",
+      "Bash(sed -i 's|href=\"\"../my-sets/|href=\"\"my-sets/|g' ad-test-printables.html)"
     ]
   }
 }
