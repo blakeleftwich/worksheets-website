@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apps Mockup | Animal Math</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+    }
+
+    /* ===== Header ===== */
+    .site-header {
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: all 0.15s;
+    }
+    .nav-links a:hover { background: #f1f5f9; color: #1e293b; }
+    .nav-links a.active { background: #fef3c7; color: #92400e; }
+
+    /* ===== Hero ===== */
+    .hero-wrapper {
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+    }
+    .hero {
+      text-align: center;
+      padding: 48px 24px 40px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .hero h1 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: #1a1a2e;
+      line-height: 1.15;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+    .hero p {
+      font-size: 16px;
+      color: #64748b;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    /* ===== Trust Badges ===== */
+    .trust-badges {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .trust-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      background: white;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+    .trust-badge .badge-icon { font-size: 15px; }
+
+    /* ===== Store Links ===== */
+    .store-links {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .store-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s;
+      border: 2px solid #1e293b;
+      background: #1e293b;
+      color: white;
+    }
+    .store-link:hover {
+      background: #334155;
+      border-color: #334155;
+    }
+
+    /* ===== Sections ===== */
+    .section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+    }
+
+    .section-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    /* ===== Featured App Grid (2-col) ===== */
+    .featured-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .featured-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      gap: 20px;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .featured-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--card-bg) no-repeat center / cover;
+      filter: blur(28px) brightness(1.15);
+      opacity: 0.15;
+      z-index: 0;
+      transform: scale(1.3);
+    }
+    .featured-card > * { position: relative; z-index: 1; }
+    .featured-card:hover {
+      border-color: #fbbf24;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.08);
+    }
+    .featured-card:hover::before { opacity: 0.22; }
+
+    .featured-icon {
+      width: 100px;
+      height: 100px;
+      border-radius: 20px;
+      flex-shrink: 0;
+      object-fit: cover;
+    }
+
+    .featured-content {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .featured-name {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: #1e293b;
+      line-height: 1.3;
+    }
+
+    .featured-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 2px;
+    }
+
+    .star-rating {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .star-rating .stars {
+      color: #f59e0b;
+      font-size: 14px;
+      letter-spacing: -1px;
+    }
+    .rating-count {
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 400;
+    }
+
+    .price-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .price-badge.free {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .price-badge.paid {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .grade-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .featured-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .appstore-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 14px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+      transition: all 0.15s;
+    }
+    .appstore-btn:hover {
+      border-color: #f59e0b;
+      color: #92400e;
+      background: #fffbeb;
+    }
+
+    .screenshot-strip {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    .screenshot-strip::-webkit-scrollbar { height: 4px; }
+    .screenshot-strip::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+
+    .screenshot-thumb {
+      height: 80px;
+      width: auto;
+      border-radius: 8px;
+      flex-shrink: 0;
+      object-fit: cover;
+      border: 1px solid #e5e7eb;
+    }
+
+    .no-screenshots {
+      font-size: 11px;
+      color: #cbd5e1;
+      font-style: italic;
+      margin-top: 8px;
+    }
+
+    /* ===== All Apps Section ===== */
+    .more-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px 60px;
+    }
+
+    .category-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #2d3748;
+      margin-top: 36px;
+      margin-bottom: 16px;
+    }
+    .category-label:first-child { margin-top: 0; }
+
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1000px) {
+      .featured-grid {
+        grid-template-columns: 1fr;
+      }
+      .app-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 600px) {
+      .site-header { padding: 0 16px; }
+      .nav-links { gap: 2px; flex-wrap: wrap; justify-content: center; }
+      .nav-links a { padding: 6px 10px; font-size: 13px; }
+      .hero h1 { font-size: 28px; }
+      .featured-card { flex-direction: column; align-items: flex-start; }
+      .featured-icon { width: 80px; height: 80px; }
+      .app-grid { grid-template-columns: 1fr; }
+      .trust-badges { gap: 6px; }
+      .trust-badge { font-size: 12px; padding: 5px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="./"><img src="../images/logo.png" alt="Animal Math" height="36"></a>
+      <nav class="nav-links">
+        <a href="../printables/">Printables</a>
+        <a href="../generators.html">Generators</a>
+        <a href="../tools/index.html">Tools</a>
+        <a href="../songs/index.html">Songs</a>
+        <a href="#" class="active">Apps</a>
+        <a href="../about.html">About</a>
+        <a href="../my-sets/index.html">My Worksheet Sets</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero-wrapper">
+    <div class="hero">
+      <h1>Our Apps</h1>
+      <p>Learning made fun &mdash; educational apps and games for kids</p>
+
+      <div class="trust-badges">
+        <span class="trust-badge"><span class="badge-icon">&#x1F6AB;</span> No Ads</span>
+        <span class="trust-badge"><span class="badge-icon">&#x1F469;&#x200D;&#x1F3EB;</span> Created by Teachers</span>
+        <span class="trust-badge"><span class="badge-icon">&#x1F399;&#xFE0F;</span> Professional Narration</span>
+        <span class="trust-badge"><span class="badge-icon">&#x1F4D0;</span> Common Core Aligned</span>
+        <span class="trust-badge"><span class="badge-icon">&#x1F6E1;&#xFE0F;</span> Safe for Kids</span>
+      </div>
+
+      <div class="store-links">
+        <a href="https://apps.apple.com/us/developer/eggroll-games-llc/id450433624" class="store-link" target="_blank" rel="noopener"> Apple App Store</a>
+        <a href="https://www.amazon.com/s?k=eggroll+games" class="store-link" target="_blank" rel="noopener"> Amazon Appstore</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== FEATURED APPS ==================== -->
+  <div class="section">
+    <div class="section-title">&#11088; Featured Apps</div>
+    <div class="featured-grid">
+
+      <div class="featured-card" data-slug="animal-math-games" style="cursor:pointer" style="--card-bg:url(icons/appstore_799973028.jpg)">
+        <img class="featured-icon" src="icons/appstore_799973028.jpg" alt="Animal Math Games">
+        <div class="featured-content">
+          <div class="featured-name">Animal Math Games</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.5 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+            <span class="rating-count">(3,679 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Pre-K – 2nd</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id799973028" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="no-screenshots">No screenshots available</div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="multiplication-flashcards" style="cursor:pointer" style="--card-bg:url(icons/appstore_960948021.jpg)">
+        <img class="featured-icon" src="icons/appstore_960948021.jpg" alt="Multiplication Flashcards">
+        <div class="featured-content">
+          <div class="featured-name">Multiplication Flashcards</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.4 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(1,112 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">3rd – 5th</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id960948021" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="no-screenshots">No screenshots available</div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="animal-pre-k-math" style="cursor:pointer" style="--card-bg:url(screenshots/882334694_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_882334694.jpg" alt="Animal Pre-K Math">
+        <div class="featured-content">
+          <div class="featured-name">Animal Pre-K Math</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.5 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+            <span class="rating-count">(652 ratings)</span>
+            <span class="price-badge paid">$9.99</span>
+            <span class="grade-badge">Pre-K</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id882334694" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/882334694_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/882334694_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/882334694_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="animal-first-grade-math" style="cursor:pointer" style="--card-bg:url(screenshots/903749612_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_903749612.jpg" alt="Animal 1st Grade Math">
+        <div class="featured-content">
+          <div class="featured-name">Animal 1st Grade Math</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.0 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(247 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">1st Grade</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id903749612" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/903749612_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/903749612_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/903749612_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="animal-second-grade-math" style="cursor:pointer" style="--card-bg:url(screenshots/932147619_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_932147619.jpg" alt="Animal 2nd Grade Math">
+        <div class="featured-content">
+          <div class="featured-name">Animal 2nd Grade Math</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.2 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(153 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">2nd Grade</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id932147619" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/932147619_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/932147619_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/932147619_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="animal-math-toddler-games" style="cursor:pointer" style="--card-bg:url(screenshots/1140979547_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_1140979547.jpg" alt="Animal Math Toddler Games">
+        <div class="featured-content">
+          <div class="featured-name">Animal Math Toddler Games</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.4 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(76 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Toddlers</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id1140979547" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/1140979547_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/1140979547_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/1140979547_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="animal-math-school-edition" style="cursor:pointer" style="--card-bg:url(screenshots/799953489_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_799953489.jpg" alt="Animal Math School Edition">
+        <div class="featured-content">
+          <div class="featured-name">Animal Math School Edition</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.4 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(71 ratings)</span>
+            <span class="price-badge paid">$12.99</span>
+            <span class="grade-badge">Pre-K – 2nd</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id799953489" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/799953489_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/799953489_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/799953489_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="animal-math-kindergarten-full" style="cursor:pointer" style="--card-bg:url(screenshots/1064152246_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_1064152246.jpg" alt="Animal Math Kindergarten (Full)">
+        <div class="featured-content">
+          <div class="featured-name">Animal Math Kindergarten (Full)</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.4 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(67 ratings)</span>
+            <span class="price-badge paid">$7.99</span>
+            <span class="grade-badge">Kindergarten</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id1064152246" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/1064152246_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/1064152246_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/1064152246_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== ALL APPS BY CATEGORY ==================== -->
+  <div class="more-section">
+    <div class="section-title">All Apps</div>
+
+    <div class="category-label">Animal Math Series</div>
+    <div class="app-grid">
+      <div class="featured-card" data-slug="animal-math-games" style="cursor:pointer" style="--card-bg:url(icons/appstore_799973028.jpg)">
+        <img class="featured-icon" src="icons/appstore_799973028.jpg" alt="Animal Math Games">
+        <div class="featured-content">
+          <div class="featured-name">Animal Math Games</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.5 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+            <span class="rating-count">(3,679 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Pre-K – 2nd</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id799973028" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="no-screenshots">No screenshots available</div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="animal-first-grade-math" style="cursor:pointer" style="--card-bg:url(screenshots/903749612_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_903749612.jpg" alt="Animal 1st Grade Math">
+        <div class="featured-content">
+          <div class="featured-name">Animal 1st Grade Math</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.0 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(247 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">1st Grade</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id903749612" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/903749612_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/903749612_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/903749612_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="animal-second-grade-math" style="cursor:pointer" style="--card-bg:url(screenshots/932147619_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_932147619.jpg" alt="Animal 2nd Grade Math">
+        <div class="featured-content">
+          <div class="featured-name">Animal 2nd Grade Math</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.2 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(153 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">2nd Grade</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id932147619" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/932147619_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/932147619_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/932147619_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="animal-pre-k-math" style="cursor:pointer" style="--card-bg:url(screenshots/882334694_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_882334694.jpg" alt="Animal Pre-K Math">
+        <div class="featured-content">
+          <div class="featured-name">Animal Pre-K Math</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.5 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+            <span class="rating-count">(652 ratings)</span>
+            <span class="price-badge paid">$9.99</span>
+            <span class="grade-badge">Pre-K</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id882334694" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/882334694_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/882334694_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/882334694_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="animal-kindergarten-math" style="cursor:pointer" style="--card-bg:url(icons/appstore_1064151827.jpg)">
+        <img class="featured-icon" src="icons/appstore_1064151827.jpg" alt="Animal Kindergarten Math">
+        <div class="featured-content">
+          <div class="featured-name">Animal Kindergarten Math</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.0 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(24 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Kindergarten</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id1064151827" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="no-screenshots">No screenshots available</div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="animal-math-kindergarten-full" style="cursor:pointer" style="--card-bg:url(screenshots/1064152246_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_1064152246.jpg" alt="Animal Math Kindergarten (Full)">
+        <div class="featured-content">
+          <div class="featured-name">Animal Math Kindergarten (Full)</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.4 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(67 ratings)</span>
+            <span class="price-badge paid">$7.99</span>
+            <span class="grade-badge">Kindergarten</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id1064152246" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/1064152246_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/1064152246_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/1064152246_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="animal-math-school-edition" style="cursor:pointer" style="--card-bg:url(screenshots/799953489_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_799953489.jpg" alt="Animal Math School Edition">
+        <div class="featured-content">
+          <div class="featured-name">Animal Math School Edition</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.4 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(71 ratings)</span>
+            <span class="price-badge paid">$12.99</span>
+            <span class="grade-badge">Pre-K – 2nd</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id799953489" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/799953489_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/799953489_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/799953489_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="animal-math-toddler-games" style="cursor:pointer" style="--card-bg:url(screenshots/1140979547_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_1140979547.jpg" alt="Animal Math Toddler Games">
+        <div class="featured-content">
+          <div class="featured-name">Animal Math Toddler Games</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.4 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(76 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Toddlers</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id1140979547" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/1140979547_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/1140979547_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/1140979547_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category-label">Flash Cards</div>
+    <div class="app-grid">
+      <div class="featured-card" data-slug="multiplication-flashcards" style="cursor:pointer" style="--card-bg:url(icons/appstore_960948021.jpg)">
+        <img class="featured-icon" src="icons/appstore_960948021.jpg" alt="Multiplication Flashcards">
+        <div class="featured-content">
+          <div class="featured-name">Multiplication Flashcards</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.4 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(1,112 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">3rd – 5th</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id960948021" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="no-screenshots">No screenshots available</div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="division-flash-cards" style="cursor:pointer" style="--card-bg:url(screenshots/960947603_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_960947603.jpg" alt="Division Flash Cards">
+        <div class="featured-content">
+          <div class="featured-name">Division Flash Cards</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.6 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+            <span class="rating-count">(53 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">3rd – 5th</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id960947603" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/960947603_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/960947603_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/960947603_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="subtraction-flash-cards" style="cursor:pointer" style="--card-bg:url(screenshots/958762326_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_958762326.jpg" alt="Subtraction Flash Cards">
+        <div class="featured-content">
+          <div class="featured-name">Subtraction Flash Cards</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.7 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+            <span class="rating-count">(7 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">1st – 3rd</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id958762326" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/958762326_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/958762326_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/958762326_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="addition-flash-cards" style="cursor:pointer" style="--card-bg:url(screenshots/958762099_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_958762099.jpg" alt="Addition Flash Cards">
+        <div class="featured-content">
+          <div class="featured-name">Addition Flash Cards</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.5 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(60 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">1st – 3rd</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id958762099" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/958762099_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/958762099_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/958762099_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="multiplication-flash-cards-full" style="cursor:pointer" style="--card-bg:url(screenshots/960948405_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_960948405.jpg" alt="Multiplication Flash Cards (Full)">
+        <div class="featured-content">
+          <div class="featured-name">Multiplication Flash Cards (Full)</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.2 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(39 ratings)</span>
+            <span class="price-badge paid">$3.99</span>
+            <span class="grade-badge">3rd – 5th</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id960948405" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/960948405_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/960948405_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/960948405_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="math-flash-cards" style="cursor:pointer" style="--card-bg:url(screenshots/1200001735_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_1200001735.jpg" alt="Math Flash Cards">
+        <div class="featured-content">
+          <div class="featured-name">Math Flash Cards</div>
+          <div class="featured-meta">
+            <span class="star-rating">3.3 <span class="stars">&#9733;&#9733;&#9733;&#9734;&#9734;</span></span>
+            <span class="rating-count">(12 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">K – 3rd</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id1200001735" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/1200001735_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/1200001735_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/1200001735_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category-label">Colors & Shapes</div>
+    <div class="app-grid">
+      <div class="featured-card" data-slug="ask-me-colors" style="cursor:pointer" style="--card-bg:url(screenshots/677024235_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_677024235.jpg" alt="Ask Me! Colors">
+        <div class="featured-content">
+          <div class="featured-name">Ask Me! Colors</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.0 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(53 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Toddlers</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id677024235" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/677024235_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/677024235_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/677024235_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="ask-me-shapes" style="cursor:pointer" style="--card-bg:url(screenshots/683837839_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_683837839.jpg" alt="Ask Me! Shapes">
+        <div class="featured-content">
+          <div class="featured-name">Ask Me! Shapes</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.4 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(7 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Toddlers</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id683837839" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/683837839_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/683837839_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/683837839_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="colors-and-shapes" style="cursor:pointer" style="--card-bg:url(screenshots/711225430_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_711225430.jpg" alt="Colors & Shapes">
+        <div class="featured-content">
+          <div class="featured-name">Colors & Shapes</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.5 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+            <span class="rating-count">(32 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Pre-K</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id711225430" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/711225430_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/711225430_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/711225430_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="shape-game" style="cursor:pointer" style="--card-bg:url(screenshots/716379186_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_716379186.jpg" alt="Shape Game">
+        <div class="featured-content">
+          <div class="featured-name">Shape Game</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.2 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(14 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Pre-K</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id716379186" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/716379186_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/716379186_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/716379186_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category-label">Puzzles & Jigsaws</div>
+    <div class="app-grid">
+      <div class="featured-card" data-slug="animal-puzzles" style="cursor:pointer" style="--card-bg:url(screenshots/621162682_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_621162682.jpg" alt="Animal Puzzles">
+        <div class="featured-content">
+          <div class="featured-name">Animal Puzzles</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.5 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(41 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Ages 2+</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id621162682" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/621162682_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/621162682_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/621162682_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="princess-puzzles" style="cursor:pointer" style="--card-bg:url(screenshots/592786449_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_592786449.jpg" alt="Princess Puzzles">
+        <div class="featured-content">
+          <div class="featured-name">Princess Puzzles</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.7 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+            <span class="rating-count">(19 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Ages 2+</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id592786449" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/592786449_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/592786449_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/592786449_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="farm-puzzles" style="cursor:pointer" style="--card-bg:url(screenshots/549755896_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_549755896.jpg" alt="Farm Puzzles">
+        <div class="featured-content">
+          <div class="featured-name">Farm Puzzles</div>
+          <div class="featured-meta">
+            <span class="star-rating">5.0 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+            <span class="rating-count">(3 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Ages 2+</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id549755896" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/549755896_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/549755896_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/549755896_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="jigsaw-kittens" style="cursor:pointer" style="--card-bg:url(screenshots/972532327_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_972532327.jpg" alt="Jigsaw: Kittens">
+        <div class="featured-content">
+          <div class="featured-name">Jigsaw: Kittens</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.0 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(5 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Ages 3+</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id972532327" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/972532327_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/972532327_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/972532327_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="jigsaw-puppies" style="cursor:pointer" style="--card-bg:url(screenshots/972528630_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_972528630.jpg" alt="Jigsaw: Puppies">
+        <div class="featured-content">
+          <div class="featured-name">Jigsaw: Puppies</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.0 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(3 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Ages 3+</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id972528630" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/972528630_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/972528630_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/972528630_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="jigsaw-orcas" style="cursor:pointer" style="--card-bg:url(screenshots/1023960454_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_1023960454.jpg" alt="Jigsaw: Orcas">
+        <div class="featured-content">
+          <div class="featured-name">Jigsaw: Orcas</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.2 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(9 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Ages 3+</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id1023960454" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/1023960454_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/1023960454_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/1023960454_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="jigsaw-sharks" style="cursor:pointer" style="--card-bg:url(screenshots/1023960706_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_1023960706.jpg" alt="Jigsaw: Sharks">
+        <div class="featured-content">
+          <div class="featured-name">Jigsaw: Sharks</div>
+          <div class="featured-meta">
+            <span class="star-rating">5.0 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+            <span class="rating-count">(1 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Ages 3+</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id1023960706" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/1023960706_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/1023960706_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/1023960706_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="jigsaw-polar-bears" style="cursor:pointer" style="--card-bg:url(screenshots/1013847430_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_1013847430.jpg" alt="Jigsaw: Polar Bears">
+        <div class="featured-content">
+          <div class="featured-name">Jigsaw: Polar Bears</div>
+          <div class="featured-meta">
+            <span class="star-rating">5.0 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+            <span class="rating-count">(1 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Ages 3+</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id1013847430" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/1013847430_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/1013847430_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/1013847430_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category-label">Coloring</div>
+    <div class="app-grid">
+      <div class="featured-card" data-slug="coloring-animal-zoo" style="cursor:pointer" style="--card-bg:url(screenshots/550047972_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_550047972.jpg" alt="Coloring Animal Zoo">
+        <div class="featured-content">
+          <div class="featured-name">Coloring Animal Zoo</div>
+          <div class="featured-meta">
+            <span class="star-rating">3.5 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(2 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Ages 2+</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id550047972" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/550047972_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/550047972_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/550047972_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="princess-coloring" style="cursor:pointer" style="--card-bg:url(screenshots/567308957_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_567308957.jpg" alt="Princess Coloring">
+        <div class="featured-content">
+          <div class="featured-name">Princess Coloring</div>
+          <div class="featured-meta">
+            <span class="star-rating">3.0 <span class="stars">&#9733;&#9733;&#9733;&#9734;&#9734;</span></span>
+            <span class="rating-count">(2 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Ages 2+</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id567308957" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/567308957_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/567308957_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/567308957_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="coloring-farm" style="cursor:pointer" style="--card-bg:url(screenshots/517339696_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_517339696.jpg" alt="Coloring Farm">
+        <div class="featured-content">
+          <div class="featured-name">Coloring Farm</div>
+          <div class="featured-meta">
+            <span class="star-rating">5.0 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+            <span class="rating-count">(10 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Ages 2+</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id517339696" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/517339696_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/517339696_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/517339696_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category-label">Stories & Reading</div>
+    <div class="app-grid">
+      <div class="featured-card" data-slug="storytime-read-aloud" style="cursor:pointer" style="--card-bg:url(screenshots/1645374904_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_1645374904.jpg" alt="Storytime Read-Aloud">
+        <div class="featured-content">
+          <div class="featured-name">Storytime Read-Aloud</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.5 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+            <span class="rating-count">(2 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Ages 0–8</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id1645374904" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/1645374904_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/1645374904_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/1645374904_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="phonics-flashcards" style="cursor:pointer" style="--card-bg:url(screenshots/6448996882_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_6448996882.jpg" alt="Phonics Flashcards">
+        <div class="featured-content">
+          <div class="featured-name">Phonics Flashcards</div>
+          <div class="featured-meta">
+            <span class="star-rating">3.7 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(3 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Pre-K – 1st</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id6448996882" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/6448996882_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/6448996882_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/6448996882_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category-label">Other Fun</div>
+    <div class="app-grid">
+      <div class="featured-card" data-slug="whose-toes" style="cursor:pointer" style="--card-bg:url(screenshots/532948861_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_532948861.jpg" alt="Whose Toes Are Those?">
+        <div class="featured-content">
+          <div class="featured-name">Whose Toes Are Those?</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.1 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(60 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Toddlers</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id532948861" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/532948861_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/532948861_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/532948861_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="farm-story-maker" style="cursor:pointer" style="--card-bg:url(screenshots/1014867757_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_1014867757.jpg" alt="Farm Story Maker">
+        <div class="featured-content">
+          <div class="featured-name">Farm Story Maker</div>
+          <div class="featured-meta">
+            <span class="star-rating">5.0 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></span>
+            <span class="rating-count">(1 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Ages 2+</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id1014867757" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/1014867757_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/1014867757_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/1014867757_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="jungle-jam" style="cursor:pointer" style="--card-bg:url(icons/appstore_480933872.jpg)">
+        <img class="featured-icon" src="icons/appstore_480933872.jpg" alt="Jungle Jam">
+        <div class="featured-content">
+          <div class="featured-name">Jungle Jam</div>
+          <div class="featured-meta">
+            <span class="star-rating">2.9 <span class="stars">&#9733;&#9733;&#9733;&#9734;&#9734;</span></span>
+            <span class="rating-count">(15 ratings)</span>
+            <span class="price-badge paid">$0.99</span>
+            <span class="grade-badge">Ages 2+</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id480933872" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="no-screenshots">No screenshots available</div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="good-morning-stickers" style="cursor:pointer" style="--card-bg:url(screenshots/1168025542_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_1168025542.jpg" alt="Good Morning Stickers">
+        <div class="featured-content">
+          <div class="featured-name">Good Morning Stickers</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.3 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(6 ratings)</span>
+            <span class="price-badge paid">$0.99</span>
+            <span class="grade-badge">All Ages</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id1168025542" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/1168025542_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/1168025542_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/1168025542_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="number-match" style="cursor:pointer" style="--card-bg:url(screenshots/698019156_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_698019156.jpg" alt="Number Match">
+        <div class="featured-content">
+          <div class="featured-name">Number Match</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.5 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(50 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Pre-K</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id698019156" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/698019156_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/698019156_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/698019156_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+
+      <div class="featured-card" data-slug="farm-games" style="cursor:pointer" style="--card-bg:url(screenshots/1069878949_1.jpg)">
+        <img class="featured-icon" src="icons/appstore_1069878949.jpg" alt="Farm Games">
+        <div class="featured-content">
+          <div class="featured-name">Farm Games</div>
+          <div class="featured-meta">
+            <span class="star-rating">4.1 <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></span>
+            <span class="rating-count">(12 ratings)</span>
+            <span class="price-badge free">Free</span>
+            <span class="grade-badge">Ages 2+</span>
+          </div>
+          <div class="featured-actions">
+            <a href="https://apps.apple.com/us/app/id1069878949" target="_blank" rel="noopener" class="appstore-btn">App Store &#8594;</a>
+          </div>
+          <div class="screenshot-strip">
+            <img class="screenshot-thumb" src="screenshots/1069878949_1.jpg" alt="Screenshot 1">
+            <img class="screenshot-thumb" src="screenshots/1069878949_2.jpg" alt="Screenshot 2">
+            <img class="screenshot-thumb" src="screenshots/1069878949_3.jpg" alt="Screenshot 3">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+<script>
+document.querySelectorAll('.featured-card[data-slug]').forEach(card=>{
+  card.addEventListener('click', function(e){
+    if(e.target.closest('.appstore-btn')) return; // Don't intercept App Store links
+    window.location.href = '' + this.dataset.slug + '/';
+  });
+});
+</script>
+</body>
+</html>

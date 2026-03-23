@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jigsaw Wonder Sharks | Animal Math</title>
+  <meta name="description" content="Exciting shark jigsaw puzzles from the Jigsaw Wonder series! Assemble incredible shark photos while developing spatial reasoning. Fun facts and multiple puzzle ">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #fff;
+      color: #1e293b;
+      min-height: 100vh;
+    }
+
+    /* ===== Header ===== */
+    .site-header {
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: all 0.15s;
+    }
+    .nav-links a:hover { background: #f1f5f9; color: #1e293b; }
+    .nav-links a.active { background: #fef3c7; color: #92400e; }
+
+    /* ===== Back Link ===== */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 16px 0 0;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      padding-left: 24px;
+      padding-right: 24px;
+      padding-top: 20px;
+    }
+    .back-link a {
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .back-link a:hover { color: #1e293b; }
+
+    /* ===== App Header ===== */
+    .app-header {
+      background: linear-gradient(180deg, #f0f4ff 0%, #ffffff 100%);
+      padding: 40px 24px 48px;
+    }
+    .app-header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+    }
+    .app-icon {
+      width: 140px;
+      height: 140px;
+      border-radius: 24px;
+      flex-shrink: 0;
+      object-fit: cover;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .app-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .app-info h1 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #1a1a2e;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .app-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .grade-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .star-rating {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .star-rating .stars {
+      color: #f59e0b;
+      font-size: 16px;
+      letter-spacing: -1px;
+    }
+    .rating-count {
+      font-size: 13px;
+      color: #94a3b8;
+      font-weight: 400;
+    }
+    .price-badge {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .price-badge.free { background: #dcfce7; color: #166534; }
+    .price-badge.paid { background: #f1f5f9; color: #475569; }
+
+    .app-description {
+      font-size: 15px;
+      line-height: 1.7;
+      color: #475569;
+      margin-bottom: 20px;
+      max-width: 700px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .appstore-action {
+      background: #1e293b;
+      color: white;
+      border: 2px solid #1e293b;
+    }
+    .appstore-action:hover {
+      background: #334155;
+      border-color: #334155;
+    }
+    .amazon-action {
+      background: white;
+      color: #1e293b;
+      border: 2px solid #e2e8f0;
+    }
+    .amazon-action:hover {
+      border-color: #f59e0b;
+      color: #92400e;
+      background: #fffbeb;
+    }
+
+    /* ===== Screenshot Gallery ===== */
+    .screenshot-section {
+      background: #1a1a2e;
+      padding: 40px 0;
+    }
+    .section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .screenshot-section .section-heading {
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .gallery-container {
+      position: relative;
+    }
+    .gallery-strip {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      padding: 8px 0 16px;
+      scrollbar-width: thin;
+      scrollbar-color: #475569 transparent;
+    }
+    .gallery-strip::-webkit-scrollbar { height: 6px; }
+    .gallery-strip::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+    .gallery-thumb {
+      height: 200px;
+      width: auto;
+      border-radius: 12px;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 2px solid transparent;
+    }
+    .gallery-thumb:hover {
+      transform: scale(1.04);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      border-color: rgba(255,255,255,0.3);
+    }
+    .scroll-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      border: none;
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a2e;
+      cursor: pointer;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: all 0.15s;
+    }
+    .scroll-arrow:hover { background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+    .scroll-left { left: -8px; }
+    .scroll-right { right: -8px; }
+
+    /* ===== Lightbox ===== */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 36px;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+      z-index: 10;
+    }
+    .lightbox-close:hover { opacity: 1; }
+    .lightbox img {
+      max-height: 85vh;
+      max-width: 90vw;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: white;
+      font-size: 32px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+    .lightbox-nav:hover { background: rgba(255,255,255,0.3); }
+    .lightbox-prev { left: 20px; }
+    .lightbox-next { right: 20px; }
+
+    /* ===== Features ===== */
+    .features-section {
+      padding: 48px 0;
+      background: #f8fafc;
+    }
+    .features-section .section-heading {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 24px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .feature-item {
+      background: white;
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #334155;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .feature-check {
+      color: #22c55e;
+      font-size: 18px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* ===== Related Apps ===== */
+    .related-section {
+      padding: 48px 0 64px;
+    }
+    .related-section .section-heading {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 24px;
+    }
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .related-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .related-card:hover {
+      border-color: #fbbf24;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+    .related-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 16px;
+      object-fit: cover;
+      margin-bottom: 12px;
+    }
+    .related-name {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .related-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .related-meta .star-rating { font-size: 12px; }
+    .related-meta .stars { font-size: 13px; }
+    .related-meta .price-badge { font-size: 11px; padding: 2px 8px; }
+
+    /* ===== Footer ===== */
+    .site-footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 13px;
+      color: #94a3b8;
+      border-top: 1px solid #e5e7eb;
+      background: #fff;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .site-header { padding: 0 16px; }
+      .nav-links { gap: 2px; flex-wrap: wrap; justify-content: center; }
+      .nav-links a { padding: 6px 10px; font-size: 13px; }
+
+      .app-header { padding: 24px 16px 32px; }
+      .app-header-inner {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .app-icon { width: 110px; height: 110px; border-radius: 20px; }
+      .app-info h1 { font-size: 24px; }
+      .app-meta { justify-content: center; }
+      .app-description { max-width: 100%; }
+      .action-buttons { justify-content: center; }
+
+      .features-grid { grid-template-columns: 1fr; }
+
+      .related-grid { grid-template-columns: repeat(2, 1fr); }
+
+      .back-link { padding-left: 16px; }
+    }
+    @media (max-width: 480px) {
+      .related-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../../"><img src="../../images/logo.png" alt="Animal Math" height="36"></a>
+      <nav class="nav-links">
+        <a href="../../printables/">Printables</a>
+        <a href="../../generators.html">Generators</a>
+        <a href="../../tools/index.html">Tools</a>
+        <a href="../../songs/index.html">Songs</a>
+        <a href="../index.html" class="active">Apps</a>
+        <a href="../../about.html">About</a>
+        <a href="../../my-sets/index.html">My Worksheet Sets</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="back-link"><a href="../index.html">&larr; Back to Apps</a></div>
+
+  <section class="app-header">
+    <div class="app-header-inner">
+      <img src="../icons/appstore_1023960706.jpg" alt="Jigsaw Wonder Sharks" class="app-icon">
+      <div class="app-info">
+        <h1>Jigsaw Wonder Sharks</h1>
+        <div class="app-meta">
+          <span class="grade-badge">Ages 3-7</span>
+          <span class="star-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span> 5.0</span>
+          <span class="rating-count">(1 ratings)</span>
+          <span class="price-badge free">Free</span>
+        </div>
+        <p class="app-description">Exciting shark jigsaw puzzles from the Jigsaw Wonder series! Assemble incredible shark photos while developing spatial reasoning. Fun facts and multiple puzzle sizes make learning about sharks an adventure.</p>
+        <div class="action-buttons">
+          <a href="https://apps.apple.com/us/app/shark-puzzles-for-kids-free-jigsaw-wonder-collection/id1023960706?uo=4" target="_blank" rel="noopener" class="action-btn appstore-action">&#xf179; App Store &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screenshot-section">
+    <div class="section-inner">
+      <h2 class="section-heading">Screenshots</h2>
+      <div class="gallery-container">
+        <button class="scroll-arrow scroll-left" aria-label="Scroll left">&lsaquo;</button>
+        <div class="gallery-strip"><img src="../screenshots/1023960706_1.jpg" alt="Jigsaw Wonder Sharks screenshot 1" class="gallery-thumb" data-index="0" loading="lazy"><img src="../screenshots/1023960706_2.jpg" alt="Jigsaw Wonder Sharks screenshot 2" class="gallery-thumb" data-index="1" loading="lazy"><img src="../screenshots/1023960706_3.jpg" alt="Jigsaw Wonder Sharks screenshot 3" class="gallery-thumb" data-index="2" loading="lazy"></div>
+        <button class="scroll-arrow scroll-right" aria-label="Scroll right">&rsaquo;</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="features-section">
+    <div class="section-inner">
+      <h2 class="section-heading">What Your Child Will Learn</h2>
+      <div class="features-grid">
+            <div class="feature-item"><span class="feature-check">&#10003;</span> Incredible shark photos</div>
+            <div class="feature-item"><span class="feature-check">&#10003;</span> Multiple puzzle sizes</div>
+            <div class="feature-item"><span class="feature-check">&#10003;</span> Spatial reasoning practice</div>
+            <div class="feature-item"><span class="feature-check">&#10003;</span> Fun shark facts</div>
+            <div class="feature-item"><span class="feature-check">&#10003;</span> Exciting ocean theme</div>
+            <div class="feature-item"><span class="feature-check">&#10003;</span> Choose your difficulty</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="related-section">
+    <div class="section-inner">
+      <h2 class="section-heading">You Might Also Like</h2>
+      <div class="related-grid">
+          <a href="../animal-puzzles/index.html" class="related-card">
+            <img src="../icons/appstore_621162682.jpg" alt="Animal Puzzles" class="related-icon">
+            <div class="related-name">Animal Puzzles</div>
+            <div class="related-meta">
+              <span class="star-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span> 4.5</span>
+              <span class="price-badge free">Free</span>
+            </div>
+          </a>
+          <a href="../princess-puzzles/index.html" class="related-card">
+            <img src="../icons/appstore_592786449.jpg" alt="Princess Puzzles" class="related-icon">
+            <div class="related-name">Princess Puzzles</div>
+            <div class="related-meta">
+              <span class="star-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span> 4.7</span>
+              <span class="price-badge free">Free</span>
+            </div>
+          </a>
+          <a href="../farm-puzzles/index.html" class="related-card">
+            <img src="../icons/appstore_549755896.jpg" alt="Farm Puzzles" class="related-icon">
+            <div class="related-name">Farm Puzzles</div>
+            <div class="related-meta">
+              <span class="star-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span> 5.0</span>
+              <span class="price-badge free">Free</span>
+            </div>
+          </a>
+          <a href="../farm-games/index.html" class="related-card">
+            <img src="../icons/appstore_1069878949.jpg" alt="Farm Games" class="related-icon">
+            <div class="related-name">Farm Games</div>
+            <div class="related-meta">
+              <span class="star-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span> 4.1</span>
+              <span class="price-badge free">Free</span>
+            </div>
+          </a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    &copy; 2026 Eggroll Games LLC. All rights reserved.
+  </footer>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" aria-label="Close">&times;</button>
+    <button class="lightbox-nav lightbox-prev" aria-label="Previous">&lsaquo;</button>
+    <img src="" alt="Screenshot" id="lightbox-img">
+    <button class="lightbox-nav lightbox-next" aria-label="Next">&rsaquo;</button>
+  </div>
+
+  <script>
+    // Gallery scroll arrows
+    const strip = document.querySelector('.gallery-strip');
+    const leftBtn = document.querySelector('.scroll-left');
+    const rightBtn = document.querySelector('.scroll-right');
+    if (strip && leftBtn && rightBtn) {
+      leftBtn.addEventListener('click', () => strip.scrollBy({ left: -300, behavior: 'smooth' }));
+      rightBtn.addEventListener('click', () => strip.scrollBy({ left: 300, behavior: 'smooth' }));
+    }
+
+    // Lightbox
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const thumbs = document.querySelectorAll('.gallery-thumb');
+    let currentIndex = 0;
+    const sources = Array.from(thumbs).map(t => t.src);
+
+    function openLightbox(index) {
+      currentIndex = index;
+      lightboxImg.src = sources[currentIndex];
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+      lightbox.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    function navigate(dir) {
+      currentIndex = (currentIndex + dir + sources.length) % sources.length;
+      lightboxImg.src = sources[currentIndex];
+    }
+
+    thumbs.forEach((t, i) => t.addEventListener('click', () => openLightbox(i)));
+    document.querySelector('.lightbox-close')?.addEventListener('click', closeLightbox);
+    document.querySelector('.lightbox-prev')?.addEventListener('click', () => navigate(-1));
+    document.querySelector('.lightbox-next')?.addEventListener('click', () => navigate(1));
+    lightbox?.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+
+    document.addEventListener('keydown', (e) => {
+      if (!lightbox?.classList.contains('active')) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') navigate(-1);
+      if (e.key === 'ArrowRight') navigate(1);
+    });
+  </script>
+</body>
+</html>
