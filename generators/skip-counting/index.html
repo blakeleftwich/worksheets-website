@@ -300,32 +300,36 @@
 
     /* ===== Preview ===== */
     .preview-area {
+      padding: 40px;
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      padding: 30px;
       overflow: auto;
+      min-height: calc(100vh - 64px);
     }
 
     #sheetWrap {
       display: flex;
-      flex-wrap: wrap;
-      gap: 24px;
-      justify-content: center;
-      align-items: flex-start;
+      flex-direction: column;
+      gap: 40px;
+      align-items: center;
     }
 
     #sheetWrap.grid-view {
       display: grid;
-      justify-items: center;
+      gap: 24px;
+      justify-content: center;
+      align-content: start;
     }
 
     .worksheet-page {
       background: white;
-      border-radius: 8px;
+      border-radius: 12px;
+      padding: 24px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-      overflow: hidden;
-      padding: 12px;
+      display: inline-block;
+      border: none;
+      transition: transform 0.2s ease;
     }
 
     /* ===== Responsive ===== */
@@ -449,24 +453,30 @@
       <div class="control-group">
         <label for="skipBy">Skip Count By</label>
         <select id="skipBy">
+          <option value="1">1s</option>
           <option value="2">2s</option>
           <option value="3">3s</option>
           <option value="4">4s</option>
           <option value="5" selected>5s</option>
           <option value="10">10s</option>
-          <option value="25">25s</option>
-          <option value="100">100s</option>
         </select>
       </div>
 
       <div class="control-group">
-        <label for="startNum">Starting Number</label>
-        <input type="number" id="startNum" value="5" min="0" max="9999" />
+        <label for="startMode">Starting Number</label>
+        <select id="startMode">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="multiples" selected>Multiples</option>
+          <option value="any">Any Number</option>
+          <option value="mixed">Mixed</option>
+        </select>
       </div>
 
       <div class="control-group">
         <label for="numsPerSeq">Numbers per Sequence</label>
         <select id="numsPerSeq">
+          <option value="3">3</option>
           <option value="4">4</option>
           <option value="5">5</option>
           <option value="6" selected>6</option>
@@ -509,12 +519,12 @@
         <div class="advanced-panel-inner">
 
           <div class="control-group">
-            <label for="seqPerSheet">Sequences per Sheet</label>
+            <label for="seqPerSheet">Problems Per Page</label>
             <select id="seqPerSheet">
-              <option value="4">4</option>
               <option value="6" selected>6</option>
               <option value="8">8</option>
               <option value="10">10</option>
+              <option value="12">12</option>
             </select>
           </div>
 
@@ -611,7 +621,7 @@
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
     const elSkipBy = document.getElementById("skipBy");
-    const elStartNum = document.getElementById("startNum");
+    const elStartMode = document.getElementById("startMode");
     const elNumsPerSeq = document.getElementById("numsPerSeq");
     const elBlanksPerSeq = document.getElementById("blanksPerSeq");
     const elRandomPlacement = document.getElementById("randomPlacement");
@@ -664,13 +674,38 @@
     let currentState = { sheets: [] };
 
     // ===== Sequence generation =====
+    function getStartNum(startMode, skipBy, seqIndex) {
+      if (startMode === "0") return 0;
+      if (startMode === "1") return 1;
+      if (startMode === "multiples") {
+        // Random multiple of skipBy (1x to 10x)
+        return skipBy * (1 + Math.floor(Math.random() * 10));
+      }
+      if (startMode === "any") {
+        // Random number 1-50 that is NOT a multiple of skipBy (unless skipBy is 1)
+        if (skipBy === 1) return 1 + Math.floor(Math.random() * 50);
+        let n;
+        do { n = 1 + Math.floor(Math.random() * 50); } while (n % skipBy === 0);
+        return n;
+      }
+      // mixed: randomly pick multiples or any
+      if (Math.random() < 0.5) {
+        return skipBy * (1 + Math.floor(Math.random() * 10));
+      } else {
+        if (skipBy === 1) return 1 + Math.floor(Math.random() * 50);
+        let n;
+        do { n = 1 + Math.floor(Math.random() * 50); } while (n % skipBy === 0);
+        return n;
+      }
+    }
+
     function generateSequences(count, opts) {
-      const { skipBy, startNum, numsPerSeq, blanksPerSeq, randomPlacement } = opts;
+      const { skipBy, startMode, numsPerSeq, blanksPerSeq, randomPlacement } = opts;
       const sequences = [];
 
       for (let s = 0; s < count; s++) {
         const numbers = [];
-        const seqStart = startNum + s * skipBy * numsPerSeq;
+        const seqStart = getStartNum(startMode, skipBy, s);
         for (let i = 0; i < numsPerSeq; i++) {
           numbers.push(seqStart + i * skipBy);
         }
@@ -684,26 +719,15 @@
             blanks.add(i);
           }
         } else {
-          // Random placement: pick from inner positions first, then edges
-          const innerPositions = [];
-          for (let i = 1; i < numsPerSeq - 1; i++) innerPositions.push(i);
-          for (let i = innerPositions.length - 1; i > 0; i--) {
+          // Random placement: any position can be blank, including first and last
+          const allPositions = [];
+          for (let i = 0; i < numsPerSeq; i++) allPositions.push(i);
+          for (let i = allPositions.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [innerPositions[i], innerPositions[j]] = [innerPositions[j], innerPositions[i]];
+            [allPositions[i], allPositions[j]] = [allPositions[j], allPositions[i]];
           }
-          let blanksNeeded = blankCount;
-          for (let i = 0; i < innerPositions.length && blanksNeeded > 0; i++) {
-            blanks.add(innerPositions[i]); blanksNeeded--;
-          }
-          if (blanksNeeded > 0) {
-            const edgePositions = [0, numsPerSeq - 1].filter(p => !blanks.has(p));
-            for (let i = edgePositions.length - 1; i > 0; i--) {
-              const j = Math.floor(Math.random() * (i + 1));
-              [edgePositions[i], edgePositions[j]] = [edgePositions[j], edgePositions[i]];
-            }
-            for (let i = 0; i < edgePositions.length && blanksNeeded > 0; i++) {
-              blanks.add(edgePositions[i]); blanksNeeded--;
-            }
+          for (let i = 0; i < allPositions.length && blanks.size < blankCount; i++) {
+            blanks.add(allPositions[i]);
           }
         }
 
@@ -812,10 +836,13 @@
       const bottomMargin = branded ? 56 : 24;
       const availH = pageH - bottomMargin - topGridY;
       const availW = pageW - margin * 2;
-      const rowH = (availH / seqCount) * 0.95;
 
       // Determine sizing based on numbers per sequence
       const numsPerSeq = sequences[0].numbers.length;
+      const layoutCols = numsPerSeq <= 4 ? 2 : 1;
+      const layoutRows = Math.ceil(seqCount / layoutCols);
+      const colW = availW / layoutCols;
+      const rowH = (availH / layoutRows) * 0.95;
 
       // Find the max number width across all sequences to size boxes uniformly
       let maxNumStr = 0;
@@ -829,30 +856,28 @@
       const probNumSize = 10;
       const probNumW = probNumSize * (seqCount >= 10 ? 2.0 : 1.6);
 
-      // Calculate box size based on available space
-      // Scale comma/gap spacing based on number of items to fit better
-      const commaSpace = numsPerSeq >= 12 ? 5 : 8;
-      const boxGap = numsPerSeq >= 12 ? 2 : 4;
-      const leftPad = probNumW + 8; // space for sequence number
-      const totalGapSpace = (numsPerSeq - 1) * (commaSpace + boxGap);
-      const maxBoxW = (availW - leftPad - totalGapSpace) / numsPerSeq;
+      // Calculate item spacing
+      const commaSpace = numsPerSeq >= 12 ? 0.25 : 0.375;
+      const itemGap = numsPerSeq >= 12 ? 0.125 : 0.25;
+      const leftPad = probNumW + 8;
+      // Size numbers based on available space
+      const totalGapSpace = (numsPerSeq - 1) * (commaSpace + itemGap);
+      const itemWRaw = (colW - leftPad - totalGapSpace) / numsPerSeq;
+      const itemW = Math.min(itemWRaw, 80);
+      const fontSize = Math.min(itemW * 0.55, 24, rowH * 0.35) * 1.5;
+      const commaSize = fontSize * 1.5;
+      const underlineW = Math.max(itemW * 0.7, fontSize * maxNumStr * 0.7);
 
-      // Box dimensions - scale width based on max digit count
-      const minBoxW = Math.max(maxNumStr * 8 + 8, 28);
-      const boxW = Math.max(minBoxW, Math.min(maxBoxW, 48));
-      const boxH = boxW; // square boxes
-      // Scale font to fit within the box, considering digit count
-      const maxFontForBox = (boxW - 6) / (maxNumStr * 0.62);
-      const fontSize = Math.min(boxH * 0.6, 18, maxFontForBox);
-      const commaSize = fontSize * 0.9;
-
-      // Left-align problems
-      const totalRowW = leftPad + numsPerSeq * boxW + (numsPerSeq - 1) * (commaSpace + boxGap);
-      const rowLeftOffset = margin;
+      const totalRowW = leftPad + numsPerSeq * itemW + (numsPerSeq - 1) * (commaSpace + itemGap);
+      const firstNumHalfW = fontSize * 0.35 * maxNumStr;
 
       for (let s = 0; s < seqCount; s++) {
         const seq = sequences[s];
-        const rowTop = topGridY + s * rowH;
+        const col = layoutCols > 1 ? Math.floor(s / layoutRows) : 0;
+        const row = layoutCols > 1 ? s % layoutRows : s;
+        const colOffset = col * colW;
+        const rowLeftOffset = margin + colOffset - leftPad - itemW / 2 + firstNumHalfW;
+        const rowTop = topGridY + row * rowH;
         const cy = rowTop + rowH / 2;
 
         // Sequence number
@@ -874,90 +899,68 @@
 
         // Draw each number in the sequence
         for (let i = 0; i < seq.numbers.length; i++) {
-          const x = rowLeftOffset + leftPad + i * (boxW + commaSpace + boxGap);
+          const x = rowLeftOffset + leftPad + i * (itemW + commaSpace + itemGap);
           const isBlank = seq.blanks.has(i);
           const numValue = seq.numbers[i];
           const numStr = String(numValue);
-
-          // Draw box
-          const boxX = x;
-          const boxY = cy - boxH / 2;
+          const centerX = x + itemW / 2;
 
           const isExample = (s === 0 && isBlank && !firstBlankDrawn && includeExample && !showAnswers);
           if (isBlank && isExample) firstBlankDrawn = true;
 
           if (isBlank && !showAnswers && !isExample) {
-            // Empty box for student to fill in
-            svg.appendChild(svgEl("rect", {
-              x: boxX, y: boxY, width: boxW, height: boxH,
-              rx: 4, ry: 4,
-              fill: "#f7fafc",
-              stroke: "#2d3748",
-              "stroke-width": "1.5"
+            // Underline blank for student to fill in
+            svg.appendChild(svgEl("line", {
+              x1: centerX - underlineW / 2, y1: cy + fontSize * 0.5,
+              x2: centerX + underlineW / 2, y2: cy + fontSize * 0.5,
+              stroke: "#cbd5e1", "stroke-width": "1.5"
             }));
           } else if (isExample) {
-            // Example: green-filled box with answer
-            svg.appendChild(svgEl("rect", {
-              x: boxX, y: boxY, width: boxW, height: boxH,
-              rx: 4, ry: 4,
-              fill: "#f0fdf4",
-              stroke: "#22c55e",
-              "stroke-width": "1.5"
-            }));
+            // Example: green number with badge
             const txt = svgEl("text", {
-              x: boxX + boxW / 2,
-              y: cy + fontSize * 0.35,
+              x: centerX, y: cy + fontSize * 0.35,
               "text-anchor": "middle",
               "font-family": "'Google Sans Flex', sans-serif",
-              "font-size": String(fontSize),
-              "font-weight": "500",
+              "font-size": String(fontSize), "font-weight": "700",
               fill: "#16a34a"
             });
             txt.textContent = numStr;
             svg.appendChild(txt);
-            // Example badge above box
-            const badgeW = 42, badgeH = 13, badgeX = boxX + boxW - badgeW, badgeY = boxY - 15;
+            // Underline
+            svg.appendChild(svgEl("line", {
+              x1: centerX - underlineW / 2, y1: cy + fontSize * 0.5,
+              x2: centerX + underlineW / 2, y2: cy + fontSize * 0.5,
+              stroke: "#22c55e", "stroke-width": "1.5"
+            }));
+            // Example badge
+            const badgeW = 42, badgeH = 13, badgeX = centerX - badgeW / 2, badgeY = cy - fontSize * 0.6 - 18;
             svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: badgeW, height: badgeH, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
             const bt = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
             bt.textContent = "Example"; svg.appendChild(bt);
           } else {
-            // Filled number (either not blank, or answer key)
             if (isBlank && showAnswers) {
-              // Answer key: show with blue color and light background
-              svg.appendChild(svgEl("rect", {
-                x: boxX, y: boxY, width: boxW, height: boxH,
-                rx: 4, ry: 4,
-                fill: "#ebf8ff",
-                stroke: "#3182ce",
-                "stroke-width": "1.5"
-              }));
+              // Answer key: blue number with underline
               const txt = svgEl("text", {
-                x: boxX + boxW / 2,
-                y: cy + fontSize * 0.35,
+                x: centerX, y: cy + fontSize * 0.35,
                 "text-anchor": "middle",
                 "font-family": "'Google Sans Flex', sans-serif",
-                "font-size": String(fontSize),
-                "font-weight": "500",
+                "font-size": String(fontSize), "font-weight": "700",
                 fill: "#3182ce"
               });
               txt.textContent = numStr;
               svg.appendChild(txt);
-            } else {
-              // Normal shown number
-              svg.appendChild(svgEl("rect", {
-                x: boxX, y: boxY, width: boxW, height: boxH,
-                rx: 4, ry: 4,
-                fill: "none",
-                stroke: "#cbd5e0",
-                "stroke-width": "1"
+              svg.appendChild(svgEl("line", {
+                x1: centerX - underlineW / 2, y1: cy + fontSize * 0.5,
+                x2: centerX + underlineW / 2, y2: cy + fontSize * 0.5,
+                stroke: "#cbd5e1", "stroke-width": "1.5"
               }));
+            } else {
+              // Normal shown number — just text, no box
               const txt = svgEl("text", {
-                x: boxX + boxW / 2,
-                y: cy + fontSize * 0.35,
+                x: centerX, y: cy + fontSize * 0.35,
                 "text-anchor": "middle",
                 "font-family": "'Google Sans Flex', sans-serif",
-                "font-size": String(fontSize),
-                "font-weight": "500",
+                "font-size": String(fontSize), "font-weight": "700",
                 fill: "#1a202c"
               });
               txt.textContent = numStr;
@@ -967,14 +970,12 @@
 
           // Draw comma separator (except after last number)
           if (i < seq.numbers.length - 1) {
-            const commaX = boxX + boxW + commaSpace / 2 + boxGap / 2;
+            const commaX = x + itemW + commaSpace / 2 + itemGap / 2;
             const comma = svgEl("text", {
-              x: commaX,
-              y: cy + commaSize * 0.35,
+              x: commaX, y: cy + fontSize * 0.35 + commaSize * 0.025,
               "text-anchor": "middle",
               "font-family": "Fredoka, sans-serif",
-              "font-size": String(commaSize),
-              "font-weight": "400",
+              "font-size": String(commaSize), "font-weight": "400",
               fill: "#718096"
             });
             comma.textContent = ",";
@@ -999,7 +1000,7 @@
       const subtitle = getSubtitle();
       return {
         skipBy: parseInt(elSkipBy.value, 10),
-        startNum: parseInt(elStartNum.value, 10) || 0,
+        startMode: elStartMode.value,
         numsPerSeq: parseInt(elNumsPerSeq.value, 10),
         blanksPerSeq: parseInt(elBlanksPerSeq.value, 10),
         randomPlacement: elRandomPlacement.checked,
@@ -1101,7 +1102,7 @@
 
     // ===== Event Listeners =====
     elSkipBy.addEventListener("change", () => renderWithNewRandomization());
-    elStartNum.addEventListener("input", () => renderWithNewRandomization());
+    elStartMode.addEventListener("change", () => renderWithNewRandomization());
     elNumsPerSeq.addEventListener("change", () => renderWithNewRandomization());
     elBlanksPerSeq.addEventListener("change", () => renderWithNewRandomization());
     elRandomPlacement.addEventListener("change", () => renderWithNewRandomization());

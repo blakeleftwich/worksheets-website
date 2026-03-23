@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <rect width="200" height="140" fill="#f7f8fc"/>
+  <!-- Row 1: empty box + 2 apples -->
+  <rect x="16" y="8" width="28" height="24" rx="3" fill="none" stroke="#2d3748" stroke-width="1.5"/>
+  <rect x="48" y="8" width="140" height="24" rx="3" fill="none" stroke="#e2e8f0" stroke-width="1"/>
+  <circle cx="88" cy="20" r="8" fill="none" stroke="#3f3d3d" stroke-width="1.2"/>
+  <circle cx="110" cy="20" r="8" fill="none" stroke="#3f3d3d" stroke-width="1.2"/>
+  <!-- Row 2: empty box + 4 items -->
+  <rect x="16" y="36" width="28" height="24" rx="3" fill="none" stroke="#2d3748" stroke-width="1.5"/>
+  <rect x="48" y="36" width="140" height="24" rx="3" fill="none" stroke="#e2e8f0" stroke-width="1"/>
+  <circle cx="74" cy="48" r="7" fill="none" stroke="#3f3d3d" stroke-width="1.2"/>
+  <circle cx="94" cy="48" r="7" fill="none" stroke="#3f3d3d" stroke-width="1.2"/>
+  <circle cx="114" cy="48" r="7" fill="none" stroke="#3f3d3d" stroke-width="1.2"/>
+  <circle cx="134" cy="48" r="7" fill="none" stroke="#3f3d3d" stroke-width="1.2"/>
+  <!-- Row 3: empty box + 1 item -->
+  <rect x="16" y="64" width="28" height="24" rx="3" fill="none" stroke="#2d3748" stroke-width="1.5"/>
+  <rect x="48" y="64" width="140" height="24" rx="3" fill="none" stroke="#e2e8f0" stroke-width="1"/>
+  <circle cx="100" cy="76" r="8" fill="none" stroke="#3f3d3d" stroke-width="1.2"/>
+  <!-- Divider line -->
+  <line x1="16" y1="98" x2="188" y2="98" stroke="#cbd5e1" stroke-width="0.5"/>
+  <!-- Cut-out numbers -->
+  <text x="100" y="108" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="Fredoka, sans-serif">Cut and paste the numbers.</text>
+  <rect x="24" y="112" width="24" height="20" rx="3" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="36" y="127" text-anchor="middle" font-size="14" font-weight="700" fill="#2d3748" font-family="'Google Sans Flex', sans-serif">1</text>
+  <rect x="56" y="112" width="24" height="20" rx="3" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="68" y="127" text-anchor="middle" font-size="14" font-weight="700" fill="#2d3748" font-family="'Google Sans Flex', sans-serif">2</text>
+  <rect x="88" y="112" width="24" height="20" rx="3" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="100" y="127" text-anchor="middle" font-size="14" font-weight="700" fill="#2d3748" font-family="'Google Sans Flex', sans-serif">3</text>
+  <rect x="120" y="112" width="24" height="20" rx="3" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="132" y="127" text-anchor="middle" font-size="14" font-weight="700" fill="#2d3748" font-family="'Google Sans Flex', sans-serif">4</text>
+  <rect x="152" y="112" width="24" height="20" rx="3" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="164" y="127" text-anchor="middle" font-size="14" font-weight="700" fill="#2d3748" font-family="'Google Sans Flex', sans-serif">5</text>
+</svg>

@@ -454,14 +454,6 @@
         </select>
       </div>
 
-      <div class="control-group">
-        <label for="targetNumber">Target Number</label>
-        <select id="targetNumber">
-          <option value="5">5</option>
-          <option value="10" selected>10</option>
-          <option value="20">20</option>
-        </select>
-      </div>
       <div class="checkbox-row" style="margin-bottom:12px;">
         <label>
           <input type="checkbox" id="answerKey">
@@ -500,10 +492,15 @@
           <option value="8">8</option>
           <option value="10" selected>10</option>
           <option value="12">12</option>
-          <option value="15">15</option>
         </select>
       </div>
 
+
+          <!-- Allow zero -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="allowZero" />
+            <label for="allowZero">Allow zero</label>
+          </div>
 
           <!-- Show header -->
           <div class="adv-checkbox-row">
@@ -584,7 +581,8 @@
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
     const elMode = document.getElementById("modeSelect");
-    const elTarget = document.getElementById("targetNumber");
+    const elTarget = { value: "10" }; // Target fixed at 10
+    const elAllowZero = document.getElementById("allowZero");
     const elProblems = document.getElementById("problemsPerSheet");
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
@@ -613,13 +611,13 @@
     let currentState = { sheets: [] };
 
     // ===== Problem generation =====
-    function generateProblems(count, target) {
+    function generateProblems(count, target, allowZero) {
       const problems = [];
       const seen = new Set();
       // Generate unique addend pairs that sum to target
-      // Addends range from 0 to target
       const possibleAddends = [];
-      for (let a = 0; a <= target; a++) {
+      const minAddend = allowZero ? 0 : 1;
+      for (let a = minAddend; a <= target - minAddend; a++) {
         possibleAddends.push(a);
       }
 
@@ -647,7 +645,7 @@
 
       // Fill if needed
       while (problems.length < count) {
-        const addend = randInt(0, target);
+        const addend = randInt(minAddend, target - minAddend);
         const answer = target - addend;
         const blankFirst = Math.random() < 0.4;
         problems.push({ given: addend, answer: answer, blankFirst: blankFirst, target: target });
@@ -742,6 +740,7 @@
         answerKey: elAnswerKey.checked,
         numbered: elNumbered.checked,
         includeExample: elIncludeExample.checked,
+        allowZero: elAllowZero.checked,
       };
     }
 
@@ -840,23 +839,57 @@
     function renderEquationMode(svg, problems, opts) {
       const { gridTop, availH, availW, margin, pageW, count, showAnswers, target, numbered, includeExample } = opts;
 
-      // Single column layout
-      const cols = count <= 10 ? 1 : 2;
+      // Column layout (matching fill-in-the-blank style)
+      let cols;
+      if (count <= 4) { cols = 1; }
+      else { cols = 2; }
       const rows = Math.ceil(count / cols);
       const colW = availW / cols;
       const rowH = availH / rows;
 
       // Size text
       const maxTextH = rowH * 0.8;
-      const maxTextW = colW * 0.12;
-      const fontSize = Math.min(36, Math.max(16, Math.floor(Math.min(maxTextH, maxTextW))));
+      const maxTextW = colW * 0.09;
+      const fontSize = Math.min(36, Math.max(14, Math.floor(Math.min(maxTextH, maxTextW))));
       const charW = fontSize * 0.62;
       const boxH = fontSize * 1.7;
-      const boxW = fontSize * 2.2;
+      const boxW = fontSize * 2.0;
 
       // Problem number size
       const probNumSize = 10;
       const probNumW = probNumSize * (count >= 10 ? 2.0 : 1.6);
+
+      // Fixed-column widths per worksheet column (for vertical alignment)
+      const opColW = charW * 2.0;
+      const eqColW = charW * 2.0;
+
+      // Calculate max widths for each slot per column
+      const colMaxSlot1W = [];
+      const colMaxSlot2W = [];
+      const colMaxAnsW = [];
+      for (let c = 0; c < cols; c++) {
+        let maxS1 = 0, maxS2 = 0, maxA = 0;
+        for (let i = c; i < problems.length; i += cols) {
+          const p = problems[i];
+          if (p.blankFirst) {
+            // slot1 = box (answer), slot2 = given, ans = target
+            maxS1 = Math.max(maxS1, String(p.answer).length * charW);
+            maxS2 = Math.max(maxS2, String(p.given).length * charW);
+          } else {
+            // slot1 = given, slot2 = box (answer), ans = target
+            maxS1 = Math.max(maxS1, String(p.given).length * charW);
+            maxS2 = Math.max(maxS2, String(p.answer).length * charW);
+          }
+          maxA = Math.max(maxA, String(p.target).length * charW);
+        }
+        colMaxSlot1W.push(maxS1);
+        colMaxSlot2W.push(maxS2);
+        colMaxAnsW.push(maxA);
+      }
+
+      const colSlot1W = colMaxSlot1W.map(w => Math.max(boxW, w) + charW * 0.4);
+      const colSlot2W = colMaxSlot2W.map(w => Math.max(boxW, w) + charW * 0.4);
+      const colAnsSlotW = colMaxAnsW.map(w => w + charW * 0.4);
 
       for (let i = 0; i < problems.length; i++) {
         const col = i % cols;
@@ -868,94 +901,87 @@
         // Vertical centering within cell
         const cy = cellTop + rowH / 2 + fontSize * 0.35;
 
-        let x = cellLeft + 8;
+        let cx = cellLeft + 8;
 
         // Problem number
         const probNumY = cy - 0.72 * (fontSize - probNumSize);
         if (numbered !== false) {
-          const numEl = svgEl("text", { x: x, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
+          const numEl = svgEl("text", { x: cx, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
           numEl.textContent = (i + 1) + "."; svg.appendChild(numEl);
         }
-        x += probNumW;
+        cx += probNumW;
+
+        // Fixed column positions
+        const slot1Left = cx;
+        const slot1Center = slot1Left + colSlot1W[col] / 2;
+        const opLeft = slot1Left + colSlot1W[col];
+        const opCenter = opLeft + opColW / 2;
+        const slot2Left = opLeft + opColW;
+        const slot2Center = slot2Left + colSlot2W[col] / 2;
+        const eqLeft = slot2Left + colSlot2W[col];
+        const eqCenter = eqLeft + eqColW / 2;
+        const ansLeft = eqLeft + eqColW;
+        const ansCenter = ansLeft + colAnsSlotW[col] / 2;
 
         const isExample = (i === 0 && includeExample && !showAnswers);
 
+        // Slot 1: box or number
         if (p.blankFirst) {
-          // ___ + given = target
-          // Answer box
-          const boxX = x;
-          const boxY = cy - boxH * 0.7;
-          svg.appendChild(svgEl("rect", { x: boxX, y: boxY, width: boxW, height: boxH, rx: 4, ry: 4, fill: isExample ? "#f0fdf4" : "none", stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": "1.5" }));
+          // Slot 1 = answer box (underline)
+          const bx = slot1Center - boxW / 2;
+          const blY = cy + fontSize * 0.15;
+          svg.appendChild(svgEl("line", { x1: bx, y1: blY, x2: bx + boxW, y2: blY, stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": "1.5" }));
           if (isExample) {
-            const ansEl = svgEl("text", { x: boxX + boxW / 2, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#16a34a" });
+            const ansEl = svgEl("text", { x: slot1Center, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#16a34a" });
             ansEl.textContent = String(p.answer); svg.appendChild(ansEl);
-            svg.appendChild(svgEl("rect", { x: boxX + boxW - 2 - 42, y: boxY - 15, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": 0.75 }));
-            const badgeText = svgEl("text", { x: boxX + boxW - 2 - 21, y: boxY - 15 + 9.5, "font-family": "Fredoka, sans-serif", "font-size": 8, "font-weight": 600, "text-anchor": "middle", fill: "#16a34a" });
+            const badgeX = bx + boxW - 42, badgeY = cy - boxH * 0.7 - 15;
+            svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
+            const badgeText = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
             badgeText.textContent = "Example"; svg.appendChild(badgeText);
           } else if (showAnswers) {
-            const ansEl = svgEl("text", { x: boxX + boxW / 2, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
+            const ansEl = svgEl("text", { x: slot1Center, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
             ansEl.textContent = String(p.answer); svg.appendChild(ansEl);
           }
-          x += boxW + charW * 0.6;
-
-          // Plus sign
-          const plusEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
-          plusEl.textContent = "+"; svg.appendChild(plusEl);
-          x += charW * 1.6;
-
-          // Given number
-          const givenStr = String(p.given);
-          const givenEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
-          givenEl.textContent = givenStr; svg.appendChild(givenEl);
-          x += givenStr.length * charW + charW * 0.8;
-
-          // Equals sign
-          const eqEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
-          eqEl.textContent = "="; svg.appendChild(eqEl);
-          x += charW * 1.6;
-
-          // Target number
-          const targetEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
-          targetEl.textContent = String(p.target); svg.appendChild(targetEl);
-
         } else {
-          // given + ___ = target
-          // Given number
-          const givenStr = String(p.given);
-          const givenEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
-          givenEl.textContent = givenStr; svg.appendChild(givenEl);
-          x += givenStr.length * charW + charW * 0.8;
+          // Slot 1 = given number
+          const el = svgEl("text", { x: slot1Center, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+          el.textContent = String(p.given); svg.appendChild(el);
+        }
 
-          // Plus sign
-          const plusEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
-          plusEl.textContent = "+"; svg.appendChild(plusEl);
-          x += charW * 1.6;
+        // Operator
+        const plusEl = svgEl("text", { x: opCenter, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        plusEl.textContent = "+"; svg.appendChild(plusEl);
 
-          // Answer box
-          const boxX = x;
-          const boxY = cy - boxH * 0.7;
-          svg.appendChild(svgEl("rect", { x: boxX, y: boxY, width: boxW, height: boxH, rx: 4, ry: 4, fill: isExample ? "#f0fdf4" : "none", stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": "1.5" }));
+        // Slot 2: number or box
+        if (p.blankFirst) {
+          // Slot 2 = given number
+          const el = svgEl("text", { x: slot2Center, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+          el.textContent = String(p.given); svg.appendChild(el);
+        } else {
+          // Slot 2 = answer box (underline)
+          const bx = slot2Center - boxW / 2;
+          const blY = cy + fontSize * 0.15;
+          svg.appendChild(svgEl("line", { x1: bx, y1: blY, x2: bx + boxW, y2: blY, stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": "1.5" }));
           if (isExample) {
-            const ansEl = svgEl("text", { x: boxX + boxW / 2, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#16a34a" });
+            const ansEl = svgEl("text", { x: slot2Center, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#16a34a" });
             ansEl.textContent = String(p.answer); svg.appendChild(ansEl);
-            svg.appendChild(svgEl("rect", { x: boxX + boxW - 2 - 42, y: boxY - 15, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": 0.75 }));
-            const badgeText = svgEl("text", { x: boxX + boxW - 2 - 21, y: boxY - 15 + 9.5, "font-family": "Fredoka, sans-serif", "font-size": 8, "font-weight": 600, "text-anchor": "middle", fill: "#16a34a" });
+            const badgeX = bx + boxW - 42, badgeY = cy - boxH * 0.7 - 15;
+            svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
+            const badgeText = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
             badgeText.textContent = "Example"; svg.appendChild(badgeText);
           } else if (showAnswers) {
-            const ansEl = svgEl("text", { x: boxX + boxW / 2, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
+            const ansEl = svgEl("text", { x: slot2Center, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
             ansEl.textContent = String(p.answer); svg.appendChild(ansEl);
           }
-          x += boxW + charW * 0.6;
-
-          // Equals sign
-          const eqEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
-          eqEl.textContent = "="; svg.appendChild(eqEl);
-          x += charW * 1.6;
-
-          // Target number
-          const targetEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
-          targetEl.textContent = String(p.target); svg.appendChild(targetEl);
         }
+
+        // Equals sign
+        const eqEl = svgEl("text", { x: eqCenter, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        eqEl.textContent = "="; svg.appendChild(eqEl);
+
+        // Target number
+        const targetEl = svgEl("text", { x: ansCenter, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        targetEl.textContent = String(p.target); svg.appendChild(targetEl);
       }
     }
 
@@ -1083,7 +1109,7 @@
       const opts = gatherOptions();
       currentState.sheets = [];
       for (let s = 0; s < opts.numWorksheets; s++) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.target));
+        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.target, opts.allowZero));
       }
       renderWorksheet();
     }
@@ -1091,7 +1117,7 @@
     function renderWithoutRandomization() {
       const opts = gatherOptions();
       while (currentState.sheets.length < opts.numWorksheets) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.target));
+        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.target, opts.allowZero));
       }
       if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
       renderWorksheet();
@@ -1165,7 +1191,7 @@
 
     // ===== Event Listeners =====
     elMode.addEventListener("change", () => renderWithNewRandomization());
-    elTarget.addEventListener("change", () => renderWithNewRandomization());
+    elAllowZero.addEventListener("change", () => renderWithNewRandomization());
     elProblems.addEventListener("change", () => renderWithNewRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elShowHeaderEnabled.addEventListener("change", () => {

@@ -991,9 +991,9 @@
         '2d-shapes', 'addition-with-pictures', 'bar-graphs', 'base-ten-blocks-place-value',
         'base-ten-manipulatives', 'base-ten-values', 'basic-fractions', 'before-after-between',
         'coin-identification', 'color-by-number-math', 'column-math-equations', 'comparing-groups',
-        'comparing-numbers', 'count-and-write-number-groups', 'counting-money', 'data-table-and-survey',
+        'comparing-numbers', 'count-and-paste', 'count-and-write-number-groups', 'counting-money', 'data-table-and-survey', 'decompose-to-subtract',
         'division-equal-groups', 'dot-to-dot', 'doubles-and-near-doubles', 'expanded-form',
-        'fact-families', 'fill-in-the-blank-equations', 'fill-in-the-ten-frame', 'greater-than-less-than',
+        'fact-families', 'fill-in-the-blank-equations', 'greater-than-less-than',
         'horizontal-math-equations', 'line-plot', 'making-10', 'making-10-ten-frames',
         'math-fact-drills', 'measurement', 'missing-number-sequence-grid', 'multiplication-arrays',
         'number-bonds', 'number-line', 'number-patterns', 'number-tracing-practice',
@@ -1022,7 +1022,7 @@
       ];
 
       Promise.all(generatorFolders.map(function(folder) {
-        return fetch('generators/' + folder + '/info.json?v=3')
+        return fetch('generators/' + folder + '/info.json?v=4')
           .then(function(r) { return r.json(); })
           .then(function(info) { return { folder: folder, info: info }; })
           .catch(function() { return null; });

@@ -507,10 +507,8 @@
         <label for="problemsPerSheet">Problems per Sheet</label>
         <select id="problemsPerSheet">
           <option value="8">8</option>
-          <option value="10">10</option>
-          <option value="12" selected>12</option>
-          <option value="15">15</option>
-          <option value="20">20</option>
+          <option value="10" selected>10</option>
+          <option value="12">12</option>
         </select>
       </div>
 
@@ -840,17 +838,21 @@
       const availH = pageH - bottomMargin - gridTop;
       const availW = pageW - margin * 2;
 
-      // Layout: 2 columns for most problem counts
-      const cols = count <= 8 ? 1 : 2;
+      // Layout (matching fill-in-the-blank style)
+      let cols;
+      if (count <= 4) { cols = 1; }
+      else { cols = 2; }
       const rows = Math.ceil(count / cols);
       const colW = availW / cols;
       const rowH = availH / rows;
 
       // Size text to fit
       const maxTextH = rowH * (showDots ? 0.45 : 0.8);
-      const fontSize = Math.min(36, Math.max(14, Math.floor(maxTextH)));
+      const maxTextW = colW * 0.09;
+      const fontSize = Math.min(36, Math.max(14, Math.floor(Math.min(maxTextH, maxTextW))));
       const charW = fontSize * 0.62;
       const boxH = fontSize * 1.7;
+      const boxW = fontSize * 2.0;
 
       // Fixed problem number size
       const probNumSize = 10;
@@ -860,31 +862,30 @@
       const dotR = Math.min(6, Math.max(3, rowH * 0.04));
       const dotAreaH = showDots ? rowH * 0.38 : 0;
 
-      // First pass: find widest equation per column
-      const eqGap = charW * 0.8;
-      const colMaxEqW = new Array(cols).fill(0);
-      for (let i = 0; i < problems.length; i++) {
-        const col = i % cols;
-        const aStr = String(problems[i].a), bStr = String(problems[i].b);
-        const eqW = probNumW + aStr.length * charW + charW * 0.8 + charW + charW * 1.6 + bStr.length * charW + charW * 0.8 + charW + eqGap;
-        if (eqW > colMaxEqW[col]) colMaxEqW[col] = eqW;
-      }
+      // Fixed-column layout (matching fill-in-the-blank)
+      const opColW = charW * 2.0;
+      const eqColW = charW * 2.0;
 
-      // Calculate box width per column
-      const cellPadLeft = 8;
-      const cellPadRight = 12;
-      const colBoxW = [];
+      // Calculate max widths for each slot per column
+      const colMaxSlot1W = [], colMaxSlot2W = [], colMaxAnsW = [];
       for (let c = 0; c < cols; c++) {
-        const availBoxW = colW - cellPadLeft - colMaxEqW[c] - cellPadRight;
-        colBoxW.push(Math.max(boxH * 1.3, Math.min(availBoxW, boxH * 2.5)));
+        let maxS1 = 0, maxS2 = 0, maxA = 0;
+        for (let i = c; i < problems.length; i += cols) {
+          maxS1 = Math.max(maxS1, String(problems[i].a).length * charW);
+          maxS2 = Math.max(maxS2, String(problems[i].b).length * charW);
+          maxA = Math.max(maxA, String(problems[i].answer).length * charW);
+        }
+        colMaxSlot1W.push(maxS1); colMaxSlot2W.push(maxS2); colMaxAnsW.push(maxA);
       }
+      const colSlot1W = colMaxSlot1W.map(w => Math.max(boxW, w) + charW * 0.4);
+      const colSlot2W = colMaxSlot2W.map(w => Math.max(boxW, w) + charW * 0.4);
+      const colAnsSlotW = colMaxAnsW.map(w => Math.max(boxW, w) + charW * 0.4);
 
       for (let i = 0; i < problems.length; i++) {
         const col = i % cols, row = Math.floor(i / cols);
         const cellLeft = margin + col * colW;
         const cellTop = gridTop + row * rowH;
         const { a, b, answer, type } = problems[i];
-        const aStr = String(a), bStr = String(b);
         const ansStr = String(answer);
         const isExample = (i === 0 && includeExample && !showAnswers);
 
@@ -892,60 +893,66 @@
         const eqZoneH = showDots ? rowH * 0.5 : rowH;
         const cy = cellTop + eqZoneH / 2 + fontSize * 0.35;
 
-        // Build equation left-to-right
-        let x = cellLeft + cellPadLeft;
+        let cx = cellLeft + 8;
 
         // Problem number
         if (numbered !== false) {
           const probNumY = cy - 0.72 * (fontSize - probNumSize);
-          const numEl = svgEl("text", { x: x, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
+          const numEl = svgEl("text", { x: cx, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
           numEl.textContent = (i + 1) + "."; svg.appendChild(numEl);
         }
-        x += probNumW;
+        cx += probNumW;
 
-        // First number
-        const topEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
-        topEl.textContent = aStr; svg.appendChild(topEl);
-        x += aStr.length * charW + charW * 0.8;
+        // Fixed column positions
+        const slot1Left = cx;
+        const slot1Center = slot1Left + colSlot1W[col] / 2;
+        const opLeft = slot1Left + colSlot1W[col];
+        const opCenter = opLeft + opColW / 2;
+        const slot2Left = opLeft + opColW;
+        const slot2Center = slot2Left + colSlot2W[col] / 2;
+        const eqLeft = slot2Left + colSlot2W[col];
+        const eqCenter = eqLeft + eqColW / 2;
+        const ansLeft = eqLeft + eqColW;
+        const ansCenter = ansLeft + colAnsSlotW[col] / 2;
+
+        // Slot 1: first number
+        const topEl = svgEl("text", { x: slot1Center, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        topEl.textContent = String(a); svg.appendChild(topEl);
 
         // Operator (+)
-        const opEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        const opEl = svgEl("text", { x: opCenter, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
         opEl.textContent = "+"; svg.appendChild(opEl);
-        x += charW * 1.6;
 
-        // Second number
-        const botEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
-        botEl.textContent = bStr; svg.appendChild(botEl);
-        x += bStr.length * charW + charW * 0.8;
+        // Slot 2: second number
+        const botEl = svgEl("text", { x: slot2Center, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        botEl.textContent = String(b); svg.appendChild(botEl);
 
         // Equals sign
-        const eqEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        const eqEl = svgEl("text", { x: eqCenter, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
         eqEl.textContent = "="; svg.appendChild(eqEl);
 
-        // Answer box
-        const boxX = cellLeft + cellPadLeft + colMaxEqW[col];
-        const bW = colBoxW[col];
-        const boxY = cy - boxH * 0.7;
-        svg.appendChild(svgEl("rect", { x: boxX, y: boxY, width: bW, height: boxH, rx: 4, ry: 4, fill: isExample ? "#f0fdf4" : "none", stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": "1.5" }));
+        // Answer blank (underline style)
+        const bx = ansCenter - boxW / 2;
+        const blY = cy + fontSize * 0.15;
+        svg.appendChild(svgEl("line", { x1: bx, y1: blY, x2: bx + boxW, y2: blY, stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": "1.5" }));
 
         if (isExample) {
-          const ansEl = svgEl("text", { x: boxX + bW / 2, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#16a34a" });
+          const ansEl = svgEl("text", { x: ansCenter, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#16a34a" });
           ansEl.textContent = ansStr; svg.appendChild(ansEl);
-          // Example badge
-          const badgeX = boxX + bW - 2 - 42, badgeY = boxY - 15;
+          const badgeX = bx + boxW - 42, badgeY = cy - boxH * 0.7 - 15;
           svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
           const badgeText = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
           badgeText.textContent = "Example"; svg.appendChild(badgeText);
         } else if (showAnswers) {
-          const ansEl = svgEl("text", { x: boxX + bW / 2, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
+          const ansEl = svgEl("text", { x: ansCenter, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
           ansEl.textContent = ansStr; svg.appendChild(ansEl);
         }
 
         // Visual dots
         if (showDots && !showAnswers) {
           const dotY = cellTop + eqZoneH + dotAreaH / 2;
-          const dotZoneW = colW - cellPadLeft - cellPadRight;
-          const dotCenterX = cellLeft + cellPadLeft + dotZoneW / 2;
+          const dotZoneW = colW - 20;
+          const dotCenterX = cellLeft + 8 + dotZoneW / 2;
 
           // Two groups side by side
           const groupGap = dotR * 4;

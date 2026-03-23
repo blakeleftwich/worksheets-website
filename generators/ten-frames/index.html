@@ -454,6 +454,14 @@
         </select>
       </div>
 
+      <div class="control-group" id="fillStyleOption" style="display:none;">
+        <label for="fillNumPos">Number Position</label>
+        <select id="fillNumPos">
+          <option value="above" selected>Above the frame</option>
+          <option value="left">Left side</option>
+        </select>
+      </div>
+
       <div class="control-group">
         <label for="rangeSelect">Number Range</label>
         <select id="rangeSelect">
@@ -579,6 +587,8 @@
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
     const elMode = document.getElementById("modeSelect");
+    const elFillNumPos = document.getElementById("fillNumPos");
+    const elFillStyleOption = document.getElementById("fillStyleOption");
     const elRange = document.getElementById("rangeSelect");
     // problemsPerSheet is auto-calculated based on range
     const elNumSheets = document.getElementById("numWorksheets");
@@ -613,12 +623,18 @@
       if (elCustomTitleEnabled.checked) {
         return elShowTitle.checked ? elHeaderText.value : "";
       }
+      if (elMode.value === "fill") {
+        return "Fill in the Ten Frame";
+      }
       return "Ten Frames Counting";
     }
 
     function getSubtitle() {
       if (elCustomTitleEnabled.checked) {
         return elShowSubtitle.checked ? elSubtitleText.value : "";
+      }
+      if (elMode.value === "fill") {
+        return "Fill in the ten frame to show each number.";
       }
       return "Count the dots in each ten frame.";
     }
@@ -732,7 +748,7 @@
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options, wsCode) {
-      const { showHeader, title, subtitle, branded, showAnswers, mode, dotStyle, showNumberLine, range, numbered, includeExample, isAnswerKey } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, mode, fillNumPos, dotStyle, showNumberLine, range, numbered, includeExample, isAnswerKey } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
@@ -844,6 +860,110 @@
 
       // Determine grid layout
       const isDouble = range === "1-20";
+
+      // ===== LEFT-SIDE NUMBER LAYOUT (Fill in the Ten Frame style) =====
+      if (mode === "fill" && fillNumPos === "left") {
+        const cols = 2;
+        const rows = Math.ceil(count / cols);
+        const colW = availW / cols;
+        const rowH = availH / rows;
+        const numberAreaW = 52;
+        const frameAreaW = colW - numberAreaW - 16;
+        const doubleGap = 6;
+
+        let cellSize;
+        if (isDouble) {
+          cellSize = Math.min(
+            Math.floor((frameAreaW - doubleGap) / 10),
+            Math.floor((rowH - 14) / 2)
+          );
+          cellSize = clamp(cellSize, 10, 36);
+        } else {
+          cellSize = Math.min(
+            Math.floor(frameAreaW / 5),
+            Math.floor((rowH - 14) / 2)
+          );
+          cellSize = clamp(cellSize, 12, 44);
+        }
+
+        const singleFrameW = 5 * cellSize;
+        const singleFrameH = 2 * cellSize;
+        const numFontSize = Math.min(38, Math.max(24, Math.floor(rowH * 0.45)));
+        const probNumSize = 10;
+
+        for (let i = 0; i < problems.length; i++) {
+          const col = i % cols;
+          const row = Math.floor(i / cols);
+          const cellLeft = margin + col * colW;
+          const cellTop = gridTop + row * rowH;
+          const num = problems[i];
+          const isExample = (i === 0 && includeExample && !showAnswers);
+
+          // Problem number label (small, e.g., "1.")
+          if (numbered !== false) {
+            const pnX = cellLeft + 4;
+            const pnY = cellTop + 14;
+            const numLabel = svgEl("text", { x: pnX, y: pnY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
+            numLabel.textContent = (i + 1) + "."; svg.appendChild(numLabel);
+          }
+
+          // Center content vertically in the row
+          const centerY = cellTop + rowH / 2;
+
+          // Large number on the left
+          const numTextY = centerY + numFontSize * 0.35;
+          const numEl = svgEl("text", {
+            x: cellLeft + numberAreaW - 18, y: numTextY, "font-family": "'Google Sans Flex', sans-serif",
+            "font-size": String(numFontSize), "font-weight": "700",
+            "text-anchor": "end", fill: "#1a202c"
+          });
+          numEl.textContent = String(num); svg.appendChild(numEl);
+
+          // Ten frame(s) on the right
+          const colPadRight = 10;
+
+          if (isDouble && num > 10) {
+            const totalDoubleW = singleFrameW * 2 + doubleGap;
+            const availFrameArea = colW - numberAreaW - 8 - colPadRight;
+            const frameX = cellLeft + numberAreaW + Math.max(0, (availFrameArea - totalDoubleW) / 2);
+            const frameY = centerY - singleFrameH / 2;
+
+            if (isExample) {
+              drawTenFrame(svg, frameX, frameY, cellSize, 10, null, true);
+              drawTenFrame(svg, frameX + singleFrameW + doubleGap, frameY, cellSize, num - 10, null, true);
+              const badgeX = frameX + totalDoubleW - 42, badgeY = frameY - 15;
+              svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
+              const badgeText = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
+              badgeText.textContent = "Example"; svg.appendChild(badgeText);
+            } else if (showAnswers) {
+              drawTenFrame(svg, frameX, frameY, cellSize, 10, null, true);
+              drawTenFrame(svg, frameX + singleFrameW + doubleGap, frameY, cellSize, num - 10, null, true);
+            } else {
+              drawTenFrame(svg, frameX, frameY, cellSize, 0, null, false, true);
+              drawTenFrame(svg, frameX + singleFrameW + doubleGap, frameY, cellSize, 0, null, false, true);
+            }
+          } else {
+            const availFrameArea = colW - numberAreaW - 8 - colPadRight;
+            const frameX = cellLeft + numberAreaW + Math.max(0, (availFrameArea - singleFrameW) / 2);
+            const frameY = centerY - singleFrameH / 2;
+
+            if (isExample) {
+              drawTenFrame(svg, frameX, frameY, cellSize, num, null, true);
+              const badgeX = frameX + singleFrameW - 42, badgeY = frameY - 15;
+              svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
+              const badgeText = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
+              badgeText.textContent = "Example"; svg.appendChild(badgeText);
+            } else if (showAnswers) {
+              drawTenFrame(svg, frameX, frameY, cellSize, num, null, true);
+            } else {
+              drawTenFrame(svg, frameX, frameY, cellSize, 0, null, false, true);
+            }
+          }
+        }
+        return svg;
+      }
+
+      // ===== STANDARD LAYOUT (above numbers / count mode) =====
       let cols, rows;
       if (count <= 4) { cols = 2; }
       else if (count <= 6) { cols = 2; }
@@ -1000,10 +1120,18 @@
       const title = getTitle();
       const subtitle = getSubtitle();
       const range = elRange.value;
-      // Auto-calculate problems per sheet: 4 for 1-20 (stacked frames need more room), 6 otherwise
-      const problemsPerSheet = range === "1-20" ? 4 : 6;
+      const fillNumPos = elFillNumPos.value;
+      // Auto-calculate problems per sheet based on mode and layout
+      let problemsPerSheet;
+      if (elMode.value === "fill" && fillNumPos === "left") {
+        // Left-side layout: 2 columns, more problems fit
+        problemsPerSheet = range === "1-20" ? 8 : 10;
+      } else {
+        problemsPerSheet = range === "1-20" ? 4 : 6;
+      }
       return {
         mode: elMode.value,
+        fillNumPos: fillNumPos,
         range: range,
         problemsPerSheet: problemsPerSheet,
         dotStyle: "circles",
@@ -1048,7 +1176,7 @@
       if (isMobile()) {
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, mode: opts.mode, fillNumPos: opts.fillNumPos, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
           p.appendChild(v); sheetWrap.appendChild(p);
         }
         return;
@@ -1069,12 +1197,12 @@
         sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, mode: opts.mode, fillNumPos: opts.fillNumPos, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
           v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
         }
       } else {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range, numbered: opts.numbered, includeExample: opts.includeExample }, '(1)');
+        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, mode: opts.mode, fillNumPos: opts.fillNumPos, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range, numbered: opts.numbered, includeExample: opts.includeExample }, '(1)');
         p.appendChild(v); sheetWrap.appendChild(p);
       }
     }
@@ -1088,13 +1216,13 @@
       const wsCodes = currentState.sheets.map((_, i) => '(' + (i + 1) + ')');
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range, numbered: opts.numbered, includeExample: opts.includeExample }, wsCodes[i]));
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, mode: opts.mode, fillNumPos: opts.fillNumPos, dotStyle: opts.dotStyle, showNumberLine: opts.showNumberLine, range: opts.range, numbered: opts.numbered, includeExample: opts.includeExample }, wsCodes[i]));
         sheetWrap.appendChild(p);
       }
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: true, mode: opts.mode, dotStyle: opts.dotStyle, showNumberLine: false, range: opts.range, numbered: opts.numbered, isAnswerKey: true }, wsCodes[i]));
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: true, mode: opts.mode, fillNumPos: opts.fillNumPos, dotStyle: opts.dotStyle, showNumberLine: false, range: opts.range, numbered: opts.numbered, isAnswerKey: true }, wsCodes[i]));
           sheetWrap.appendChild(p);
         }
       }
@@ -1104,7 +1232,11 @@
     // ===== Event Listeners =====
     elNumbered.addEventListener("change", () => renderWithoutRandomization());
     elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
-    elMode.addEventListener("change", () => renderWithNewRandomization());
+    elMode.addEventListener("change", () => {
+      elFillStyleOption.style.display = elMode.value === "fill" ? "" : "none";
+      renderWithNewRandomization();
+    });
+    elFillNumPos.addEventListener("change", () => renderWithNewRandomization());
     elRange.addEventListener("change", () => renderWithNewRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elNumberLineHint.addEventListener("change", () => renderWithoutRandomization());

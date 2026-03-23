@@ -949,16 +949,17 @@
       // Number bond diagram sizing -- scale to fit cells
       // Base diagram: ~120w x 100h, scale to fit available cell
       const diagramBaseW = 120, diagramBaseH = 100;
-      const scale = Math.min((colW - 20) / diagramBaseW, (rowH - 30) / diagramBaseH, 1.8);
+      const scale = Math.min((colW - 20) / diagramBaseW, (rowH - 30) / diagramBaseH, 1.55);
 
       const topR = 20 * scale;    // top circle radius (whole)
       const botR = 17.5 * scale;  // bottom circle radius (parts)
       const dW = diagramBaseW * scale;
       const dH = diagramBaseH * scale;
 
-      // Font sizes scale with diagram
-      const topFontSize = Math.round(18 * scale);
-      const botFontSize = Math.round(16 * scale);
+      // Font sizes — keep readable regardless of diagram scale
+      const origScale = Math.min((colW - 20) / diagramBaseW, (rowH - 30) / diagramBaseH, 1.8);
+      const topFontSize = Math.round(18 * origScale);
+      const botFontSize = Math.round(16 * origScale);
       const probNumSize = 10;
 
       for (let i = 0; i < count; i++) {
@@ -1019,7 +1020,7 @@
         if (!isWholeMissing || showAnswers || wholeIsEx) {
           const wholeText = svgEl("text", {
             x: topCX, y: topCY + topFontSize * 0.35,
-            "font-family": "Fredoka, sans-serif",
+            "font-family": "'Google Sans Flex', sans-serif",
             "font-size": String(topFontSize),
             "font-weight": "700",
             "text-anchor": "middle",
@@ -1042,7 +1043,7 @@
         if (!isPart1Missing || showAnswers || part1IsEx) {
           const p1Text = svgEl("text", {
             x: botLeftCX, y: botLeftCY + botFontSize * 0.35,
-            "font-family": "Fredoka, sans-serif",
+            "font-family": "'Google Sans Flex', sans-serif",
             "font-size": String(botFontSize),
             "font-weight": "700",
             "text-anchor": "middle",
@@ -1065,7 +1066,7 @@
         if (!isPart2Missing || showAnswers || part2IsEx) {
           const p2Text = svgEl("text", {
             x: botRightCX, y: botRightCY + botFontSize * 0.35,
-            "font-family": "Fredoka, sans-serif",
+            "font-family": "'Google Sans Flex', sans-serif",
             "font-size": String(botFontSize),
             "font-weight": "700",
             "text-anchor": "middle",

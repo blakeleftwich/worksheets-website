@@ -1,0 +1,8 @@
+{
+  "title": "Decompose to Subtract",
+  "description": "Break apart the subtracted number into parts, then subtract step by step. Supports 2-digit and 3-digit subtraction with guided or open-ended decomposition.",
+  "grades": "1st — 3rd",
+  "order": 35,
+  "category": "Addition & Subtraction",
+  "categoryOrder": 1
+}

@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fill in the Ten Frame Worksheet Generator — Free Printable | Animal Math</title>
-  <meta name="description" content="Create custom fill in the ten frame worksheets for Pre-K — 1st. Given a number, shade the correct number of circles in the ten frame. Empty oval outlines help students visualize quantities up to 20. Free, printable, and customizable.">
-  <link rel="canonical" href="https://animalmath.com/generators/fill-in-the-ten-frame/">
+  <title>Decompose to Subtract Worksheet Generator — Free Printable | Animal Math</title>
+  <meta name="description" content="Create custom decompose to subtract worksheets. Students break apart the subtrahend by place value and subtract in steps. Great for building subtraction strategies and number sense. Free, printable, and customizable.">
+  <link rel="canonical" href="https://animalmath.com/generators/decompose-to-subtract/">
   <style>
     * {
       margin: 0;
@@ -142,6 +142,20 @@
       border-color: #cbd5e0;
     }
 
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .range-row .sub-label {
+      font-size: 11px;
+      color: #718096;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: block;
+    }
+
     /* ===== Advanced Options Toggle ===== */
     .advanced-toggle {
       display: flex;
@@ -179,7 +193,7 @@
     }
 
     .advanced-panel.open {
-      max-height: 500px;
+      max-height: 600px;
     }
 
     .advanced-panel-inner {
@@ -234,6 +248,22 @@
       font-weight: 600;
       display: block;
       margin-bottom: 4px;
+    }
+
+    .adv-separator {
+      height: 1px;
+      background: #e2e8f0;
+      margin: 6px 0 10px;
+    }
+
+    .adv-section-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #4a5568;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      display: block;
     }
 
     /* ===== Checkboxes ===== */
@@ -367,8 +397,9 @@
       }
     }
 
-    /* ===== Print ===== */
     .ak-print-only { display: none !important; }
+
+    /* ===== Print ===== */
     @media print {
       .site-header { display: none !important; }
       .ak-print-only { display: block !important; }
@@ -442,17 +473,27 @@
     </div>
   </header>
   <div class="main-container">
+    <!-- Left sidebar controls -->
     <div class="sidebar">
-      <h2>Fill in the Ten Frame</h2>
+
+      <h2>Decompose to Subtract Worksheet Generator</h2>
 
       <div class="control-group">
-        <label for="rangeSelect">Number Range</label>
-        <select id="rangeSelect">
-          <option value="1-5">1 &ndash; 5</option>
-          <option value="1-10" selected>1 &ndash; 10</option>
-          <option value="1-20">1 &ndash; 20</option>
+        <label for="digitMode">Digit Mode</label>
+        <select id="digitMode">
+          <option value="2" selected>2-digit</option>
+          <option value="3">3-digit</option>
         </select>
       </div>
+
+      <div class="control-group">
+        <label for="decompStyle">Decomposition Style</label>
+        <select id="decompStyle">
+          <option value="guided" selected>Guided (one part pre-filled)</option>
+          <option value="open">Open-ended (all blanks)</option>
+        </select>
+      </div>
+
       <div class="checkbox-row" style="margin-bottom:12px;">
         <label>
           <input type="checkbox" id="answerKey">
@@ -469,61 +510,29 @@
         <div class="advanced-panel-inner">
 
           <div class="control-group">
-        <label for="numWorksheets">Number of Worksheets</label>
-        <select id="numWorksheets">
-          <option value="1" selected>1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-          <option value="10">10</option>
-        </select>
-      </div>
+            <label for="numWorksheets">Number of Worksheets</label>
+            <select id="numWorksheets">
+              <option value="1" selected>1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+            </select>
+          </div>
 
           <!-- Problems per sheet -->
           <div class="control-group" style="margin-bottom:12px;">
-        <label for="problemsPerSheet">Problems per Sheet</label>
-        <select id="problemsPerSheet">
-          <option value="8" selected>8</option>
-          <option value="10">10</option>
-          <option value="12">12</option>
-          <option value="14">14</option>
-        </select>
-      </div>
-
-
-          <!-- Numbered -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="numbered" />
-            <label for="numbered">Numbered</label>
-          </div>
-
-          <!-- Customize worksheet titles -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="customTitleEnabled" />
-            <label for="customTitleEnabled">Customize titles</label>
-          </div>
-          <div class="adv-sub" id="customTitleOptions" style="display:none;">
-            <div class="adv-checkbox-row" style="margin-bottom:8px;">
-              <input type="checkbox" id="showTitle" checked />
-              <label for="showTitle">Show title</label>
-            </div>
-            <div id="titleInputWrap">
-              <label for="headerText">Title</label>
-              <input type="text" id="headerText" value="Fill in the Ten Frame" />
-            </div>
-            <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
-              <input type="checkbox" id="showSubtitle" checked />
-              <label for="showSubtitle">Show subtitle</label>
-            </div>
-            <div id="subtitleInputWrap">
-              <label for="subtitleText">Subtitle</label>
-              <input type="text" id="subtitleText" value="Fill in the ten frame for each number." />
-            </div>
+            <label for="problemsPerSheet">Problems per Sheet</label>
+            <select id="problemsPerSheet">
+              <option value="4" selected>4</option>
+              <option value="6">6</option>
+              <option value="8">8</option>
+            </select>
           </div>
 
           <!-- Name / Date -->
@@ -540,6 +549,36 @@
             </select>
           </div>
 
+          <!-- Numbered -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="numbered" />
+            <label for="numbered">Numbered</label>
+          </div>
+
+          <!-- Customize titles -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="customTitleEnabled" />
+            <label for="customTitleEnabled">Customize titles</label>
+          </div>
+          <div class="adv-sub" id="customTitleOptions" style="display:none;">
+            <div class="adv-checkbox-row" style="margin-bottom:8px;">
+              <input type="checkbox" id="showTitle" checked />
+              <label for="showTitle">Show title</label>
+            </div>
+            <div id="titleInputWrap">
+              <label for="headerText">Title</label>
+              <input type="text" id="headerText" value="Decompose to Subtract" />
+            </div>
+            <div class="adv-checkbox-row" style="margin-top:10px;margin-bottom:8px;">
+              <input type="checkbox" id="showSubtitle" checked />
+              <label for="showSubtitle">Show subtitle</label>
+            </div>
+            <div id="subtitleInputWrap">
+              <label for="subtitleText">Subtitle</label>
+              <input type="text" id="subtitleText" value="Break apart the number and subtract step by step." />
+            </div>
+          </div>
+
           <!-- Branding -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="branded" checked />
@@ -548,6 +587,7 @@
 
         </div>
       </div>
+
 
       <div class="button-group">
         <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
@@ -561,7 +601,6 @@
     </div>
   </div>
 
-
   <script>
     // ===== Helpers =====
     function svgEl(tag, attrs, children) {
@@ -574,11 +613,10 @@
 
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
-    const elRange = document.getElementById("rangeSelect");
-    const elProblems = document.getElementById("problemsPerSheet");
-    const elFrameStyle = { value: "circles", addEventListener: function(){} };
+    const elDigitMode = document.getElementById("digitMode");
+    const elDecompStyle = document.getElementById("decompStyle");
     const elNumSheets = document.getElementById("numWorksheets");
-    const elAnswerKey = document.getElementById("answerKey");
+    const elProblems = document.getElementById("problemsPerSheet");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
     const elHeaderMode = document.getElementById("headerMode");
     const elHeaderModeOptions = document.getElementById("headerModeOptions");
@@ -588,46 +626,89 @@
     const elShowSubtitle = document.getElementById("showSubtitle");
     const elTitleInputWrap = document.getElementById("titleInputWrap");
     const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
-    const elBranded = document.getElementById("branded");
     const elNumbered = document.getElementById("numbered");
-    const elIncludeExample = document.getElementById("includeExample") || { checked: false, addEventListener: function(){} };
-    const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
-    const elCustomTitleOptions = document.getElementById("customTitleOptions");
+    const elBranded = document.getElementById("branded");
+    const elAnswerKey = document.getElementById("answerKey");
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
     const advArrow = document.getElementById("advArrow");
+    const elCustomTitleEnabled = document.getElementById("customTitleEnabled");
+    const elCustomTitleOptions = document.getElementById("customTitleOptions");
 
     // ===== Advanced panel toggle =====
     advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
+
+    function getHeaderMode() {
+      return elShowHeaderEnabled.checked ? elHeaderMode.value : "both";
+    }
+
+    function getTitle() {
+      if (elCustomTitleEnabled.checked) {
+        return elShowTitle.checked ? elHeaderText.value : "";
+      }
+      return "Decompose to Subtract";
+    }
+
+    function getSubtitle() {
+      if (elCustomTitleEnabled.checked) {
+        return elShowSubtitle.checked ? elSubtitleText.value : "";
+      }
+      return "Break apart the number and subtract step by step.";
+    }
 
     // ===== State =====
     let currentState = { sheets: [] };
 
     // ===== Problem generation =====
-    function generateProblems(count, range) {
-      let min, max;
-      if (range === "1-5") { min = 1; max = 5; }
-      else if (range === "1-20") { min = 1; max = 20; }
-      else { min = 1; max = 10; }
-
+    function generateProblems(count, opts) {
       const problems = [];
       const seen = new Set();
-      let attempts = 0;
+      const is3 = opts.digitMode === "3";
 
-      while (problems.length < count && attempts < count * 200) {
+      let attempts = 0;
+      while (problems.length < count && attempts < count * 500) {
         attempts++;
-        const num = min + Math.floor(Math.random() * (max - min + 1));
-        // Allow repeats once we've exhausted all unique values
-        if (problems.length < (max - min + 1)) {
-          if (seen.has(num)) continue;
-          seen.add(num);
+
+        let minuend, subtrahend;
+        if (is3) {
+          minuend = 200 + Math.floor(Math.random() * 800); // 200-999
+          subtrahend = 11 + Math.floor(Math.random() * 89); // 11-99
+        } else {
+          minuend = 20 + Math.floor(Math.random() * 80); // 20-99
+          subtrahend = 11 + Math.floor(Math.random() * (minuend - 10 - 11 + 1)); // 11 to (minuend - 10)
+          if (subtrahend < 11) continue;
+          if (subtrahend >= minuend) continue;
         }
-        problems.push(num);
+
+        // Ensure subtrahend < minuend and result >= 0
+        if (subtrahend >= minuend) continue;
+
+        const key = minuend + "," + subtrahend;
+        if (seen.has(key)) continue;
+        seen.add(key);
+
+        // Decompose subtrahend by place value
+        let part1 = Math.floor(subtrahend / 10) * 10; // tens
+        let part2 = subtrahend % 10;                   // ones
+
+        // If ones digit is 0, do a different split
+        if (part2 === 0) {
+          // Round part1 to nearest 10 of half
+          part1 = Math.round((subtrahend / 2) / 10) * 10;
+          if (part1 === 0) part1 = 10;
+          part2 = subtrahend - part1;
+        }
+
+        const answer = minuend - subtrahend;
+
+        problems.push({ minuend, subtrahend, part1, part2, answer });
       }
 
-      // Fill if needed
+      // Fill remainder if needed
       while (problems.length < count) {
-        problems.push(min + Math.floor(Math.random() * (max - min + 1)));
+        const minuend = is3 ? 200 : 20;
+        const subtrahend = 11;
+        problems.push({ minuend, subtrahend, part1: 10, part2: 1, answer: minuend - subtrahend });
       }
 
       // Shuffle
@@ -635,84 +716,17 @@
         const j = Math.floor(Math.random() * (i + 1));
         [problems[i], problems[j]] = [problems[j], problems[i]];
       }
+
       return problems;
-    }
-
-    // ===== Draw a single ten frame =====
-    function drawTenFrame(svg, x, y, cellSize, filledCount, frameStyle, showFilled, exampleMode) {
-      const cols = 5, rows = 2;
-      const frameW = cols * cellSize;
-      const frameH = rows * cellSize;
-      const borderW = 2.5;
-      const fillColor = exampleMode ? "#16a34a" : "#1a202c";
-
-      // Outer border - thick and bold
-      svg.appendChild(svgEl("rect", {
-        x: x, y: y, width: frameW, height: frameH,
-        fill: "none", stroke: exampleMode ? "#22c55e" : "#1a202c", "stroke-width": String(borderW), rx: 3, ry: 3
-      }));
-
-      // Grid lines and cells
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const cx = x + c * cellSize;
-          const cy = y + r * cellSize;
-
-          // Cell border
-          svg.appendChild(svgEl("rect", {
-            x: cx, y: cy, width: cellSize, height: cellSize,
-            fill: "none", stroke: exampleMode ? "#22c55e" : "#1a202c", "stroke-width": "1.5"
-          }));
-
-          const cellIndex = r * cols + c;
-          const centerX = cx + cellSize / 2;
-          const centerY = cy + cellSize / 2;
-
-          if (showFilled && cellIndex < filledCount) {
-            // Filled/shaded cell for answer key or example
-            if (frameStyle === "squares") {
-              const inset = cellSize * 0.15;
-              svg.appendChild(svgEl("rect", {
-                x: cx + inset, y: cy + inset,
-                width: cellSize - inset * 2, height: cellSize - inset * 2,
-                fill: fillColor, stroke: "none", rx: 2, ry: 2
-              }));
-            } else {
-              svg.appendChild(svgEl("ellipse", {
-                cx: centerX, cy: centerY,
-                rx: cellSize * 0.32, ry: cellSize * 0.32,
-                fill: fillColor, stroke: "none"
-              }));
-            }
-          } else {
-            // Empty outline for student to fill in
-            if (frameStyle === "squares") {
-              const inset = cellSize * 0.18;
-              svg.appendChild(svgEl("rect", {
-                x: cx + inset, y: cy + inset,
-                width: cellSize - inset * 2, height: cellSize - inset * 2,
-                fill: "none", stroke: "#cbd5e0", "stroke-width": "1.2",
-                rx: 2, ry: 2, "stroke-dasharray": "3,2"
-              }));
-            } else {
-              svg.appendChild(svgEl("ellipse", {
-                cx: centerX, cy: centerY,
-                rx: cellSize * 0.30, ry: cellSize * 0.30,
-                fill: "none", stroke: "#cbd5e0", "stroke-width": "1.2",
-                "stroke-dasharray": "3,2"
-              }));
-            }
-          }
-        }
-      }
     }
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options, wsCode) {
-      const { showHeader, title, subtitle, branded, showAnswers, frameStyle, range, numbered, includeExample, isAnswerKey } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, numbered, isAnswerKey, decompStyle } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
+
       const midX = pageW / 2;
       let topGridY;
       {
@@ -727,28 +741,46 @@
           svg.appendChild(akLabel);
           curY += 28;
         } else if (showHeader === "both") {
-          svg.appendChild(svgEl("text", { x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode("Name")]));
-          svg.appendChild(svgEl("line", { x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
-          svg.appendChild(svgEl("text", { x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode("Date")]));
-          svg.appendChild(svgEl("line", { x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
+          svg.appendChild(svgEl("text", {
+            x: margin, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+          }, [document.createTextNode("Name")]));
+          svg.appendChild(svgEl("line", {
+            x1: margin + 38, y1: curY + 18, x2: midX - 30, y2: curY + 18,
+            stroke: "#718096", "stroke-width": 0.75
+          }));
+          svg.appendChild(svgEl("text", {
+            x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+          }, [document.createTextNode("Date")]));
+          svg.appendChild(svgEl("line", {
+            x1: midX + 54, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
+            stroke: "#718096", "stroke-width": 0.75
+          }));
           curY += 28;
         } else if (showHeader === "name") {
-          svg.appendChild(svgEl("text", { x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode("Name")]));
-          svg.appendChild(svgEl("line", { x1: midX + 58, y1: curY + 18, x2: pageW - margin, y2: curY + 18, stroke: "#718096", "stroke-width": 0.75 }));
+          svg.appendChild(svgEl("text", {
+            x: midX + 20, y: curY + 16, "font-family": "Fredoka, sans-serif", "font-size": 12, "font-weight": 400, fill: "#4a5568"
+          }, [document.createTextNode("Name")]));
+          svg.appendChild(svgEl("line", {
+            x1: midX + 58, y1: curY + 18, x2: pageW - margin, y2: curY + 18,
+            stroke: "#718096", "stroke-width": 0.75
+          }));
           curY += 28;
         }
         if (title) {
-          svg.appendChild(svgEl("text", { x: margin, y: curY + 38, "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af" }, [document.createTextNode(title)]));
+          svg.appendChild(svgEl("text", {
+            x: margin, y: curY + 38, "font-family": "'Google Sans Flex', sans-serif", "font-size": 40, "font-weight": 700, fill: "#9ca3af"
+          }, [document.createTextNode(title)]));
           curY += 46;
         }
         if (subtitle) {
-          svg.appendChild(svgEl("text", { x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568" }, [document.createTextNode(subtitle)]));
+          svg.appendChild(svgEl("text", {
+            x: margin, y: curY + 14, "font-family": "Fredoka, sans-serif", "font-size": 16, "font-weight": 400, fill: "#4a5568"
+          }, [document.createTextNode(subtitle)]));
           curY += 20;
         }
         topGridY = curY + 6;
       }
 
-      // Branding
       if (branded) {
         const brandY = pageH - 48;
         const logoH = 38;
@@ -772,7 +804,6 @@
         });
         bLine2.textContent = "\u00A9 2026 Eggroll Games";
         svg.appendChild(bLine2);
-        // Worksheet code — bottom center
         if (!wsCode) wsCode = '(1)';
         const wsCodeEl = svgEl("text", {
           x: pageW / 2, y: pageH - 4,
@@ -783,155 +814,218 @@
         svg.appendChild(wsCodeEl);
       }
 
-      // Layout
       const count = problems.length;
-      const bottomMargin = branded ? 56 : 40;
+      const bottomMargin = branded ? 56 : 24;
       const gridTop = topGridY;
       const availH = pageH - bottomMargin - gridTop;
       const availW = pageW - margin * 2;
-      const isDouble = range === "1-20";
 
-      // Always 2 columns
-      const cols = 2;
+      // Layout: 1 column for <=4, 2 columns for >4
+      const cols = count <= 4 ? 1 : 2;
       const rows = Math.ceil(count / cols);
       const colW = availW / cols;
       const rowH = availH / rows;
 
-      // Ten frame cell sizing
-      // For single frames: we need space for number + frame in each column
-      // For double frames: need number + two frames side by side
-      const numberAreaW = 52; // width reserved for the large number on the left
-      const frameAreaW = colW - numberAreaW - 16; // remaining space for frame(s)
-      const doubleGap = 6;
+      // Each problem cell has 2 rows stacked vertically, so fontSize must fit both
+      const cellH = rowH;
+      const rowInternalH = cellH / 2; // height per equation row within a cell
 
-      let cellSize;
-      if (isDouble) {
-        // Two frames side by side need to fit in frameAreaW
-        cellSize = Math.min(
-          Math.floor((frameAreaW - doubleGap) / 10), // 10 columns total (5+5)
-          Math.floor((rowH - 14) / 2) // 2 rows of cells + padding
-        );
-        cellSize = clamp(cellSize, 10, 36);
-      } else {
-        cellSize = Math.min(
-          Math.floor(frameAreaW / 5), // 5 columns
-          Math.floor((rowH - 14) / 2) // 2 rows + padding
-        );
-        cellSize = clamp(cellSize, 12, 44);
+      // Calculate max character widths across all problems
+      let maxMinuendLen = 1, maxSubtrahendLen = 1, maxPart1Len = 1, maxPart2Len = 1, maxAnswerLen = 1;
+      for (const p of problems) {
+        maxMinuendLen = Math.max(maxMinuendLen, String(p.minuend).length);
+        maxSubtrahendLen = Math.max(maxSubtrahendLen, String(p.subtrahend).length);
+        maxPart1Len = Math.max(maxPart1Len, String(p.part1).length);
+        maxPart2Len = Math.max(maxPart2Len, String(p.part2).length);
+        maxAnswerLen = Math.max(maxAnswerLen, String(p.answer).length);
       }
 
-      const singleFrameW = 5 * cellSize;
-      const singleFrameH = 2 * cellSize;
+      // Size text to fit: each row has minuend, minus, number, minus, number, equals, answer
+      // 2 equation rows per cell, so we use half the cell height
+      const maxTextH = rowInternalH * 0.75;
+      const maxTextW = colW * 0.07;
+      const fontSize = Math.min(28, Math.max(13, Math.floor(Math.min(maxTextH, maxTextW))));
+      const charW = fontSize * 0.62;
+      const blankW = fontSize * 1.8; // width of underline blanks
 
-      // (no column divider line)
-
-      // Problem number font size - large and bold for young children
-      const numFontSize = Math.min(38, Math.max(24, Math.floor(rowH * 0.45)));
+      // Fixed problem number size
       const probNumSize = 10;
+      const probNumW = probNumSize * (count >= 10 ? 2.0 : 1.6);
+
+      // Column slot widths (per worksheet column)
+      // Row 1: [probNum] minuend - subtrahend = ___
+      // Row 2: [indent]  minuend - part1 - part2 = ___
+      // We need consistent column positions across both rows
+
+      const colMaxMinW = new Array(cols).fill(0);
+      const colMaxSubW = new Array(cols).fill(0);
+      const colMaxP1W = new Array(cols).fill(0);
+      const colMaxP2W = new Array(cols).fill(0);
+      const colMaxAnsW = new Array(cols).fill(0);
 
       for (let i = 0; i < problems.length; i++) {
         const col = i % cols;
-        const row = Math.floor(i / cols);
+        const p = problems[i];
+        colMaxMinW[col] = Math.max(colMaxMinW[col], String(p.minuend).length * charW);
+        colMaxSubW[col] = Math.max(colMaxSubW[col], String(p.subtrahend).length * charW);
+        colMaxP1W[col] = Math.max(colMaxP1W[col], String(p.part1).length * charW);
+        colMaxP2W[col] = Math.max(colMaxP2W[col], String(p.part2).length * charW);
+        colMaxAnsW[col] = Math.max(colMaxAnsW[col], String(p.answer).length * charW);
+      }
+
+      // Build fixed slot widths per column
+      const colMinSlotW = [];
+      const colSubSlotW = [];
+      const colP1SlotW = [];
+      const colP2SlotW = [];
+      const colAnsSlotW = [];
+      for (let c = 0; c < cols; c++) {
+        colMinSlotW.push(Math.max(blankW, colMaxMinW[c]) + charW * 0.4);
+        colSubSlotW.push(Math.max(blankW, colMaxSubW[c]) + charW * 0.4);
+        colP1SlotW.push(Math.max(blankW, colMaxP1W[c]) + charW * 0.4);
+        colP2SlotW.push(Math.max(blankW, colMaxP2W[c]) + charW * 0.4);
+        colAnsSlotW.push(Math.max(blankW, colMaxAnsW[c]) + charW * 0.4);
+      }
+
+      const opColW = charW * 2.0;
+      const eqColW = charW * 2.0;
+
+      for (let i = 0; i < problems.length; i++) {
+        const col = i % cols, row = Math.floor(i / cols);
         const cellLeft = margin + col * colW;
         const cellTop = gridTop + row * rowH;
-        const num = problems[i];
-        const isExample = (i === 0 && includeExample && !showAnswers);
+        const p = problems[i];
 
-        // Problem number label (small, e.g., "1.")
-        if (numbered !== false) {
-          const pnX = cellLeft + 4;
-          const pnY = cellTop + 14;
-          const numLabel = svgEl("text", { x: pnX, y: pnY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
-          numLabel.textContent = (i + 1) + "."; svg.appendChild(numLabel);
+        // Row 1 vertical center
+        const row1CY = cellTop + rowInternalH / 2 + fontSize * 0.35;
+        // Row 2 vertical center
+        const row2CY = cellTop + rowInternalH + rowInternalH / 2 + fontSize * 0.35;
+
+        // ===== ROW 1: minuend - subtrahend = ___ =====
+        let cx1 = cellLeft + 8;
+
+        // Problem number
+        if (numbered) {
+          const probNumY = row1CY - 0.72 * (fontSize - probNumSize);
+          const numEl = svgEl("text", { x: cx1, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
+          numEl.textContent = (i + 1) + "."; svg.appendChild(numEl);
+        }
+        cx1 += probNumW;
+
+        // Minuend slot
+        const min1Left = cx1;
+        const min1Center = min1Left + colMinSlotW[col] / 2;
+        const minEl = svgEl("text", { x: min1Center, y: row1CY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        minEl.textContent = String(p.minuend); svg.appendChild(minEl);
+
+        // Operator minus
+        const op1Left = min1Left + colMinSlotW[col];
+        const op1Center = op1Left + opColW / 2;
+        const opEl1 = svgEl("text", { x: op1Center, y: row1CY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        opEl1.textContent = "\u2212"; svg.appendChild(opEl1);
+
+        // Subtrahend slot
+        const sub1Left = op1Left + opColW;
+        const sub1Center = sub1Left + colSubSlotW[col] / 2;
+        const subEl = svgEl("text", { x: sub1Center, y: row1CY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        subEl.textContent = String(p.subtrahend); svg.appendChild(subEl);
+
+        // Equals
+        const eq1Left = sub1Left + colSubSlotW[col];
+        const eq1Center = eq1Left + eqColW / 2;
+        const eqEl1 = svgEl("text", { x: eq1Center, y: row1CY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        eqEl1.textContent = "="; svg.appendChild(eqEl1);
+
+        // Answer blank (Row 1)
+        const ans1Left = eq1Left + eqColW;
+        const ans1Center = ans1Left + colAnsSlotW[col] / 2;
+        if (showAnswers) {
+          const ansEl = svgEl("text", { x: ans1Center, y: row1CY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
+          ansEl.textContent = String(p.answer); svg.appendChild(ansEl);
+        } else {
+          // Underline blank
+          const blX = ans1Center - blankW / 2;
+          const blY = row1CY + fontSize * 0.25;
+          svg.appendChild(svgEl("line", { x1: blX, y1: blY, x2: blX + blankW, y2: blY, stroke: "#cbd5e1", "stroke-width": "1.5" }));
         }
 
-        // Center content vertically in the row
-        const centerY = cellTop + rowH / 2;
+        // ===== ROW 2: minuend - part1 - part2 = ___ =====
+        let cx2 = cellLeft + 8;
+        // Indent to match (skip prob number area)
+        cx2 += probNumW;
 
-        // Large number on the left
-        const numX = cellLeft + 0;
-        const numTextY = centerY + numFontSize * 0.35;
-        const numEl = svgEl("text", {
-          x: numX + numberAreaW - 18, y: numTextY, "font-family": "'Google Sans Flex', sans-serif",
-          "font-size": String(numFontSize), "font-weight": "700",
-          "text-anchor": "end", fill: "#1a202c"
-        });
-        numEl.textContent = String(num); svg.appendChild(numEl);
+        // Minuend slot (same position as Row 1)
+        const min2Left = cx2;
+        const min2Center = min2Left + colMinSlotW[col] / 2;
+        const minEl2 = svgEl("text", { x: min2Center, y: row2CY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        minEl2.textContent = String(p.minuend); svg.appendChild(minEl2);
 
-        // Ten frame(s) on the right
-        const frameStartX = cellLeft + numberAreaW;
-        const colPadRight = 10;
+        // First minus operator
+        const opR2_1Left = min2Left + colMinSlotW[col];
+        const opR2_1Center = opR2_1Left + opColW / 2;
+        const opElR2_1 = svgEl("text", { x: opR2_1Center, y: row2CY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        opElR2_1.textContent = "\u2212"; svg.appendChild(opElR2_1);
 
-        if (isDouble && num > 10) {
-          // Double ten frame: first frame fully filled (answer key) or fully empty (worksheet),
-          // second frame with remainder
-          const totalDoubleW = singleFrameW * 2 + doubleGap;
-          // Center the double frame in the available space
-          const availFrameArea = colW - numberAreaW - 8 - colPadRight;
-          const frameX = cellLeft + numberAreaW + Math.max(0, (availFrameArea - totalDoubleW) / 2);
-          const frameY = centerY - singleFrameH / 2;
+        // Part1 slot
+        const p1Left = opR2_1Left + opColW;
+        const p1Center = p1Left + colP1SlotW[col] / 2;
 
-          if (isExample) {
-            // Example: show filled frames in green
-            drawTenFrame(svg, frameX, frameY, cellSize, 10, frameStyle, true, true);
-            drawTenFrame(svg, frameX + singleFrameW + doubleGap, frameY, cellSize, num - 10, frameStyle, true, true);
-            const badgeX = frameX + totalDoubleW - 42, badgeY = frameY - 15;
-            svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
-            const badgeText = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
-            badgeText.textContent = "Example"; svg.appendChild(badgeText);
-          } else if (showAnswers) {
-            // First frame: all 10 filled
-            drawTenFrame(svg, frameX, frameY, cellSize, 10, frameStyle, true);
-            // Second frame: remainder filled
-            drawTenFrame(svg, frameX + singleFrameW + doubleGap, frameY, cellSize, num - 10, frameStyle, true);
-          } else {
-            // First frame: all 10 empty outlines (student fills in all 10)
-            drawTenFrame(svg, frameX, frameY, cellSize, 0, frameStyle, false);
-            // Second frame: empty outlines (student fills in remainder)
-            drawTenFrame(svg, frameX + singleFrameW + doubleGap, frameY, cellSize, 0, frameStyle, false);
-          }
+        if (decompStyle === "guided") {
+          // Guided: part1 is shown as a number
+          const p1El = svgEl("text", { x: p1Center, y: row2CY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+          p1El.textContent = String(p.part1); svg.appendChild(p1El);
         } else {
-          // Single ten frame
-          const availFrameArea = colW - numberAreaW - 8 - colPadRight;
-          const frameX = cellLeft + numberAreaW + Math.max(0, (availFrameArea - singleFrameW) / 2);
-          const frameY = centerY - singleFrameH / 2;
-
-          if (isExample) {
-            drawTenFrame(svg, frameX, frameY, cellSize, num, frameStyle, true, true);
-            const badgeX = frameX + singleFrameW - 42, badgeY = frameY - 15;
-            svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
-            const badgeText = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
-            badgeText.textContent = "Example"; svg.appendChild(badgeText);
-          } else if (showAnswers) {
-            drawTenFrame(svg, frameX, frameY, cellSize, num, frameStyle, true);
+          // Open-ended: part1 is a blank
+          if (showAnswers) {
+            const p1El = svgEl("text", { x: p1Center, y: row2CY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
+            p1El.textContent = String(p.part1); svg.appendChild(p1El);
           } else {
-            drawTenFrame(svg, frameX, frameY, cellSize, 0, frameStyle, false);
+            const blX = p1Center - blankW / 2;
+            const blY = row2CY + fontSize * 0.25;
+            svg.appendChild(svgEl("line", { x1: blX, y1: blY, x2: blX + blankW, y2: blY, stroke: "#cbd5e1", "stroke-width": "1.5" }));
           }
+        }
+
+        // Second minus operator
+        const opR2_2Left = p1Left + colP1SlotW[col];
+        const opR2_2Center = opR2_2Left + opColW / 2;
+        const opElR2_2 = svgEl("text", { x: opR2_2Center, y: row2CY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        opElR2_2.textContent = "\u2212"; svg.appendChild(opElR2_2);
+
+        // Part2 slot (always a blank in both modes, unless answer key)
+        const p2Left = opR2_2Left + opColW;
+        const p2Center = p2Left + colP2SlotW[col] / 2;
+
+        if (showAnswers) {
+          const p2El = svgEl("text", { x: p2Center, y: row2CY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
+          p2El.textContent = String(p.part2); svg.appendChild(p2El);
+        } else {
+          // Underline blank
+          const blX = p2Center - blankW / 2;
+          const blY = row2CY + fontSize * 0.25;
+          svg.appendChild(svgEl("line", { x1: blX, y1: blY, x2: blX + blankW, y2: blY, stroke: "#cbd5e1", "stroke-width": "1.5" }));
+        }
+
+        // Equals
+        const eq2Left = p2Left + colP2SlotW[col];
+        const eq2Center = eq2Left + eqColW / 2;
+        const eqEl2 = svgEl("text", { x: eq2Center, y: row2CY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        eqEl2.textContent = "="; svg.appendChild(eqEl2);
+
+        // Answer blank (Row 2)
+        const ans2Left = eq2Left + eqColW;
+        const ans2Center = ans2Left + colAnsSlotW[col] / 2;
+        if (showAnswers) {
+          const ansEl2 = svgEl("text", { x: ans2Center, y: row2CY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
+          ansEl2.textContent = String(p.answer); svg.appendChild(ansEl2);
+        } else {
+          const blX = ans2Center - blankW / 2;
+          const blY = row2CY + fontSize * 0.25;
+          svg.appendChild(svgEl("line", { x1: blX, y1: blY, x2: blX + blankW, y2: blY, stroke: "#cbd5e1", "stroke-width": "1.5" }));
         }
       }
-
-      // (no row divider lines)
 
       return svg;
-    }
-
-    // ===== Helper functions =====
-    function getHeaderMode() {
-      return elShowHeaderEnabled.checked ? elHeaderMode.value : "both";
-    }
-
-    function getTitle() {
-      if (elCustomTitleEnabled.checked) {
-        return elShowTitle.checked ? elHeaderText.value : "";
-      }
-      return "Fill in the Ten Frame";
-    }
-
-    function getSubtitle() {
-      if (elCustomTitleEnabled.checked) {
-        return elShowSubtitle.checked ? elSubtitleText.value : "";
-      }
-      return "Fill in the ten frame for each number.";
     }
 
     // ===== Gather options =====
@@ -940,34 +1034,28 @@
       const title = getTitle();
       const subtitle = getSubtitle();
       return {
-        range: elRange.value,
-        problemsPerSheet: parseInt(elProblems.value, 10),
-        frameStyle: elFrameStyle.value,
+        digitMode: elDigitMode.value,
+        decompStyle: elDecompStyle.value,
         numWorksheets: parseInt(elNumSheets.value, 10),
-        answerKey: elAnswerKey.checked,
-        showHeader,
-        title,
-        subtitle,
-        branded: elBranded.checked,
+        problemsPerSheet: parseInt(elProblems.value, 10),
+        showHeader: showHeader,
+        title: title,
+        subtitle: subtitle,
         numbered: elNumbered.checked,
-        includeExample: elIncludeExample.checked,
+        branded: elBranded.checked,
+        answerKey: elAnswerKey.checked,
       };
     }
 
     function renderWithNewRandomization() {
       const opts = gatherOptions();
       currentState.sheets = [];
-      for (let s = 0; s < opts.numWorksheets; s++) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.range));
-      }
+      for (let s = 0; s < opts.numWorksheets; s++) { currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts)); }
       renderWorksheet();
     }
-
     function renderWithoutRandomization() {
       const opts = gatherOptions();
-      while (currentState.sheets.length < opts.numWorksheets) {
-        currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts.range));
-      }
+      while (currentState.sheets.length < opts.numWorksheets) { currentState.sheets.push(generateProblems(opts.problemsPerSheet, opts)); }
       if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
       renderWorksheet();
     }
@@ -983,38 +1071,36 @@
       if (isMobile()) {
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, frameStyle: opts.frameStyle, range: opts.range, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, decompStyle: opts.decompStyle }, '(' + (s + 1) + ')');
           p.appendChild(v); sheetWrap.appendChild(p);
         }
         return;
       }
 
-      // Desktop: grid layout with calculated sizing
       if (numSheets > 1) {
         sheetWrap.classList.add("grid-view");
         const ep = numSheets >= 3 ? 12 : 0;
         const aw = window.innerWidth - 340 - 80 - ep * 2, ah = window.innerHeight - 80, gap = 24, mrw = 180;
         let cols;
-        if (numSheets <= 3) { cols = numSheets; if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        else { cols = Math.min(3, numSheets); if ((aw - (cols - 1) * gap) / cols < mrw) cols = Math.max(1, Math.floor((aw + gap) / (mrw + gap))); }
-        const msw = (aw - (cols - 1) * gap) / cols, msh = numSheets <= 3 ? ah : ah * 0.8;
-        const scale = Math.min(msw / sheetWidth, msh / sheetHeight);
-        const sw = Math.floor(sheetWidth * scale), sh = Math.floor(sheetHeight * scale);
-        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw + 24) + "px)";
+        if (numSheets <= 3) { cols = numSheets; if ((aw - (cols-1)*gap)/cols < mrw) cols = Math.max(1, Math.floor((aw+gap)/(mrw+gap))); }
+        else { cols = Math.min(3, numSheets); if ((aw - (cols-1)*gap)/cols < mrw) cols = Math.max(1, Math.floor((aw+gap)/(mrw+gap))); }
+        const msw = (aw - (cols-1)*gap)/cols, msh = numSheets <= 3 ? ah : ah*0.8;
+        const scale = Math.min(msw/sheetWidth, msh/sheetHeight);
+        const sw = Math.floor(sheetWidth*scale), sh = Math.floor(sheetHeight*scale);
+        sheetWrap.style.gridTemplateColumns = "repeat(" + cols + ", " + (sw+24) + "px)";
         sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, frameStyle: opts.frameStyle, range: opts.range, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, decompStyle: opts.decompStyle }, '(' + (s + 1) + ')');
           v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
         }
       } else {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, frameStyle: opts.frameStyle, range: opts.range, numbered: opts.numbered, includeExample: opts.includeExample }, '(1)');
+        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, decompStyle: opts.decompStyle }, '(1)');
         p.appendChild(v); sheetWrap.appendChild(p);
       }
     }
 
-    // ===== Print =====
     function handlePrint() {
       if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
       const opts = gatherOptions();
@@ -1023,14 +1109,14 @@
       const wsCodes = currentState.sheets.map((_, i) => '(' + (i + 1) + ')');
       for (let i = 0; i < currentState.sheets.length; i++) {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, frameStyle: opts.frameStyle, range: opts.range, numbered: opts.numbered, includeExample: opts.includeExample }, wsCodes[i]));
+        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, decompStyle: opts.decompStyle }, wsCodes[i]));
         sheetWrap.appendChild(p);
       }
       const answerKeyPages = [];
       if (opts.answerKey) {
         for (let i = 0; i < currentState.sheets.length; i++) {
           const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, subtitle: "", branded: opts.branded, showAnswers: true, frameStyle: opts.frameStyle, range: opts.range, numbered: opts.numbered, includeExample: false, isAnswerKey: true }, wsCodes[i]));
+          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: true, numbered: opts.numbered, isAnswerKey: true, decompStyle: opts.decompStyle }, wsCodes[i]));
           sheetWrap.appendChild(p);
           answerKeyPages.push(p);
         }
@@ -1039,19 +1125,18 @@
       setTimeout(() => { answerKeyPages.forEach(p => p.remove()); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 500);
     }
 
-
     // ===== Event Listeners =====
-    elRange.addEventListener("change", () => renderWithNewRandomization());
+    elDigitMode.addEventListener("change", () => renderWithNewRandomization());
+    elDecompStyle.addEventListener("change", () => renderWithoutRandomization());
     elProblems.addEventListener("change", () => renderWithNewRandomization());
-    elFrameStyle.addEventListener("change", () => renderWithoutRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elShowHeaderEnabled.addEventListener("change", () => {
       elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
       renderWithoutRandomization();
     });
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
-    elBranded.addEventListener("change", () => renderWithoutRandomization());
     elNumbered.addEventListener("change", () => renderWithoutRandomization());
+    elBranded.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
       renderWithoutRandomization();
@@ -1067,7 +1152,6 @@
     elHeaderText.addEventListener("input", () => renderWithoutRandomization());
     elSubtitleText.addEventListener("input", () => renderWithoutRandomization());
     elAnswerKey.addEventListener("change", () => {});
-    elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
     let resizeTimeout;
@@ -1075,14 +1159,14 @@
 
     // Init
     renderWithNewRandomization();
-  
+
     // Expose answer key capture for favorites pack system
     window._amCaptureAnswerKeys = function() {
       if (!currentState.sheets || !currentState.sheets.length) return [];
       var opts = gatherOptions();
       return currentState.sheets.map(function(sheet, idx) {
         try {
-          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true, includeExample: false }), '(' + (idx + 1) + ')');
+          var sv = renderWorksheetSVG(sheet, Object.assign({}, opts, { showAnswers: true, isAnswerKey: true, decompStyle: opts.decompStyle }), '(' + (idx + 1) + ')');
           return sv.outerHTML;
         } catch(e) { return ''; }
       }).filter(Boolean);
