@@ -1,0 +1,1824 @@
+{
+  "language": "en",
+  "language_probability": 0.9785,
+  "duration": 169.8,
+  "model": "medium",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.1,
+      "text": "The tiny end walks by my shoe",
+      "words": [
+        {
+          "word": "The",
+          "start": 0.0,
+          "end": 0.42,
+          "probability": 0.1759
+        },
+        {
+          "word": "tiny",
+          "start": 0.42,
+          "end": 0.9,
+          "probability": 0.8837
+        },
+        {
+          "word": "end",
+          "start": 0.9,
+          "end": 1.32,
+          "probability": 0.2841
+        },
+        {
+          "word": "walks",
+          "start": 1.32,
+          "end": 1.68,
+          "probability": 0.9406
+        },
+        {
+          "word": "by",
+          "start": 1.68,
+          "end": 2.0,
+          "probability": 0.9896
+        },
+        {
+          "word": "my",
+          "start": 2.0,
+          "end": 2.44,
+          "probability": 0.9916
+        },
+        {
+          "word": "shoe",
+          "start": 2.44,
+          "end": 3.1,
+          "probability": 0.9872
+        }
+      ]
+    },
+    {
+      "start": 3.8,
+      "end": 6.12,
+      "text": "So small it's hard to view",
+      "words": [
+        {
+          "word": "So",
+          "start": 3.8,
+          "end": 4.3,
+          "probability": 0.5841
+        },
+        {
+          "word": "small",
+          "start": 4.3,
+          "end": 4.7,
+          "probability": 0.9941
+        },
+        {
+          "word": "it's",
+          "start": 4.7,
+          "end": 5.08,
+          "probability": 0.893
+        },
+        {
+          "word": "hard",
+          "start": 5.08,
+          "end": 5.24,
+          "probability": 0.9984
+        },
+        {
+          "word": "to",
+          "start": 5.24,
+          "end": 5.52,
+          "probability": 0.9987
+        },
+        {
+          "word": "view",
+          "start": 5.52,
+          "end": 6.12,
+          "probability": 0.9924
+        }
+      ]
+    },
+    {
+      "start": 7.18,
+      "end": 9.54,
+      "text": "We measure little things like this",
+      "words": [
+        {
+          "word": "We",
+          "start": 7.18,
+          "end": 7.64,
+          "probability": 0.8832
+        },
+        {
+          "word": "measure",
+          "start": 7.64,
+          "end": 8.04,
+          "probability": 0.986
+        },
+        {
+          "word": "little",
+          "start": 8.04,
+          "end": 8.56,
+          "probability": 0.9904
+        },
+        {
+          "word": "things",
+          "start": 8.56,
+          "end": 8.78,
+          "probability": 0.9962
+        },
+        {
+          "word": "like",
+          "start": 8.78,
+          "end": 9.08,
+          "probability": 0.9941
+        },
+        {
+          "word": "this",
+          "start": 9.08,
+          "end": 9.54,
+          "probability": 0.9935
+        }
+      ]
+    },
+    {
+      "start": 10.72,
+      "end": 13.18,
+      "text": "With millimeters we can miss",
+      "words": [
+        {
+          "word": "With",
+          "start": 10.72,
+          "end": 11.28,
+          "probability": 0.8838
+        },
+        {
+          "word": "millimeters",
+          "start": 11.28,
+          "end": 12.08,
+          "probability": 0.7753
+        },
+        {
+          "word": "we",
+          "start": 12.08,
+          "end": 12.42,
+          "probability": 0.9086
+        },
+        {
+          "word": "can",
+          "start": 12.42,
+          "end": 12.72,
+          "probability": 0.9807
+        },
+        {
+          "word": "miss",
+          "start": 12.72,
+          "end": 13.18,
+          "probability": 0.7556
+        }
+      ]
+    },
+    {
+      "start": 14.11,
+      "end": 17.37,
+      "text": "Count to ten and you will see",
+      "words": [
+        {
+          "word": "Count",
+          "start": 14.11,
+          "end": 14.95,
+          "probability": 0.8394
+        },
+        {
+          "word": "to",
+          "start": 14.95,
+          "end": 15.37,
+          "probability": 0.9923
+        },
+        {
+          "word": "ten",
+          "start": 15.37,
+          "end": 15.83,
+          "probability": 0.7864
+        },
+        {
+          "word": "and",
+          "start": 15.83,
+          "end": 16.05,
+          "probability": 0.8077
+        },
+        {
+          "word": "you",
+          "start": 16.05,
+          "end": 16.47,
+          "probability": 0.9954
+        },
+        {
+          "word": "will",
+          "start": 16.47,
+          "end": 16.97,
+          "probability": 0.9788
+        },
+        {
+          "word": "see",
+          "start": 16.97,
+          "end": 17.37,
+          "probability": 0.9964
+        }
+      ]
+    },
+    {
+      "start": 17.37,
+      "end": 18.51,
+      "text": "Ten millimeters",
+      "words": [
+        {
+          "word": "Ten",
+          "start": 17.37,
+          "end": 17.67,
+          "probability": 0.794
+        },
+        {
+          "word": "millimeters",
+          "start": 17.67,
+          "end": 18.51,
+          "probability": 0.8186
+        }
+      ]
+    },
+    {
+      "start": 19.25,
+      "end": 21.59,
+      "text": "Make a centimeter",
+      "words": [
+        {
+          "word": "Make",
+          "start": 19.25,
+          "end": 19.71,
+          "probability": 0.6367
+        },
+        {
+          "word": "a",
+          "start": 19.71,
+          "end": 20.29,
+          "probability": 0.9572
+        },
+        {
+          "word": "centimeter",
+          "start": 20.29,
+          "end": 21.59,
+          "probability": 0.912
+        }
+      ]
+    },
+    {
+      "start": 23.69,
+      "end": 26.89,
+      "text": "Growing bigger, moving quick",
+      "words": [
+        {
+          "word": "Growing",
+          "start": 23.69,
+          "end": 24.39,
+          "probability": 0.6404
+        },
+        {
+          "word": "bigger,",
+          "start": 24.39,
+          "end": 25.43,
+          "probability": 0.9783
+        },
+        {
+          "word": "moving",
+          "start": 25.79,
+          "end": 26.13,
+          "probability": 0.9541
+        },
+        {
+          "word": "quick",
+          "start": 26.13,
+          "end": 26.89,
+          "probability": 0.984
+        }
+      ]
+    },
+    {
+      "start": 26.89,
+      "end": 30.09,
+      "text": "Measuring love with our meter stick",
+      "words": [
+        {
+          "word": "Measuring",
+          "start": 26.89,
+          "end": 27.91,
+          "probability": 0.7935
+        },
+        {
+          "word": "love",
+          "start": 27.91,
+          "end": 28.29,
+          "probability": 0.2739
+        },
+        {
+          "word": "with",
+          "start": 28.29,
+          "end": 28.83,
+          "probability": 0.9864
+        },
+        {
+          "word": "our",
+          "start": 28.83,
+          "end": 29.33,
+          "probability": 0.8718
+        },
+        {
+          "word": "meter",
+          "start": 29.33,
+          "end": 29.63,
+          "probability": 0.8754
+        },
+        {
+          "word": "stick",
+          "start": 29.63,
+          "end": 30.09,
+          "probability": 0.9097
+        }
+      ]
+    },
+    {
+      "start": 30.09,
+      "end": 34.13,
+      "text": "Ten millimeters, centimeter",
+      "words": [
+        {
+          "word": "Ten",
+          "start": 30.09,
+          "end": 31.19,
+          "probability": 0.0024
+        },
+        {
+          "word": "millimeters,",
+          "start": 31.19,
+          "end": 32.65,
+          "probability": 0.9072
+        },
+        {
+          "word": "centimeter",
+          "start": 32.71,
+          "end": 34.13,
+          "probability": 0.5709
+        }
+      ]
+    },
+    {
+      "start": 34.13,
+      "end": 38.11,
+      "text": "Hundred centimeters, one meter",
+      "words": [
+        {
+          "word": "Hundred",
+          "start": 34.13,
+          "end": 35.17,
+          "probability": 0.3802
+        },
+        {
+          "word": "centimeters,",
+          "start": 35.17,
+          "end": 36.35,
+          "probability": 0.9739
+        },
+        {
+          "word": "one",
+          "start": 36.73,
+          "end": 37.21,
+          "probability": 0.7842
+        },
+        {
+          "word": "meter",
+          "start": 37.21,
+          "end": 38.11,
+          "probability": 0.9846
+        }
+      ]
+    },
+    {
+      "start": 38.11,
+      "end": 41.57,
+      "text": "Keep on counting as we go",
+      "words": [
+        {
+          "word": "Keep",
+          "start": 38.11,
+          "end": 38.65,
+          "probability": 0.7205
+        },
+        {
+          "word": "on",
+          "start": 38.65,
+          "end": 39.11,
+          "probability": 0.9372
+        },
+        {
+          "word": "counting",
+          "start": 39.11,
+          "end": 39.53,
+          "probability": 0.8929
+        },
+        {
+          "word": "as",
+          "start": 39.53,
+          "end": 40.31,
+          "probability": 0.8996
+        },
+        {
+          "word": "we",
+          "start": 40.31,
+          "end": 40.91,
+          "probability": 0.9986
+        },
+        {
+          "word": "go",
+          "start": 40.91,
+          "end": 41.57,
+          "probability": 0.9973
+        }
+      ]
+    },
+    {
+      "start": 41.57,
+      "end": 44.99,
+      "text": "Watch our measurements grow and grow",
+      "words": [
+        {
+          "word": "Watch",
+          "start": 41.57,
+          "end": 42.29,
+          "probability": 0.9478
+        },
+        {
+          "word": "our",
+          "start": 42.29,
+          "end": 42.85,
+          "probability": 0.7761
+        },
+        {
+          "word": "measurements",
+          "start": 42.85,
+          "end": 43.43,
+          "probability": 0.9872
+        },
+        {
+          "word": "grow",
+          "start": 43.43,
+          "end": 44.19,
+          "probability": 0.9887
+        },
+        {
+          "word": "and",
+          "start": 44.19,
+          "end": 44.57,
+          "probability": 0.986
+        },
+        {
+          "word": "grow",
+          "start": 44.57,
+          "end": 44.99,
+          "probability": 0.9936
+        }
+      ]
+    },
+    {
+      "start": 44.99,
+      "end": 49.01,
+      "text": "One thousand meters on the go",
+      "words": [
+        {
+          "word": "One",
+          "start": 44.99,
+          "end": 45.49,
+          "probability": 0.7751
+        },
+        {
+          "word": "thousand",
+          "start": 45.49,
+          "end": 46.21,
+          "probability": 0.9906
+        },
+        {
+          "word": "meters",
+          "start": 46.21,
+          "end": 46.95,
+          "probability": 0.9896
+        },
+        {
+          "word": "on",
+          "start": 46.95,
+          "end": 47.79,
+          "probability": 0.9761
+        },
+        {
+          "word": "the",
+          "start": 47.79,
+          "end": 48.27,
+          "probability": 0.9984
+        },
+        {
+          "word": "go",
+          "start": 48.27,
+          "end": 49.01,
+          "probability": 0.9643
+        }
+      ]
+    },
+    {
+      "start": 49.01,
+      "end": 51.75,
+      "text": "That's one kilometer down the road",
+      "words": [
+        {
+          "word": "That's",
+          "start": 49.01,
+          "end": 49.53,
+          "probability": 0.8577
+        },
+        {
+          "word": "one",
+          "start": 49.53,
+          "end": 49.83,
+          "probability": 0.9647
+        },
+        {
+          "word": "kilometer",
+          "start": 49.83,
+          "end": 50.47,
+          "probability": 0.9555
+        },
+        {
+          "word": "down",
+          "start": 50.47,
+          "end": 51.09,
+          "probability": 0.9952
+        },
+        {
+          "word": "the",
+          "start": 51.09,
+          "end": 51.43,
+          "probability": 0.999
+        },
+        {
+          "word": "road",
+          "start": 51.43,
+          "end": 51.75,
+          "probability": 0.9992
+        }
+      ]
+    },
+    {
+      "start": 52.04,
+      "end": 55.66,
+      "text": "A caterpillar crawls along",
+      "words": [
+        {
+          "word": "A",
+          "start": 52.04,
+          "end": 53.24,
+          "probability": 0.5986
+        },
+        {
+          "word": "caterpillar",
+          "start": 53.24,
+          "end": 54.38,
+          "probability": 0.9863
+        },
+        {
+          "word": "crawls",
+          "start": 54.38,
+          "end": 55.1,
+          "probability": 0.9658
+        },
+        {
+          "word": "along",
+          "start": 55.1,
+          "end": 55.66,
+          "probability": 0.8961
+        }
+      ]
+    },
+    {
+      "start": 56.36,
+      "end": 58.81,
+      "text": "Not too small and not too long",
+      "words": [
+        {
+          "word": "Not",
+          "start": 56.36,
+          "end": 56.93,
+          "probability": 0.8854
+        },
+        {
+          "word": "too",
+          "start": 56.93,
+          "end": 57.25,
+          "probability": 0.5868
+        },
+        {
+          "word": "small",
+          "start": 57.25,
+          "end": 57.47,
+          "probability": 0.9921
+        },
+        {
+          "word": "and",
+          "start": 57.47,
+          "end": 57.73,
+          "probability": 0.8475
+        },
+        {
+          "word": "not",
+          "start": 57.73,
+          "end": 57.89,
+          "probability": 0.9986
+        },
+        {
+          "word": "too",
+          "start": 57.89,
+          "end": 58.27,
+          "probability": 0.9728
+        },
+        {
+          "word": "long",
+          "start": 58.27,
+          "end": 58.81,
+          "probability": 0.9988
+        }
+      ]
+    },
+    {
+      "start": 59.22,
+      "end": 63.14,
+      "text": "We measure leaves and bugs and more",
+      "words": [
+        {
+          "word": "We",
+          "start": 59.22,
+          "end": 60.32,
+          "probability": 0.2091
+        },
+        {
+          "word": "measure",
+          "start": 60.32,
+          "end": 60.78,
+          "probability": 0.9316
+        },
+        {
+          "word": "leaves",
+          "start": 60.78,
+          "end": 61.48,
+          "probability": 0.908
+        },
+        {
+          "word": "and",
+          "start": 61.48,
+          "end": 61.82,
+          "probability": 0.7572
+        },
+        {
+          "word": "bugs",
+          "start": 61.82,
+          "end": 62.24,
+          "probability": 0.6945
+        },
+        {
+          "word": "and",
+          "start": 62.24,
+          "end": 62.6,
+          "probability": 0.9483
+        },
+        {
+          "word": "more",
+          "start": 62.6,
+          "end": 63.14,
+          "probability": 0.8801
+        }
+      ]
+    },
+    {
+      "start": 63.14,
+      "end": 66.42,
+      "text": "In centimeters by the score",
+      "words": [
+        {
+          "word": "In",
+          "start": 63.14,
+          "end": 64.18,
+          "probability": 0.3532
+        },
+        {
+          "word": "centimeters",
+          "start": 64.18,
+          "end": 64.82,
+          "probability": 0.8826
+        },
+        {
+          "word": "by",
+          "start": 64.82,
+          "end": 65.16,
+          "probability": 0.9728
+        },
+        {
+          "word": "the",
+          "start": 65.16,
+          "end": 65.46,
+          "probability": 0.9946
+        },
+        {
+          "word": "score",
+          "start": 65.46,
+          "end": 66.42,
+          "probability": 0.9972
+        }
+      ]
+    },
+    {
+      "start": 66.81,
+      "end": 70.09,
+      "text": "Count to one hundred cares we'll be",
+      "words": [
+        {
+          "word": "Count",
+          "start": 66.81,
+          "end": 67.63,
+          "probability": 0.7624
+        },
+        {
+          "word": "to",
+          "start": 67.63,
+          "end": 67.95,
+          "probability": 0.7677
+        },
+        {
+          "word": "one",
+          "start": 67.95,
+          "end": 68.17,
+          "probability": 0.1921
+        },
+        {
+          "word": "hundred",
+          "start": 68.17,
+          "end": 68.69,
+          "probability": 0.9594
+        },
+        {
+          "word": "cares",
+          "start": 68.69,
+          "end": 69.21,
+          "probability": 0.6856
+        },
+        {
+          "word": "we'll",
+          "start": 69.21,
+          "end": 69.85,
+          "probability": 0.6025
+        },
+        {
+          "word": "be",
+          "start": 69.85,
+          "end": 70.09,
+          "probability": 0.4871
+        }
+      ]
+    },
+    {
+      "start": 70.09,
+      "end": 74.47,
+      "text": "One hundred centimeters a meter big",
+      "words": [
+        {
+          "word": "One",
+          "start": 70.09,
+          "end": 70.49,
+          "probability": 0.2962
+        },
+        {
+          "word": "hundred",
+          "start": 70.49,
+          "end": 70.87,
+          "probability": 0.9545
+        },
+        {
+          "word": "centimeters",
+          "start": 70.87,
+          "end": 71.83,
+          "probability": 0.9287
+        },
+        {
+          "word": "a",
+          "start": 71.83,
+          "end": 72.55,
+          "probability": 0.5192
+        },
+        {
+          "word": "meter",
+          "start": 72.55,
+          "end": 73.61,
+          "probability": 0.9921
+        },
+        {
+          "word": "big",
+          "start": 73.61,
+          "end": 74.47,
+          "probability": 0.3348
+        }
+      ]
+    },
+    {
+      "start": 74.47,
+      "end": 77.79,
+      "text": "Growing bigger, moving quick",
+      "words": [
+        {
+          "word": "Growing",
+          "start": 74.47,
+          "end": 75.27,
+          "probability": 0.5193
+        },
+        {
+          "word": "bigger,",
+          "start": 75.27,
+          "end": 76.27,
+          "probability": 0.951
+        },
+        {
+          "word": "moving",
+          "start": 76.61,
+          "end": 77.09,
+          "probability": 0.9468
+        },
+        {
+          "word": "quick",
+          "start": 77.09,
+          "end": 77.79,
+          "probability": 0.9874
+        }
+      ]
+    },
+    {
+      "start": 77.79,
+      "end": 81.17,
+      "text": "Measuring love with our meter stick",
+      "words": [
+        {
+          "word": "Measuring",
+          "start": 77.79,
+          "end": 78.73,
+          "probability": 0.8923
+        },
+        {
+          "word": "love",
+          "start": 78.73,
+          "end": 79.21,
+          "probability": 0.0005
+        },
+        {
+          "word": "with",
+          "start": 79.21,
+          "end": 79.73,
+          "probability": 0.9687
+        },
+        {
+          "word": "our",
+          "start": 79.73,
+          "end": 80.15,
+          "probability": 0.8834
+        },
+        {
+          "word": "meter",
+          "start": 80.15,
+          "end": 80.57,
+          "probability": 0.6957
+        },
+        {
+          "word": "stick",
+          "start": 80.57,
+          "end": 81.17,
+          "probability": 0.5968
+        }
+      ]
+    },
+    {
+      "start": 81.33,
+      "end": 84.61,
+      "text": "Ten millimeters, centimeter",
+      "words": [
+        {
+          "word": "Ten",
+          "start": 81.33,
+          "end": 82.17,
+          "probability": 0.7515
+        },
+        {
+          "word": "millimeters,",
+          "start": 82.17,
+          "end": 83.49,
+          "probability": 0.9573
+        },
+        {
+          "word": "centimeter",
+          "start": 83.87,
+          "end": 84.61,
+          "probability": 0.7284
+        }
+      ]
+    },
+    {
+      "start": 85.15,
+      "end": 88.93,
+      "text": "Hundred centimeters, one meter",
+      "words": [
+        {
+          "word": "Hundred",
+          "start": 85.15,
+          "end": 86.07,
+          "probability": 0.3673
+        },
+        {
+          "word": "centimeters,",
+          "start": 86.07,
+          "end": 87.17,
+          "probability": 0.9801
+        },
+        {
+          "word": "one",
+          "start": 87.77,
+          "end": 88.07,
+          "probability": 0.9674
+        },
+        {
+          "word": "meter",
+          "start": 88.07,
+          "end": 88.93,
+          "probability": 0.9893
+        }
+      ]
+    },
+    {
+      "start": 88.93,
+      "end": 92.58,
+      "text": "Keep on counting as we go",
+      "words": [
+        {
+          "word": "Keep",
+          "start": 88.93,
+          "end": 89.43,
+          "probability": 0.0214
+        },
+        {
+          "word": "on",
+          "start": 89.43,
+          "end": 90.01,
+          "probability": 0.956
+        },
+        {
+          "word": "counting",
+          "start": 90.01,
+          "end": 90.41,
+          "probability": 0.7927
+        },
+        {
+          "word": "as",
+          "start": 90.41,
+          "end": 91.23,
+          "probability": 0.8827
+        },
+        {
+          "word": "we",
+          "start": 91.23,
+          "end": 91.81,
+          "probability": 0.9938
+        },
+        {
+          "word": "go",
+          "start": 92.06,
+          "end": 92.58,
+          "probability": 0.9329
+        }
+      ]
+    },
+    {
+      "start": 92.58,
+      "end": 95.96,
+      "text": "Watch our measurements grow and grow",
+      "words": [
+        {
+          "word": "Watch",
+          "start": 92.58,
+          "end": 93.14,
+          "probability": 0.6511
+        },
+        {
+          "word": "our",
+          "start": 93.14,
+          "end": 93.72,
+          "probability": 0.9482
+        },
+        {
+          "word": "measurements",
+          "start": 93.72,
+          "end": 94.36,
+          "probability": 0.9732
+        },
+        {
+          "word": "grow",
+          "start": 94.36,
+          "end": 95.06,
+          "probability": 0.9824
+        },
+        {
+          "word": "and",
+          "start": 95.06,
+          "end": 95.52,
+          "probability": 0.9623
+        },
+        {
+          "word": "grow",
+          "start": 95.52,
+          "end": 95.96,
+          "probability": 0.9965
+        }
+      ]
+    },
+    {
+      "start": 95.96,
+      "end": 99.86,
+      "text": "One thousand meters on the go",
+      "words": [
+        {
+          "word": "One",
+          "start": 95.96,
+          "end": 96.4,
+          "probability": 0.347
+        },
+        {
+          "word": "thousand",
+          "start": 96.4,
+          "end": 97.1,
+          "probability": 0.9735
+        },
+        {
+          "word": "meters",
+          "start": 97.1,
+          "end": 97.8,
+          "probability": 0.9226
+        },
+        {
+          "word": "on",
+          "start": 97.8,
+          "end": 98.58,
+          "probability": 0.9202
+        },
+        {
+          "word": "the",
+          "start": 98.58,
+          "end": 99.1,
+          "probability": 0.9958
+        },
+        {
+          "word": "go",
+          "start": 99.74,
+          "end": 99.86,
+          "probability": 0.8145
+        }
+      ]
+    },
+    {
+      "start": 99.86,
+      "end": 103.16,
+      "text": "That's one kilometer down the road",
+      "words": [
+        {
+          "word": "That's",
+          "start": 99.86,
+          "end": 100.44,
+          "probability": 0.8969
+        },
+        {
+          "word": "one",
+          "start": 100.44,
+          "end": 100.72,
+          "probability": 0.9305
+        },
+        {
+          "word": "kilometer",
+          "start": 100.72,
+          "end": 101.34,
+          "probability": 0.8966
+        },
+        {
+          "word": "down",
+          "start": 101.34,
+          "end": 101.98,
+          "probability": 0.9956
+        },
+        {
+          "word": "the",
+          "start": 101.98,
+          "end": 102.34,
+          "probability": 0.9987
+        },
+        {
+          "word": "road",
+          "start": 102.34,
+          "end": 103.16,
+          "probability": 0.9992
+        }
+      ]
+    },
+    {
+      "start": 103.42,
+      "end": 106.9,
+      "text": "A kangaroo jumps way out far",
+      "words": [
+        {
+          "word": "A",
+          "start": 103.42,
+          "end": 104.16,
+          "probability": 0.945
+        },
+        {
+          "word": "kangaroo",
+          "start": 104.16,
+          "end": 104.8,
+          "probability": 0.9981
+        },
+        {
+          "word": "jumps",
+          "start": 104.8,
+          "end": 105.38,
+          "probability": 0.9924
+        },
+        {
+          "word": "way",
+          "start": 105.38,
+          "end": 105.76,
+          "probability": 0.7491
+        },
+        {
+          "word": "out",
+          "start": 105.76,
+          "end": 106.16,
+          "probability": 0.967
+        },
+        {
+          "word": "far",
+          "start": 106.16,
+          "end": 106.9,
+          "probability": 0.9884
+        }
+      ]
+    },
+    {
+      "start": 106.9,
+      "end": 110.02,
+      "text": "Across the field and past the car",
+      "words": [
+        {
+          "word": "Across",
+          "start": 106.9,
+          "end": 107.84,
+          "probability": 0.9421
+        },
+        {
+          "word": "the",
+          "start": 107.84,
+          "end": 108.2,
+          "probability": 0.9941
+        },
+        {
+          "word": "field",
+          "start": 108.2,
+          "end": 108.4,
+          "probability": 0.996
+        },
+        {
+          "word": "and",
+          "start": 108.4,
+          "end": 108.64,
+          "probability": 0.9893
+        },
+        {
+          "word": "past",
+          "start": 108.64,
+          "end": 108.76,
+          "probability": 0.9732
+        },
+        {
+          "word": "the",
+          "start": 108.76,
+          "end": 109.2,
+          "probability": 0.9835
+        },
+        {
+          "word": "car",
+          "start": 109.2,
+          "end": 110.02,
+          "probability": 0.8251
+        }
+      ]
+    },
+    {
+      "start": 110.02,
+      "end": 114.38,
+      "text": "For animals making distances greater",
+      "words": [
+        {
+          "word": "For",
+          "start": 110.02,
+          "end": 110.88,
+          "probability": 0.9564
+        },
+        {
+          "word": "animals",
+          "start": 110.88,
+          "end": 111.64,
+          "probability": 0.992
+        },
+        {
+          "word": "making",
+          "start": 111.64,
+          "end": 112.36,
+          "probability": 0.8706
+        },
+        {
+          "word": "distances",
+          "start": 112.36,
+          "end": 113.36,
+          "probability": 0.9852
+        },
+        {
+          "word": "greater",
+          "start": 113.36,
+          "end": 114.38,
+          "probability": 0.9963
+        }
+      ]
+    },
+    {
+      "start": 114.38,
+      "end": 117.22,
+      "text": "We measure them using meters",
+      "words": [
+        {
+          "word": "We",
+          "start": 114.38,
+          "end": 114.96,
+          "probability": 0.9198
+        },
+        {
+          "word": "measure",
+          "start": 114.96,
+          "end": 115.34,
+          "probability": 0.9447
+        },
+        {
+          "word": "them",
+          "start": 115.34,
+          "end": 115.66,
+          "probability": 0.9872
+        },
+        {
+          "word": "using",
+          "start": 115.66,
+          "end": 116.04,
+          "probability": 0.9925
+        },
+        {
+          "word": "meters",
+          "start": 116.04,
+          "end": 117.22,
+          "probability": 0.9899
+        }
+      ]
+    },
+    {
+      "start": 117.22,
+      "end": 124.44,
+      "text": "One thousand meters make a kilometer",
+      "words": [
+        {
+          "word": "One",
+          "start": 117.22,
+          "end": 117.98,
+          "probability": 0.0163
+        },
+        {
+          "word": "thousand",
+          "start": 122.2,
+          "end": 122.56,
+          "probability": 0.9014
+        },
+        {
+          "word": "meters",
+          "start": 122.56,
+          "end": 123.06,
+          "probability": 0.8617
+        },
+        {
+          "word": "make",
+          "start": 123.06,
+          "end": 123.36,
+          "probability": 0.7753
+        },
+        {
+          "word": "a",
+          "start": 123.36,
+          "end": 123.78,
+          "probability": 0.9843
+        },
+        {
+          "word": "kilometer",
+          "start": 123.78,
+          "end": 124.44,
+          "probability": 0.3613
+        }
+      ]
+    },
+    {
+      "start": 125.2,
+      "end": 128.7,
+      "text": "Growing bigger, moving quick",
+      "words": [
+        {
+          "word": "Growing",
+          "start": 125.2,
+          "end": 126.18,
+          "probability": 0.0113
+        },
+        {
+          "word": "bigger,",
+          "start": 126.18,
+          "end": 127.18,
+          "probability": 0.8247
+        },
+        {
+          "word": "moving",
+          "start": 127.44,
+          "end": 128.0,
+          "probability": 0.9392
+        },
+        {
+          "word": "quick",
+          "start": 128.0,
+          "end": 128.7,
+          "probability": 0.9594
+        }
+      ]
+    },
+    {
+      "start": 128.7,
+      "end": 132.05,
+      "text": "Measuring love with our meter stick",
+      "words": [
+        {
+          "word": "Measuring",
+          "start": 128.7,
+          "end": 129.66,
+          "probability": 0.7894
+        },
+        {
+          "word": "love",
+          "start": 129.66,
+          "end": 130.1,
+          "probability": 0.0002
+        },
+        {
+          "word": "with",
+          "start": 130.1,
+          "end": 130.64,
+          "probability": 0.954
+        },
+        {
+          "word": "our",
+          "start": 130.64,
+          "end": 130.98,
+          "probability": 0.8728
+        },
+        {
+          "word": "meter",
+          "start": 130.98,
+          "end": 131.44,
+          "probability": 0.5524
+        },
+        {
+          "word": "stick",
+          "start": 131.44,
+          "end": 132.05,
+          "probability": 0.29
+        }
+      ]
+    },
+    {
+      "start": 132.42,
+      "end": 135.8,
+      "text": "Ten millimeters, centimeter",
+      "words": [
+        {
+          "word": "Ten",
+          "start": 132.42,
+          "end": 133.06,
+          "probability": 0.6719
+        },
+        {
+          "word": "millimeters,",
+          "start": 133.06,
+          "end": 134.4,
+          "probability": 0.9062
+        },
+        {
+          "word": "centimeter",
+          "start": 134.96,
+          "end": 135.8,
+          "probability": 0.2879
+        }
+      ]
+    },
+    {
+      "start": 135.8,
+      "end": 139.76,
+      "text": "Hundred centimeters, one meter",
+      "words": [
+        {
+          "word": "Hundred",
+          "start": 135.8,
+          "end": 136.98,
+          "probability": 0.5756
+        },
+        {
+          "word": "centimeters,",
+          "start": 136.98,
+          "end": 138.08,
+          "probability": 0.9654
+        },
+        {
+          "word": "one",
+          "start": 138.6,
+          "end": 139.02,
+          "probability": 0.9562
+        },
+        {
+          "word": "meter",
+          "start": 139.02,
+          "end": 139.76,
+          "probability": 0.9751
+        }
+      ]
+    },
+    {
+      "start": 139.76,
+      "end": 143.23,
+      "text": "Keep on counting as we go",
+      "words": [
+        {
+          "word": "Keep",
+          "start": 139.76,
+          "end": 140.4,
+          "probability": 0.9328
+        },
+        {
+          "word": "on",
+          "start": 140.4,
+          "end": 140.92,
+          "probability": 0.9922
+        },
+        {
+          "word": "counting",
+          "start": 140.92,
+          "end": 141.32,
+          "probability": 0.9288
+        },
+        {
+          "word": "as",
+          "start": 141.32,
+          "end": 142.14,
+          "probability": 0.924
+        },
+        {
+          "word": "we",
+          "start": 142.14,
+          "end": 142.8,
+          "probability": 0.9972
+        },
+        {
+          "word": "go",
+          "start": 142.87,
+          "end": 143.23,
+          "probability": 0.9883
+        }
+      ]
+    },
+    {
+      "start": 143.23,
+      "end": 146.83,
+      "text": "Watch our measurements grow and grow",
+      "words": [
+        {
+          "word": "Watch",
+          "start": 143.23,
+          "end": 143.97,
+          "probability": 0.832
+        },
+        {
+          "word": "our",
+          "start": 143.97,
+          "end": 144.67,
+          "probability": 0.9597
+        },
+        {
+          "word": "measurements",
+          "start": 144.67,
+          "end": 145.25,
+          "probability": 0.9701
+        },
+        {
+          "word": "grow",
+          "start": 145.25,
+          "end": 145.99,
+          "probability": 0.9609
+        },
+        {
+          "word": "and",
+          "start": 145.99,
+          "end": 146.39,
+          "probability": 0.9835
+        },
+        {
+          "word": "grow",
+          "start": 146.39,
+          "end": 146.83,
+          "probability": 0.9712
+        }
+      ]
+    },
+    {
+      "start": 146.83,
+      "end": 150.74,
+      "text": "One thousand meters on the go",
+      "words": [
+        {
+          "word": "One",
+          "start": 146.83,
+          "end": 147.33,
+          "probability": 0.9243
+        },
+        {
+          "word": "thousand",
+          "start": 147.33,
+          "end": 148.01,
+          "probability": 0.9923
+        },
+        {
+          "word": "meters",
+          "start": 148.01,
+          "end": 148.69,
+          "probability": 0.99
+        },
+        {
+          "word": "on",
+          "start": 148.69,
+          "end": 149.57,
+          "probability": 0.706
+        },
+        {
+          "word": "the",
+          "start": 149.57,
+          "end": 150.01,
+          "probability": 0.9828
+        },
+        {
+          "word": "go",
+          "start": 150.68,
+          "end": 150.74,
+          "probability": 0.6241
+        }
+      ]
+    },
+    {
+      "start": 150.74,
+      "end": 154.06,
+      "text": "That's one kilometer down the road",
+      "words": [
+        {
+          "word": "That's",
+          "start": 150.74,
+          "end": 151.34,
+          "probability": 0.6768
+        },
+        {
+          "word": "one",
+          "start": 151.34,
+          "end": 151.56,
+          "probability": 0.8179
+        },
+        {
+          "word": "kilometer",
+          "start": 151.56,
+          "end": 152.24,
+          "probability": 0.8523
+        },
+        {
+          "word": "down",
+          "start": 152.24,
+          "end": 152.88,
+          "probability": 0.989
+        },
+        {
+          "word": "the",
+          "start": 152.88,
+          "end": 153.22,
+          "probability": 0.9974
+        },
+        {
+          "word": "road",
+          "start": 153.22,
+          "end": 154.06,
+          "probability": 0.9956
+        }
+      ]
+    },
+    {
+      "start": 154.06,
+      "end": 157.84,
+      "text": "A man so tiny the kangaroo's tall",
+      "words": [
+        {
+          "word": "A",
+          "start": 154.06,
+          "end": 154.48,
+          "probability": 0.0084
+        },
+        {
+          "word": "man",
+          "start": 154.48,
+          "end": 154.76,
+          "probability": 0.7805
+        },
+        {
+          "word": "so",
+          "start": 154.76,
+          "end": 155.34,
+          "probability": 0.8984
+        },
+        {
+          "word": "tiny",
+          "start": 155.34,
+          "end": 155.84,
+          "probability": 0.9929
+        },
+        {
+          "word": "the",
+          "start": 155.84,
+          "end": 156.2,
+          "probability": 0.2645
+        },
+        {
+          "word": "kangaroo's",
+          "start": 156.2,
+          "end": 157.42,
+          "probability": 0.9127
+        },
+        {
+          "word": "tall",
+          "start": 157.42,
+          "end": 157.84,
+          "probability": 0.9865
+        }
+      ]
+    },
+    {
+      "start": 157.84,
+      "end": 161.46,
+      "text": "Metric measurements fit them all",
+      "words": [
+        {
+          "word": "Metric",
+          "start": 157.84,
+          "end": 159.02,
+          "probability": 0.9202
+        },
+        {
+          "word": "measurements",
+          "start": 159.02,
+          "end": 159.76,
+          "probability": 0.9547
+        },
+        {
+          "word": "fit",
+          "start": 159.76,
+          "end": 160.4,
+          "probability": 0.7967
+        },
+        {
+          "word": "them",
+          "start": 160.4,
+          "end": 160.84,
+          "probability": 0.915
+        },
+        {
+          "word": "all",
+          "start": 160.84,
+          "end": 161.46,
+          "probability": 0.9855
+        }
+      ]
+    },
+    {
+      "start": 161.46,
+      "end": 164.92,
+      "text": "Small to big, that's the trick",
+      "words": [
+        {
+          "word": "Small",
+          "start": 161.46,
+          "end": 162.14,
+          "probability": 0.7751
+        },
+        {
+          "word": "to",
+          "start": 162.14,
+          "end": 162.76,
+          "probability": 0.7788
+        },
+        {
+          "word": "big,",
+          "start": 162.76,
+          "end": 163.18,
+          "probability": 0.9836
+        },
+        {
+          "word": "that's",
+          "start": 163.8,
+          "end": 164.22,
+          "probability": 0.9806
+        },
+        {
+          "word": "the",
+          "start": 164.22,
+          "end": 164.5,
+          "probability": 0.9937
+        },
+        {
+          "word": "trick",
+          "start": 164.5,
+          "end": 164.92,
+          "probability": 0.9948
+        }
+      ]
+    },
+    {
+      "start": 164.92,
+      "end": 167.6,
+      "text": "That's the way we measure with metric",
+      "words": [
+        {
+          "word": "That's",
+          "start": 164.92,
+          "end": 165.76,
+          "probability": 0.9402
+        },
+        {
+          "word": "the",
+          "start": 165.76,
+          "end": 165.88,
+          "probability": 0.9965
+        },
+        {
+          "word": "way",
+          "start": 165.88,
+          "end": 166.02,
+          "probability": 0.9988
+        },
+        {
+          "word": "we",
+          "start": 166.02,
+          "end": 166.4,
+          "probability": 0.9959
+        },
+        {
+          "word": "measure",
+          "start": 166.4,
+          "end": 166.68,
+          "probability": 0.9953
+        },
+        {
+          "word": "with",
+          "start": 166.68,
+          "end": 167.08,
+          "probability": 0.9757
+        },
+        {
+          "word": "metric",
+          "start": 167.08,
+          "end": 167.6,
+          "probability": 0.9605
+        }
+      ]
+    }
+  ]
+}

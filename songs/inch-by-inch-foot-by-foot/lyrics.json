@@ -1,0 +1,1170 @@
+{
+  "language": "en",
+  "language_probability": 0.9536,
+  "duration": 139.2,
+  "model": "medium",
+  "segments": [
+    {
+      "start": 9.33,
+      "end": 16.43,
+      "text": "inch by inch and foot by foot. We step through yards and travel miles.",
+      "words": [
+        {
+          "word": "inch",
+          "start": 9.33,
+          "end": 10.21,
+          "probability": 0.167
+        },
+        {
+          "word": "by",
+          "start": 10.21,
+          "end": 10.65,
+          "probability": 0.8054
+        },
+        {
+          "word": "inch",
+          "start": 10.65,
+          "end": 11.33,
+          "probability": 0.9101
+        },
+        {
+          "word": "and",
+          "start": 11.33,
+          "end": 11.63,
+          "probability": 0.8286
+        },
+        {
+          "word": "foot",
+          "start": 11.63,
+          "end": 11.99,
+          "probability": 0.9573
+        },
+        {
+          "word": "by",
+          "start": 11.99,
+          "end": 12.45,
+          "probability": 0.9541
+        },
+        {
+          "word": "foot.",
+          "start": 12.45,
+          "end": 12.99,
+          "probability": 0.9965
+        },
+        {
+          "word": "We",
+          "start": 12.99,
+          "end": 13.47,
+          "probability": 0.8081
+        },
+        {
+          "word": "step",
+          "start": 13.47,
+          "end": 13.85,
+          "probability": 0.891
+        },
+        {
+          "word": "through",
+          "start": 13.85,
+          "end": 14.41,
+          "probability": 0.8938
+        },
+        {
+          "word": "yards",
+          "start": 14.41,
+          "end": 14.85,
+          "probability": 0.9519
+        },
+        {
+          "word": "and",
+          "start": 14.85,
+          "end": 15.39,
+          "probability": 0.954
+        },
+        {
+          "word": "travel",
+          "start": 15.39,
+          "end": 16.09,
+          "probability": 0.9396
+        },
+        {
+          "word": "miles.",
+          "start": 16.09,
+          "end": 16.43,
+          "probability": 0.9904
+        }
+      ]
+    },
+    {
+      "start": 17.39,
+      "end": 23.25,
+      "text": "12 little inches side by side. 12 little inches side by side.",
+      "words": [
+        {
+          "word": "12",
+          "start": 17.39,
+          "end": 17.39,
+          "probability": 0.6152
+        },
+        {
+          "word": "little",
+          "start": 17.39,
+          "end": 17.65,
+          "probability": 0.9464
+        },
+        {
+          "word": "inches",
+          "start": 17.65,
+          "end": 17.97,
+          "probability": 0.9921
+        },
+        {
+          "word": "side",
+          "start": 17.97,
+          "end": 18.31,
+          "probability": 0.9388
+        },
+        {
+          "word": "by",
+          "start": 18.31,
+          "end": 18.53,
+          "probability": 0.9198
+        },
+        {
+          "word": "side.",
+          "start": 18.53,
+          "end": 19.49,
+          "probability": 0.9984
+        },
+        {
+          "word": "12",
+          "start": 20.79,
+          "end": 21.07,
+          "probability": 0.8626
+        },
+        {
+          "word": "little",
+          "start": 21.07,
+          "end": 21.39,
+          "probability": 0.9863
+        },
+        {
+          "word": "inches",
+          "start": 21.39,
+          "end": 21.71,
+          "probability": 0.9975
+        },
+        {
+          "word": "side",
+          "start": 21.71,
+          "end": 22.19,
+          "probability": 0.9827
+        },
+        {
+          "word": "by",
+          "start": 22.19,
+          "end": 22.71,
+          "probability": 0.9872
+        },
+        {
+          "word": "side.",
+          "start": 22.71,
+          "end": 23.25,
+          "probability": 0.999
+        }
+      ]
+    },
+    {
+      "start": 24.57,
+      "end": 28.17,
+      "text": "Heel to toe across the floor, step it out from door to door.",
+      "words": [
+        {
+          "word": "Heel",
+          "start": 24.57,
+          "end": 24.87,
+          "probability": 0.8759
+        },
+        {
+          "word": "to",
+          "start": 24.87,
+          "end": 25.05,
+          "probability": 0.9512
+        },
+        {
+          "word": "toe",
+          "start": 25.05,
+          "end": 25.31,
+          "probability": 0.9996
+        },
+        {
+          "word": "across",
+          "start": 25.31,
+          "end": 25.73,
+          "probability": 0.9088
+        },
+        {
+          "word": "the",
+          "start": 25.73,
+          "end": 26.05,
+          "probability": 0.9984
+        },
+        {
+          "word": "floor,",
+          "start": 26.05,
+          "end": 26.27,
+          "probability": 0.9886
+        },
+        {
+          "word": "step",
+          "start": 26.57,
+          "end": 26.71,
+          "probability": 0.7337
+        },
+        {
+          "word": "it",
+          "start": 26.71,
+          "end": 26.95,
+          "probability": 0.9852
+        },
+        {
+          "word": "out",
+          "start": 26.95,
+          "end": 27.07,
+          "probability": 0.5477
+        },
+        {
+          "word": "from",
+          "start": 27.07,
+          "end": 27.41,
+          "probability": 0.9839
+        },
+        {
+          "word": "door",
+          "start": 27.41,
+          "end": 27.59,
+          "probability": 0.9869
+        },
+        {
+          "word": "to",
+          "start": 27.59,
+          "end": 27.89,
+          "probability": 0.983
+        },
+        {
+          "word": "door.",
+          "start": 27.89,
+          "end": 28.17,
+          "probability": 0.998
+        }
+      ]
+    },
+    {
+      "start": 28.49,
+      "end": 31.99,
+      "text": "Walking slowly, counting feet, every step a steady beat.",
+      "words": [
+        {
+          "word": "Walking",
+          "start": 28.49,
+          "end": 28.63,
+          "probability": 0.7717
+        },
+        {
+          "word": "slowly,",
+          "start": 28.63,
+          "end": 29.07,
+          "probability": 0.9664
+        },
+        {
+          "word": "counting",
+          "start": 29.29,
+          "end": 29.55,
+          "probability": 0.9968
+        },
+        {
+          "word": "feet,",
+          "start": 29.55,
+          "end": 29.93,
+          "probability": 0.9982
+        },
+        {
+          "word": "every",
+          "start": 30.15,
+          "end": 30.51,
+          "probability": 0.978
+        },
+        {
+          "word": "step",
+          "start": 30.51,
+          "end": 30.81,
+          "probability": 0.9931
+        },
+        {
+          "word": "a",
+          "start": 30.81,
+          "end": 31.09,
+          "probability": 0.8686
+        },
+        {
+          "word": "steady",
+          "start": 31.09,
+          "end": 31.49,
+          "probability": 0.9967
+        },
+        {
+          "word": "beat.",
+          "start": 31.49,
+          "end": 31.99,
+          "probability": 0.9041
+        }
+      ]
+    },
+    {
+      "start": 35.71,
+      "end": 38.23,
+      "text": "Three feet together and shout.",
+      "words": [
+        {
+          "word": "Three",
+          "start": 35.71,
+          "end": 36.11,
+          "probability": 0.5724
+        },
+        {
+          "word": "feet",
+          "start": 36.11,
+          "end": 36.27,
+          "probability": 0.9958
+        },
+        {
+          "word": "together",
+          "start": 36.27,
+          "end": 36.99,
+          "probability": 0.9869
+        },
+        {
+          "word": "and",
+          "start": 36.99,
+          "end": 37.39,
+          "probability": 0.944
+        },
+        {
+          "word": "shout.",
+          "start": 37.39,
+          "end": 38.23,
+          "probability": 0.9696
+        }
+      ]
+    },
+    {
+      "start": 38.65,
+      "end": 42.82,
+      "text": "That makes a yard when we count it out.",
+      "words": [
+        {
+          "word": "That",
+          "start": 38.65,
+          "end": 38.91,
+          "probability": 0.4539
+        },
+        {
+          "word": "makes",
+          "start": 38.91,
+          "end": 39.15,
+          "probability": 0.9903
+        },
+        {
+          "word": "a",
+          "start": 39.15,
+          "end": 39.53,
+          "probability": 0.8606
+        },
+        {
+          "word": "yard",
+          "start": 39.53,
+          "end": 40.15,
+          "probability": 0.9974
+        },
+        {
+          "word": "when",
+          "start": 40.15,
+          "end": 40.47,
+          "probability": 0.8172
+        },
+        {
+          "word": "we",
+          "start": 40.47,
+          "end": 40.83,
+          "probability": 0.9962
+        },
+        {
+          "word": "count",
+          "start": 40.83,
+          "end": 41.09,
+          "probability": 0.7563
+        },
+        {
+          "word": "it",
+          "start": 41.09,
+          "end": 41.45,
+          "probability": 0.9796
+        },
+        {
+          "word": "out.",
+          "start": 42.7,
+          "end": 42.82,
+          "probability": 0.6986
+        }
+      ]
+    },
+    {
+      "start": 42.82,
+      "end": 50.12,
+      "text": "Inch by inch and foot by foot. We step through yards and travel miles.",
+      "words": [
+        {
+          "word": "Inch",
+          "start": 42.82,
+          "end": 43.54,
+          "probability": 0.4918
+        },
+        {
+          "word": "by",
+          "start": 43.54,
+          "end": 43.86,
+          "probability": 0.9447
+        },
+        {
+          "word": "inch",
+          "start": 43.86,
+          "end": 44.48,
+          "probability": 0.8763
+        },
+        {
+          "word": "and",
+          "start": 44.48,
+          "end": 44.86,
+          "probability": 0.9055
+        },
+        {
+          "word": "foot",
+          "start": 44.86,
+          "end": 45.14,
+          "probability": 0.9451
+        },
+        {
+          "word": "by",
+          "start": 45.14,
+          "end": 45.7,
+          "probability": 0.9825
+        },
+        {
+          "word": "foot.",
+          "start": 45.7,
+          "end": 46.18,
+          "probability": 0.9986
+        },
+        {
+          "word": "We",
+          "start": 46.28,
+          "end": 46.68,
+          "probability": 0.9562
+        },
+        {
+          "word": "step",
+          "start": 46.68,
+          "end": 47.08,
+          "probability": 0.9278
+        },
+        {
+          "word": "through",
+          "start": 47.08,
+          "end": 47.62,
+          "probability": 0.9258
+        },
+        {
+          "word": "yards",
+          "start": 47.62,
+          "end": 48.08,
+          "probability": 0.9594
+        },
+        {
+          "word": "and",
+          "start": 48.08,
+          "end": 48.56,
+          "probability": 0.9518
+        },
+        {
+          "word": "travel",
+          "start": 48.56,
+          "end": 49.32,
+          "probability": 0.9744
+        },
+        {
+          "word": "miles.",
+          "start": 49.32,
+          "end": 50.12,
+          "probability": 0.9961
+        }
+      ]
+    },
+    {
+      "start": 50.66,
+      "end": 56.83,
+      "text": "Foot by heel to toe, three feet a yard we go.",
+      "words": [
+        {
+          "word": "Foot",
+          "start": 50.66,
+          "end": 50.66,
+          "probability": 0.8015
+        },
+        {
+          "word": "by",
+          "start": 50.66,
+          "end": 51.24,
+          "probability": 0.928
+        },
+        {
+          "word": "heel",
+          "start": 52.01,
+          "end": 52.61,
+          "probability": 0.1872
+        },
+        {
+          "word": "to",
+          "start": 52.61,
+          "end": 52.99,
+          "probability": 0.9158
+        },
+        {
+          "word": "toe,",
+          "start": 52.99,
+          "end": 53.43,
+          "probability": 0.9996
+        },
+        {
+          "word": "three",
+          "start": 53.83,
+          "end": 54.11,
+          "probability": 0.6719
+        },
+        {
+          "word": "feet",
+          "start": 54.11,
+          "end": 54.69,
+          "probability": 0.9908
+        },
+        {
+          "word": "a",
+          "start": 54.69,
+          "end": 55.11,
+          "probability": 0.9028
+        },
+        {
+          "word": "yard",
+          "start": 55.11,
+          "end": 55.43,
+          "probability": 0.9881
+        },
+        {
+          "word": "we",
+          "start": 55.43,
+          "end": 56.01,
+          "probability": 0.957
+        },
+        {
+          "word": "go.",
+          "start": 56.01,
+          "end": 56.83,
+          "probability": 0.9967
+        }
+      ]
+    },
+    {
+      "start": 68.98,
+      "end": 72.46,
+      "text": "On roads winding far away, trips that take a whole long day.",
+      "words": [
+        {
+          "word": "On",
+          "start": 68.98,
+          "end": 69.16,
+          "probability": 0.3956
+        },
+        {
+          "word": "roads",
+          "start": 69.16,
+          "end": 69.3,
+          "probability": 0.9264
+        },
+        {
+          "word": "winding",
+          "start": 69.3,
+          "end": 69.68,
+          "probability": 0.9856
+        },
+        {
+          "word": "far",
+          "start": 69.68,
+          "end": 70.12,
+          "probability": 0.9897
+        },
+        {
+          "word": "away,",
+          "start": 70.12,
+          "end": 70.54,
+          "probability": 0.9878
+        },
+        {
+          "word": "trips",
+          "start": 70.66,
+          "end": 70.92,
+          "probability": 0.9058
+        },
+        {
+          "word": "that",
+          "start": 70.92,
+          "end": 71.26,
+          "probability": 0.9882
+        },
+        {
+          "word": "take",
+          "start": 71.26,
+          "end": 71.48,
+          "probability": 0.9965
+        },
+        {
+          "word": "a",
+          "start": 71.48,
+          "end": 71.66,
+          "probability": 0.9963
+        },
+        {
+          "word": "whole",
+          "start": 71.66,
+          "end": 71.92,
+          "probability": 0.9683
+        },
+        {
+          "word": "long",
+          "start": 71.92,
+          "end": 72.16,
+          "probability": 0.987
+        },
+        {
+          "word": "day.",
+          "start": 72.16,
+          "end": 72.46,
+          "probability": 0.9983
+        }
+      ]
+    },
+    {
+      "start": 72.74,
+      "end": 77.7,
+      "text": "Maps unfold from town to town, miles are how we chart the way.",
+      "words": [
+        {
+          "word": "Maps",
+          "start": 72.74,
+          "end": 72.8,
+          "probability": 0.9554
+        },
+        {
+          "word": "unfold",
+          "start": 72.8,
+          "end": 73.2,
+          "probability": 0.9951
+        },
+        {
+          "word": "from",
+          "start": 73.2,
+          "end": 73.5,
+          "probability": 0.9893
+        },
+        {
+          "word": "town",
+          "start": 73.5,
+          "end": 73.72,
+          "probability": 0.9953
+        },
+        {
+          "word": "to",
+          "start": 73.72,
+          "end": 73.96,
+          "probability": 0.995
+        },
+        {
+          "word": "town,",
+          "start": 73.96,
+          "end": 74.34,
+          "probability": 0.9977
+        },
+        {
+          "word": "miles",
+          "start": 74.34,
+          "end": 74.7,
+          "probability": 0.99
+        },
+        {
+          "word": "are",
+          "start": 74.7,
+          "end": 74.96,
+          "probability": 0.6609
+        },
+        {
+          "word": "how",
+          "start": 74.96,
+          "end": 75.12,
+          "probability": 0.9982
+        },
+        {
+          "word": "we",
+          "start": 75.12,
+          "end": 75.3,
+          "probability": 0.9811
+        },
+        {
+          "word": "chart",
+          "start": 75.3,
+          "end": 75.78,
+          "probability": 0.9956
+        },
+        {
+          "word": "the",
+          "start": 75.78,
+          "end": 76.4,
+          "probability": 0.992
+        },
+        {
+          "word": "way.",
+          "start": 76.4,
+          "end": 77.7,
+          "probability": 0.9625
+        }
+      ]
+    },
+    {
+      "start": 78.04,
+      "end": 84.76,
+      "text": "Inch by inch and foot by foot. We step through yards and travel miles.",
+      "words": [
+        {
+          "word": "Inch",
+          "start": 78.04,
+          "end": 78.56,
+          "probability": 0.9774
+        },
+        {
+          "word": "by",
+          "start": 78.56,
+          "end": 79.02,
+          "probability": 0.9978
+        },
+        {
+          "word": "inch",
+          "start": 79.02,
+          "end": 79.56,
+          "probability": 0.9985
+        },
+        {
+          "word": "and",
+          "start": 79.56,
+          "end": 79.84,
+          "probability": 0.9928
+        },
+        {
+          "word": "foot",
+          "start": 79.84,
+          "end": 80.28,
+          "probability": 0.9965
+        },
+        {
+          "word": "by",
+          "start": 80.28,
+          "end": 80.82,
+          "probability": 0.9971
+        },
+        {
+          "word": "foot.",
+          "start": 80.82,
+          "end": 81.14,
+          "probability": 0.9993
+        },
+        {
+          "word": "We",
+          "start": 81.4,
+          "end": 81.74,
+          "probability": 0.9963
+        },
+        {
+          "word": "step",
+          "start": 81.74,
+          "end": 82.16,
+          "probability": 0.9976
+        },
+        {
+          "word": "through",
+          "start": 82.16,
+          "end": 82.68,
+          "probability": 0.9921
+        },
+        {
+          "word": "yards",
+          "start": 82.68,
+          "end": 83.14,
+          "probability": 0.9988
+        },
+        {
+          "word": "and",
+          "start": 83.14,
+          "end": 83.64,
+          "probability": 0.9977
+        },
+        {
+          "word": "travel",
+          "start": 83.64,
+          "end": 84.36,
+          "probability": 0.9976
+        },
+        {
+          "word": "miles.",
+          "start": 84.36,
+          "end": 84.76,
+          "probability": 0.9997
+        }
+      ]
+    },
+    {
+      "start": 84.76,
+      "end": 91.76,
+      "text": "Foot by foot we lay them long, 5,280 strong.",
+      "words": [
+        {
+          "word": "Foot",
+          "start": 84.76,
+          "end": 85.72,
+          "probability": 0.0269
+        },
+        {
+          "word": "by",
+          "start": 85.72,
+          "end": 86.28,
+          "probability": 0.9398
+        },
+        {
+          "word": "foot",
+          "start": 86.28,
+          "end": 86.78,
+          "probability": 0.928
+        },
+        {
+          "word": "we",
+          "start": 86.78,
+          "end": 87.32,
+          "probability": 0.4779
+        },
+        {
+          "word": "lay",
+          "start": 87.32,
+          "end": 87.72,
+          "probability": 0.9284
+        },
+        {
+          "word": "them",
+          "start": 87.72,
+          "end": 88.22,
+          "probability": 0.9935
+        },
+        {
+          "word": "long,",
+          "start": 88.22,
+          "end": 88.58,
+          "probability": 0.9275
+        },
+        {
+          "word": "5",
+          "start": 89.1,
+          "end": 89.26,
+          "probability": 0.617
+        },
+        {
+          "word": ",280",
+          "start": 89.26,
+          "end": 90.82,
+          "probability": 0.9416
+        },
+        {
+          "word": "strong.",
+          "start": 90.82,
+          "end": 91.76,
+          "probability": 0.9074
+        }
+      ]
+    },
+    {
+      "start": 93.11,
+      "end": 99.23,
+      "text": "Foot by foot we lay them long, 5,280 strong.",
+      "words": [
+        {
+          "word": "Foot",
+          "start": 93.11,
+          "end": 93.13,
+          "probability": 0.1236
+        },
+        {
+          "word": "by",
+          "start": 93.13,
+          "end": 93.71,
+          "probability": 0.9968
+        },
+        {
+          "word": "foot",
+          "start": 93.71,
+          "end": 94.15,
+          "probability": 0.9969
+        },
+        {
+          "word": "we",
+          "start": 94.15,
+          "end": 94.67,
+          "probability": 0.9367
+        },
+        {
+          "word": "lay",
+          "start": 94.67,
+          "end": 95.03,
+          "probability": 0.9988
+        },
+        {
+          "word": "them",
+          "start": 95.03,
+          "end": 95.47,
+          "probability": 0.999
+        },
+        {
+          "word": "long,",
+          "start": 95.47,
+          "end": 95.87,
+          "probability": 0.9983
+        },
+        {
+          "word": "5",
+          "start": 96.37,
+          "end": 96.93,
+          "probability": 0.9923
+        },
+        {
+          "word": ",280",
+          "start": 96.93,
+          "end": 98.23,
+          "probability": 0.9991
+        },
+        {
+          "word": "strong.",
+          "start": 98.23,
+          "end": 99.23,
+          "probability": 0.9508
+        }
+      ]
+    },
+    {
+      "start": 111.86,
+      "end": 118.06,
+      "text": "Measure distance far and wide. Tiny steps or journeys long.",
+      "words": [
+        {
+          "word": "Measure",
+          "start": 111.86,
+          "end": 112.0,
+          "probability": 0.6049
+        },
+        {
+          "word": "distance",
+          "start": 112.0,
+          "end": 113.04,
+          "probability": 0.8923
+        },
+        {
+          "word": "far",
+          "start": 113.04,
+          "end": 113.68,
+          "probability": 0.6261
+        },
+        {
+          "word": "and",
+          "start": 113.68,
+          "end": 114.22,
+          "probability": 0.9899
+        },
+        {
+          "word": "wide.",
+          "start": 114.22,
+          "end": 114.58,
+          "probability": 0.9985
+        },
+        {
+          "word": "Tiny",
+          "start": 115.22,
+          "end": 115.68,
+          "probability": 0.9875
+        },
+        {
+          "word": "steps",
+          "start": 115.68,
+          "end": 116.34,
+          "probability": 0.9895
+        },
+        {
+          "word": "or",
+          "start": 116.34,
+          "end": 116.84,
+          "probability": 0.9466
+        },
+        {
+          "word": "journeys",
+          "start": 116.84,
+          "end": 117.58,
+          "probability": 0.9615
+        },
+        {
+          "word": "long.",
+          "start": 117.58,
+          "end": 118.06,
+          "probability": 0.9929
+        }
+      ]
+    },
+    {
+      "start": 118.42,
+      "end": 121.18,
+      "text": "We measure length both short and long.",
+      "words": [
+        {
+          "word": "We",
+          "start": 118.42,
+          "end": 118.74,
+          "probability": 0.9935
+        },
+        {
+          "word": "measure",
+          "start": 118.74,
+          "end": 119.08,
+          "probability": 0.995
+        },
+        {
+          "word": "length",
+          "start": 119.08,
+          "end": 119.54,
+          "probability": 0.9095
+        },
+        {
+          "word": "both",
+          "start": 119.54,
+          "end": 120.02,
+          "probability": 0.7912
+        },
+        {
+          "word": "short",
+          "start": 120.02,
+          "end": 120.34,
+          "probability": 0.9926
+        },
+        {
+          "word": "and",
+          "start": 120.34,
+          "end": 120.72,
+          "probability": 0.9959
+        },
+        {
+          "word": "long.",
+          "start": 120.72,
+          "end": 121.18,
+          "probability": 0.9704
+        }
+      ]
+    },
+    {
+      "start": 122.05,
+      "end": 128.67,
+      "text": "Tiny steps or journeys long. We measure length both short and long.",
+      "words": [
+        {
+          "word": "Tiny",
+          "start": 122.05,
+          "end": 123.13,
+          "probability": 0.6384
+        },
+        {
+          "word": "steps",
+          "start": 123.13,
+          "end": 123.79,
+          "probability": 0.984
+        },
+        {
+          "word": "or",
+          "start": 123.79,
+          "end": 124.19,
+          "probability": 0.4997
+        },
+        {
+          "word": "journeys",
+          "start": 124.19,
+          "end": 124.81,
+          "probability": 0.6312
+        },
+        {
+          "word": "long.",
+          "start": 124.81,
+          "end": 125.59,
+          "probability": 0.8153
+        },
+        {
+          "word": "We",
+          "start": 125.91,
+          "end": 126.19,
+          "probability": 0.9605
+        },
+        {
+          "word": "measure",
+          "start": 126.19,
+          "end": 126.79,
+          "probability": 0.7663
+        },
+        {
+          "word": "length",
+          "start": 126.79,
+          "end": 127.51,
+          "probability": 0.2549
+        },
+        {
+          "word": "both",
+          "start": 127.51,
+          "end": 128.01,
+          "probability": 0.0145
+        },
+        {
+          "word": "short",
+          "start": 128.01,
+          "end": 128.33,
+          "probability": 0.5686
+        },
+        {
+          "word": "and",
+          "start": 128.33,
+          "end": 128.67,
+          "probability": 0.1364
+        },
+        {
+          "word": "long.",
+          "start": 128.67,
+          "end": 128.67,
+          "probability": 0.3137
+        }
+      ]
+    }
+  ]
+}

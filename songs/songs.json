@@ -1,0 +1,39 @@
+{
+  "songs": [    
+    {
+      "id": "clink-clink-little-coins",
+      "title": "Clink, Clink, Little Coins",
+      "emoji": "🎵"
+    },
+    {
+      "id": "counting-in-jungle-town",
+      "title": "Counting In Jungle Town",
+      "emoji": "🎵"
+    },    
+    
+    {
+      "id": "tick-tock-time",
+      "title": "Tick-Tock Time",
+      "emoji": "🎵"
+    },
+    {
+      "id": "counting-in-jungle-town-alt",
+      "title": "Counting In Jungle Town (Alt)",
+      "emoji": "🎵"
+    },
+    {
+	  "id": "countdown-crew",
+	  "title": "Countdown Crew",
+	  "emoji": "🎵"
+	},
+{
+  "id": "measure-with-metric",
+  "title": "Measure With Metric",
+  "emoji": "🎵"
+},{
+  "id": "inch-by-inch-foot-by-foot",
+  "title": "Inch by Inch - Foot By Foot",
+  "emoji": "🎵"
+}
+  ]
+}
