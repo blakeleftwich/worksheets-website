@@ -552,6 +552,7 @@
     // ===== Printable folder registry =====
     // Each folder must contain: info.json, pack.pdf, preview.png
     const printableFolders = [
+      'base-ten-place-value',
       'count-and-write-1-to-5',
       'count-and-write-1-to-10',
       'count-and-write-1-to-20',
@@ -564,6 +565,11 @@
         icon: '🔢',
         color: '#fef3c7',
         desc: 'Count the objects and write the number. Each pack includes 5 unique worksheets with different objects and quantities, plus an answer key.',
+      },
+      'Place Value': {
+        icon: '🧱',
+        color: '#dbeafe',
+        desc: 'Practice identifying place values using base-ten blocks and place value charts.',
       },
     };
 
@@ -785,7 +791,7 @@
       btn.classList.add('downloading');
 
       var a = document.createElement('a');
-      a.href = printable.folder + '/pack.pdf';
+      a.href = '/printables/' + printable.folder + '/pack.pdf';
       a.download = printable.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-pack.pdf';
       document.body.appendChild(a);
       a.click();
@@ -802,7 +808,7 @@
 
     // ===== Print PDF =====
     function doPrint(printable) {
-      var url = printable.folder + '/pack.pdf';
+      var url = '/printables/' + printable.folder + '/pack.pdf';
       var iframe = document.createElement('iframe');
       iframe.style.display = 'none';
       iframe.src = url;
@@ -849,7 +855,7 @@
       modalPreview.innerHTML = '';
       modalThumbs.innerHTML = '';
 
-      var pdfUrl = printable.folder + '/pack.pdf';
+      var pdfUrl = '/printables/' + printable.folder + '/pack.pdf';
       var key = printable.folder;
 
       function buildModal(pdfDoc) {
@@ -971,7 +977,7 @@
       if (!modalPrintable) return;
       var orig = modalDl.innerHTML;
       var a = document.createElement('a');
-      a.href = modalPrintable.folder + '/pack.pdf';
+      a.href = '/printables/' + modalPrintable.folder + '/pack.pdf';
       a.download = modalPrintable.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-pack.pdf';
       document.body.appendChild(a);
       a.click();
