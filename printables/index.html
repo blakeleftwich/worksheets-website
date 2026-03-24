@@ -663,10 +663,6 @@
           card.innerHTML =
             '<a class="ws-preview" href="' + p.folder + '/">' +
               '<img src="' + p.folder + '/preview.png" alt="' + p.title + ' preview" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;height:100%;color:#cbd5e0;font-size:13px;font-weight:500;\\\'>Preview not available</div>\'">' +
-              '<div class="pack-badge">' +
-                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 8h20"/></svg>' +
-                wsCount + ' worksheets' +
-              '</div>' +
               '<div class="hover-bar">' +
                 '<a href="#" class="hover-dl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download</a>' +
                 '<span class="sep">\u00B7</span>' +
@@ -715,7 +711,6 @@
         card.innerHTML =
           '<a class="ws-preview" href="' + p.folder + '/">' +
             '<img src="' + p.folder + '/preview.png" alt="' + p.title + ' preview" onerror="this.style.display=\'none\'">' +
-            '<div class="pack-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 8h20"/></svg>' + wsCount + ' worksheets</div>' +
             '<div class="hover-bar">' +
               '<a href="#" class="hover-dl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download</a>' +
               '<span class="sep">\u00B7</span>' +
