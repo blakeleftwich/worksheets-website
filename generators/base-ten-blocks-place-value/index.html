@@ -420,13 +420,15 @@
     }
     @page {
       size: letter;
-      margin: 0.5in 0.4in 0in 0.4in;
+      margin: 0.2in;
     }
   </style>
   <link rel="stylesheet" href="../../fonts/fonts.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../../jspdf.umd.min.js"></script>
+  <script src="../../svg2pdf.umd.min.js"></script>
 </head>
 <body>
   <header class="site-header">
@@ -559,7 +561,8 @@
 
       <div class="button-group">
         <button class="btn-generate" id="btnGenerate">&#128260; Generate New</button>
-<button class="btn-print" id="btnPrint">&#128424; Print</button>
+        <button class="btn-print" id="btnPrint">&#128424; Print</button>
+        <button class="btn-generate" id="btnDownloadPdf" style="background:#2563eb;">&#128229; Download PDF</button>
       </div>
     </div>
 
@@ -1113,28 +1116,140 @@
     }
 
     // ===== Print =====
-    function handlePrint() {
-      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
-      const opts = gatherOptions();
-      const sH = sheetWrap.innerHTML, sC = sheetWrap.className, sS = sheetWrap.style.cssText;
-      sheetWrap.innerHTML = ""; sheetWrap.className = ""; sheetWrap.style.cssText = "";
-      const wsCodes = currentState.sheets.map((_, i) => '(' + (i + 1) + ')');
-      for (let i = 0; i < currentState.sheets.length; i++) {
-        const p = document.createElement("div"); p.className = "worksheet-page";
-        p.appendChild(renderWorksheetSVG(currentState.sheets[i], { ...opts, showAnswers: false }, wsCodes[i]));
-        sheetWrap.appendChild(p);
+    // ===== Shared PDF generation =====
+    let _fontCSSCache = null;
+    async function buildFontCSS() {
+      if (_fontCSSCache) return _fontCSSCache;
+      let fontCSS = "";
+      // Local fonts
+      for (const link of document.querySelectorAll('link[rel="stylesheet"]')) {
+        if (!link.href.includes('fonts')) continue;
+        try {
+          const resp = await fetch(link.href);
+          const css = await resp.text();
+          let inlined = css;
+          for (const m of [...css.matchAll(/url\(([^)]+)\)/g)]) {
+            const fontUrl = m[1].replace(/['"]/g, "");
+            const absUrl = new URL(fontUrl, link.href).href;
+            try {
+              const fr = await fetch(absUrl);
+              const blob = await fr.blob();
+              const b64 = await new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result); rd.readAsDataURL(blob); });
+              inlined = inlined.replace(m[0], 'url(' + b64 + ')');
+            } catch(e) {}
+          }
+          fontCSS += inlined;
+        } catch(e) {}
       }
-      const answerKeyPages = [];
+      // Google Fonts
+      for (const link of document.querySelectorAll('link[href*="fonts.googleapis"]')) {
+        try {
+          const resp = await fetch(link.href);
+          const css = await resp.text();
+          let inlined = css;
+          for (const m of [...css.matchAll(/url\(([^)]+)\)/g)]) {
+            const fontUrl = m[1].replace(/['"]/g, "");
+            try {
+              const fr = await fetch(fontUrl);
+              const blob = await fr.blob();
+              const b64 = await new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result); rd.readAsDataURL(blob); });
+              inlined = inlined.replace(m[0], 'url(' + b64 + ')');
+            } catch(e) {}
+          }
+          fontCSS += inlined;
+        } catch(e) {}
+      }
+      _fontCSSCache = fontCSS;
+      return fontCSS;
+    }
+
+    async function generatePdfBlob() {
+      const opts = gatherOptions();
+      const svgPages = [];
+      sheetWrap.querySelectorAll(".worksheet-page:not(.ak-print-only) svg").forEach(s => svgPages.push(s.cloneNode(true)));
       if (opts.answerKey) {
+        const wsCodes = currentState.sheets.map(() => "");
         for (let i = 0; i < currentState.sheets.length; i++) {
-          const p = document.createElement("div"); p.className = "worksheet-page ak-print-only";
-          p.appendChild(renderWorksheetSVG(currentState.sheets[i], { ...opts, showHeader: "none", showAnswers: true, isAnswerKey: true }, wsCodes[i]));
-          sheetWrap.appendChild(p);
-          answerKeyPages.push(p);
+          svgPages.push(renderWorksheetSVG(currentState.sheets[i], { ...opts, showHeader: "none", showAnswers: true, isAnswerKey: true }, wsCodes[i]));
         }
       }
-      window.print();
-      setTimeout(() => { answerKeyPages.forEach(p => p.remove()); sheetWrap.innerHTML = sH; sheetWrap.className = sC; sheetWrap.style.cssText = sS; }, 500);
+
+      const fontCSS = await buildFontCSS();
+
+      // Inline the logo image as base64
+      let logoB64 = "";
+      try {
+        const logoResp = await fetch("../../images/logo-watermark.jpg");
+        const logoBlob = await logoResp.blob();
+        logoB64 = await new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result); rd.readAsDataURL(logoBlob); });
+      } catch(e) {}
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "letter" });
+
+      for (let i = 0; i < svgPages.length; i++) {
+        if (i > 0) pdf.addPage("letter", "portrait");
+        const svgEl = svgPages[i];
+
+        // Inject font CSS so svg2pdf can access it
+        const styleEl = document.createElementNS("http://www.w3.org/2000/svg", "style");
+        styleEl.textContent = fontCSS;
+        svgEl.insertBefore(styleEl, svgEl.firstChild);
+
+        // Replace external logo href with inlined base64
+        if (logoB64) {
+          svgEl.querySelectorAll("image").forEach(img => {
+            const href = img.getAttribute("href") || img.getAttributeNS("http://www.w3.org/1999/xlink", "href");
+            if (href && href.includes("logo-watermark")) {
+              img.setAttribute("href", logoB64);
+            }
+          });
+        }
+
+        // Temporarily add SVG to DOM for svg2pdf to read computed styles
+        svgEl.style.cssText = "position:fixed;top:-9999px;left:-9999px;";
+        document.body.appendChild(svgEl);
+
+        try {
+          await pdf.svg(svgEl, { x: 0, y: 0, width: 612, height: 792 });
+        } finally {
+          document.body.removeChild(svgEl);
+        }
+      }
+
+      return pdf.output("blob");
+    }
+
+    // ===== Print (generates PDF, opens in iframe, triggers print) =====
+    async function handlePrint() {
+      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
+      const btn = document.getElementById("btnPrint");
+      const origText = btn.innerHTML;
+      btn.innerHTML = "&#9203; Preparing...";
+      btn.disabled = true;
+
+      try {
+        const blob = await generatePdfBlob();
+        const url = URL.createObjectURL(blob);
+
+        // Open PDF in hidden iframe and print it
+        const iframe = document.createElement("iframe");
+        iframe.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;";
+        iframe.src = url;
+        document.body.appendChild(iframe);
+
+        iframe.onload = function() {
+          setTimeout(() => {
+            iframe.contentWindow.print();
+            setTimeout(() => { document.body.removeChild(iframe); URL.revokeObjectURL(url); }, 1000);
+          }, 300);
+        };
+      } catch(e) {
+        console.error("Print error:", e);
+      }
+
+      btn.innerHTML = origText;
+      btn.disabled = false;
     }
 
     // ===== Event Listeners =====
@@ -1165,6 +1280,40 @@
     elNumbered.addEventListener("change", () => renderWithoutRandomization());
     document.getElementById("btnGenerate").addEventListener("click", () => renderWithNewRandomization());
     document.getElementById("btnPrint").addEventListener("click", handlePrint);
+
+    // ===== Download PDF =====
+    async function handleDownloadPdf() {
+      if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
+      const btn = document.getElementById("btnDownloadPdf");
+      const origText = btn.innerHTML;
+      btn.innerHTML = "&#9203; Generating PDF...";
+      btn.disabled = true;
+
+      try {
+        const blob = await generatePdfBlob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const opts = gatherOptions();
+        const title = (opts.customTitleEnabled && opts.showTitle && opts.titleText)
+          ? opts.titleText : "Base-ten Place Value";
+        a.href = url;
+        a.download = title.toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".pdf";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+        btn.innerHTML = "&#10003; Downloaded!";
+        btn.style.background = "#16a34a";
+        setTimeout(() => { btn.innerHTML = origText; btn.style.background = "#2563eb"; btn.disabled = false; }, 1500);
+      } catch (e) {
+        console.error("PDF generation error:", e);
+        btn.innerHTML = "&#10060; Error";
+        setTimeout(() => { btn.innerHTML = origText; btn.style.background = "#2563eb"; btn.disabled = false; }, 2000);
+      }
+    }
+
+    document.getElementById("btnDownloadPdf").addEventListener("click", handleDownloadPdf);
     let resizeTimeout;
     window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150); });
 
