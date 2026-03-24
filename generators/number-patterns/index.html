@@ -802,7 +802,7 @@
         const logoH = 38;
         const logoW = Math.round(logoH * 2.79);
         svg.appendChild(svgEl("image", {
-          href: "../../images/logo-watermark.jpg",
+          href: "../../images/logo-watermark.svg",
           x: margin, y: brandY,
           width: logoW, height: logoH
         }));
@@ -1121,7 +1121,7 @@
       const fontCSS = await buildFontCSS();
       let logoB64 = "";
       try {
-        const logoResp = await fetch("../../images/logo-watermark.jpg");
+        const logoResp = await fetch("../../images/logo-watermark.svg");
         const logoBlob = await logoResp.blob();
         logoB64 = await new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result); rd.readAsDataURL(logoBlob); });
       } catch(e) {}
