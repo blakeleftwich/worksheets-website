@@ -261,7 +261,7 @@
       for (var p = 1; p <= pdfDoc.numPages; p++) {
         (function(pageNum) {
           var thumb = document.createElement('canvas');
-          thumb.addEventListener('click', function() { showBigPage(pdfDoc, pageNum); });
+          thumb.addEventListener('mouseenter', function() { showBigPage(pdfDoc, pageNum); }); thumb.addEventListener('click', function() { showBigPage(pdfDoc, pageNum); });
           thumbStrip.appendChild(thumb);
           renderPage(pdfDoc, pageNum, thumb, 90).then(function() {
             if (pageNum === 1) thumb.classList.add('active');

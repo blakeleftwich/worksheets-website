@@ -859,7 +859,7 @@
         for (var p = 1; p <= wsCount; p++) {
           (function(pageNum) {
             var thumb = document.createElement('canvas');
-            thumb.addEventListener('click', function() {
+            function showPage() {
               modalThumbs.querySelectorAll('canvas').forEach(function(c) { c.classList.remove('active'); });
               thumb.classList.add('active');
               var bigC = document.createElement('canvas');
@@ -867,7 +867,9 @@
                 modalPreview.innerHTML = '';
                 modalPreview.appendChild(bigC);
               });
-            });
+            }
+            thumb.addEventListener('mouseenter', showPage);
+            thumb.addEventListener('click', showPage);
             modalThumbs.appendChild(thumb);
 
             var cacheKey = key + '-modal-' + pageNum;
