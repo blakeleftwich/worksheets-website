@@ -367,11 +367,19 @@
         width: 100% !important;
         height: auto !important;
       }
+    
+      .floating-brand {
+        position: static;
+        display: flex;
+        justify-content: center;
+        padding: 16px 0;
+      }
     }
 
     /* ===== Print ===== */
     .ak-print-only { display: none !important; }
     @media print {
+      .floating-brand { display: none !important; }
       .site-header { display: none !important; }
       .ak-print-only { display: block !important; }
       body {
@@ -422,7 +430,16 @@
       size: letter;
       margin: 0.5in 0.4in 0in 0.4in;
     }
-  </style>
+  
+    .floating-brand {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 9999;
+      pointer-events: auto;
+    }
+    .floating-brand img { height: 64px; width: auto; display: block; }
+    </style>
   <link rel="stylesheet" href="../../fonts/fonts.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -565,6 +582,7 @@
     <!-- Preview area -->
     <div class="preview-area">
       <div id="sheetWrap"></div>
+      <div class="floating-brand"><img src="../../images/logo.png" alt="Animal Math"></div>
     </div>
   </div>
 

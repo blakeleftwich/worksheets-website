@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../fonts/fonts.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/svg2pdf.js/2.2.3/svg2pdf.umd.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', -apple-system, sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; }
@@ -206,6 +208,7 @@
         <h2 id="printTitle">Set Name</h2>
         <div class="print-bar-actions">
           <button class="btn-close-print" onclick="closePrintPreview()">← Back</button>
+          <button class="btn-do-print" onclick="doDownload()" style="background:#1e293b;">⬇ Download PDF</button>
           <button class="btn-do-print" onclick="doPrint()">🖨️ Print</button>
         </div>
       </div>
@@ -542,9 +545,46 @@
       document.body.style.overflow = '';
     }
 
-    function doPrint() {
-      // Ensure all fonts (especially Google Sans Flex used in worksheet SVGs) are loaded before printing
-      document.fonts.ready.then(function() { window.print(); });
+    async function buildPdf() {
+      var jsPDF = window.jspdf.jsPDF;
+      var svgEls = document.querySelectorAll('.print-page-item svg');
+      if (!svgEls.length) return null;
+      var pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+      for (var i = 0; i < svgEls.length; i++) {
+        if (i > 0) pdf.addPage('letter', 'portrait');
+        var svgClone = svgEls[i].cloneNode(true);
+        svgClone.setAttribute('width', '612');
+        svgClone.setAttribute('height', '792');
+        var tempDiv = document.createElement('div');
+        tempDiv.style.cssText = 'position:absolute;left:-9999px;top:0;';
+        tempDiv.appendChild(svgClone);
+        document.body.appendChild(tempDiv);
+        await svg2pdf(svgClone, pdf, { x: 0, y: 0, width: 612, height: 792 });
+        document.body.removeChild(tempDiv);
+      }
+      return pdf;
+    }
+
+    async function doPrint() {
+      var pdf = await buildPdf();
+      if (!pdf) return;
+      var blob = pdf.output('blob');
+      var url = URL.createObjectURL(blob);
+      var iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = url;
+      document.body.appendChild(iframe);
+      iframe.addEventListener('load', function() {
+        iframe.contentWindow.print();
+        setTimeout(function() { document.body.removeChild(iframe); URL.revokeObjectURL(url); }, 5000);
+      });
+    }
+
+    async function doDownload() {
+      var pdf = await buildPdf();
+      if (!pdf) return;
+      var packName = document.querySelector('.pack-title') ? document.querySelector('.pack-title').textContent.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'worksheet-set';
+      pdf.save(packName + '.pdf');
     }
 
     // ===== Toast =====
