@@ -456,6 +456,11 @@
       flex: 1;
       display: flex;
       flex-direction: column;
+      background: white;
+      transition: background 0.2s ease;
+    }
+    .generator-card:hover .card-body {
+      background: #fefaf3;
     }
 
     .card-body h3 {
@@ -763,10 +768,6 @@
         opacity: 0;
         transform: translateY(20px);
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
     }
 
     .hero h1,
@@ -780,6 +781,10 @@
 
     .generator-card {
       animation: fadeInUp 0.3s ease-out both;
+      animation-iteration-count: 1;
+    }
+    .generator-card.anim-done {
+      animation: none;
     }
 
     .generator-card:nth-child(1) { animation-delay: 0.05s; }
@@ -1266,6 +1271,13 @@
         document.querySelector('.grade-chip[data-grade=""]').classList.add('active');
       });
     })();
+
+    // Remove animation after it completes so hover transitions work smoothly
+    document.addEventListener('animationend', function(e) {
+      if (e.target.classList.contains('generator-card')) {
+        e.target.classList.add('anim-done');
+      }
+    });
   </script>
 
 </body>

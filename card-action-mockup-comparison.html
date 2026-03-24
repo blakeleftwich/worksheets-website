@@ -127,11 +127,11 @@
     .detail-link .ws-body {
       padding: 16px 18px 14px;
       display: flex; flex-direction: column;
-      background: white;
+      background: #fefcf7;
       transition: background 0.2s ease;
       min-height: 100%;
     }
-    .detail-link:hover .ws-body { background: #fefaf3; }
+    .detail-link:hover .ws-body { background: #fdf6e8; }
     .ws-body h3 {
       font-family: 'DM Sans', sans-serif;
       font-size: 15px; font-weight: 700; color: #1e293b;
@@ -157,6 +157,22 @@
     }
     .detail-link:hover .arrow-icon { transform: translateX(6px); }
 
+    /* White-to-warm variant */
+    .card-gray .detail-link .ws-body { background: white; }
+    .card-gray .detail-link:hover .ws-body { background: #fefcf7; }
+
+    /* Barely-warm variant */
+    .card-subtle .detail-link .ws-body { background: #fefdfb; }
+    .card-subtle .detail-link:hover .ws-body { background: #fdf9f2; }
+
+    /* White → medium warm (recommended) */
+    .card-rec .detail-link .ws-body { background: white; }
+    .card-rec .detail-link:hover .ws-body { background: #fefaf3; }
+
+    /* White → stronger warm */
+    .card-strong .detail-link .ws-body { background: white; }
+    .card-strong .detail-link:hover .ws-body { background: #fdf6e8; }
+
     @media (max-width: 900px) {
       .card-grid { grid-template-columns: repeat(2, 1fr); }
     }
@@ -168,8 +184,8 @@
 <body>
 
   <div class="page-header">
-    <h1>Final Card Design</h1>
-    <p>White default → warm #fefaf3 on hover — all cards identical behavior</p>
+    <h1>Final Card Design (Option F)</h1>
+    <p>All cards use the same behavior — hover to see the interaction</p>
   </div>
 
   <div class="card-grid">
@@ -179,6 +195,7 @@
         <div class="placeholder"><span>&#128196;</span>Count &amp; Write 1–5</div>
         <div class="hover-bar">
           <span class="hover-action" onclick="event.stopPropagation(); alert('Download')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download</span>
+          <span class="sep">&middot;</span>
           <span class="hover-action" onclick="event.stopPropagation(); alert('Print')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print</span>
         </div>
       </div>
@@ -191,11 +208,12 @@
       </a>
     </div>
 
-    <div class="ws-card">
+    <div class="ws-card card-gray">
       <div class="ws-preview" onclick="alert('Modal preview would open here')">
         <div class="placeholder"><span>&#128196;</span>Count &amp; Write 1–10</div>
         <div class="hover-bar">
           <span class="hover-action" onclick="event.stopPropagation(); alert('Download')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download</span>
+          <span class="sep">&middot;</span>
           <span class="hover-action" onclick="event.stopPropagation(); alert('Print')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print</span>
         </div>
       </div>
@@ -208,11 +226,12 @@
       </a>
     </div>
 
-    <div class="ws-card">
+    <div class="ws-card card-subtle">
       <div class="ws-preview" onclick="alert('Modal preview would open here')">
         <div class="placeholder"><span>&#128196;</span>Count &amp; Write 1–20</div>
         <div class="hover-bar">
           <span class="hover-action" onclick="event.stopPropagation(); alert('Download')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download</span>
+          <span class="sep">&middot;</span>
           <span class="hover-action" onclick="event.stopPropagation(); alert('Print')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print</span>
         </div>
       </div>
@@ -225,11 +244,12 @@
       </a>
     </div>
 
-    <div class="ws-card">
+    <div class="ws-card card-rec">
       <div class="ws-preview" onclick="alert('Modal preview would open here')">
         <div class="placeholder"><span>&#128196;</span>Count &amp; Write 10–20</div>
         <div class="hover-bar">
           <span class="hover-action" onclick="event.stopPropagation(); alert('Download')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download</span>
+          <span class="sep">&middot;</span>
           <span class="hover-action" onclick="event.stopPropagation(); alert('Print')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print</span>
         </div>
       </div>
@@ -242,11 +262,12 @@
       </a>
     </div>
 
-    <div class="ws-card">
+    <div class="ws-card card-strong">
       <div class="ws-preview" onclick="alert('Modal preview would open here')">
         <div class="placeholder"><span>&#128196;</span>Addition 1–5</div>
         <div class="hover-bar">
           <span class="hover-action" onclick="event.stopPropagation(); alert('Download')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download</span>
+          <span class="sep">&middot;</span>
           <span class="hover-action" onclick="event.stopPropagation(); alert('Print')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print</span>
         </div>
       </div>
