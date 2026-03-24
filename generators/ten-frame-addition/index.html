@@ -82,14 +82,7 @@
       #sheetWrap.grid-view { display: flex !important; flex-direction: column !important; grid-template-columns: none !important; padding: 0 !important; }
       .worksheet-page { padding: 8px; width: 100%; max-width: 100%; scroll-margin-top: 72px; }
       .worksheet-page svg { width: 100% !important; height: auto !important; }
-    
-      .floating-brand {
-        position: static;
-        display: flex;
-        justify-content: center;
-        padding: 16px 0;
-      }
-    }
+}
 
     .ops-row { display: flex; gap: 6px; }
     .op-chip { display: flex; align-items: center; justify-content: center; flex: 1; padding: 6px 0; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.15s; text-align: center; }
@@ -101,7 +94,6 @@
 
     .ak-print-only { display: none !important; }
     @media print {
-      .floating-brand { display: none !important; }
       .site-header { display: none !important; }
       .ak-print-only { display: block !important; }
       body { background: white !important; margin: 0 !important; padding: 0 !important; }
@@ -113,15 +105,6 @@
       .worksheet-page:not(:last-child) { page-break-after: always !important; break-after: page !important; }
       .worksheet-page svg { width: 100% !important; height: auto !important; display: block !important; }
     }
-  
-    .floating-brand {
-      position: fixed;
-      bottom: 16px;
-      right: 16px;
-      z-index: 9999;
-      pointer-events: auto;
-    }
-    .floating-brand img { height: 64px; width: auto; display: block; }
     </style>
   <link rel="stylesheet" href="../../fonts/fonts.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -263,7 +246,6 @@
     <!-- Preview area -->
     <div class="preview-area">
       <div id="sheetWrap"></div>
-      <div class="floating-brand"><img src="../../images/logo.png" alt="Animal Math"></div>
     </div>
   </div>
 

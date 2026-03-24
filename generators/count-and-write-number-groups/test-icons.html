@@ -571,19 +571,6 @@
             </select>
           </div>
 
-          <!-- Sort Rows -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="sortRows" />
-            <label for="sortRows">Sort Rows</label>
-          </div>
-          <div class="adv-sub" id="sortRowsOptions" style="display:none;">
-            <label for="sortRowsMax">Items Per Row</label>
-            <select id="sortRowsMax">
-              <option value="5" selected>Rows of 5</option>
-              <option value="10">Rows of 10</option>
-            </select>
-          </div>
-
           <!-- Style -->
           <div class="control-group" id="styleGroup">
             <label for="style">Style</label>
@@ -794,19 +781,20 @@ elShowSubtitle.addEventListener("change", () => {
 elNumSheets.addEventListener("change", () => renderWithNewRandomization());
 elProblems.addEventListener("change", () => renderWithNewRandomization());
 elCountRange.addEventListener("change", () => {
+  const range = elCountRange.value;
+  const styleGroup = document.getElementById("styleGroup");
+  if (range === "10-20" || range === "1-20") {
+    // Force 1 Column for large ranges, hide Style option
+    styleGroup.style.display = "none";
+    elStyle.value = "2";
+  } else {
+    // For 1-5, 5-10, 1-10: default to 2 Columns, but let user change
+    styleGroup.style.display = "";
+    elStyle.value = "1";
+  }
   updateTitleFromSettings(); renderWithNewRandomization();
 });
 elStyle.addEventListener("change", () => renderWithoutRandomization());
-
-// Sort Rows checkbox
-const elSortRows = document.getElementById("sortRows");
-const elSortRowsMax = document.getElementById("sortRowsMax");
-const sortRowsOptions = document.getElementById("sortRowsOptions");
-elSortRows.addEventListener("change", () => {
-  sortRowsOptions.style.display = elSortRows.checked ? "" : "none";
-  renderWithoutRandomization();
-});
-elSortRowsMax.addEventListener("change", () => renderWithoutRandomization());
 elShowHeader.addEventListener("change", () => renderWithoutRandomization());
 elNumbered.addEventListener("change", () => renderWithoutRandomization());
 elBranded.addEventListener("change", () => renderWithoutRandomization());
@@ -876,7 +864,7 @@ async function generatePdfBlob() {
   const title = getTitle();
   const subtitle = getSubtitle();
   const range = getCountRange();
-  const perRowMax = elSortRows.checked ? parseInt(elSortRowsMax.value) : 0;
+  const perRowMax = range.max > 10 ? 10 : 5;
   const wsCodes = currentState.sheets.map((_, i) => '(' + (i + 1) + ')');
   if (elAnswerKey.checked) {
       for (let i = 0; i < currentState.sheets.length; i++) {
@@ -1124,7 +1112,7 @@ function renderWorksheet() {
   const subtitle = getSubtitle();
   const numSheets = currentState.sheets.length;
   const range = getCountRange();
-  const perRowMax = elSortRows.checked ? parseInt(elSortRowsMax.value) : 0;
+  const perRowMax = range.max > 10 ? 10 : 5;
 
   const icons = ["icon-apple-new", "icon-balloon", "icon-icecream", "icon-pepper", "icon-pizza", "icon-corn", "icon-broccoli", "icon-fish", "icon-tomato", "icon-banana", "icon-grapes", "icon-orange", "icon-strawberry", "icon-watermelon", "icon-pear", "icon-carrot", "icon-potato", "icon-lettuce"];
   
@@ -1366,25 +1354,26 @@ function buildDefs() {
   return defs;
 }
 
+// Aspect ratios (width/height) derived from each icon's tight viewBox
 const iconAspect = {
-  "icon-apple-new":   447.7 / 517,
-  "icon-balloon":     279.3 / 197.1,
-  "icon-icecream":    199.5 / 203.5,
-  "icon-pepper":      219.3 / 222.1,
-  "icon-pizza":       259.3 / 239.1,
-  "icon-corn":        278.0 / 236.1,
-  "icon-broccoli":    519.8 / 503.5,
-  "icon-fish":        520.0 / 323.4,
-  "icon-tomato":      254.2 / 259.5,
-  "icon-banana":      224.9 / 226.7,
-  "icon-grapes":      242.0 / 178.6,
-  "icon-orange":      158.9 / 207.1,
-  "icon-strawberry":  174.4 / 244.3,
-  "icon-watermelon":  221.2 / 204.2,
-  "icon-pear":        214.3 / 209.1,
-  "icon-carrot":      161.8 / 203.2,
-  "icon-potato":      196.3 / 244.0,
-  "icon-lettuce":     151.4 / 239.0,
+  "icon-broccoli":    519.8 / 503.5,   // 1.032
+  "icon-fish":        520   / 323.4,    // 1.608
+  "icon-apple-new":   447.7 / 517,      // 0.866
+  "icon-balloon":     382.4 / 519.5,    // 0.736
+  "icon-icecream":    361   / 513,      // 0.704
+  "icon-pepper":      421.2 / 513.9,    // 0.820
+  "icon-pizza":       520.1 / 482.5,    // 1.078
+  "icon-corn":        519.9 / 441.1,    // 1.179
+  "icon-tomato":      198.1 / 201.3,    // 0.984
+  "icon-banana":      224.9 / 226.7,    // 0.992
+  "icon-grapes":      242.0 / 178.6,    // 1.355
+  "icon-orange":      158.9 / 207.1,    // 0.767
+  "icon-strawberry":  174.4 / 244.3,    // 0.714
+  "icon-watermelon":  221.2 / 204.2,    // 1.083
+  "icon-pear":        214.3 / 209.1,    // 1.025
+  "icon-carrot":      161.8 / 203.2,    // 0.796
+  "icon-potato":      196.3 / 244.0,    // 0.805
+  "icon-lettuce":     151.4 / 239.0,    // 0.634
 };
 
 function makeSymbol(id, innerHTML) {
@@ -1530,7 +1519,7 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
     if (answerMode === "circle") {
       // Circle mode: show number choices spread across the line area
       const choiceCount = numChoicesVal;
-      const choiceFontSize = 56;
+      const choiceFontSize = 44;
       // Generate wrong answers that are close to the correct answer
       const choices = [count];
       const [lo, hi] = getRange();
@@ -1551,7 +1540,7 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
         const tmp = choices[s]; choices[s] = choices[j]; choices[j] = tmp;
       }
       // Draw choices spread evenly across the underline area
-      const totalW = lineW + 140;
+      const totalW = lineW + 80;
       const startX = lineCenterX - totalW / 2;
       for (let ch = 0; ch < choices.length; ch++) {
         const cx = startX + (ch + 0.5) * (totalW / choices.length);
@@ -1793,7 +1782,7 @@ function renderStyle2(problems, headerMode, branded, numbered, icons, title, sub
 
     if (answerMode === "circle") {
       const choiceCount = numChoicesVal;
-      const choiceFontSize = 56;
+      const choiceFontSize = 44;
       const choices = [count];
       const [lo, hi] = getRange();
       while (choices.length < choiceCount) {
@@ -1811,7 +1800,7 @@ function renderStyle2(problems, headerMode, branded, numbered, icons, title, sub
         const j = Math.floor(Math.random() * (s + 1));
         const tmp = choices[s]; choices[s] = choices[j]; choices[j] = tmp;
       }
-      const totalW = lineW + 140;
+      const totalW = lineW + 80;
       const startX = ansAreaCenterX - totalW / 2;
       for (let ch = 0; ch < choices.length; ch++) {
         const cx = startX + (ch + 0.5) * (totalW / choices.length);
@@ -2036,7 +2025,7 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, t
 
     if (answerMode === "circle") {
       const choiceCount = numChoicesVal;
-      const choiceFontSize = 56;
+      const choiceFontSize = 44;
       const choices = [count];
       const [lo, hi] = getRange();
       while (choices.length < choiceCount) {
@@ -2054,7 +2043,7 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, t
         const j = Math.floor(Math.random() * (s + 1));
         const tmp = choices[s]; choices[s] = choices[j]; choices[j] = tmp;
       }
-      const totalW = akLineW + 140;
+      const totalW = akLineW + 30;
       const startX = akLineCenterX - totalW / 2;
       for (let ch = 0; ch < choices.length; ch++) {
         const cx = startX + (ch + 0.5) * (totalW / choices.length);
@@ -2256,7 +2245,7 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, t
 
     if (answerMode === "circle") {
       const choiceCount = numChoicesVal;
-      const choiceFontSize = 56;
+      const choiceFontSize = 44;
       const choices = [count];
       const [lo, hi] = getRange();
       while (choices.length < choiceCount) {
@@ -2274,7 +2263,7 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, t
         const j = Math.floor(Math.random() * (s + 1));
         const tmp = choices[s]; choices[s] = choices[j]; choices[j] = tmp;
       }
-      const totalW = lineW + 140;
+      const totalW = lineW + 80;
       const startX = ansAreaCenterX - totalW / 2;
       for (let ch = 0; ch < choices.length; ch++) {
         const cx = startX + (ch + 0.5) * (totalW / choices.length);
@@ -2381,17 +2370,10 @@ function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, proble
 
   const spacingRatio = 0.05;
 
-  // If perRowMax > 0 (Sort Rows enabled), use fixed layout; otherwise optimize dynamically
+  // Dynamic maxPerRow: try every candidate and pick the one that yields the largest iconSize
   let bestCols, bestRows, bestSize = 0;
   const minPerRow = 2;
-  if (perRowMax > 0) {
-    bestCols = count <= perRowMax ? count : perRowMax;
-    bestRows = Math.ceil(count / bestCols);
-    const sizeByW = aW / (bestCols * wFactor + (bestCols - 1) * spacingRatio);
-    const sizeByH = aH / (bestRows * hFactor + (bestRows - 1) * spacingRatio);
-    bestSize = Math.min(sizeByW, sizeByH);
-  }
-  for (let tryMax = minPerRow; perRowMax === 0 && tryMax <= count; tryMax++) {
+  for (let tryMax = minPerRow; tryMax <= count; tryMax++) {
     let cols, rows;
     if (count <= tryMax) {
       cols = count;
@@ -2400,6 +2382,7 @@ function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, proble
       cols = tryMax;
       rows = Math.ceil(count / tryMax);
     }
+    // Compute iconSize given aspect-aware cell dimensions
     const sizeByW = aW / (cols * wFactor + (cols - 1) * spacingRatio);
     const sizeByH = aH / (rows * hFactor + (rows - 1) * spacingRatio);
     const candidateSize = Math.min(sizeByW, sizeByH);
