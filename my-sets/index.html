@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../fonts/fonts.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/svg2pdf.js/2.2.3/svg2pdf.umd.min.js"></script>
+  <script src="../jspdf.umd.min.js"></script>
+  <script src="../svg2pdf.umd.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', -apple-system, sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; }
@@ -555,12 +555,13 @@
         var svgClone = svgEls[i].cloneNode(true);
         svgClone.setAttribute('width', '612');
         svgClone.setAttribute('height', '792');
-        var tempDiv = document.createElement('div');
-        tempDiv.style.cssText = 'position:absolute;left:-9999px;top:0;';
-        tempDiv.appendChild(svgClone);
-        document.body.appendChild(tempDiv);
-        await svg2pdf(svgClone, pdf, { x: 0, y: 0, width: 612, height: 792 });
-        document.body.removeChild(tempDiv);
+        svgClone.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
+        document.body.appendChild(svgClone);
+        try {
+          await pdf.svg(svgClone, { x: 0, y: 0, width: 612, height: 792 });
+        } finally {
+          document.body.removeChild(svgClone);
+        }
       }
       return pdf;
     }
