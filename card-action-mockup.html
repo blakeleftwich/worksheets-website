@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Printable Card Action Placement Options</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+      padding: 48px 24px 80px;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .page-header h1 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .page-header p {
+      font-size: 15px;
+      color: #64748b;
+    }
+
+    /* ===== Row Labels ===== */
+    .row-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .row-label span {
+      font-size: 13px;
+      font-weight: 500;
+      color: #94a3b8;
+      margin-left: 8px;
+    }
+
+    /* ===== Card Grid ===== */
+    .card-grid {
+      max-width: 1320px;
+      margin: 0 auto 48px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 28px;
+    }
+
+    /* ===== Variant Label ===== */
+    .variant-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 10px;
+    }
+
+    /* ===== Base Card ===== */
+    .ws-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .ws-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+      border-color: #fbbf24;
+    }
+
+    /* ===== SVG icon sizing ===== */
+    svg { width: 14px; height: 14px; }
+
+    /* ===== Preview Area ===== */
+    .ws-preview {
+      position: relative;
+      background: #f8fafc;
+      border-bottom: 1px solid #f1f5f9;
+      overflow: hidden;
+      cursor: pointer;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ws-preview .placeholder {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #cbd5e1;
+      text-align: center;
+      line-height: 1.4;
+      pointer-events: none;
+    }
+    .ws-preview .placeholder span {
+      display: block;
+      font-size: 32px;
+      margin-bottom: 6px;
+    }
+
+    /* ===== Card Body ===== */
+    .ws-body {
+      padding: 16px 18px 14px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .ws-body h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 4px;
+      line-height: 1.35;
+    }
+    .ws-meta {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ws-meta .grade {
+      background: #fef3c7;
+      color: #92400e;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    .view-details {
+      font-size: 13px;
+      font-weight: 600;
+      color: #f59e0b;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .view-details:hover {
+      color: #d97706;
+    }
+
+    /* ===== Button Row (Card A) ===== */
+    .btn-row { display: flex; gap: 8px; margin-top: auto; }
+    .download-btn {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px 12px; background: linear-gradient(135deg, #f59e0b, #ea580c);
+      color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; text-decoration: none;
+    }
+    .download-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .print-btn {
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 10px; background: white; color: #475569; border: 1px solid #e2e8f0;
+      border-radius: 8px; cursor: pointer; transition: all 0.15s;
+    }
+    .print-btn:hover { border-color: #94a3b8; background: #f8fafc; }
+    .gen-link {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 0; border-top: 1px solid #f1f5f9; margin-top: 8px;
+      font-size: 11px; color: #94a3b8; text-decoration: none; cursor: pointer;
+      transition: all 0.2s; border-radius: 0 0 14px 14px;
+    }
+    .gen-link:hover { color: #92400e; background: #fffbeb; }
+
+    /* =========================================
+       CARD A: Current Design (Control)
+       ========================================= */
+    .card-a .ws-preview::after {
+      content: 'Click to Preview';
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.45);
+      color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 600; letter-spacing: 0.3px;
+      opacity: 0; transition: opacity 0.2s;
+      pointer-events: none;
+    }
+    .card-a .ws-preview:hover::after { opacity: 1; }
+
+    /* =========================================
+       CARD B: Floating Corner Icons
+       ========================================= */
+    .card-b .corner-icons {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: flex;
+      gap: 6px;
+      z-index: 3;
+    }
+    .card-b .corner-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.35);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.2s, background 0.2s, transform 0.15s;
+      border: none;
+      text-decoration: none;
+      line-height: 1;
+    }
+    .card-b .corner-icon:hover {
+      opacity: 1;
+      background: rgba(0,0,0,0.6);
+      transform: scale(1.1);
+    }
+    .card-b .ws-body-link {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      flex: 1;
+    }
+    .card-b .ws-body-link:hover h3 {
+      color: #d97706;
+    }
+
+    /* =========================================
+       CARD C: Bottom Bar on Hover
+       ========================================= */
+    .card-c .ws-preview::before {
+      content: 'Click to Preview';
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.35);
+      color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 600; letter-spacing: 0.3px;
+      opacity: 0; transition: opacity 0.25s;
+      pointer-events: none;
+      padding-bottom: 32px;
+      z-index: 1;
+    }
+    .card-c .ws-preview:hover::before { opacity: 1; }
+
+    .card-c .hover-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 32px;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 2;
+      transform: translateY(100%);
+      transition: transform 0.25s ease;
+    }
+    .card-c .ws-preview:hover .hover-bar {
+      transform: translateY(0);
+    }
+    .card-c .hover-bar a {
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      opacity: 0.9;
+      transition: opacity 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .card-c .hover-bar a:hover { opacity: 1; }
+    .card-c .hover-bar .sep {
+      color: rgba(255,255,255,0.4);
+      font-size: 12px;
+    }
+
+    /* =========================================
+       CARD D: Combined Hover
+       ========================================= */
+    .card-d .ws-preview::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.45);
+      opacity: 0; transition: opacity 0.25s;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .card-d .ws-preview:hover::after { opacity: 1; }
+
+    .card-d .overlay-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.25s;
+      pointer-events: none;
+    }
+    .card-d .ws-preview:hover .overlay-content {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .card-d .overlay-main-text {
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      margin-bottom: 12px;
+    }
+    .card-d .overlay-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .card-d .overlay-actions a {
+      color: rgba(255,255,255,0.85);
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .card-d .overlay-actions a:hover { color: white; }
+    .card-d .overlay-actions .sep {
+      color: rgba(255,255,255,0.35);
+      font-size: 12px;
+    }
+
+    /* =========================================
+       SHARED: Hover bar for Cards E-H
+       (Same preview overlay + hover bar as C)
+       ========================================= */
+    .card-e .ws-preview::before,
+    .card-f .ws-preview::before,
+    .card-g .ws-preview::before,
+    .card-h .ws-preview::before {
+      content: 'Click to Preview';
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.35);
+      color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 600; letter-spacing: 0.3px;
+      opacity: 0; transition: opacity 0.25s;
+      pointer-events: none;
+      padding-bottom: 32px;
+      z-index: 1;
+    }
+    .card-e .ws-preview:hover::before,
+    .card-f .ws-preview:hover::before,
+    .card-g .ws-preview:hover::before,
+    .card-h .ws-preview:hover::before { opacity: 1; }
+
+    .card-e .hover-bar,
+    .card-f .hover-bar,
+    .card-g .hover-bar,
+    .card-h .hover-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 32px;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 2;
+      transform: translateY(100%);
+      transition: transform 0.25s ease;
+    }
+    .card-e .ws-preview:hover .hover-bar,
+    .card-f .ws-preview:hover .hover-bar,
+    .card-g .ws-preview:hover .hover-bar,
+    .card-h .ws-preview:hover .hover-bar {
+      transform: translateY(0);
+    }
+    .card-e .hover-bar a,
+    .card-f .hover-bar a,
+    .card-g .hover-bar a,
+    .card-h .hover-bar a {
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      opacity: 0.9;
+      transition: opacity 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .card-e .hover-bar a:hover,
+    .card-f .hover-bar a:hover,
+    .card-g .hover-bar a:hover,
+    .card-h .hover-bar a:hover { opacity: 1; }
+    .card-e .hover-bar .sep,
+    .card-f .hover-bar .sep,
+    .card-g .hover-bar .sep,
+    .card-h .hover-bar .sep {
+      color: rgba(255,255,255,0.4);
+      font-size: 12px;
+    }
+
+    /* ===== Shared: Detail Link Bottom Section ===== */
+    .detail-link {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      flex: 1;
+      transition: background 0.2s ease;
+    }
+    .detail-link .ws-body {
+      transition: background 0.2s ease;
+    }
+    .detail-link .view-details-arrow {
+      font-size: 13px;
+      font-weight: 600;
+      color: #f59e0b;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.15s;
+    }
+    .detail-link:hover .view-details-arrow {
+      color: #d97706;
+    }
+    .detail-link .arrow-icon {
+      display: inline-block;
+      transition: transform 0.25s ease;
+      font-size: 15px;
+    }
+    .detail-link:hover .arrow-icon {
+      transform: translateX(4px);
+    }
+
+    /* =========================================
+       CARD E: Barely There (#fafbfc)
+       ========================================= */
+    .card-e .detail-link .ws-body {
+      background: #fafbfc;
+    }
+    .card-e .detail-link:hover .ws-body {
+      background: #f5f7fa;
+    }
+    .card-e .detail-link .arrow-icon {
+      font-size: 18px;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .card-e .detail-link:hover .arrow-icon {
+      transform: translateX(6px);
+    }
+
+    /* =========================================
+       CARD F: Light (#f7f8fa)
+       ========================================= */
+    .card-f .detail-link .ws-body {
+      background: #f7f8fa;
+      transition: background 0.2s ease;
+    }
+    .card-f .detail-link:hover .ws-body {
+      background: #f0f2f5;
+    }
+    .card-f .detail-link .arrow-icon {
+      font-size: 18px;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .card-f .detail-link:hover .arrow-icon {
+      transform: translateX(6px);
+    }
+
+    /* =========================================
+       CARD G: Medium (#f1f3f6)
+       ========================================= */
+    .card-g .detail-link .ws-body {
+      background: #f1f3f6;
+      transition: background 0.2s ease;
+    }
+    .card-g .detail-link:hover .ws-body {
+      background: #eaecf0;
+    }
+    .card-g .detail-link .arrow-icon {
+      font-size: 18px;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .card-g .detail-link:hover .arrow-icon {
+      transform: translateX(6px);
+    }
+
+    /* =========================================
+       CARD H: Warm Tint (#fefcf7)
+       ========================================= */
+    .card-h .detail-link .ws-body {
+      background: #fefcf7;
+      transition: background 0.2s ease;
+    }
+    .card-h .detail-link:hover .ws-body {
+      background: #fdf8ed;
+    }
+    .card-h .detail-link .arrow-icon {
+      font-size: 18px;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .card-h .detail-link:hover .arrow-icon {
+      transform: translateX(6px);
+    }
+
+    /* ===== Section wrapper ===== */
+    .section {
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1100px) {
+      .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 600px) {
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>Printable Card Action Placement Options</h1>
+    <p>Hover over each card to see the interaction</p>
+  </div>
+
+  <!-- ===== ROW 1: Original Options A-D ===== -->
+  <div class="section">
+    <div class="row-label">Original Options <span>A through D</span></div>
+  </div>
+
+  <div class="card-grid">
+
+    <!-- ===== CARD A: Current Design ===== -->
+    <div>
+      <div class="variant-label">A: Current</div>
+      <div class="ws-card card-a">
+        <div class="ws-preview" onclick="alert('Modal preview would open here')">
+          <div class="placeholder"><span>&#128196;</span>Count &amp; Write 1-5</div>
+        </div>
+        <div class="ws-body">
+          <h3>Count &amp; Write 1-5</h3>
+          <div class="ws-meta">
+            <span class="grade">Pre-K</span>
+            <span>3 pages</span>
+          </div>
+          <div class="btn-row">
+            <a class="download-btn" href="#">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download
+            </a>
+            <button class="print-btn" title="Print">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            </button>
+          </div>
+          <a class="gen-link" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 12h14"/></svg>
+            Make custom version
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CARD B: Floating Corner Icons ===== -->
+    <div>
+      <div class="variant-label">B: Corner Icons</div>
+      <div class="ws-card card-b">
+        <div class="ws-preview" onclick="alert('Modal preview would open here')">
+          <div class="placeholder"><span>&#128196;</span>Count &amp; Write 1-5</div>
+          <div class="corner-icons">
+            <a class="corner-icon" href="#" title="Download" onclick="event.stopPropagation()">&#8595;</a>
+            <a class="corner-icon" href="#" title="Print" onclick="event.stopPropagation()">&#9113;</a>
+          </div>
+        </div>
+        <a class="ws-body-link" href="#detail">
+          <div class="ws-body">
+            <h3>Count &amp; Write 1-5</h3>
+            <div class="ws-meta">
+              <span class="grade">Pre-K</span>
+              <span>3 pages</span>
+            </div>
+            <span class="view-details">View Details &rarr;</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ===== CARD C: Bottom Bar on Hover ===== -->
+    <div>
+      <div class="variant-label">C: Hover Bar</div>
+      <div class="ws-card card-c">
+        <div class="ws-preview" onclick="alert('Modal preview would open here')">
+          <div class="placeholder"><span>&#128196;</span>Count &amp; Write 1-5</div>
+          <div class="hover-bar">
+            <a href="#" onclick="event.stopPropagation()">&#11015; Download</a>
+            <span class="sep">&middot;</span>
+            <a href="#" onclick="event.stopPropagation()">&#128424; Print</a>
+          </div>
+        </div>
+        <div class="ws-body">
+          <h3>Count &amp; Write 1-5</h3>
+          <div class="ws-meta">
+            <span class="grade">Pre-K</span>
+            <span>3 pages</span>
+          </div>
+          <span class="view-details">View Details &rarr;</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CARD D: Combined Hover ===== -->
+    <div>
+      <div class="variant-label">D: Combined Hover</div>
+      <div class="ws-card card-d">
+        <div class="ws-preview" onclick="alert('Modal preview would open here')">
+          <div class="placeholder"><span>&#128196;</span>Count &amp; Write 1-5</div>
+          <div class="overlay-content">
+            <div class="overlay-main-text">Click to Preview</div>
+            <div class="overlay-actions">
+              <a href="#" onclick="event.stopPropagation()">&#11015; Download</a>
+              <span class="sep">&middot;</span>
+              <a href="#" onclick="event.stopPropagation()">&#128424; Print</a>
+            </div>
+          </div>
+        </div>
+        <div class="ws-body">
+          <h3>Count &amp; Write 1-5</h3>
+          <div class="ws-meta">
+            <span class="grade">Pre-K</span>
+            <span>3 pages</span>
+          </div>
+          <span class="view-details">View Details &rarr;</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== ROW 2: Hover Bar Variants E-H ===== -->
+  <div class="section">
+    <div class="row-label">Background Intensity Options <span>E through H &mdash; all hover bar + detail link</span></div>
+  </div>
+
+  <div class="card-grid">
+
+    <!-- ===== CARD E: Subtle BG + Arrow ===== -->
+    <div>
+      <div class="variant-label">E: Barely There</div>
+      <div class="ws-card card-e">
+        <div class="ws-preview" onclick="alert('Modal preview would open here')">
+          <div class="placeholder"><span>&#128196;</span>Count &amp; Write 1-5</div>
+          <div class="hover-bar">
+            <a href="#" onclick="event.stopPropagation()">&#11015; Download</a>
+            <span class="sep">&middot;</span>
+            <a href="#" onclick="event.stopPropagation()">&#128424; Print</a>
+          </div>
+        </div>
+        <a class="detail-link" href="#detail">
+          <div class="ws-body">
+            <h3>Count &amp; Write 1-5</h3>
+            <div class="ws-meta">
+              <span class="grade">Pre-K</span>
+              <span>3 pages</span>
+            </div>
+            <span class="view-details-arrow">View Details <span class="arrow-icon">&rarr;</span></span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ===== CARD F: Left Accent ===== -->
+    <div>
+      <div class="variant-label">F: Light</div>
+      <div class="ws-card card-f">
+        <div class="ws-preview" onclick="alert('Modal preview would open here')">
+          <div class="placeholder"><span>&#128196;</span>Count &amp; Write 1-5</div>
+          <div class="hover-bar">
+            <a href="#" onclick="event.stopPropagation()">&#11015; Download</a>
+            <span class="sep">&middot;</span>
+            <a href="#" onclick="event.stopPropagation()">&#128424; Print</a>
+          </div>
+        </div>
+        <a class="detail-link" href="#detail">
+          <div class="ws-body">
+            <h3>Count &amp; Write 1-5</h3>
+            <div class="ws-meta">
+              <span class="grade">Pre-K</span>
+              <span>3 pages</span>
+            </div>
+            <span class="view-details-arrow">View Details <span class="arrow-icon">&rarr;</span></span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ===== CARD G: Inset Panel ===== -->
+    <div>
+      <div class="variant-label">G: Medium</div>
+      <div class="ws-card card-g">
+        <div class="ws-preview" onclick="alert('Modal preview would open here')">
+          <div class="placeholder"><span>&#128196;</span>Count &amp; Write 1-5</div>
+          <div class="hover-bar">
+            <a href="#" onclick="event.stopPropagation()">&#11015; Download</a>
+            <span class="sep">&middot;</span>
+            <a href="#" onclick="event.stopPropagation()">&#128424; Print</a>
+          </div>
+        </div>
+        <a class="detail-link" href="#detail">
+          <div class="ws-body">
+            <h3>Count &amp; Write 1-5</h3>
+            <div class="ws-meta">
+              <span class="grade">Pre-K</span>
+              <span>3 pages</span>
+            </div>
+            <span class="view-details-arrow">View Details <span class="arrow-icon">&rarr;</span></span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ===== CARD H: Badge Divider ===== -->
+    <div>
+      <div class="variant-label">H: Warm Tint</div>
+      <div class="ws-card card-h">
+        <div class="ws-preview" onclick="alert('Modal preview would open here')">
+          <div class="placeholder"><span>&#128196;</span>Count &amp; Write 1-5</div>
+          <div class="hover-bar">
+            <a href="#" onclick="event.stopPropagation()">&#11015; Download</a>
+            <span class="sep">&middot;</span>
+            <a href="#" onclick="event.stopPropagation()">&#128424; Print</a>
+          </div>
+        </div>
+        <a class="detail-link" href="#detail">
+          <div class="ws-body">
+            <h3>Count &amp; Write 1-5</h3>
+            <div class="ws-meta">
+              <span class="grade">Pre-K</span>
+              <span>3 pages</span>
+            </div>
+            <span class="view-details-arrow">View Details <span class="arrow-icon">&rarr;</span></span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
