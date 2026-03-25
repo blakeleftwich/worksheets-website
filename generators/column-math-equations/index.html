@@ -1528,11 +1528,11 @@
       // svg2pdf strips quotes and fallbacks, so register with clean names only
       // Also register "normal" for undefined-style calls
       const fontDefs = [
-        { file: "../../fonts/googlesansflex-700.ttf", name: "Google Sans Flex", styles: ["normal", "bold"] },
-        { file: "../../fonts/fredoka-400.ttf", name: "Fredoka", styles: ["normal"] },
-        { file: "../../fonts/fredoka-600.ttf", name: "Fredoka", styles: ["bold"] },
-        { file: "../../fonts/dmsans-700.ttf", name: "DM Sans", styles: ["normal", "bold"] },
-        { file: "../../fonts/inter-500.ttf", name: "Inter", styles: ["normal", "bold"] },
+        { file: "../../fonts/googlesansflex-700.ttf", name: "Google Sans Flex", styles: ["normal", "bold", "500", "600", "700", "500normal", "600normal", "700normal", "700bold"] },
+        { file: "../../fonts/fredoka-400.ttf", name: "Fredoka", styles: ["normal", "400", "400normal"] },
+        { file: "../../fonts/fredoka-600.ttf", name: "Fredoka", styles: ["bold", "600", "700", "600normal", "600bold", "700normal", "700bold"] },
+        { file: "../../fonts/dmsans-700.ttf", name: "DM Sans", styles: ["normal", "bold", "500", "600", "700", "500normal", "600normal", "700normal", "700bold"] },
+        { file: "../../fonts/inter-500.ttf", name: "Inter", styles: ["normal", "bold", "400", "500", "600", "700", "400normal", "500normal", "600normal", "700normal"] },
       ];
       let idx = 0;
       for (const f of fontDefs) {
@@ -1579,9 +1579,12 @@
       for (let i = 0; i < svgPages.length; i++) {
         if (i > 0) pdf.addPage("letter", "portrait");
         const svgEl = svgPages[i];
-        const styleEl = document.createElementNS("http://www.w3.org/2000/svg", "style");
-        styleEl.textContent = fontCSS;
-        svgEl.insertBefore(styleEl, svgEl.firstChild);
+        // Normalize font-family attributes for svg2pdf matching
+        svgEl.querySelectorAll("[font-family]").forEach(el => {
+          let ff = el.getAttribute("font-family");
+          ff = ff.replace(/^['"]|['"]$/g, '').split(',')[0].replace(/^['"]|['"]$/g, '').trim();
+          el.setAttribute("font-family", ff);
+        });
         if (logoB64) {
           svgEl.querySelectorAll("image").forEach(img => {
             const href = img.getAttribute("href") || img.getAttributeNS("http://www.w3.org/1999/xlink", "href");

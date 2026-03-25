@@ -1579,11 +1579,11 @@
       // svg2pdf strips quotes and fallbacks, so register with clean names only
       // Also register "normal" for undefined-style calls
       const fontDefs = [
-        { file: "../../fonts/googlesansflex-700.ttf", name: "Google Sans Flex", styles: ["normal", "bold"] },
-        { file: "../../fonts/fredoka-400.ttf", name: "Fredoka", styles: ["normal"] },
-        { file: "../../fonts/fredoka-600.ttf", name: "Fredoka", styles: ["bold"] },
-        { file: "../../fonts/dmsans-700.ttf", name: "DM Sans", styles: ["normal", "bold"] },
-        { file: "../../fonts/inter-500.ttf", name: "Inter", styles: ["normal", "bold"] },
+        { file: "../../fonts/googlesansflex-700.ttf", name: "Google Sans Flex", styles: ["normal", "bold", "500", "600", "700", "500normal", "600normal", "700normal", "700bold"] },
+        { file: "../../fonts/fredoka-400.ttf", name: "Fredoka", styles: ["normal", "400", "400normal", "500normal"] },
+        { file: "../../fonts/fredoka-600.ttf", name: "Fredoka", styles: ["bold", "600", "700", "800", "600normal", "600bold", "700normal", "700bold", "800normal"] },
+        { file: "../../fonts/dmsans-700.ttf", name: "DM Sans", styles: ["normal", "bold", "500", "600", "700", "500normal", "600normal", "700normal", "700bold"] },
+        { file: "../../fonts/inter-500.ttf", name: "Inter", styles: ["normal", "bold", "400", "500", "600", "700", "400normal", "500normal", "600normal", "700normal"] },
       ];
       let idx = 0;
       for (const f of fontDefs) {
