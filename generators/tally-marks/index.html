@@ -1077,7 +1077,7 @@
     (function preloadFonts() {
       ["../../fonts/googlesansflex-700.ttf","../../fonts/fredoka-400.ttf","../../fonts/fredoka-600.ttf","../../fonts/dmsans-700.ttf","../../fonts/inter-500.ttf"].forEach(function(file) {
         fetch(file).then(function(r) { return r.arrayBuffer(); }).then(function(buf) {
-          _fontCache[file] = btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
+          var bytes = new Uint8Array(buf); var binary = ''; for (var j = 0; j < bytes.length; j++) binary += String.fromCharCode(bytes[j]); _fontCache[file] = btoa(binary);
         }).catch(function() {});
       });
     })();
@@ -1099,7 +1099,7 @@
           else {
             const resp = await fetch(f.file);
             const buf = await resp.arrayBuffer();
-            b64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+            const bytes = new Uint8Array(buf); let binary = ''; for (let j = 0; j < bytes.length; j++) binary += String.fromCharCode(bytes[j]); b64 = btoa(binary);
             _fontCache[f.file] = b64;
           }
           for (const style of f.styles) {
