@@ -1403,9 +1403,28 @@ function makeSymbolVB(id, innerHTML, viewBox) {
       return pdf.output("blob");
     }
 
-    function handlePrint() {
+    async function handlePrint() {
       if (!currentState.sheets.length) { alert("Generate a worksheet first!"); return; }
-      window.print();
+      const btn = document.getElementById("btnPrint");
+      const origText = btn.innerHTML;
+      btn.innerHTML = "&#9203; Preparing...";
+      btn.disabled = true;
+      try {
+        const blob = await generatePdfBlob();
+        const url = URL.createObjectURL(blob);
+        const iframe = document.createElement("iframe");
+        iframe.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;";
+        iframe.src = url;
+        document.body.appendChild(iframe);
+        iframe.onload = function() {
+          setTimeout(() => {
+            iframe.contentWindow.print();
+            setTimeout(() => { document.body.removeChild(iframe); URL.revokeObjectURL(url); }, 1000);
+          }, 300);
+        };
+      } catch(e) { console.error("Print error:", e); }
+      btn.innerHTML = origText;
+      btn.disabled = false;
     }
 
     // ===== Event Listeners =====
