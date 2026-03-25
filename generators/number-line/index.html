@@ -1407,6 +1407,14 @@
 
     // Load and register TTF fonts with jsPDF for embedded vector text in PDFs
     let _fontCache = {};
+    // Preload font files on page load so PDF generation is faster
+    (function preloadFonts() {
+      ["../../fonts/googlesansflex-700.ttf","../../fonts/fredoka-400.ttf","../../fonts/fredoka-600.ttf","../../fonts/dmsans-700.ttf","../../fonts/inter-500.ttf"].forEach(function(file) {
+        fetch(file).then(function(r) { return r.arrayBuffer(); }).then(function(buf) {
+          _fontCache[file] = btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
+        }).catch(function() {});
+      });
+    })();
     async function registerPdfFonts(pdf) {
       // svg2pdf strips quotes and fallbacks, so register with clean names only
       // Also register "normal" for undefined-style calls
