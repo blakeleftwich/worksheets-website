@@ -961,7 +961,7 @@
             if (isMissing && !showAnswers && !isExNum) continue;
 
             const textColor = isExNum ? "#16a34a" : (isMissing && showAnswers) ? "#3182ce" : "#1a202c";
-            const fontWeight = (isMissing && (showAnswers || isExNum)) ? "700" : "600";
+            const fontWeight = "700";
 
             const el = svgEl("text", {
               x: cx, y: cy, "text-anchor": "middle",
