@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Counting Objects Worksheet Generator — Free Printable | Animal Math</title>
+  <title>Count Objects Worksheet Generator — Free Printable | Animal Math</title>
   <meta name="description" content="Create custom count & write number groups worksheets for Pre-K — K. Students count objects and record the correct number. Customize number ranges and layouts for kindergarten and early elementary group counting practice. Free, printable, and customizable.">
   <link rel="canonical" href="https://animalmath.com/generators/count-and-write-number-groups/">
   <link rel="stylesheet" href="../../fonts/fonts.css">
@@ -486,14 +486,14 @@
   <div class="main-container">
     <div class="sidebar">
 	
-      <h2>Counting Objects Worksheet</h2>
+      <h2>Count Objects Worksheet</h2>
       <div class="subtitle">Generate custom worksheets</div>
 
       <div class="control-group">
         <label for="answerMode">Mode</label>
         <select id="answerMode">
-          <option value="write" selected>Count and Write</option>
-          <option value="circle">Count and Circle</option>
+          <option value="write" selected>Count & Write</option>
+          <option value="circle">Count & Circle</option>
         </select>
       </div>
 
@@ -537,14 +537,10 @@
         </select>
       </div>
 
-          <!-- Problems per Sheet -->
-          <div class="control-group" style="margin-bottom:12px;">
-            <label for="problems">Problems per Sheet</label>
-            <select id="problems">
-              <option value="6" selected>6</option>
-              <option value="8">8</option>
-            </select>
-          </div>
+          <select id="problems" style="display:none;">
+            <option value="5">5</option>
+            <option value="6" selected>6</option>
+          </select>
 
           <!-- Number of choices (circle mode) -->
           <div class="control-group" id="numChoicesGroup" style="display:none;">
@@ -557,18 +553,9 @@
           </div>
 
           <!-- Allow zero -->
-          <div class="adv-checkbox-row">
+          <div class="adv-checkbox-row" id="allowZeroRow">
             <input type="checkbox" id="allowZero" />
-            <label for="allowZero">Allow zero</label>
-          </div>
-          <div class="adv-sub" id="zeroPercentOptions" style="display:none;">
-            <label for="zeroPercent">Zero frequency</label>
-            <select id="zeroPercent">
-              <option value="25">~25% of problems</option>
-              <option value="50" selected>~50% of problems</option>
-              <option value="75">~75% of problems</option>
-              <option value="100">100% (always)</option>
-            </select>
+            <label for="allowZero">Allow Zero</label>
           </div>
 
           <!-- Sort Rows -->
@@ -576,12 +563,17 @@
             <input type="checkbox" id="sortRows" />
             <label for="sortRows">Sort Rows</label>
           </div>
-          <div class="adv-sub" id="sortRowsOptions" style="display:none;">
-            <label for="sortRowsMax">Items Per Row</label>
-            <select id="sortRowsMax">
-              <option value="5" selected>Rows of 5</option>
-              <option value="10">Rows of 10</option>
-            </select>
+
+          <!-- Split Groups -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="splitGroups" />
+            <label for="splitGroups">Split Groups</label>
+          </div>
+
+          <!-- Scattered -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="scattered" />
+            <label for="scattered">Scattered</label>
           </div>
 
           <!-- Style -->
@@ -682,8 +674,7 @@ const elShowSubtitle = document.getElementById("showSubtitle");
 const elTitleInputWrap = document.getElementById("titleInputWrap");
 const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
 const elAllowZero = document.getElementById("allowZero");
-const elZeroPercent = document.getElementById("zeroPercent");
-const elZeroPercentOptions = document.getElementById("zeroPercentOptions");
+const elAllowZeroRow = document.getElementById("allowZeroRow");
 const elAnswerMode = document.getElementById("answerMode");
 const elNumChoices = document.getElementById("numChoices");
 const elNumChoicesGroup = document.getElementById("numChoicesGroup");
@@ -729,7 +720,7 @@ function getHeaderMode() {
 function buildDefaultTitle() {
   const range = getCountRange();
   const mode = elAnswerMode.value === "circle" ? "Count & Circle" : "Count & Write";
-  return `${mode} ${range.min} to ${range.max}`;
+  return `${mode} to ${range.max}`;
 }
 
 function getTitle() {
@@ -758,15 +749,14 @@ function showStatus(msg) {
 advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
 
 // ===== Allow zero =====
-elAllowZero.addEventListener("change", () => { elZeroPercentOptions.style.display = elAllowZero.checked ? "block" : "none"; updateCountRangeLabels(); updateTitleFromSettings(); renderWithNewRandomization(); });
-elZeroPercent.addEventListener("change", () => { renderWithNewRandomization(); });
-if (elAllowZero.checked) elZeroPercentOptions.style.display = "block";
+elAllowZero.addEventListener("change", () => { updateCountRangeLabels(); updateTitleFromSettings(); renderWithNewRandomization(); });
 
 // ===== Answer mode toggle =====
 elAnswerMode.addEventListener("change", () => {
   elNumChoicesGroup.style.display = elAnswerMode.value === "circle" ? "block" : "none";
   updateTitleFromSettings();
-  renderWithoutRandomization();
+  updateStyleDependentOptions();
+  renderWithNewRandomization();
 });
 elNumChoices.addEventListener("change", () => renderWithoutRandomization());
 
@@ -794,19 +784,54 @@ elShowSubtitle.addEventListener("change", () => {
 elNumSheets.addEventListener("change", () => renderWithNewRandomization());
 elProblems.addEventListener("change", () => renderWithNewRandomization());
 elCountRange.addEventListener("change", () => {
+  updateAllowZeroVisibility();
   updateTitleFromSettings(); renderWithNewRandomization();
 });
-elStyle.addEventListener("change", () => renderWithoutRandomization());
+
+function updateAllowZeroVisibility() {
+  const range = getCountRange();
+  const show = range.min <= 1;
+  elAllowZeroRow.style.display = show ? "" : "none";
+  if (!show) { elAllowZero.checked = false; }
+}
+updateAllowZeroVisibility();
+
+// Declare these before updateStyleDependentOptions which references them
+const elSortRows = document.getElementById("sortRows");
+const elSplitGroups = document.getElementById("splitGroups");
+const elScattered = document.getElementById("scattered");
+
+function updateStyleDependentOptions() {
+  const style = parseInt(elStyle.value, 10);
+  const mode = elAnswerMode.value;
+  const isOneCol = style === 2;
+  const isCircle = mode === "circle";
+
+  // Problems per sheet: auto-set based on style (no user choice)
+  const sel = document.getElementById("problems");
+  if (isOneCol) {
+    sel.value = "5";
+  } else {
+    sel.value = "6";
+  }
+
+  // Scattered: hide for 1-column
+  const scatteredRow = document.getElementById("scattered").closest(".adv-checkbox-row");
+  if (isOneCol) {
+    scatteredRow.style.display = "none";
+    document.getElementById("scattered").checked = false;
+  } else {
+    scatteredRow.style.display = "";
+  }
+
+}
+updateStyleDependentOptions();
+elStyle.addEventListener("change", () => { updateStyleDependentOptions(); renderWithNewRandomization(); });
 
 // Sort Rows checkbox
-const elSortRows = document.getElementById("sortRows");
-const elSortRowsMax = document.getElementById("sortRowsMax");
-const sortRowsOptions = document.getElementById("sortRowsOptions");
-elSortRows.addEventListener("change", () => {
-  sortRowsOptions.style.display = elSortRows.checked ? "" : "none";
-  renderWithoutRandomization();
-});
-elSortRowsMax.addEventListener("change", () => renderWithoutRandomization());
+elSortRows.addEventListener("change", () => renderWithoutRandomization());
+elSplitGroups.addEventListener("change", () => renderWithNewRandomization());
+elScattered.addEventListener("change", () => renderWithNewRandomization());
 elShowHeader.addEventListener("change", () => renderWithoutRandomization());
 elNumbered.addEventListener("change", () => renderWithoutRandomization());
 elBranded.addEventListener("change", () => renderWithoutRandomization());
@@ -916,11 +941,13 @@ async function generatePdfBlob() {
   const title = getTitle();
   const subtitle = getSubtitle();
   const range = getCountRange();
-  const perRowMax = elSortRows.checked ? parseInt(elSortRowsMax.value) : 0;
+  // perRowMax: -1 = 2col sorted (always 5), -2 = 1col sorted (auto), -3 = 1col unsorted (force 10 for 11+)
+  const isOneCol = style === 2;
+  const perRowMax = elSortRows.checked ? (isOneCol ? -2 : -1) : (isOneCol ? -3 : 0);
   const wsCodes = currentState.sheets.map((_, i) => '(' + (i + 1) + ')');
   if (elAnswerKey.checked) {
       for (let i = 0; i < currentState.sheets.length; i++) {
-        svgPages.push(generateAnswerKeySvg(currentState.sheets[i], style, "none", branded, numbered, title, subtitle, true, perRowMax, wsCodes[i]));
+        svgPages.push(generateAnswerKeySvg(currentState.sheets[i], style, "none", branded, numbered, title, subtitle, true, perRowMax, wsCodes[i], elSplitGroups.checked, elScattered.checked));
       }
     }
   const fontCSS = await buildFontCSS();
@@ -1003,7 +1030,7 @@ document.getElementById("btnDownloadPdf").addEventListener("click", handleDownlo
 
 // ===== Shared helpers for variety packs =====
 function generateRandomProblems(min, max, numProblems) {
-  const numIcons = 19;
+  const numIcons = 18;
   let availableIcons = [];
   for (let i = 0; i < Math.ceil(numProblems / numIcons); i++) {
     const batch = Array.from({length: numIcons}, (_, idx) => idx);
@@ -1103,15 +1130,10 @@ function generateRandomProblems(min, max, numProblems) {
     problems.push({ count: placed[i], iconIndex: availableIcons[i] });
   }
 
-  // Apply zero percentage
-  if (elAllowZero.checked) {
-    const zp = parseInt(elZeroPercent.value, 10);
-    const zeroCount = Math.max(1, Math.round(problems.length * zp / 100));
-    const indices = problems.map((_, i) => i);
-    for (let i = indices.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [indices[i], indices[j]] = [indices[j], indices[i]]; }
-    for (let k = 0; k < zeroCount; k++) {
-      problems[indices[k]].count = 0;
-    }
+  // Allow Zero: add exactly one problem with count 0
+  if (elAllowZero.checked && getCountRange().min <= 1) {
+    const idx = Math.floor(Math.random() * problems.length);
+    problems[idx].count = 0;
   }
 
   return problems;
@@ -1126,15 +1148,37 @@ function renderWithNewRandomization() {
   const range = getCountRange();
   const minCount = range.min;
   const maxCount = range.max;
-  const numIcons = 19; // Total available icons
+  const numIcons = 18; // Total available icons
   
   currentState.sheets = [];
   currentState.randomSeed = Date.now();
 
   for (let s = 0; s < numSheets; s++) {
-    currentState.sheets.push(generateRandomProblems(minCount, maxCount, numProblems));
+    const problems = generateRandomProblems(minCount, maxCount, numProblems);
+    // Generate split data if Split Groups is checked
+    if (elSplitGroups.checked) {
+      for (const p of problems) {
+        if (p.count === 0 || p.count === 1) {
+          // 0 or 1: no split possible, display as normal
+          p.splitA = p.count;
+          p.splitB = 0;
+        } else if (p.count === 2) {
+          // Always 1 + 1
+          p.splitA = 1;
+          p.splitB = 1;
+        } else {
+          // Split into two groups where neither is less than 1
+          const minGroup = Math.max(1, Math.round(p.count * 0.3));
+          const maxGroup = p.count - minGroup;
+          const splitA = minGroup + Math.floor(Math.random() * (maxGroup - minGroup + 1));
+          p.splitA = splitA;
+          p.splitB = p.count - splitA;
+        }
+      }
+    }
+    currentState.sheets.push(problems);
   }
-  
+
   renderWorksheet();
 }
 
@@ -1166,10 +1210,14 @@ function renderWorksheet() {
   const subtitle = getSubtitle();
   const numSheets = currentState.sheets.length;
   const range = getCountRange();
-  const perRowMax = elSortRows.checked ? parseInt(elSortRowsMax.value) : 0;
+  // perRowMax: -1 = 2col sorted (always 5), -2 = 1col sorted (auto), -3 = 1col unsorted (force 10 for 11+)
+  const isOneCol = style === 2;
+  const perRowMax = elSortRows.checked ? (isOneCol ? -2 : -1) : (isOneCol ? -3 : 0);
+  const splitGroups = elSplitGroups.checked;
+  const scattered = elScattered.checked;
 
   const icons = ["icon-apple-new", "icon-balloon", "icon-icecream", "icon-pepper", "icon-pizza", "icon-corn", "icon-broccoli", "icon-fish", "icon-tomato", "icon-banana", "icon-grapes", "icon-orange", "icon-strawberry", "icon-watermelon", "icon-pear", "icon-carrot", "icon-potato", "icon-lettuce"];
-  
+
   sheetWrap.innerHTML = "";
   
   // Set up grid view if multiple sheets
@@ -1241,7 +1289,7 @@ function renderWorksheet() {
     for (let s = 0; s < numSheets; s++) {
       const wsCode = '(' + (s + 1) + ')';
       const problems = currentState.sheets[s];
-      const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode);
+      const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode, splitGroups, scattered);
       svg.setAttribute('width', scaledWidth);
       svg.setAttribute('height', scaledHeight);
 
@@ -1259,7 +1307,7 @@ function renderWorksheet() {
     if (currentState.sheets.length > 0) {
       const problems = currentState.sheets[0];
       const wsCode = '(1)';
-      const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode);
+      const svg = generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode, splitGroups, scattered);
 
       const page = document.createElement("div");
       page.className = "worksheet-page";
@@ -1272,22 +1320,22 @@ function renderWorksheet() {
 }
 
 // Generate a worksheet SVG (without adding to DOM)
-function generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode) {
+function generateWorksheetSvg(problems, style, headerMode, branded, numbered, icons, title, subtitle, includeExample, perRowMax, wsCode, splitGroups, scattered) {
   if (style === 1) {
-    return generateStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, undefined, perRowMax, wsCode);
+    return generateStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, undefined, perRowMax, wsCode, splitGroups, scattered);
   } else {
-    return generateStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, undefined, perRowMax, wsCode);
+    return generateStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, undefined, perRowMax, wsCode, splitGroups, scattered);
   }
 }
 
 // Generate answer key SVG for PDF
-function generateAnswerKeySvg(problems, style, headerMode, branded, numbered, title, subtitle, isAnswerKey, perRowMax, wsCode) {
+function generateAnswerKeySvg(problems, style, headerMode, branded, numbered, title, subtitle, isAnswerKey, perRowMax, wsCode, splitGroups, scattered) {
   const icons = ["icon-apple-new", "icon-balloon", "icon-icecream", "icon-pepper", "icon-pizza", "icon-corn", "icon-broccoli", "icon-fish", "icon-tomato", "icon-banana", "icon-grapes", "icon-orange", "icon-strawberry", "icon-watermelon", "icon-pear", "icon-carrot", "icon-potato", "icon-lettuce"];
 
   if (style === 1) {
-    return generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode);
+    return generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode, splitGroups, scattered);
   } else {
-    return generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode);
+    return generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode, splitGroups, scattered);
   }
 }
 
@@ -1441,7 +1489,7 @@ function makeSymbolVB(id, innerHTML, viewBox) {
   return sym;
 }
 
-function renderStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5, wsCode) {
+function renderStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5, wsCode, splitGroups, scattered) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -1532,7 +1580,7 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
     svg.appendChild(svgEl("rect", {
       x, y, width: cellW, height: cellH,
       rx: 8, ry: 8,
-      fill: "none", stroke: "#000", "stroke-width": 1
+      fill: "none", stroke: "#9ca3af", "stroke-width": 1
     }));
 
     if (numbered !== false) {
@@ -1562,7 +1610,11 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
       answerBox: { x: lineX1, y: lineY - 42, width: lineW, height: 42 },
       problemIndex: i,
       problemCount: problems.length,
-      perRowMax
+      perRowMax,
+      splitGroups: splitGroups && problem.splitA !== undefined,
+      splitA: problem.splitA,
+      splitB: problem.splitB,
+      scattered
     });
 
     const isExample = (i === 0 && includeExample);
@@ -1572,7 +1624,7 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
     if (answerMode === "circle") {
       // Circle mode: show number choices spread across the line area
       const choiceCount = numChoicesVal;
-      const choiceFontSize = 56;
+      const choiceFontSize = 36;
       // Generate wrong answers that are close to the correct answer
       const choices = [count];
       const [lo, hi] = getRange();
@@ -1705,11 +1757,11 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
 }
 
 // Renamed original function to generate SVG
-function generateStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5, wsCode) {
-  return renderStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax, wsCode);
+function generateStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5, wsCode, splitGroups, scattered) {
+  return renderStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax, wsCode, splitGroups, scattered);
 }
 
-function renderStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5, wsCode) {
+function renderStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5, wsCode, splitGroups, scattered) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -1797,7 +1849,7 @@ function renderStyle2(problems, headerMode, branded, numbered, icons, title, sub
     svg.appendChild(svgEl("rect", {
       x: margin, y, width: contentW, height: rowHeight,
       rx: 8, ry: 8,
-      fill: "none", stroke: "#000", "stroke-width": 1
+      fill: "none", stroke: "#9ca3af", "stroke-width": 1
     }));
 
     if (numbered !== false) {
@@ -1811,31 +1863,39 @@ function renderStyle2(problems, headerMode, branded, numbered, icons, title, sub
     const count = problem.count;
     const iconId = icons[problem.iconIndex];
 
+    const answerMode = elAnswerMode.value;
+    const isCircleMode = answerMode === "circle";
+    // For circle mode, leave room for stacked choices on the right
+    const effectiveObjW = isCircleMode ? (contentW - boxW - 20) : objectsW;
+
     placeObjectsRowLeftAligned(svg, {
       iconId,
       count,
       x: margin + 10,
       y: y + 10,
-      w: objectsW - 20,
+      w: effectiveObjW - 20,
       h: rowHeight - 20,
       maxCount: maxCount,
-      perRowMax
+      perRowMax,
+      splitGroups: splitGroups && problem.splitA !== undefined,
+      splitA: problem.splitA,
+      splitB: problem.splitB,
+      scattered,
+      problemIndex: i
     });
 
     const lineW = 72;
-    const ansAreaCenterX = pageW - margin - boxW / 2 - 50;
+    const ansAreaCenterX = pageW - margin - boxW / 2 - 25;
     const lineX1 = ansAreaCenterX - lineW / 2;
     const lineX2 = ansAreaCenterX + lineW / 2;
     const lineY = y + rowHeight - 18;
 
     const isExample = (i === 0 && includeExample);
 
-    const answerMode = elAnswerMode.value;
     const numChoicesVal = parseInt(elNumChoices.value, 10);
 
     if (answerMode === "circle") {
       const choiceCount = numChoicesVal;
-      const choiceFontSize = 56;
       const choices = [count];
       const [lo, hi] = getRange();
       while (choices.length < choiceCount) {
@@ -1853,13 +1913,20 @@ function renderStyle2(problems, headerMode, branded, numbered, icons, title, sub
         const j = Math.floor(Math.random() * (s + 1));
         const tmp = choices[s]; choices[s] = choices[j]; choices[j] = tmp;
       }
-      const totalW = lineW + 140;
-      const startX = ansAreaCenterX - totalW / 2;
+
+      // Stack choices vertically on the right side of the box
+      const choiceAreaX = pageW - margin - boxW;
+      const choiceAreaW = boxW;
+      const choiceFontSize = Math.min(28, (rowHeight - 10) / choiceCount * 0.7);
+      const choiceSpacing = (rowHeight - 10) / choiceCount;
+      const choiceStartY = y + 5 + choiceSpacing / 2;
+
       for (let ch = 0; ch < choices.length; ch++) {
-        const cx = startX + (ch + 0.5) * (totalW / choices.length);
+        const cx = choiceAreaX + choiceAreaW / 2;
+        const cy = choiceStartY + ch * choiceSpacing;
         const isCorrect = choices[ch] === count;
         const choiceEl = svgEl("text", {
-          x: cx, y: lineY + 4,
+          x: cx, y: cy + choiceFontSize * 0.35,
           "font-family": "'Google Sans Flex', sans-serif", "font-size": choiceFontSize, "font-weight": 700,
           fill: isExample && isCorrect ? "#16a34a" : "#1a202c", "text-anchor": "middle"
         });
@@ -1867,12 +1934,18 @@ function renderStyle2(problems, headerMode, branded, numbered, icons, title, sub
         svg.appendChild(choiceEl);
         if (isExample && isCorrect) {
           svg.appendChild(svgEl("ellipse", {
-            cx: cx, cy: lineY - 4,
-            rx: choiceFontSize * 0.55, ry: choiceFontSize * 0.5,
+            cx: cx, cy: cy,
+            rx: choiceFontSize * 0.6, ry: choiceFontSize * 0.55,
             fill: "none", stroke: "#16a34a", "stroke-width": 2
           }));
         }
       }
+
+      // Vertical divider line between objects and choices
+      svg.appendChild(svgEl("line", {
+        x1: choiceAreaX, y1: y + 4, x2: choiceAreaX, y2: y + rowHeight - 4,
+        stroke: "#e2e8f0", "stroke-width": 0.75
+      }));
     } else {
       svg.appendChild(svgEl("line", {
         x1: lineX1, y1: lineY, x2: lineX2, y2: lineY,
@@ -1947,11 +2020,11 @@ function renderStyle2(problems, headerMode, branded, numbered, icons, title, sub
 }
 
 // Renamed original function to generate SVG
-function generateStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5, wsCode) {
-  return renderStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax, wsCode);
+function generateStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax = 5, wsCode, splitGroups, scattered) {
+  return renderStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, includeExample, isAnswerKey, perRowMax, wsCode, splitGroups, scattered);
 }
 
-function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax = 5, wsCode) {
+function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax = 5, wsCode, splitGroups, scattered) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -2040,7 +2113,7 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, t
     svg.appendChild(svgEl("rect", {
       x, y, width: cellW, height: cellH,
       rx: 8, ry: 8,
-      fill: "none", stroke: "#000", "stroke-width": 1
+      fill: "none", stroke: "#9ca3af", "stroke-width": 1
     }));
 
     if (numbered !== false) {
@@ -2070,7 +2143,11 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, t
       answerBox: { x: akLineX1, y: akLineY - 42, width: akLineW, height: 42 },
       problemIndex: i,
       problemCount: problems.length,
-      perRowMax
+      perRowMax,
+      splitGroups: splitGroups && problem.splitA !== undefined,
+      splitA: problem.splitA,
+      splitB: problem.splitB,
+      scattered
     });
 
     const answerMode = elAnswerMode.value;
@@ -2078,7 +2155,7 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, t
 
     if (answerMode === "circle") {
       const choiceCount = numChoicesVal;
-      const choiceFontSize = 56;
+      const choiceFontSize = 36;
       const choices = [count];
       const [lo, hi] = getRange();
       while (choices.length < choiceCount) {
@@ -2175,11 +2252,11 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, t
   return svg;
 }
 
-function generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode) {
-  return renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode);
+function generateAnswerKeyStyle1Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode, splitGroups, scattered) {
+  return renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode, splitGroups, scattered);
 }
 
-function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax = 5, wsCode) {
+function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax = 5, wsCode, splitGroups, scattered) {
   const pageW = 612;
   const pageH = 792;
   const margin = 36;
@@ -2262,7 +2339,7 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, t
     svg.appendChild(svgEl("rect", {
       x: margin, y, width: contentW, height: rowHeight,
       rx: 8, ry: 8,
-      fill: "none", stroke: "#000", "stroke-width": 1
+      fill: "none", stroke: "#9ca3af", "stroke-width": 1
     }));
 
     if (numbered !== false) {
@@ -2284,7 +2361,12 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, t
       w: objectsW - 20,
       h: rowHeight - 20,
       maxCount: maxCount,
-      perRowMax
+      perRowMax,
+      splitGroups: splitGroups && problem.splitA !== undefined,
+      splitA: problem.splitA,
+      splitB: problem.splitB,
+      scattered,
+      problemIndex: i
     });
 
     const lineW = 72;
@@ -2298,7 +2380,7 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, t
 
     if (answerMode === "circle") {
       const choiceCount = numChoicesVal;
-      const choiceFontSize = 56;
+      const choiceFontSize = 36;
       const choices = [count];
       const [lo, hi] = getRange();
       while (choices.length < choiceCount) {
@@ -2395,12 +2477,23 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, t
   return svg;
 }
 
-function generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode) {
-  return renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode);
+function generateAnswerKeyStyle2Svg(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode, splitGroups, scattered) {
+  return renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, title, subtitle, isAnswerKey, perRowMax, wsCode, splitGroups, scattered);
 }
 
-function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, problemIndex = 0, problemCount = 8, perRowMax = 5 }) {
+function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, problemIndex = 0, problemCount = 8, perRowMax = 5, splitGroups = false, splitA, splitB, scattered = false }) {
   const problemGroup = svgEl("g", { "data-problem": problemIndex });
+  if (count <= 0) { svg.appendChild(problemGroup); return; }
+  // Resolve perRowMax sentinel values per-problem
+  if (perRowMax === -1) { // 2-column sorted: always rows of 5
+    perRowMax = count <= 5 ? 0 : 5;
+  } else if (perRowMax === -2) { // 1-column sorted: <=5 none, 6-10 max 5, 11+ max 10
+    if (count <= 5) perRowMax = 0;
+    else if (count <= 10) perRowMax = 5;
+    else perRowMax = 10;
+  } else if (perRowMax === -3) { // 1-column unsorted: only force rows of 10 for 11+
+    perRowMax = count > 10 ? 10 : 0;
+  }
   const pad = 10;
 
   // Available area for icons (inside cell padding)
@@ -2423,9 +2516,104 @@ function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, proble
 
   const spacingRatio = 0.05;
 
+  // Split Groups mode: render two sub-groups with a gap
+  if (splitGroups && splitA !== undefined && splitB > 0) {
+    const gapRatio = 0.10; // 10% of total width for gap
+    const gap = aW * gapRatio;
+    const halfW = (aW - gap) / 2;
+
+    // Helper to compute best layout for a sub-group within a given width
+    function computeSubLayout(subCount, subW) {
+      let bCols, bRows, bSize = 0;
+      const minPR = 1; // Allow single-item rows in split groups
+      if (perRowMax > 0) {
+        bCols = subCount <= perRowMax ? subCount : perRowMax;
+        bRows = Math.ceil(subCount / bCols);
+        const sByW = subW / (bCols * wFactor + (bCols - 1) * spacingRatio);
+        const sByH = aH / (bRows * hFactor + (bRows - 1) * spacingRatio);
+        bSize = Math.min(sByW, sByH);
+      }
+      for (let tryMax = minPR; perRowMax === 0 && tryMax <= subCount; tryMax++) {
+        let cols, rows;
+        if (subCount <= tryMax) { cols = subCount; rows = 1; }
+        else { cols = tryMax; rows = Math.ceil(subCount / tryMax); }
+        const sByW = subW / (cols * wFactor + (cols - 1) * spacingRatio);
+        const sByH = aH / (rows * hFactor + (rows - 1) * spacingRatio);
+        const candidate = Math.min(sByW, sByH);
+        if (candidate > bSize) { bSize = candidate; bCols = cols; bRows = rows; }
+      }
+      return { cols: bCols, rows: bRows, size: bSize };
+    }
+
+    const layoutA = computeSubLayout(splitA, halfW);
+    const layoutB = computeSubLayout(splitB, halfW);
+
+    // Use the smaller icon size so both groups look uniform
+    let iconSize = Math.max(18, Math.min(layoutA.size, layoutB.size));
+    if (scattered) iconSize = iconSize * 0.75;
+    const iconW = iconSize * wFactor;
+    const iconH = iconSize * hFactor;
+    const spacing = iconSize * spacingRatio;
+
+    // Helper to render a sub-group (with optional scattering)
+    function renderSubGroup(subCount, layout, startX, areaW, seed) {
+      const gridW = layout.cols * iconW + (layout.cols - 1) * spacing;
+      const gridH = layout.rows * iconH + (layout.rows - 1) * spacing;
+      const sx = startX + (areaW - gridW) / 2;
+      const sy = aY + (aH - gridH) / 2;
+      const placed = [];
+      let idx = 0;
+      for (let r = 0; r < layout.rows && idx < subCount; r++) {
+        for (let c = 0; c < layout.cols && idx < subCount; c++) {
+          let px = sx + c * (iconW + spacing);
+          let py = sy + r * (iconH + spacing);
+          let rot = 0;
+          if (scattered) {
+            const rng = () => { seed = (seed * 1664525 + 1013904223) & 0x7fffffff; return (seed & 0xffff) / 0xffff; };
+            const maxOff = iconSize * 0.45;
+            for (let attempt = 0; attempt < 30; attempt++) {
+              const ox = (rng() - 0.5) * maxOff * 2;
+              const oy = (rng() - 0.5) * maxOff * 2;
+              const tx = sx + c * (iconW + spacing) + ox;
+              const ty = sy + r * (iconH + spacing) + oy;
+              // Bounds check
+              if (tx < startX || tx + iconW > startX + areaW || ty < aY || ty + iconH > aY + aH) continue;
+              // Collision check
+              let ok = true;
+              for (const pp of placed) {
+                const dx = (tx + iconW/2) - (pp.x + iconW/2);
+                const dy = (ty + iconH/2) - (pp.y + iconH/2);
+                if (Math.sqrt(dx*dx + dy*dy) < iconSize * 0.95) { ok = false; break; }
+              }
+              if (ok) { px = tx; py = ty; break; }
+            }
+          }
+          placed.push({ x: px, y: py });
+          const attrs = { href: `#${iconId}`, x: px, y: py, width: iconW, height: iconH };
+          // No rotation in scattered mode
+          problemGroup.appendChild(svgEl("use", attrs));
+          idx++;
+        }
+      }
+    }
+
+    // Render group A (left half)
+    renderSubGroup(splitA, layoutA, aX, halfW, problemIndex * 1000 + 1);
+
+    // Render group B (right half)
+    const rightX = aX + halfW + gap;
+    renderSubGroup(splitB, layoutB, rightX, halfW, problemIndex * 1000 + 500);
+
+    // No divider line between split groups
+
+    svg.appendChild(problemGroup);
+    return;
+  }
+
+  // Standard (non-split) layout
   // If perRowMax > 0 (Sort Rows enabled), use fixed layout; otherwise optimize dynamically
   let bestCols, bestRows, bestSize = 0;
-  const minPerRow = 2;
+  const minPerRow = count === 1 ? 1 : 2;
   if (perRowMax > 0) {
     bestCols = count <= perRowMax ? count : perRowMax;
     bestRows = Math.ceil(count / bestCols);
@@ -2453,6 +2641,8 @@ function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, proble
   }
 
   let iconSize = Math.max(18, bestSize);
+  // Scale down in scattered mode to create more room for random placement
+  if (scattered) iconSize = iconSize * 0.75;
   const iconW = iconSize * wFactor;
   const iconH = iconSize * hFactor;
   const spacing = iconSize * spacingRatio;
@@ -2461,17 +2651,84 @@ function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, proble
   const startX = aX + (aW - gridW) / 2;
   const startY = aY + (aH - gridH) / 2;
 
-  let idx = 0;
-  for (let r = 0; r < bestRows && idx < count; r++) {
-    for (let c = 0; c < bestCols && idx < count; c++) {
-      const ix = startX + c * (iconW + spacing);
-      const iy = startY + r * (iconH + spacing);
-      problemGroup.appendChild(svgEl("use", {
-        href: `#${iconId}`,
-        x: ix, y: iy,
-        width: iconW, height: iconH
-      }));
-      idx++;
+  if (scattered) {
+    // Seeded random based on problemIndex for consistent positions
+    let seed = (problemIndex + 1) * 9301 + 49297;
+    function seededRandom() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
+
+    const placed = []; // track placed icon centers for collision detection
+    const maxAttempts = 30;
+    const jitterX = (iconW + spacing) * 0.45; // ±45% of cell width for more scatter
+    const jitterY = (iconH + spacing) * 0.45; // ±45% of cell height for more scatter
+    const minDist = iconSize * 0.95; // stricter collision to prevent overlap
+
+    let idx = 0;
+    for (let r = 0; r < bestRows && idx < count; r++) {
+      for (let c = 0; c < bestCols && idx < count; c++) {
+        const gridX = startX + c * (iconW + spacing);
+        const gridY = startY + r * (iconH + spacing);
+        const gridCX = gridX + iconW / 2;
+        const gridCY = gridY + iconH / 2;
+
+        let finalX = gridX, finalY = gridY;
+        let foundPos = false;
+
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          const offX = (seededRandom() * 2 - 1) * jitterX;
+          const offY = (seededRandom() * 2 - 1) * jitterY;
+          const tryX = gridX + offX;
+          const tryY = gridY + offY;
+
+          // Keep within bounds
+          const clampedX = Math.max(aX, Math.min(aX + aW - iconW, tryX));
+          const clampedY = Math.max(aY, Math.min(aY + aH - iconH, tryY));
+          const tryCX = clampedX + iconW / 2;
+          const tryCY = clampedY + iconH / 2;
+
+          // Collision check
+          let collides = false;
+          for (const p of placed) {
+            const dx = tryCX - p.cx;
+            const dy = tryCY - p.cy;
+            if (Math.sqrt(dx * dx + dy * dy) < minDist) { collides = true; break; }
+          }
+          if (!collides) {
+            finalX = clampedX;
+            finalY = clampedY;
+            foundPos = true;
+            break;
+          }
+        }
+
+        // Fall back to grid position if no non-colliding position found
+        if (!foundPos) { finalX = gridX; finalY = gridY; }
+
+        const cx = finalX + iconW / 2;
+        const cy = finalY + iconH / 2;
+
+        placed.push({ cx, cy });
+
+        problemGroup.appendChild(svgEl("use", {
+          href: `#${iconId}`,
+          x: finalX, y: finalY,
+          width: iconW, height: iconH
+        }));
+        idx++;
+      }
+    }
+  } else {
+    let idx = 0;
+    for (let r = 0; r < bestRows && idx < count; r++) {
+      for (let c = 0; c < bestCols && idx < count; c++) {
+        const ix = startX + c * (iconW + spacing);
+        const iy = startY + r * (iconH + spacing);
+        problemGroup.appendChild(svgEl("use", {
+          href: `#${iconId}`,
+          x: ix, y: iy,
+          width: iconW, height: iconH
+        }));
+        idx++;
+      }
     }
   }
 
@@ -2479,6 +2736,7 @@ function placeObjects(svg, { iconId, count, x, y, w, h, answerBox = null, proble
 }
 
 function placeObjectsRow(svg, { iconId, count, x, y, w, h }) {
+  if (count <= 0) return;
   // Calculate size with guaranteed spacing
   const availableWidth = w - (count + 1) * 8; // 8px spacing minimum
   const maxItemWidth = availableWidth / count;
@@ -2503,51 +2761,191 @@ function placeObjectsRow(svg, { iconId, count, x, y, w, h }) {
   }
 }
 
-function placeObjectsRowLeftAligned(svg, { iconId, count, x, y, w, h, maxCount, perRowMax = 5 }) {
+function placeObjectsRowLeftAligned(svg, { iconId, count, x, y, w, h, maxCount, perRowMax = 5, splitGroups = false, splitA, splitB, scattered = false, problemIndex = 0 }) {
+  if (count <= 0) return;
+  // Resolve perRowMax sentinel values per-problem
+  if (perRowMax === -1) { perRowMax = count <= 5 ? 0 : 5; }
+  else if (perRowMax === -2) { perRowMax = count <= 5 ? 0 : (count <= 10 ? 5 : 10); }
+  else if (perRowMax === -3) { perRowMax = count > 10 ? 10 : 0; }
   const spacing = 6;
   const startX = x + 18;
-  const needsWrap = count > perRowMax;
 
   const leftPad = 18;
   const rightPad = 5;
   const availW = w - leftPad - rightPad;
+
+  // Split Groups mode: render two sub-groups with a gap
+  if (splitGroups && splitA !== undefined && splitB > 0) {
+    const gap = 18; // visible gap between the two groups
+    const halfW = (availW - gap) / 2;
+
+    // Per-sub-group sort row max: over 5 items → always rows of 5
+    function subPerRowMax(subCount) {
+      if (subCount > 5) return 5;
+      return 0; // no wrapping
+    }
+
+    // Compute size for a sub-group (without rendering)
+    function computeSubSize(subCount, subW) {
+      if (subCount <= 0) return 20;
+      const effMax = subPerRowMax(subCount);
+      const needsWrap = effMax > 0 && subCount > effMax;
+      if (needsWrap) {
+        const perRow = effMax;
+        const rows = Math.ceil(subCount / perRow);
+        const sizeByW = (subW - (perRow - 1) * spacing) / perRow;
+        const sizeByH = (h - (rows - 1) * spacing) / rows * 0.9;
+        return Math.max(20, Math.min(sizeByW, sizeByH));
+      } else {
+        const sizeByW = (subW - (subCount - 1) * spacing) / subCount;
+        const sizeByH = h * 0.85;
+        return Math.max(20, Math.min(sizeByW, sizeByH));
+      }
+    }
+
+    // Use the smaller size of the two groups so both match
+    const sizeA = computeSubSize(splitA, halfW);
+    const sizeB = computeSubSize(splitB, halfW);
+    const uniformSize = Math.min(sizeA, sizeB);
+
+    // Render a sub-group at the given size
+    function renderSubGroup(subCount, subStartX, subW, size) {
+      if (subCount <= 0) return;
+      const effMax = subPerRowMax(subCount);
+      const needsWrap = effMax > 0 && subCount > effMax;
+      if (needsWrap) {
+        const perRow = effMax;
+        const rows = Math.ceil(subCount / perRow);
+        const rowH = size + spacing;
+        const totalH = rowH * rows - spacing;
+        const sY = y + (h - totalH) / 2;
+        for (let i = 0; i < subCount; i++) {
+          const row = Math.floor(i / perRow);
+          const col = i % perRow;
+          const cx = subStartX + col * (size + spacing) + size / 2;
+          const cy = sY + row * rowH + size / 2;
+          svg.appendChild(svgEl("use", {
+            href: `#${iconId}`,
+            x: cx - size / 2, y: cy - size / 2,
+            width: size, height: size
+          }));
+        }
+      } else {
+        for (let i = 0; i < subCount; i++) {
+          const cx = subStartX + i * (size + spacing) + size / 2;
+          const cy = y + h / 2;
+          svg.appendChild(svgEl("use", {
+            href: `#${iconId}`,
+            x: cx - size / 2, y: cy - size / 2,
+            width: size, height: size
+          }));
+        }
+      }
+    }
+
+    // Render group A on the left, group B on the right — both at uniform size
+    renderSubGroup(splitA, startX, halfW, uniformSize);
+    renderSubGroup(splitB, startX + halfW + gap, halfW, uniformSize);
+
+    // No divider line between split groups
+    return;
+  }
+
+  // Standard (non-split) layout
+  const needsWrap = perRowMax > 0 && count > perRowMax;
+
+  // Compute grid positions first (needed for both scattered and normal)
+  let size, gridPositions = [];
 
   if (needsWrap) {
     // Two rows
     const perRow = perRowMax;
     const sizeByW = (availW - (perRow - 1) * spacing) / perRow;
     const sizeByH = (h - spacing) / 2 * 0.9;
-    let size = Math.min(sizeByW, sizeByH);
+    size = Math.min(sizeByW, sizeByH);
     size = Math.max(20, size);
 
     const rowH = size + spacing;
     const totalH = rowH * 2 - spacing;
-    const startY = y + (h - totalH) / 2;
+    const sY = y + (h - totalH) / 2;
 
     for (let i = 0; i < count; i++) {
       const row = Math.floor(i / perRow);
       const col = i % perRow;
       const cx = startX + col * (size + spacing) + size / 2;
-      const cy = startY + row * rowH + size / 2;
-      svg.appendChild(svgEl("use", {
-        href: `#${iconId}`,
-        x: cx - size / 2, y: cy - size / 2,
-        width: size, height: size
-      }));
+      const cy = sY + row * rowH + size / 2;
+      gridPositions.push({ cx, cy });
     }
   } else {
     // Single row - size based on actual count to fill the space
     const sizeByW = (availW - (count - 1) * spacing) / count;
     const sizeByH = h * 0.85;
-    let size = Math.min(sizeByW, sizeByH);
+    size = Math.min(sizeByW, sizeByH);
     size = Math.max(20, size);
 
     for (let i = 0; i < count; i++) {
       const cx = startX + i * (size + spacing) + size / 2;
       const cy = y + h / 2;
+      gridPositions.push({ cx, cy });
+    }
+  }
+
+  if (scattered) {
+    // Scale down for scattered mode
+    size = size * 0.75;
+    // Seeded random based on problemIndex for consistent positions
+    let seed = (problemIndex + 1) * 9301 + 49297;
+    function seededRandom() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
+
+    const placed = [];
+    const maxAttempts = 30;
+    const jitterX = (size + spacing) * 0.45;
+    const jitterY = h * 0.35;
+    const minDist = size * 0.95;
+
+    for (let i = 0; i < gridPositions.length; i++) {
+      const gp = gridPositions[i];
+      let finalCX = gp.cx, finalCY = gp.cy;
+      let foundPos = false;
+
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        const offX = (seededRandom() * 2 - 1) * jitterX;
+        const offY = (seededRandom() * 2 - 1) * jitterY;
+        const tryCX = gp.cx + offX;
+        const tryCY = gp.cy + offY;
+
+        // Keep within bounds
+        const clampedCX = Math.max(x + size / 2, Math.min(x + w - size / 2, tryCX));
+        const clampedCY = Math.max(y + size / 2, Math.min(y + h - size / 2, tryCY));
+
+        // Collision check
+        let collides = false;
+        for (const p of placed) {
+          const dx = clampedCX - p.cx;
+          const dy = clampedCY - p.cy;
+          if (Math.sqrt(dx * dx + dy * dy) < minDist) { collides = true; break; }
+        }
+        if (!collides) {
+          finalCX = clampedCX;
+          finalCY = clampedCY;
+          foundPos = true;
+          break;
+        }
+      }
+
+      placed.push({ cx: finalCX, cy: finalCY });
+
       svg.appendChild(svgEl("use", {
         href: `#${iconId}`,
-        x: cx - size / 2, y: cy - size / 2,
+        x: finalCX - size / 2, y: finalCY - size / 2,
+        width: size, height: size
+      }));
+    }
+  } else {
+    for (const gp of gridPositions) {
+      svg.appendChild(svgEl("use", {
+        href: `#${iconId}`,
+        x: gp.cx - size / 2, y: gp.cy - size / 2,
         width: size, height: size
       }));
     }
