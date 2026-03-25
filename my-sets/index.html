@@ -545,11 +545,48 @@
       document.body.style.overflow = '';
     }
 
+    // Font registration for PDF generation (same as generators)
+    var _fontCache = {};
+    async function registerPdfFonts(pdf) {
+      var fontDefs = [
+        { file: "../fonts/googlesansflex-700.ttf", name: "Google Sans Flex", styles: ["normal", "bold", "100normal","200normal","300normal","400normal","500normal","600normal","700normal","800normal","900normal","100bold","200bold","300bold","400bold","500bold","600bold","700bold","800bold","900bold"] },
+        { file: "../fonts/fredoka-400.ttf", name: "Fredoka", styles: ["normal", "400normal","500normal"] },
+        { file: "../fonts/fredoka-600.ttf", name: "Fredoka", styles: ["bold", "600normal","600bold","700normal","700bold","800normal","900normal"] },
+        { file: "../fonts/dmsans-700.ttf", name: "DM Sans", styles: ["normal", "bold", "500normal","600normal","700normal","800normal"] },
+        { file: "../fonts/inter-500.ttf", name: "Inter", styles: ["normal", "bold", "400normal","500normal","600normal","700normal"] },
+      ];
+      var idx = 0;
+      for (var f of fontDefs) {
+        try {
+          var b64;
+          if (_fontCache[f.file]) { b64 = _fontCache[f.file]; }
+          else {
+            var resp = await fetch(f.file);
+            var buf = await resp.arrayBuffer();
+            var bytes = new Uint8Array(buf);
+            var binary = '';
+            var chunkSize = 8192;
+            for (var c = 0; c < bytes.length; c += chunkSize) {
+              binary += String.fromCharCode.apply(null, bytes.subarray(c, c + chunkSize));
+            }
+            b64 = btoa(binary);
+            _fontCache[f.file] = b64;
+          }
+          for (var s = 0; s < f.styles.length; s++) {
+            var vfsName = "f" + (idx++) + ".ttf";
+            pdf.addFileToVFS(vfsName, b64);
+            pdf.addFont(vfsName, f.name, f.styles[s]);
+          }
+        } catch(e) { console.warn("Font load failed:", f.file, e); }
+      }
+    }
+
     async function buildPdf() {
       var jsPDF = window.jspdf.jsPDF;
       var svgEls = document.querySelectorAll('.print-page-item svg');
       if (!svgEls.length) return null;
       var pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+      await registerPdfFonts(pdf);
       for (var i = 0; i < svgEls.length; i++) {
         if (i > 0) pdf.addPage('letter', 'portrait');
         var svgClone = svgEls[i].cloneNode(true);
