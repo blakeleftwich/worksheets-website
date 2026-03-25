@@ -1328,14 +1328,16 @@ function makeSymbolVB(id, innerHTML, viewBox) {
     // Load and register TTF fonts with jsPDF for embedded vector text in PDFs
     let _fontCache = {};
     async function registerPdfFonts(pdf) {
-      // Each font file registered under all names svg2pdf might use
+      // svg2pdf strips quotes and fallbacks, so register with clean names only
+      // Also register "normal" for undefined-style calls
       const fontDefs = [
-        { file: "../../fonts/googlesansflex-700.ttf", names: ["Google Sans Flex", "'Google Sans Flex'", "'Google Sans Flex', sans-serif"], styles: ["normal", "bold"] },
-        { file: "../../fonts/fredoka-400.ttf", names: ["Fredoka", "Fredoka, sans-serif"], styles: ["normal"] },
-        { file: "../../fonts/fredoka-600.ttf", names: ["Fredoka", "Fredoka, sans-serif"], styles: ["bold"] },
-        { file: "../../fonts/dmsans-700.ttf", names: ["DM Sans", "'DM Sans'", "'DM Sans', sans-serif", "'DM Sans', -apple-system, sans-serif"], styles: ["normal", "bold"] },
-        { file: "../../fonts/inter-500.ttf", names: ["Inter", "'Inter'", "'Inter', sans-serif", "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"], styles: ["normal", "bold"] },
+        { file: "../../fonts/googlesansflex-700.ttf", name: "Google Sans Flex", styles: ["normal", "bold"] },
+        { file: "../../fonts/fredoka-400.ttf", name: "Fredoka", styles: ["normal"] },
+        { file: "../../fonts/fredoka-600.ttf", name: "Fredoka", styles: ["bold"] },
+        { file: "../../fonts/dmsans-700.ttf", name: "DM Sans", styles: ["normal", "bold"] },
+        { file: "../../fonts/inter-500.ttf", name: "Inter", styles: ["normal", "bold"] },
       ];
+      let idx = 0;
       for (const f of fontDefs) {
         try {
           let b64;
@@ -1346,12 +1348,10 @@ function makeSymbolVB(id, innerHTML, viewBox) {
             b64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
             _fontCache[f.file] = b64;
           }
-          for (const name of f.names) {
-            for (const style of f.styles) {
-              const vfsName = name.replace(/[^a-zA-Z0-9]/g, '') + "-" + style + ".ttf";
-              pdf.addFileToVFS(vfsName, b64);
-              pdf.addFont(vfsName, name, style);
-            }
+          for (const style of f.styles) {
+            const vfsName = "f" + (idx++) + ".ttf";
+            pdf.addFileToVFS(vfsName, b64);
+            pdf.addFont(vfsName, f.name, style);
           }
         } catch(e) { console.warn("Font load failed:", f.file, e); }
       }

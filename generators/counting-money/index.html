@@ -1221,6 +1221,39 @@
       return fontCSS;
     }
 
+
+    // Load and register TTF fonts with jsPDF for embedded vector text in PDFs
+    let _fontCache = {};
+    async function registerPdfFonts(pdf) {
+      // svg2pdf strips quotes and fallbacks, so register with clean names only
+      // Also register "normal" for undefined-style calls
+      const fontDefs = [
+        { file: "../../fonts/googlesansflex-700.ttf", name: "Google Sans Flex", styles: ["normal", "bold"] },
+        { file: "../../fonts/fredoka-400.ttf", name: "Fredoka", styles: ["normal"] },
+        { file: "../../fonts/fredoka-600.ttf", name: "Fredoka", styles: ["bold"] },
+        { file: "../../fonts/dmsans-700.ttf", name: "DM Sans", styles: ["normal", "bold"] },
+        { file: "../../fonts/inter-500.ttf", name: "Inter", styles: ["normal", "bold"] },
+      ];
+      let idx = 0;
+      for (const f of fontDefs) {
+        try {
+          let b64;
+          if (_fontCache[f.file]) { b64 = _fontCache[f.file]; }
+          else {
+            const resp = await fetch(f.file);
+            const buf = await resp.arrayBuffer();
+            b64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+            _fontCache[f.file] = b64;
+          }
+          for (const style of f.styles) {
+            const vfsName = "f" + (idx++) + ".ttf";
+            pdf.addFileToVFS(vfsName, b64);
+            pdf.addFont(vfsName, f.name, style);
+          }
+        } catch(e) { console.warn("Font load failed:", f.file, e); }
+      }
+    }
+
     async function generatePdfBlob() {
       const opts = gatherOptions();
       const svgPages = [];
@@ -1240,6 +1273,9 @@
       } catch(e) {}
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "letter" });
+      // Register embedded fonts
+      await registerPdfFonts(pdf);
+
       for (let i = 0; i < svgPages.length; i++) {
         if (i > 0) pdf.addPage("letter", "portrait");
         const svgEl = svgPages[i];
