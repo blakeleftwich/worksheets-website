@@ -1325,6 +1325,58 @@ function makeSymbolVB(id, innerHTML, viewBox) {
       return fontCSS;
     }
 
+    // Convert all <text> elements in an SVG to high-res raster images so fonts render correctly in PDF
+    async function convertTextToImages(svgEl) {
+      const ns = "http://www.w3.org/2000/svg";
+      // Must be in DOM for measurement
+      svgEl.style.cssText = "position:fixed;top:-9999px;left:-9999px;";
+      document.body.appendChild(svgEl);
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+      const texts = Array.from(svgEl.querySelectorAll("text"));
+      for (const textEl of texts) {
+        try {
+          const bbox = textEl.getBBox();
+          if (bbox.width === 0 || bbox.height === 0) continue;
+          const fill = textEl.getAttribute("fill") || window.getComputedStyle(textEl).fill || "#000";
+          const fontSize = parseFloat(textEl.getAttribute("font-size") || window.getComputedStyle(textEl).fontSize);
+          const fontFamily = textEl.getAttribute("font-family") || window.getComputedStyle(textEl).fontFamily;
+          const fontWeight = textEl.getAttribute("font-weight") || window.getComputedStyle(textEl).fontWeight;
+          const fontStyle = textEl.getAttribute("font-style") || "normal";
+          const anchor = textEl.getAttribute("text-anchor") || "start";
+          const content = textEl.textContent;
+
+          const scale = 4;
+          const pad = 4;
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.ceil((bbox.width + pad * 2) * scale);
+          canvas.height = Math.ceil((bbox.height + pad * 2) * scale);
+          const ctx = canvas.getContext("2d");
+          ctx.scale(scale, scale);
+          ctx.font = fontStyle + " " + fontWeight + " " + fontSize + "px " + fontFamily;
+          ctx.fillStyle = fill;
+          ctx.textBaseline = "top";
+          ctx.fillText(content, pad, pad);
+
+          const dataUrl = canvas.toDataURL("image/png");
+          const img = document.createElementNS(ns, "image");
+          img.setAttribute("href", dataUrl);
+          img.setAttribute("width", String(bbox.width + pad * 2));
+          img.setAttribute("height", String(bbox.height + pad * 2));
+
+          let x = bbox.x - pad;
+          let y = bbox.y - pad;
+          img.setAttribute("x", String(x));
+          img.setAttribute("y", String(y));
+
+          textEl.parentNode.replaceChild(img, textEl);
+        } catch(e) { console.warn("Text conversion failed:", textEl.textContent, e); }
+      }
+      document.body.removeChild(svgEl);
+      svgEl.style.cssText = "";
+      return svgEl;
+    }
+
     async function generatePdfBlob() {
       const opts = gatherOptions();
       const svgPages = [];
@@ -1339,7 +1391,6 @@ function makeSymbolVB(id, innerHTML, viewBox) {
                 }, wsCodes[i]));
               }
             }
-      const fontCSS = await buildFontCSS();
       let logoB64 = "";
       try {
         const logoResp = await fetch("../../images/logo-watermark.svg");
@@ -1351,15 +1402,14 @@ function makeSymbolVB(id, innerHTML, viewBox) {
       for (let i = 0; i < svgPages.length; i++) {
         if (i > 0) pdf.addPage("letter", "portrait");
         const svgEl = svgPages[i];
-        const styleEl = document.createElementNS("http://www.w3.org/2000/svg", "style");
-        styleEl.textContent = fontCSS;
-        svgEl.insertBefore(styleEl, svgEl.firstChild);
         if (logoB64) {
           svgEl.querySelectorAll("image").forEach(img => {
             const href = img.getAttribute("href") || img.getAttributeNS("http://www.w3.org/1999/xlink", "href");
             if (href && href.includes("logo-watermark")) img.setAttribute("href", logoB64);
           });
         }
+        // Convert text to images for correct font rendering in PDF
+        await convertTextToImages(svgEl);
         svgEl.style.cssText = "position:fixed;top:-9999px;left:-9999px;";
         document.body.appendChild(svgEl);
         try { await pdf.svg(svgEl, { x: 0, y: 0, width: 612, height: 792 }); } finally { document.body.removeChild(svgEl); }

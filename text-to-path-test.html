@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>Text-to-Path PDF Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fonts/fonts.css">
+<script src="jspdf.umd.min.js"></script>
+<script src="svg2pdf.umd.min.js"></script>
+<style>
+  body { font-family: Inter, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+  h1 { font-family: 'DM Sans', sans-serif; }
+  .test-svg { border: 1px solid #ccc; margin: 20px 0; }
+  button { padding: 12px 24px; font-size: 16px; margin: 8px; cursor: pointer; border-radius: 8px; border: 1px solid #ccc; }
+  .primary { background: #f59e0b; color: white; border: none; }
+  #status { margin-top: 20px; padding: 12px; background: #f8fafc; border-radius: 8px; font-size: 14px; }
+</style>
+</head>
+<body>
+<h1>Text-to-Path PDF Test</h1>
+<p>This test creates a sample worksheet SVG, converts all text to vector paths, then generates a PDF.</p>
+
+<div id="svgContainer"></div>
+
+<button class="primary" onclick="generateNormalPdf()">Download Normal PDF (text)</button>
+<button class="primary" onclick="generatePathPdf()">Download Path PDF (outlines)</button>
+<button onclick="showConverted()">Show Converted SVG</button>
+
+<div id="status"></div>
+
+<script>
+// Create a sample worksheet SVG with multiple fonts
+function createTestSVG() {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", "0 0 612 792");
+  svg.setAttribute("width", "612");
+  svg.setAttribute("height", "792");
+  svg.style.background = "white";
+
+  // Title (DM Sans bold)
+  const t1 = document.createElementNS(ns, "text");
+  t1.setAttribute("x", "36"); t1.setAttribute("y", "80");
+  t1.setAttribute("font-family", "'DM Sans', sans-serif");
+  t1.setAttribute("font-size", "36"); t1.setAttribute("font-weight", "700");
+  t1.setAttribute("fill", "#c8a044");
+  t1.textContent = "Fill in the Blanks";
+  svg.appendChild(t1);
+
+  // Subtitle (Inter)
+  const t2 = document.createElementNS(ns, "text");
+  t2.setAttribute("x", "36"); t2.setAttribute("y", "110");
+  t2.setAttribute("font-family", "'Inter', sans-serif");
+  t2.setAttribute("font-size", "14"); t2.setAttribute("font-weight", "400");
+  t2.setAttribute("fill", "#64748b");
+  t2.textContent = "Fill in the missing number to complete each equation.";
+  svg.appendChild(t2);
+
+  // Equation text (Google Sans Flex bold)
+  const equations = ["3 + ___ = 7", "5 + 2 = ___", "___ + 4 = 9", "8 + ___ = 10"];
+  equations.forEach((eq, i) => {
+    const t = document.createElementNS(ns, "text");
+    t.setAttribute("x", "200"); t.setAttribute("y", String(200 + i * 80));
+    t.setAttribute("font-family", "'Google Sans Flex', sans-serif");
+    t.setAttribute("font-size", "32"); t.setAttribute("font-weight", "700");
+    t.setAttribute("fill", "#1e293b"); t.setAttribute("text-anchor", "middle");
+    t.textContent = eq;
+    svg.appendChild(t);
+  });
+
+  // Name/Date (Inter)
+  const name = document.createElementNS(ns, "text");
+  name.setAttribute("x", "36"); name.setAttribute("y", "45");
+  name.setAttribute("font-family", "'Inter', sans-serif");
+  name.setAttribute("font-size", "12"); name.setAttribute("font-weight", "500");
+  name.setAttribute("fill", "#1e293b");
+  name.textContent = "Name ___________________________";
+  svg.appendChild(name);
+
+  // Fredoka text
+  const fred = document.createElementNS(ns, "text");
+  fred.setAttribute("x", "306"); fred.setAttribute("y", "600");
+  fred.setAttribute("font-family", "'Fredoka', sans-serif");
+  fred.setAttribute("font-size", "18"); fred.setAttribute("font-weight", "500");
+  fred.setAttribute("fill", "#94a3b8"); fred.setAttribute("text-anchor", "middle");
+  fred.textContent = "animalmath.com";
+  svg.appendChild(fred);
+
+  return svg;
+}
+
+// Convert all <text> elements in an SVG to <path> outlines
+async function textToPath(svgEl) {
+  const clone = svgEl.cloneNode(true);
+  // Must be in DOM for text measurement
+  clone.style.cssText = "position:fixed;top:-9999px;left:-9999px;";
+  document.body.appendChild(clone);
+
+  // Wait a frame for fonts to apply
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+  const texts = clone.querySelectorAll("text");
+  const ns = "http://www.w3.org/2000/svg";
+
+  for (const textEl of texts) {
+    try {
+      // Get the rendered position and style
+      const bbox = textEl.getBBox();
+      const style = window.getComputedStyle(textEl);
+      const fill = textEl.getAttribute("fill") || style.fill || "#000";
+      const anchor = textEl.getAttribute("text-anchor") || "start";
+
+      // Create a temporary canvas to get the text as a path
+      // Using Range and getClientRects to measure precisely
+      const fontSize = parseFloat(textEl.getAttribute("font-size") || style.fontSize);
+      const fontFamily = textEl.getAttribute("font-family") || style.fontFamily;
+      const fontWeight = textEl.getAttribute("font-weight") || style.fontWeight;
+      const content = textEl.textContent;
+
+      // Create a canvas and draw the text
+      const canvas = document.createElement("canvas");
+      const scale = 4; // High resolution
+      canvas.width = Math.ceil(bbox.width * scale) + 20;
+      canvas.height = Math.ceil(bbox.height * scale) + 20;
+      const ctx = canvas.getContext("2d");
+      ctx.scale(scale, scale);
+      ctx.font = fontWeight + " " + fontSize + "px " + fontFamily;
+      ctx.fillStyle = fill;
+      ctx.textBaseline = "alphabetic";
+      ctx.fillText(content, 0, bbox.height * 0.8);
+
+      // Convert canvas to image and embed in SVG
+      const dataUrl = canvas.toDataURL("image/png");
+      const img = document.createElementNS(ns, "image");
+
+      let x = parseFloat(textEl.getAttribute("x") || 0);
+      let y = parseFloat(textEl.getAttribute("y") || 0);
+
+      // Adjust for text-anchor
+      if (anchor === "middle") x -= bbox.width / 2;
+      else if (anchor === "end") x -= bbox.width;
+
+      img.setAttribute("x", String(x));
+      img.setAttribute("y", String(y - bbox.height * 0.8));
+      img.setAttribute("width", String(bbox.width));
+      img.setAttribute("height", String(bbox.height));
+      img.setAttribute("href", dataUrl);
+
+      textEl.parentNode.replaceChild(img, textEl);
+    } catch(e) {
+      console.warn("Failed to convert text:", textEl.textContent, e);
+    }
+  }
+
+  document.body.removeChild(clone);
+  return clone;
+}
+
+// Normal PDF (text, may have wrong fonts)
+async function generateNormalPdf() {
+  document.getElementById("status").textContent = "Generating normal PDF...";
+  const svg = createTestSVG();
+  document.body.appendChild(svg);
+  svg.style.cssText = "position:fixed;top:-9999px;";
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "letter" });
+  await pdf.svg(svg, { x: 0, y: 0, width: 612, height: 792 });
+  document.body.removeChild(svg);
+
+  pdf.save("test-normal.pdf");
+  document.getElementById("status").textContent = "Normal PDF downloaded — check if fonts look correct.";
+}
+
+// Path PDF (text converted to high-res images)
+async function generatePathPdf() {
+  document.getElementById("status").textContent = "Converting text to paths...";
+  const svg = createTestSVG();
+  const converted = await textToPath(svg);
+
+  document.getElementById("status").textContent = "Generating path PDF...";
+  converted.style.cssText = "position:fixed;top:-9999px;";
+  document.body.appendChild(converted);
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "letter" });
+  await pdf.svg(converted, { x: 0, y: 0, width: 612, height: 792 });
+  document.body.removeChild(converted);
+
+  pdf.save("test-paths.pdf");
+  document.getElementById("status").textContent = "Path PDF downloaded — fonts should look identical to screen.";
+}
+
+// Show the converted SVG
+async function showConverted() {
+  document.getElementById("status").textContent = "Converting...";
+  const svg = createTestSVG();
+  const converted = await textToPath(svg);
+  converted.style.cssText = "";
+  converted.classList.add("test-svg");
+  const container = document.getElementById("svgContainer");
+  container.innerHTML = "<h3>Original:</h3>";
+  const orig = createTestSVG();
+  orig.classList.add("test-svg");
+  container.appendChild(orig);
+  container.innerHTML += "<h3>Converted (text → images):</h3>";
+  container.appendChild(converted);
+  document.getElementById("status").textContent = "Compare the two SVGs above. The converted one uses embedded images instead of text.";
+}
+
+// Show original SVG on load
+const origSvg = createTestSVG();
+origSvg.classList.add("test-svg");
+document.getElementById("svgContainer").appendChild(origSvg);
+</script>
+</body>
+</html>
