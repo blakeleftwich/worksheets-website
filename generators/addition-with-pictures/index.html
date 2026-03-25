@@ -1330,21 +1330,40 @@ function makeSymbolVB(id, innerHTML, viewBox) {
     async function registerPdfFonts(pdf) {
       if (_fontsRegistered) return;
       const fontFiles = [
-        { file: "../../fonts/googlesansflex-700.ttf", name: "GoogleSansFlex", style: "bold" },
-        { file: "../../fonts/fredoka-400.ttf", name: "Fredoka", style: "normal" },
-        { file: "../../fonts/fredoka-600.ttf", name: "Fredoka", style: "bold" },
-        { file: "../../fonts/dmsans-700.ttf", name: "DMSans", style: "bold" },
-        { file: "../../fonts/inter-500.ttf", name: "Inter", style: "normal" },
+        { file: "../../fonts/googlesansflex-700.ttf", name: "Google Sans Flex", styles: ["bold", "normal"] },
+        { file: "../../fonts/fredoka-400.ttf", name: "Fredoka", styles: ["normal"] },
+        { file: "../../fonts/fredoka-600.ttf", name: "Fredoka", styles: ["bold"] },
+        { file: "../../fonts/dmsans-700.ttf", name: "DM Sans", styles: ["bold", "normal"] },
+        { file: "../../fonts/inter-500.ttf", name: "Inter", styles: ["normal", "bold"] },
       ];
       for (const f of fontFiles) {
         try {
           const resp = await fetch(f.file);
           const buf = await resp.arrayBuffer();
           const b64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
-          const vfsName = f.name + "-" + f.style + ".ttf";
-          pdf.addFileToVFS(vfsName, b64);
-          pdf.addFont(vfsName, f.name, f.style);
+          for (const style of f.styles) {
+            const vfsName = f.name + "-" + style + ".ttf";
+            pdf.addFileToVFS(vfsName, b64);
+            pdf.addFont(vfsName, f.name, style);
+          }
         } catch(e) { console.warn("Font load failed:", f.file, e); }
+      }
+      // Also register with quoted names since SVG uses 'Google Sans Flex'
+      const aliases = [
+        ["'Google Sans Flex'", "Google Sans Flex"],
+        ["'DM Sans'", "DM Sans"],
+        ["'Inter'", "Inter"],
+      ];
+      for (const [alias, real] of aliases) {
+        try {
+          const fontList = pdf.getFontList();
+          if (fontList[real]) {
+            for (const style of Object.keys(fontList[real]).length ? fontList[real] : ["normal", "bold"]) {
+              const vfsName = real + "-" + style + ".ttf";
+              pdf.addFont(vfsName, alias, style);
+            }
+          }
+        } catch(e) {}
       }
       _fontsRegistered = true;
     }
