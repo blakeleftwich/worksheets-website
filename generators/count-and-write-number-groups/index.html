@@ -2778,7 +2778,8 @@ function placeObjectsRowLeftAligned(svg, { iconId, count, x, y, w, h, maxCount, 
 
   // Split Groups mode: render two sub-groups with a gap
   if (splitGroups && splitA !== undefined && splitB > 0) {
-    const gap = 18; // visible gap between the two groups
+    const splitSpacing = 2; // tighter spacing within each group
+    const gap = 28; // larger gap between the two groups
     const halfW = (availW - gap) / 2;
 
     // Per-sub-group sort row max: over 5 items → always rows of 5
@@ -2795,11 +2796,11 @@ function placeObjectsRowLeftAligned(svg, { iconId, count, x, y, w, h, maxCount, 
       if (needsWrap) {
         const perRow = effMax;
         const rows = Math.ceil(subCount / perRow);
-        const sizeByW = (subW - (perRow - 1) * spacing) / perRow;
-        const sizeByH = (h - (rows - 1) * spacing) / rows * 0.9;
+        const sizeByW = (subW - (perRow - 1) * splitSpacing) / perRow;
+        const sizeByH = (h - (rows - 1) * splitSpacing) / rows * 0.9;
         return Math.max(20, Math.min(sizeByW, sizeByH));
       } else {
-        const sizeByW = (subW - (subCount - 1) * spacing) / subCount;
+        const sizeByW = (subW - (subCount - 1) * splitSpacing) / subCount;
         const sizeByH = h * 0.85;
         return Math.max(20, Math.min(sizeByW, sizeByH));
       }
@@ -2818,13 +2819,13 @@ function placeObjectsRowLeftAligned(svg, { iconId, count, x, y, w, h, maxCount, 
       if (needsWrap) {
         const perRow = effMax;
         const rows = Math.ceil(subCount / perRow);
-        const rowH = size + spacing;
-        const totalH = rowH * rows - spacing;
+        const rowH = size + splitSpacing;
+        const totalH = rowH * rows - splitSpacing;
         const sY = y + (h - totalH) / 2;
         for (let i = 0; i < subCount; i++) {
           const row = Math.floor(i / perRow);
           const col = i % perRow;
-          const cx = subStartX + col * (size + spacing) + size / 2;
+          const cx = subStartX + col * (size + splitSpacing) + size / 2;
           const cy = sY + row * rowH + size / 2;
           svg.appendChild(svgEl("use", {
             href: `#${iconId}`,
@@ -2834,7 +2835,7 @@ function placeObjectsRowLeftAligned(svg, { iconId, count, x, y, w, h, maxCount, 
         }
       } else {
         for (let i = 0; i < subCount; i++) {
-          const cx = subStartX + i * (size + spacing) + size / 2;
+          const cx = subStartX + i * (size + splitSpacing) + size / 2;
           const cy = y + h / 2;
           svg.appendChild(svgEl("use", {
             href: `#${iconId}`,
