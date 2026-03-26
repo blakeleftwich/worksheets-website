@@ -506,9 +506,10 @@
           <div class="control-group" style="margin-bottom:12px;">
         <label for="problemsPerSheet">Problems per Sheet</label>
         <select id="problemsPerSheet">
+          <option value="6" selected>6</option>
           <option value="8">8</option>
           <option value="10">10</option>
-          <option value="12" selected>12</option>
+          <option value="12">12</option>
           <option value="15">15</option>
           <option value="20">20</option>
         </select>
@@ -837,10 +838,14 @@
       const availH = pageH - bottomMargin - gridTop;
       const availW = pageW - margin * 2;
 
-      const rowH = availH / count;
+      // 2-column layout
+      const cols = 2;
+      const rows = Math.ceil(count / cols);
+      const colW = availW / cols;
+      const rowH = availH / rows;
       // Size boxes and text based on available row height
-      const boxSize = Math.min(48, Math.max(28, Math.floor(rowH * 0.6)));
-      const fontSize = Math.min(28, Math.max(14, Math.floor(boxSize * 0.6)));
+      const boxSize = Math.min(56, Math.max(28, Math.floor(rowH * 0.55)));
+      const fontSize = Math.min(32, Math.max(14, Math.floor(boxSize * 0.6)));
       const boxGap = Math.min(16, Math.max(6, Math.floor(boxSize * 0.25)));
 
       // Fixed problem number size
@@ -849,14 +854,17 @@
 
       for (let i = 0; i < problems.length; i++) {
         const p = problems[i];
-        const cellTop = gridTop + i * rowH;
+        const col = Math.floor(i / rows);
+        const row = i % rows;
+        const colOffset = col * colW;
+        const cellTop = gridTop + row * rowH;
         const cy = cellTop + rowH / 2;
         const boxY = cy - boxSize / 2;
         const isExample = (i === 0 && includeExample && !showAnswers);
 
         // Problem number
         const probNumY = cy - 0.72 * (fontSize - probNumSize) + fontSize * 0.35;
-        let x = margin;
+        let x = margin + colOffset;
         if (numbered !== false) {
           const numEl = svgEl("text", { x: x, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
           numEl.textContent = (i + 1) + "."; svg.appendChild(numEl);
@@ -868,8 +876,8 @@
 
         // Calculate total width of boxes + gaps to center them
         const totalBoxesW = boxes.length * boxSize + (boxes.length - 1) * boxGap;
-        // Center the boxes in the available width
-        const startX = margin + probNumW + 12 + (availW - probNumW - 12) / 2 - totalBoxesW / 2;
+        // Center the boxes in the column width
+        const startX = margin + colOffset + probNumW + 12 + (colW - probNumW - 12) / 2 - totalBoxesW / 2;
 
         for (let b = 0; b < boxes.length; b++) {
           const bx = startX + b * (boxSize + boxGap);
@@ -895,7 +903,7 @@
               bt.textContent = "Example"; svg.appendChild(bt);
               const ansEl = svgEl("text", {
                 x: bx + boxSize / 2, y: cy + fontSize * 0.35,
-                "text-anchor": "middle", "font-family": "Fredoka, sans-serif",
+                "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif",
                 "font-size": String(fontSize), "font-weight": "700", fill: "#16a34a"
               });
               ansEl.textContent = String(p.answer);
@@ -903,7 +911,7 @@
             } else if (showAnswers) {
               const ansEl = svgEl("text", {
                 x: bx + boxSize / 2, y: cy + fontSize * 0.35,
-                "text-anchor": "middle", "font-family": "Fredoka, sans-serif",
+                "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif",
                 "font-size": String(fontSize), "font-weight": "700", fill: "#3182ce"
               });
               ansEl.textContent = String(p.answer);
@@ -918,7 +926,7 @@
             }));
             const numTxt = svgEl("text", {
               x: bx + boxSize / 2, y: cy + fontSize * 0.35,
-              "text-anchor": "middle", "font-family": "Fredoka, sans-serif",
+              "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif",
               "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c"
             });
             numTxt.textContent = String(val);
