@@ -845,6 +845,7 @@ function updateStyleDependentOptions() {
     orgSel.add(new Option("Scattered", "scattered"));
     orgSel.add(new Option("Split Groups", "split"));
     orgSel.add(new Option("Both", "both"));
+    orgSel.add(new Option("Scattered & Split Groups", "scatsplit"));
     orgSel.add(new Option("Mixed", "mixed"));
   }
   // Restore previous value if still valid
@@ -1202,6 +1203,11 @@ function renderWithNewRandomization() {
         const pick = mixedOptions[Math.floor(Math.random() * mixedOptions.length)];
         p.orgSplit = (pick === "split" || pick === "both");
         p.orgScattered = (pick === "scattered" || pick === "both");
+      } else if (orgVal === "scatsplit") {
+        // Randomly assign each problem as either scattered-only or split-only (not both)
+        const pick = Math.random() < 0.5 ? "scattered" : "split";
+        p.orgSplit = (pick === "split");
+        p.orgScattered = (pick === "scattered");
       } else {
         p.orgSplit = (orgVal === "split" || orgVal === "both");
         p.orgScattered = (orgVal === "scattered" || orgVal === "both");
