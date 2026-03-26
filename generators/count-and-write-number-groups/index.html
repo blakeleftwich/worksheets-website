@@ -503,10 +503,20 @@
           <option value="1-3">1 to 3</option>
           <option value="3-5">3 to 5</option>
           <option value="1-5" selected>1 to 5</option>
+          <option value="3-10">3 to 10</option>
           <option value="5-10">5 to 10</option>
           <option value="1-10">1 to 10</option>
           <option value="10-20">10 to 20</option>
           <option value="1-20">1 to 20</option>
+        </select>
+      </div>
+
+      <div class="control-group" id="problemsGroup">
+        <label for="problems">Problems Per Page</label>
+        <select id="problems">
+          <option value="5">5</option>
+          <option value="6" selected>6</option>
+          <option value="8">8</option>
         </select>
       </div>
 
@@ -538,11 +548,6 @@
           <option value="10">10</option>
         </select>
       </div>
-
-          <select id="problems" style="display:none;">
-            <option value="5">5</option>
-            <option value="6" selected>6</option>
-          </select>
 
           <!-- Number of choices (circle mode) -->
           <div class="control-group" id="numChoicesGroup" style="display:none;">
@@ -809,12 +814,18 @@ function updateStyleDependentOptions() {
   const isOneCol = style === 2;
   const isCircle = mode === "circle";
 
-  // Problems per sheet: auto-set based on style (no user choice)
+  // Problems per sheet: update options based on style
   const sel = document.getElementById("problems");
+  const currentVal = sel.value;
+  sel.innerHTML = "";
   if (isOneCol) {
-    sel.value = "5";
+    sel.add(new Option("5", "5"));
+    sel.add(new Option("6", "6"));
+    sel.value = (currentVal === "5" || currentVal === "6") ? currentVal : "5";
   } else {
-    sel.value = "6";
+    sel.add(new Option("6", "6"));
+    sel.add(new Option("8", "8"));
+    sel.value = (currentVal === "6" || currentVal === "8") ? currentVal : "6";
   }
 
   // Scattered: hide for 1-column
@@ -830,6 +841,8 @@ function updateStyleDependentOptions() {
 updateStyleDependentOptions();
 elStyle.addEventListener("change", () => { updateStyleDependentOptions(); renderWithNewRandomization(); });
 
+// Problems per page
+document.getElementById("problems").addEventListener("change", () => renderWithNewRandomization());
 // Sort Rows checkbox
 elSortRows.addEventListener("change", () => renderWithoutRandomization());
 elSplitGroups.addEventListener("change", () => renderWithNewRandomization());
