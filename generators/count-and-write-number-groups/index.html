@@ -572,6 +572,12 @@
             <label for="sortRows">Sort Rows</label>
           </div>
 
+          <!-- Larger Group First -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="largerGroupFirst" checked />
+            <label for="largerGroupFirst">Larger Group First</label>
+          </div>
+
           <!-- Organization -->
           <div class="control-group" id="organizationGroup">
             <label for="organization">Arrangement</label>
@@ -810,6 +816,7 @@ updateAllowZeroVisibility();
 
 // Declare these before updateStyleDependentOptions which references them
 const elSortRows = document.getElementById("sortRows");
+const elLargerGroupFirst = document.getElementById("largerGroupFirst");
 const elSplitGroups = document.getElementById("splitGroups");
 const elScattered = document.getElementById("scattered");
 const elOrganization = document.getElementById("organization");
@@ -864,6 +871,7 @@ elStyle.addEventListener("change", () => { updateStyleDependentOptions(); render
 document.getElementById("problems").addEventListener("change", () => renderWithNewRandomization());
 // Sort Rows checkbox
 elSortRows.addEventListener("change", () => renderWithoutRandomization());
+elLargerGroupFirst.addEventListener("change", () => renderWithoutRandomization());
 elSplitGroups.addEventListener("change", () => renderWithNewRandomization());
 elScattered.addEventListener("change", () => renderWithNewRandomization());
 elOrganization.addEventListener("change", () => {
@@ -1240,6 +1248,10 @@ function renderWithNewRandomization() {
           const splitA = minGroup + Math.floor(Math.random() * (maxGroup - minGroup + 1));
           p.splitA = splitA;
           p.splitB = p.count - splitA;
+        }
+        // Ensure larger group is first when checkbox is checked
+        if (elLargerGroupFirst.checked && p.splitA < p.splitB) {
+          [p.splitA, p.splitB] = [p.splitB, p.splitA];
         }
       }
     }
