@@ -1080,22 +1080,24 @@
 
         // Instruction text above the line — large header font for equations
         const instrX = margin + 18;
-        const eqFontSize = 28;
+        const eqFontSize = 32;
         const textFontSize = 20;
+        const eqCharW = eqFontSize * 0.55;
+        const eqSpacing = eqFontSize * 0.6; // space between = and underline
 
         if (prob.mode === "addition") {
           const eqText = prob.a + " + " + prob.b + " = ";
           const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "'Google Sans Flex', sans-serif", "font-size": eqFontSize, "font-weight": "700", fill: "#1a202c" });
           instrEl.textContent = eqText;
           svg.appendChild(instrEl);
-          const lineStartX = instrX + eqText.length * eqFontSize * 0.55;
+          const lineStartX = instrX + eqText.length * eqCharW + eqSpacing;
           svg.appendChild(svgEl("line", { x1: lineStartX, y1: instructionY + 4, x2: lineStartX + 60, y2: instructionY + 4, stroke: "#cbd5e1", "stroke-width": 1.5 }));
         } else if (prob.mode === "subtraction") {
           const eqText = prob.a + " \u2212 " + prob.b + " = ";
           const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "'Google Sans Flex', sans-serif", "font-size": eqFontSize, "font-weight": "700", fill: "#1a202c" });
           instrEl.textContent = eqText;
           svg.appendChild(instrEl);
-          const lineStartX = instrX + eqText.length * eqFontSize * 0.55;
+          const lineStartX = instrX + eqText.length * eqCharW + eqSpacing;
           svg.appendChild(svgEl("line", { x1: lineStartX, y1: instructionY + 4, x2: lineStartX + 60, y2: instructionY + 4, stroke: "#cbd5e1", "stroke-width": 1.5 }));
         } else if (prob.mode === "place") {
           const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": textFontSize, "font-weight": "600", fill: "#1a202c" });
@@ -1232,46 +1234,44 @@
 
         // Show Jumps: draw arc jumps above the number line for addition/subtraction
         if (showJumps && !showAnswers && !isExample) {
+          const jumpColor = "#94a3b8";
+          const dotR = 4;
           if (prob.mode === "addition") {
             const hopCount = prob.b;
+            // Filled circle at start
+            const startX = lineX1 + ((prob.a - lineStart) / totalRange) * lineW;
+            svg.appendChild(svgEl("circle", { cx: startX, cy: lineY, r: dotR, fill: jumpColor }));
             for (let h = 0; h < hopCount; h++) {
               const hopFrom = prob.a + h;
               const hopTo = prob.a + h + 1;
               const x1 = lineX1 + ((hopFrom - lineStart) / totalRange) * lineW;
               const x2 = lineX1 + ((hopTo - lineStart) / totalRange) * lineW;
-              const arcH = Math.min(15, Math.abs(x2 - x1) * 0.5);
+              const arcH = Math.min(22, Math.abs(x2 - x1) * 0.7);
               const midArcX = (x1 + x2) / 2;
-              const pathD = "M " + x1 + " " + lineY + " Q " + midArcX + " " + (lineY - arcH - 6) + " " + x2 + " " + lineY;
-              svg.appendChild(svgEl("path", { d: pathD, fill: "none", stroke: "#f59e0b", "stroke-width": "1.5" }));
-              // Arrowhead on last hop pointing right
-              if (h === hopCount - 1) {
-                const arrSize = 3;
-                svg.appendChild(svgEl("polygon", {
-                  points: x2 + "," + lineY + " " + (x2 - arrSize) + "," + (lineY - arrSize) + " " + (x2 - arrSize) + "," + (lineY + arrSize - 1),
-                  fill: "#f59e0b"
-                }));
-              }
+              const pathD = "M " + x1 + " " + lineY + " Q " + midArcX + " " + (lineY - arcH - 8) + " " + x2 + " " + lineY;
+              svg.appendChild(svgEl("path", { d: pathD, fill: "none", stroke: jumpColor, "stroke-width": "1.5" }));
             }
+            // Open circle at end
+            const endX = lineX1 + ((prob.a + prob.b - lineStart) / totalRange) * lineW;
+            svg.appendChild(svgEl("circle", { cx: endX, cy: lineY, r: dotR, fill: "#fff", stroke: jumpColor, "stroke-width": "1.5" }));
           } else if (prob.mode === "subtraction") {
             const hopCount = prob.b;
+            // Filled circle at start
+            const startX = lineX1 + ((prob.a - lineStart) / totalRange) * lineW;
+            svg.appendChild(svgEl("circle", { cx: startX, cy: lineY, r: dotR, fill: jumpColor }));
             for (let h = 0; h < hopCount; h++) {
               const hopFrom = prob.a - h;
               const hopTo = prob.a - h - 1;
               const x1 = lineX1 + ((hopFrom - lineStart) / totalRange) * lineW;
               const x2 = lineX1 + ((hopTo - lineStart) / totalRange) * lineW;
-              const arcH = Math.min(15, Math.abs(x2 - x1) * 0.5);
+              const arcH = Math.min(22, Math.abs(x2 - x1) * 0.7);
               const midArcX = (x1 + x2) / 2;
-              const pathD = "M " + x1 + " " + lineY + " Q " + midArcX + " " + (lineY - arcH - 6) + " " + x2 + " " + lineY;
-              svg.appendChild(svgEl("path", { d: pathD, fill: "none", stroke: "#f59e0b", "stroke-width": "1.5" }));
-              // Arrowhead on last hop pointing left
-              if (h === hopCount - 1) {
-                const arrSize = 3;
-                svg.appendChild(svgEl("polygon", {
-                  points: x2 + "," + lineY + " " + (x2 + arrSize) + "," + (lineY - arrSize) + " " + (x2 + arrSize) + "," + (lineY + arrSize - 1),
-                  fill: "#f59e0b"
-                }));
-              }
+              const pathD = "M " + x1 + " " + lineY + " Q " + midArcX + " " + (lineY - arcH - 8) + " " + x2 + " " + lineY;
+              svg.appendChild(svgEl("path", { d: pathD, fill: "none", stroke: jumpColor, "stroke-width": "1.5" }));
             }
+            // Open circle at end
+            const endX = lineX1 + ((prob.a - prob.b - lineStart) / totalRange) * lineW;
+            svg.appendChild(svgEl("circle", { cx: endX, cy: lineY, r: dotR, fill: "#fff", stroke: jumpColor, "stroke-width": "1.5" }));
           }
         }
       }
