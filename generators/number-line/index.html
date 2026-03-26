@@ -1082,22 +1082,29 @@
         const instrX = margin + 18;
         const eqFontSize = count <= 4 ? 32 : count <= 5 ? 28 : 24;
         const textFontSize = count <= 4 ? 20 : count <= 5 ? 18 : 16;
-        const eqCharW = eqFontSize * 0.55;
-        const eqSpacing = eqCharW; // one character width between = and underline
+        // Measure text width: digits ~0.55em, spaces ~0.28em, operators ~0.55em
+        function approxTextW(text, fs) {
+          let w = 0;
+          for (const ch of text) {
+            if (ch === ' ') w += fs * 0.28;
+            else w += fs * 0.55;
+          }
+          return w;
+        }
 
         if (prob.mode === "addition") {
           const eqText = prob.a + " + " + prob.b + " = ";
           const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "'Google Sans Flex', sans-serif", "font-size": eqFontSize, "font-weight": "700", fill: "#1a202c" });
           instrEl.textContent = eqText;
           svg.appendChild(instrEl);
-          const ulStartX = instrX + eqText.length * eqCharW;
+          const ulStartX = instrX + approxTextW(eqText, eqFontSize) + eqFontSize * 0.15;
           svg.appendChild(svgEl("line", { x1: ulStartX, y1: instructionY + 4, x2: ulStartX + 50, y2: instructionY + 4, stroke: "#cbd5e1", "stroke-width": 1.5 }));
         } else if (prob.mode === "subtraction") {
           const eqText = prob.a + " \u2212 " + prob.b + " = ";
           const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "'Google Sans Flex', sans-serif", "font-size": eqFontSize, "font-weight": "700", fill: "#1a202c" });
           instrEl.textContent = eqText;
           svg.appendChild(instrEl);
-          const ulStartX = instrX + eqText.length * eqCharW;
+          const ulStartX = instrX + approxTextW(eqText, eqFontSize) + eqFontSize * 0.15;
           svg.appendChild(svgEl("line", { x1: ulStartX, y1: instructionY + 4, x2: ulStartX + 50, y2: instructionY + 4, stroke: "#cbd5e1", "stroke-width": 1.5 }));
         } else if (prob.mode === "place") {
           const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": textFontSize, "font-weight": "600", fill: "#1a202c" });
