@@ -1354,7 +1354,7 @@
       // Horizontal layout: 2 columns for most cases, 1 column for very large numbers
       let cols;
       if (maxDigits >= 5) cols = 1;
-      else cols = count <= 10 ? (count <= 8 && count > 4 ? 2 : 1) : 2;
+      else cols = count <= 10 ? (count > 4 ? 2 : 1) : 2;
       if (count > 10 && cols === 1) cols = 2;
       const rows = Math.ceil(count / cols);
       const colW = availW / cols, rowH = availH / rows;
