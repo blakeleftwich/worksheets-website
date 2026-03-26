@@ -1201,21 +1201,30 @@ function renderWithNewRandomization() {
     // "none" = standard, "scattered" = all scattered, "split" = all split groups
     // "mixed" = mix of scattered + split (not both), "both" = all scattered split groups
     // "allmixed" = mix of scattered, split, and scattered split groups
-    const mixedOptions = ["scattered", "split"]; // for "mixed" mode
-    const allMixedOptions = ["scattered", "split", "both"]; // for "allmixed" mode
-    for (const p of problems) {
-      if (orgVal === "mixed") {
-        const pick = mixedOptions[Math.floor(Math.random() * mixedOptions.length)];
-        p.orgSplit = (pick === "split");
-        p.orgScattered = (pick === "scattered");
-      } else if (orgVal === "allmixed") {
-        const pick = allMixedOptions[Math.floor(Math.random() * allMixedOptions.length)];
-        p.orgSplit = (pick === "split" || pick === "both");
-        p.orgScattered = (pick === "scattered" || pick === "both");
-      } else {
+    // For mixed modes, distribute types evenly then shuffle
+    if (orgVal === "mixed" || orgVal === "allmixed") {
+      const types = orgVal === "mixed" ? ["scattered", "split"] : ["scattered", "split", "both"];
+      const assignments = [];
+      for (let t = 0; t < problems.length; t++) {
+        assignments.push(types[t % types.length]);
+      }
+      // Shuffle assignments
+      for (let t = assignments.length - 1; t > 0; t--) {
+        const j = Math.floor(Math.random() * (t + 1));
+        [assignments[t], assignments[j]] = [assignments[j], assignments[t]];
+      }
+      for (let t = 0; t < problems.length; t++) {
+        const pick = assignments[t];
+        problems[t].orgSplit = (pick === "split" || pick === "both");
+        problems[t].orgScattered = (pick === "scattered" || pick === "both");
+      }
+    } else {
+      for (const p of problems) {
         p.orgSplit = (orgVal === "split" || orgVal === "both");
         p.orgScattered = (orgVal === "scattered" || orgVal === "both");
       }
+    }
+    for (const p of problems) {
       // Generate split data if this problem uses split
       if (p.orgSplit) {
         if (p.count === 0 || p.count === 1) {
