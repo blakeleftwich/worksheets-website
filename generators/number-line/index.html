@@ -466,12 +466,36 @@
       <div class="control-group">
         <label for="rangeSelect">Number Range</label>
         <select id="rangeSelect">
-          <option value="10">0 &#8211; 10</option>
-          <option value="20" selected>0 &#8211; 20</option>
-          <option value="50">0 &#8211; 50</option>
-          <option value="100">0 &#8211; 100</option>
+          <option value="5">1 &#8211; 5</option>
+          <option value="10" selected>1 &#8211; 10</option>
+          <option value="20">1 &#8211; 20</option>
+          <option value="50">1 &#8211; 50</option>
+          <option value="100">1 &#8211; 100</option>
         </select>
       </div>
+      <div class="control-group">
+        <label for="problemsPerSheet">Number of Problems</label>
+        <select id="problemsPerSheet">
+          <option value="4" selected>4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+
+      <div class="checkbox-row" style="margin-bottom:8px;">
+        <label>
+          <input type="checkbox" id="startWithZero">
+          <span>Start With Zero</span>
+        </label>
+      </div>
+
+      <div class="checkbox-row" style="margin-bottom:8px;">
+        <label>
+          <input type="checkbox" id="showJumps">
+          <span>Show Jumps</span>
+        </label>
+      </div>
+
       <div class="checkbox-row" style="margin-bottom:12px;">
         <label>
           <input type="checkbox" id="answerKey">
@@ -598,7 +622,7 @@
     const sheetWrap = document.getElementById("sheetWrap");
     const elMode = document.getElementById("modeSelect");
     const elRange = document.getElementById("rangeSelect");
-    // Problems per sheet removed — always 4
+    const elProblems = document.getElementById("problemsPerSheet");
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
@@ -613,6 +637,8 @@
     const elTitleInputWrap = document.getElementById("titleInputWrap");
     const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
     const elBranded = document.getElementById("branded");
+    const elStartWithZero = document.getElementById("startWithZero");
+    const elShowJumps = document.getElementById("showJumps");
     const elNumbered = document.getElementById("numbered");
     const elAnswerPositions = document.getElementById("answerPositions");
     const elIncludeExample = document.getElementById("includeExample") || { checked: false, addEventListener: function(){} };
@@ -668,16 +694,17 @@
     }
 
     function generateProblems(count, opts) {
-      const { mode, rangeMax, answerPositions = "on" } = opts;
+      const { mode, rangeMax, answerPositions = "on", startWithZero = false } = opts;
+      const lineStartVal = startWithZero ? 0 : 1;
       const problems = [];
       const seen = new Set();
       let attempts = 0;
       const step = getTickStep(rangeMax);
       // Tick values excluding endpoints (candidates for on-tick answers)
       const ticksInner = [];
-      for (let v = step; v < rangeMax; v += step) ticksInner.push(v);
-      // All tick values including endpoints
-      const ticksAll = getTickValues(rangeMax);
+      for (let v = Math.max(step, lineStartVal); v < rangeMax; v += step) ticksInner.push(v);
+      // All tick values including endpoints (starting from lineStartVal)
+      const ticksAll = getTickValues(rangeMax).filter(v => v >= lineStartVal);
 
       while (problems.length < count && attempts < count * 200) {
         attempts++;
@@ -728,7 +755,7 @@
           const key = "add:" + a + "+" + b;
           if (seen.has(key)) continue;
           seen.add(key);
-          problem = { mode: "addition", a, b, answer, lineStart: 0, lineEnd: rangeMax };
+          problem = { mode: "addition", a, b, answer, lineStart: lineStartVal, lineEnd: rangeMax };
 
         } else if (mode === "subtraction") {
           let a, b, answer;
@@ -768,7 +795,7 @@
           const key = "sub:" + a + "-" + b;
           if (seen.has(key)) continue;
           seen.add(key);
-          problem = { mode: "subtraction", a, b, answer, lineStart: 0, lineEnd: rangeMax };
+          problem = { mode: "subtraction", a, b, answer, lineStart: lineStartVal, lineEnd: rangeMax };
 
         } else if (mode === "place") {
           let target;
@@ -788,7 +815,7 @@
           const key = "place:" + target;
           if (seen.has(key)) continue;
           seen.add(key);
-          problem = { mode: "place", target, lineStart: 0, lineEnd: rangeMax };
+          problem = { mode: "place", target, lineStart: lineStartVal, lineEnd: rangeMax };
 
         } else if (mode === "missing") {
           // Missing mode: blanks are always from tick label positions (this is inherent to the mode)
@@ -808,7 +835,7 @@
           const key = "miss:" + blanks.join(",");
           if (seen.has(key)) continue;
           seen.add(key);
-          problem = { mode: "missing", blanks, lineStart: 0, lineEnd: rangeMax };
+          problem = { mode: "missing", blanks, lineStart: lineStartVal, lineEnd: rangeMax };
         }
 
         if (problem) problems.push(problem);
@@ -825,14 +852,14 @@
               const answer = validAnswers[randInt(0, validAnswers.length - 1)];
               const b = answer - a;
               if (a > 0 && b > 0) {
-                problems.push({ mode: "addition", a, b, answer, lineStart: 0, lineEnd: rangeMax });
+                problems.push({ mode: "addition", a, b, answer, lineStart: lineStartVal, lineEnd: rangeMax });
                 continue;
               }
             }
           }
           const a = randInt(1, Math.max(1, rangeMax - 1));
           const b = randInt(1, Math.max(1, rangeMax - a));
-          problems.push({ mode: "addition", a, b, answer: a + b, lineStart: 0, lineEnd: rangeMax });
+          problems.push({ mode: "addition", a, b, answer: a + b, lineStart: lineStartVal, lineEnd: rangeMax });
         } else if (mode === "subtraction") {
           if (ticksAll.length >= 3) {
             const validA = ticksAll.filter(v => v > 0);
@@ -841,20 +868,20 @@
               const validAnswers = ticksAll.filter(v => v < a);
               if (validAnswers.length > 0) {
                 const answer = validAnswers[randInt(0, validAnswers.length - 1)];
-                problems.push({ mode: "subtraction", a, b: a - answer, answer, lineStart: 0, lineEnd: rangeMax });
+                problems.push({ mode: "subtraction", a, b: a - answer, answer, lineStart: lineStartVal, lineEnd: rangeMax });
                 continue;
               }
             }
           }
           const a = randInt(2, rangeMax);
           const b = randInt(1, a);
-          problems.push({ mode: "subtraction", a, b, answer: a - b, lineStart: 0, lineEnd: rangeMax });
+          problems.push({ mode: "subtraction", a, b, answer: a - b, lineStart: lineStartVal, lineEnd: rangeMax });
         } else if (mode === "place") {
           const target = ticksInner.length > 0 ? ticksInner[randInt(0, ticksInner.length - 1)] : randInt(1, rangeMax - 1);
-          problems.push({ mode: "place", target, lineStart: 0, lineEnd: rangeMax });
+          problems.push({ mode: "place", target, lineStart: lineStartVal, lineEnd: rangeMax });
         } else {
           const blank = ticksInner.length > 0 ? ticksInner[randInt(0, ticksInner.length - 1)] : 1;
-          problems.push({ mode: "missing", blanks: [blank], lineStart: 0, lineEnd: rangeMax });
+          problems.push({ mode: "missing", blanks: [blank], lineStart: lineStartVal, lineEnd: rangeMax });
         }
       }
 
@@ -878,7 +905,8 @@
         place: "Place the Number",
         missing: "Missing Numbers"
       };
-      return (names[mode] || "Number Line") + " (0\u2013" + rangeMax + ")";
+      const rangeStart = elStartWithZero.checked ? 0 : 1;
+      return (names[mode] || "Number Line") + " (" + rangeStart + "\u2013" + rangeMax + ")";
     }
 
     function getSubtitle() {
@@ -897,7 +925,7 @@
         mode: elMode.value,
         rangeMax: parseInt(elRange.value, 10),
         numWorksheets: parseInt(elNumSheets.value, 10),
-        problemsPerSheet: 4,
+        problemsPerSheet: parseInt(elProblems.value, 10),
         showHeader,
         title,
         subtitle,
@@ -906,12 +934,14 @@
         answerPositions: elAnswerPositions.value, // "on", "between", "mixed"
         numbered: elNumbered.checked,
         includeExample: elIncludeExample.checked,
+        startWithZero: elStartWithZero.checked,
+        showJumps: elShowJumps.checked,
       };
     }
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options, wsCode) {
-      const { showHeader, title, subtitle, branded, showAnswers, numbered, includeExample, isAnswerKey } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, numbered, includeExample, isAnswerKey, showJumps } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", { width: pageW, height: pageH, viewBox: "0 0 " + pageW + " " + pageH, xmlns: "http://www.w3.org/2000/svg" });
       svg.appendChild(svgEl("rect", { x: 0, y: 0, width: pageW, height: pageH, fill: "#fff" }));
@@ -1000,14 +1030,23 @@
         // Determine number line parameters
         const lineStart = prob.lineStart;
         const lineEnd = prob.lineEnd;
-        const totalTicks = lineEnd - lineStart;
+        const totalRange = lineEnd - lineStart;
 
-        // Decide tick step for large ranges
+        // Decide tick step for large ranges (based on rangeMax to match generation)
         let step = 1;
-        if (totalTicks > 50) step = 10;
-        else if (totalTicks > 20) step = 5;
-        else if (totalTicks > 10) step = 2;
-        const tickCount = Math.floor(totalTicks / step) + 1;
+        if (lineEnd > 50) step = 10;
+        else if (lineEnd > 20) step = 5;
+        else if (lineEnd > 10) step = 2;
+
+        // Build tick values aligned to multiples of step, starting from lineStart
+        const tickValues = [];
+        // First tick at lineStart (or next multiple of step if lineStart isn't aligned)
+        const firstTick = lineStart === 0 ? 0 : (Math.ceil(lineStart / step) * step === lineStart ? lineStart : Math.ceil(lineStart / step) * step);
+        // If lineStart itself should be shown (e.g. 1 on a step-2 line), include it
+        if (lineStart < firstTick) tickValues.push(lineStart);
+        for (let v = firstTick; v <= lineEnd; v += step) tickValues.push(v);
+        if (tickValues[tickValues.length - 1] !== lineEnd) tickValues.push(lineEnd);
+        const tickCount = tickValues.length;
 
         // Layout within slot
         const lineLeftPad = 24;
@@ -1017,7 +1056,7 @@
         const lineW = lineX2 - lineX1;
 
         // Vertical positioning within slot — equation closer to number line, tighter spacing
-        const instructionY = slotTop + 24;
+        const instructionY = slotTop + slotH * 0.30;
         const lineY = slotTop + slotH * 0.58;
         const tickH = 8;
         const labelY = lineY + tickH + 14;
@@ -1041,8 +1080,8 @@
 
         // Instruction text above the line — large header font for equations
         const instrX = margin + 18;
-        const eqFontSize = 20;
-        const textFontSize = 16;
+        const eqFontSize = 28;
+        const textFontSize = 20;
 
         if (prob.mode === "addition") {
           const eqText = prob.a + " + " + prob.b + " = ";
@@ -1092,8 +1131,8 @@
         const labelFontSize = tickCount > 26 ? 7 : tickCount > 15 ? 9 : 11;
 
         for (let t = 0; t < tickCount; t++) {
-          const val = lineStart + t * step;
-          const x = lineX1 + (t / (tickCount - 1)) * lineW;
+          const val = tickValues[t];
+          const x = lineX1 + ((val - lineStart) / totalRange) * lineW;
 
           // Tick mark
           svg.appendChild(svgEl("line", { x1: x, y1: lineY - tickH, x2: x, y2: lineY + tickH, stroke: "#1a202c", "stroke-width": "1" }));
@@ -1136,7 +1175,7 @@
         // Answer key drawings (or example pre-fill)
         if (isExample) {
           if (prob.mode === "addition") {
-            drawHops(svg, prob.a, prob.a + prob.b, 1, lineX1, lineY, lineW, tickCount, lineStart, step, "#16a34a");
+            drawHops(svg, prob.a, prob.a + prob.b, 1, lineX1, lineY, lineW, totalRange, lineStart, step, "#16a34a");
             const ansEl = svgEl("text", {
               x: instrX + String(prob.a + " + " + prob.b + " = ").length * eqFontSize * 0.55,
               y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": eqFontSize, "font-weight": "700", fill: "#16a34a"
@@ -1144,7 +1183,7 @@
             ansEl.textContent = prob.answer;
             svg.appendChild(ansEl);
           } else if (prob.mode === "subtraction") {
-            drawHops(svg, prob.a, prob.a - prob.b, -1, lineX1, lineY, lineW, tickCount, lineStart, step, "#16a34a");
+            drawHops(svg, prob.a, prob.a - prob.b, -1, lineX1, lineY, lineW, totalRange, lineStart, step, "#16a34a");
             const ansEl = svgEl("text", {
               x: instrX + String(prob.a + " \u2212 " + prob.b + " = ").length * eqFontSize * 0.55,
               y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": eqFontSize, "font-weight": "700", fill: "#16a34a"
@@ -1161,7 +1200,7 @@
         } else if (showAnswers) {
           if (prob.mode === "addition") {
             // Draw hops from a to a+b
-            drawHops(svg, prob.a, prob.a + prob.b, 1, lineX1, lineY, lineW, tickCount, lineStart, step, "#3182ce");
+            drawHops(svg, prob.a, prob.a + prob.b, 1, lineX1, lineY, lineW, totalRange, lineStart, step, "#3182ce");
             // Show answer next to equation
             const ansEl = svgEl("text", {
               x: instrX + String(prob.a + " + " + prob.b + " = ").length * eqFontSize * 0.55,
@@ -1172,7 +1211,7 @@
 
           } else if (prob.mode === "subtraction") {
             // Draw hops from a backwards to a-b
-            drawHops(svg, prob.a, prob.a - prob.b, -1, lineX1, lineY, lineW, tickCount, lineStart, step, "#e53e3e");
+            drawHops(svg, prob.a, prob.a - prob.b, -1, lineX1, lineY, lineW, totalRange, lineStart, step, "#e53e3e");
             // Show answer
             const ansEl = svgEl("text", {
               x: instrX + String(prob.a + " \u2212 " + prob.b + " = ").length * eqFontSize * 0.55,
@@ -1190,14 +1229,58 @@
           }
           // missing mode answers are handled inline above (blue numbers)
         }
+
+        // Show Jumps: draw arc jumps above the number line for addition/subtraction
+        if (showJumps && !showAnswers && !isExample) {
+          if (prob.mode === "addition") {
+            const hopCount = prob.b;
+            for (let h = 0; h < hopCount; h++) {
+              const hopFrom = prob.a + h;
+              const hopTo = prob.a + h + 1;
+              const x1 = lineX1 + ((hopFrom - lineStart) / totalRange) * lineW;
+              const x2 = lineX1 + ((hopTo - lineStart) / totalRange) * lineW;
+              const arcH = Math.min(15, Math.abs(x2 - x1) * 0.5);
+              const midArcX = (x1 + x2) / 2;
+              const pathD = "M " + x1 + " " + lineY + " Q " + midArcX + " " + (lineY - arcH - 6) + " " + x2 + " " + lineY;
+              svg.appendChild(svgEl("path", { d: pathD, fill: "none", stroke: "#f59e0b", "stroke-width": "1.5" }));
+              // Arrowhead on last hop pointing right
+              if (h === hopCount - 1) {
+                const arrSize = 3;
+                svg.appendChild(svgEl("polygon", {
+                  points: x2 + "," + lineY + " " + (x2 - arrSize) + "," + (lineY - arrSize) + " " + (x2 - arrSize) + "," + (lineY + arrSize - 1),
+                  fill: "#f59e0b"
+                }));
+              }
+            }
+          } else if (prob.mode === "subtraction") {
+            const hopCount = prob.b;
+            for (let h = 0; h < hopCount; h++) {
+              const hopFrom = prob.a - h;
+              const hopTo = prob.a - h - 1;
+              const x1 = lineX1 + ((hopFrom - lineStart) / totalRange) * lineW;
+              const x2 = lineX1 + ((hopTo - lineStart) / totalRange) * lineW;
+              const arcH = Math.min(15, Math.abs(x2 - x1) * 0.5);
+              const midArcX = (x1 + x2) / 2;
+              const pathD = "M " + x1 + " " + lineY + " Q " + midArcX + " " + (lineY - arcH - 6) + " " + x2 + " " + lineY;
+              svg.appendChild(svgEl("path", { d: pathD, fill: "none", stroke: "#f59e0b", "stroke-width": "1.5" }));
+              // Arrowhead on last hop pointing left
+              if (h === hopCount - 1) {
+                const arrSize = 3;
+                svg.appendChild(svgEl("polygon", {
+                  points: x2 + "," + lineY + " " + (x2 + arrSize) + "," + (lineY - arrSize) + " " + (x2 + arrSize) + "," + (lineY + arrSize - 1),
+                  fill: "#f59e0b"
+                }));
+              }
+            }
+          }
+        }
       }
 
       return svg;
     }
 
     // Draw hop arcs on number line
-    function drawHops(svg, from, to, direction, lineX1, lineY, lineW, tickCount, lineStart, step, color) {
-      const totalRange = (tickCount - 1) * step;
+    function drawHops(svg, from, to, direction, lineX1, lineY, lineW, totalRange, lineStart, step, color) {
       const hopCount = Math.abs(to - from);
 
       // For large ranges with step > 1, draw grouped hops
@@ -1329,7 +1412,7 @@
       if (isMobile()) {
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample, showJumps: opts.showJumps }, '(' + (s + 1) + ')');
           p.appendChild(v); sheetWrap.appendChild(p);
         }
         return;
@@ -1349,12 +1432,12 @@
         sheetWrap.style.padding = numSheets >= 3 ? "0 " + ep + "px" : "0";
         for (let s = 0; s < numSheets; s++) {
           const p = document.createElement("div"); p.className = "worksheet-page";
-          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }, '(' + (s + 1) + ')');
+          const v = renderWorksheetSVG(currentState.sheets[s], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample, showJumps: opts.showJumps }, '(' + (s + 1) + ')');
           v.setAttribute("width", sw); v.setAttribute("height", sh); p.appendChild(v); sheetWrap.appendChild(p);
         }
       } else {
         const p = document.createElement("div"); p.className = "worksheet-page";
-        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample }, '(1)');
+        const v = renderWorksheetSVG(currentState.sheets[0], { showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample, showJumps: opts.showJumps }, '(1)');
         p.appendChild(v); sheetWrap.appendChild(p);
       }
     }
@@ -1452,7 +1535,7 @@
       const wsCodes = currentState.sheets.map((_, i) => '(' + (i + 1) + ')');
       if (opts.answerKey) {
               for (let i = 0; i < currentState.sheets.length; i++) {
-                svgPages.push(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: true, numbered: opts.numbered, isAnswerKey: true, includeExample: false }, wsCodes[i]));
+                svgPages.push(renderWorksheetSVG(currentState.sheets[i], { showHeader: "none", title: opts.title, subtitle: opts.subtitle, branded: opts.branded, showAnswers: true, numbered: opts.numbered, isAnswerKey: true, includeExample: false, showJumps: opts.showJumps }, wsCodes[i]));
               }
             }
       const fontCSS = await buildFontCSS();
@@ -1514,6 +1597,9 @@
     // ===== Event Listeners =====
     elMode.addEventListener("change", () => renderWithNewRandomization());
     elRange.addEventListener("change", () => renderWithNewRandomization());
+    elProblems.addEventListener("change", () => renderWithNewRandomization());
+    elStartWithZero.addEventListener("change", () => renderWithNewRandomization());
+    elShowJumps.addEventListener("change", () => renderWithoutRandomization());
     // elProblems removed — always 4 problems
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elShowHeaderEnabled.addEventListener("change", () => {
