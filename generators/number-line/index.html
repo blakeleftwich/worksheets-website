@@ -1083,7 +1083,7 @@
         const eqFontSize = 32;
         const textFontSize = 20;
         const eqCharW = eqFontSize * 0.55;
-        const eqSpacing = eqFontSize * 0.6; // space between = and underline
+        const eqSpacing = eqCharW; // one character width between = and underline
 
         if (prob.mode === "addition") {
           const eqText = prob.a + " + " + prob.b + " = ";
@@ -1111,20 +1111,21 @@
 
         // Draw number line with arrow tips
         // Main horizontal line
-        svg.appendChild(svgEl("line", { x1: lineX1, y1: lineY, x2: lineX2, y2: lineY, stroke: "#1a202c", "stroke-width": "1.5" }));
+        const lineColor = "#94a3b8";
+        svg.appendChild(svgEl("line", { x1: lineX1, y1: lineY, x2: lineX2, y2: lineY, stroke: lineColor, "stroke-width": "1.5" }));
 
         // Left arrowhead
         const arrowSize = 6;
         const leftArrow = svgEl("polygon", {
           points: (lineX1) + "," + lineY + " " + (lineX1 + arrowSize) + "," + (lineY - arrowSize/1.5) + " " + (lineX1 + arrowSize) + "," + (lineY + arrowSize/1.5),
-          fill: "#1a202c"
+          fill: lineColor
         });
         svg.appendChild(leftArrow);
 
         // Right arrowhead
         const rightArrow = svgEl("polygon", {
           points: (lineX2) + "," + lineY + " " + (lineX2 - arrowSize) + "," + (lineY - arrowSize/1.5) + " " + (lineX2 - arrowSize) + "," + (lineY + arrowSize/1.5),
-          fill: "#1a202c"
+          fill: lineColor
         });
         svg.appendChild(rightArrow);
 
@@ -1137,7 +1138,7 @@
           const x = lineX1 + ((val - lineStart) / totalRange) * lineW;
 
           // Tick mark
-          svg.appendChild(svgEl("line", { x1: x, y1: lineY - tickH, x2: x, y2: lineY + tickH, stroke: "#1a202c", "stroke-width": "1" }));
+          svg.appendChild(svgEl("line", { x1: x, y1: lineY - tickH, x2: x, y2: lineY + tickH, stroke: lineColor, "stroke-width": "1" }));
 
           // Label below tick
           if (prob.mode === "missing") {
@@ -1149,7 +1150,7 @@
               svg.appendChild(svgEl("line", {
                 x1: x - blankW/2, y1: labelY + 2,
                 x2: x + blankW/2, y2: labelY + 2,
-                stroke: "#1a202c", "stroke-width": "1"
+                stroke: lineColor, "stroke-width": "1"
               }));
             } else {
               // Show number (in green if example, blue if answer key and was blanked)
@@ -1234,7 +1235,7 @@
 
         // Show Jumps: draw arc jumps above the number line for addition/subtraction
         if (showJumps && !showAnswers && !isExample) {
-          const jumpColor = "#94a3b8";
+          const jumpColor = "#1a202c";
           const dotR = 4;
           if (prob.mode === "addition") {
             const hopCount = prob.b;
