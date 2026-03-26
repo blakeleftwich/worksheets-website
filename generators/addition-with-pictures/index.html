@@ -1193,7 +1193,9 @@ function makeSymbolVB(id, innerHTML, viewBox) {
         // Vertical center of the picture area
         const picCenterY = cellTop + (pictureH) / 2;
 
-        let cx = cellLeft + 8;
+        // Center the whole problem horizontally
+        const totalProbW = probNumW + halfGroupW + opW + halfGroupW + eqW + ansW;
+        let cx = cellLeft + (colW - totalProbW) / 2;
 
         // -- Problem number --
         if (numbered !== false) {
@@ -1289,20 +1291,21 @@ function makeSymbolVB(id, innerHTML, viewBox) {
             const iconName = iconNames[group1Icon] || "item";
             const plural = (n) => n === 1 ? iconName : iconName + "s";
             const storyText = a + " " + plural(a) + " and " + b + " " + plural(b) + " make";
-            const storyFontSize = Math.min(eqFontSize * 0.98, 20.6);
-            const storyLeftX = cellLeft + probNumW + 8;
+            const storyFontSize = Math.min(eqFontSize * 0.85, 18);
+            const storyLeftX = cellLeft + (colW - totalProbW) / 2 + probNumW;
             const storyY = eqLineY - storyFontSize * 0.2;
-            const storyUnderW = storyFontSize * 2.2;
+            const storyUnderW = storyFontSize * 2.0;
             const storyUnderY = storyY + storyFontSize * 0.5;
             const pluralLabel = plural(answer) + ".";
-            const gapW = storyFontSize * 0.3;
-            // Story text (left-aligned)
+            const gapW = storyFontSize * 0.2;
+            // Story text with "make " included, left-aligned
+            const storyWithMake = storyText + " ";
             const storyEl = svgEl("text", { x: storyLeftX, y: storyY, "text-anchor": "start", "font-family": "Fredoka, sans-serif", "font-size": String(storyFontSize), "font-weight": "500", fill: eqColor });
-            storyEl.textContent = storyText;
+            storyEl.textContent = storyWithMake;
             svg.appendChild(storyEl);
-            // Approximate text width to position underline after story text
-            const approxStoryW = storyText.length * storyFontSize * 0.45;
-            const underStartX = storyLeftX + approxStoryW + gapW;
+            // Use Fredoka character width ~0.48em for more accurate measurement
+            const approxStoryW = storyWithMake.length * storyFontSize * 0.48;
+            const underStartX = storyLeftX + approxStoryW;
             const underEndX = underStartX + storyUnderW;
             // Underline
             svg.appendChild(svgEl("line", { x1: underStartX, y1: storyUnderY, x2: underEndX, y2: storyUnderY, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
