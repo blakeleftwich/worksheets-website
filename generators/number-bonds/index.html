@@ -694,18 +694,41 @@
       // If specific number, all problems use that exact whole
       const isSpecific = elTargetNumber.value === "specific";
 
+      // Build a pool of whole numbers that distributes evenly before repeating
+      let wholePool = [];
+      function refillWholePool() {
+        if (isSpecific) {
+          wholePool = [targetMax];
+        } else {
+          const minWhole = minPart + minPart;
+          const possibleWholes = [];
+          for (let w = minWhole; w <= targetMax; w++) possibleWholes.push(w);
+          // Shuffle
+          for (let j = possibleWholes.length - 1; j > 0; j--) {
+            const k = Math.floor(Math.random() * (j + 1));
+            [possibleWholes[j], possibleWholes[k]] = [possibleWholes[k], possibleWholes[j]];
+          }
+          wholePool = possibleWholes;
+        }
+      }
+      refillWholePool();
+      let wholePoolIdx = 0;
+
       let attempts = 0;
       while (problems.length < count && attempts < count * 200) {
         attempts++;
 
-        // Pick the whole number
+        // Pick the whole number — cycle through pool before repeating
         let whole;
         if (isSpecific) {
           whole = targetMax;
         } else {
-          // Within N: whole ranges from (minPart * 2) to targetMax
-          const minWhole = minPart + minPart;
-          whole = minWhole + Math.floor(Math.random() * (targetMax - minWhole + 1));
+          if (wholePoolIdx >= wholePool.length) {
+            refillWholePool();
+            wholePoolIdx = 0;
+          }
+          whole = wholePool[wholePoolIdx];
+          wholePoolIdx++;
         }
 
         // Pick part1 randomly
