@@ -838,15 +838,15 @@ function updateStyleDependentOptions() {
   const orgSel = document.getElementById("organization");
   const orgVal = orgSel.value;
   orgSel.innerHTML = "";
-  orgSel.add(new Option("None", "none"));
+  orgSel.add(new Option("Standard", "none"));
   if (isOneCol) {
     orgSel.add(new Option("Split Groups", "split"));
   } else {
     orgSel.add(new Option("Scattered", "scattered"));
     orgSel.add(new Option("Split Groups", "split"));
-    orgSel.add(new Option("Both", "both"));
-    orgSel.add(new Option("Scattered & Split Groups", "scatsplit"));
     orgSel.add(new Option("Mixed", "mixed"));
+    orgSel.add(new Option("Scattered Split Groups", "both"));
+    orgSel.add(new Option("All Mixed", "allmixed"));
   }
   // Restore previous value if still valid
   if ([...orgSel.options].some(o => o.value === orgVal)) {
@@ -1197,17 +1197,21 @@ function renderWithNewRandomization() {
     const problems = generateRandomProblems(minCount, maxCount, numProblems);
     // Assign per-problem organization flags based on Organization dropdown
     const orgVal = elOrganization.value;
-    const mixedOptions = ["scattered", "split", "both"];
+    // Organization modes:
+    // "none" = standard, "scattered" = all scattered, "split" = all split groups
+    // "mixed" = mix of scattered + split (not both), "both" = all scattered split groups
+    // "allmixed" = mix of scattered, split, and scattered split groups
+    const mixedOptions = ["scattered", "split"]; // for "mixed" mode
+    const allMixedOptions = ["scattered", "split", "both"]; // for "allmixed" mode
     for (const p of problems) {
       if (orgVal === "mixed") {
         const pick = mixedOptions[Math.floor(Math.random() * mixedOptions.length)];
-        p.orgSplit = (pick === "split" || pick === "both");
-        p.orgScattered = (pick === "scattered" || pick === "both");
-      } else if (orgVal === "scatsplit") {
-        // Randomly assign each problem as either scattered-only or split-only (not both)
-        const pick = Math.random() < 0.5 ? "scattered" : "split";
         p.orgSplit = (pick === "split");
         p.orgScattered = (pick === "scattered");
+      } else if (orgVal === "allmixed") {
+        const pick = allMixedOptions[Math.floor(Math.random() * allMixedOptions.length)];
+        p.orgSplit = (pick === "split" || pick === "both");
+        p.orgScattered = (pick === "scattered" || pick === "both");
       } else {
         p.orgSplit = (orgVal === "split" || orgVal === "both");
         p.orgScattered = (orgVal === "scattered" || orgVal === "both");
