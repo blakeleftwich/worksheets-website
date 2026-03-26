@@ -1078,10 +1078,10 @@
           bt.textContent = "Example"; svg.appendChild(bt);
         }
 
-        // Instruction text above the line — large header font for equations
+        // Instruction text above the line — scale font based on problem count
         const instrX = margin + 18;
-        const eqFontSize = 32;
-        const textFontSize = 20;
+        const eqFontSize = count <= 4 ? 32 : count <= 5 ? 28 : 24;
+        const textFontSize = count <= 4 ? 20 : count <= 5 ? 18 : 16;
         const eqCharW = eqFontSize * 0.55;
         const eqSpacing = eqCharW; // one character width between = and underline
 
@@ -1090,15 +1090,15 @@
           const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "'Google Sans Flex', sans-serif", "font-size": eqFontSize, "font-weight": "700", fill: "#1a202c" });
           instrEl.textContent = eqText;
           svg.appendChild(instrEl);
-          const lineStartX = instrX + eqText.length * eqCharW + eqSpacing;
-          svg.appendChild(svgEl("line", { x1: lineStartX, y1: instructionY + 4, x2: lineStartX + 60, y2: instructionY + 4, stroke: "#cbd5e1", "stroke-width": 1.5 }));
+          const ulStartX = instrX + eqText.length * eqCharW;
+          svg.appendChild(svgEl("line", { x1: ulStartX, y1: instructionY + 4, x2: ulStartX + 50, y2: instructionY + 4, stroke: "#cbd5e1", "stroke-width": 1.5 }));
         } else if (prob.mode === "subtraction") {
           const eqText = prob.a + " \u2212 " + prob.b + " = ";
           const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "'Google Sans Flex', sans-serif", "font-size": eqFontSize, "font-weight": "700", fill: "#1a202c" });
           instrEl.textContent = eqText;
           svg.appendChild(instrEl);
-          const lineStartX = instrX + eqText.length * eqCharW + eqSpacing;
-          svg.appendChild(svgEl("line", { x1: lineStartX, y1: instructionY + 4, x2: lineStartX + 60, y2: instructionY + 4, stroke: "#cbd5e1", "stroke-width": 1.5 }));
+          const ulStartX = instrX + eqText.length * eqCharW;
+          svg.appendChild(svgEl("line", { x1: ulStartX, y1: instructionY + 4, x2: ulStartX + 50, y2: instructionY + 4, stroke: "#cbd5e1", "stroke-width": 1.5 }));
         } else if (prob.mode === "place") {
           const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": textFontSize, "font-weight": "600", fill: "#1a202c" });
           instrEl.textContent = "Mark " + prob.target + " on the number line with an X.";
@@ -1239,9 +1239,9 @@
           const dotR = 4;
           if (prob.mode === "addition") {
             const hopCount = prob.b;
-            // Filled circle at start
+            // Open circle at start
             const startX = lineX1 + ((prob.a - lineStart) / totalRange) * lineW;
-            svg.appendChild(svgEl("circle", { cx: startX, cy: lineY, r: dotR, fill: jumpColor }));
+            svg.appendChild(svgEl("circle", { cx: startX, cy: lineY, r: dotR, fill: "#fff", stroke: jumpColor, "stroke-width": "1.5" }));
             for (let h = 0; h < hopCount; h++) {
               const hopFrom = prob.a + h;
               const hopTo = prob.a + h + 1;
@@ -1252,14 +1252,14 @@
               const pathD = "M " + x1 + " " + lineY + " Q " + midArcX + " " + (lineY - arcH - 8) + " " + x2 + " " + lineY;
               svg.appendChild(svgEl("path", { d: pathD, fill: "none", stroke: jumpColor, "stroke-width": "1.5" }));
             }
-            // Open circle at end
+            // Filled circle at end
             const endX = lineX1 + ((prob.a + prob.b - lineStart) / totalRange) * lineW;
-            svg.appendChild(svgEl("circle", { cx: endX, cy: lineY, r: dotR, fill: "#fff", stroke: jumpColor, "stroke-width": "1.5" }));
+            svg.appendChild(svgEl("circle", { cx: endX, cy: lineY, r: dotR, fill: jumpColor }));
           } else if (prob.mode === "subtraction") {
             const hopCount = prob.b;
-            // Filled circle at start
+            // Open circle at start
             const startX = lineX1 + ((prob.a - lineStart) / totalRange) * lineW;
-            svg.appendChild(svgEl("circle", { cx: startX, cy: lineY, r: dotR, fill: jumpColor }));
+            svg.appendChild(svgEl("circle", { cx: startX, cy: lineY, r: dotR, fill: "#fff", stroke: jumpColor, "stroke-width": "1.5" }));
             for (let h = 0; h < hopCount; h++) {
               const hopFrom = prob.a - h;
               const hopTo = prob.a - h - 1;
@@ -1270,9 +1270,9 @@
               const pathD = "M " + x1 + " " + lineY + " Q " + midArcX + " " + (lineY - arcH - 8) + " " + x2 + " " + lineY;
               svg.appendChild(svgEl("path", { d: pathD, fill: "none", stroke: jumpColor, "stroke-width": "1.5" }));
             }
-            // Open circle at end
+            // Filled circle at end
             const endX = lineX1 + ((prob.a - prob.b - lineStart) / totalRange) * lineW;
-            svg.appendChild(svgEl("circle", { cx: endX, cy: lineY, r: dotR, fill: "#fff", stroke: jumpColor, "stroke-width": "1.5" }));
+            svg.appendChild(svgEl("circle", { cx: endX, cy: lineY, r: dotR, fill: jumpColor }));
           }
         }
       }
