@@ -1018,9 +1018,8 @@
         svg.appendChild(svgEl("circle", {
           cx: topCX, cy: topCY, r: topR,
           fill: "#fff",
-          stroke: wholeIsEx ? "#22c55e" : (isWholeMissing && !showAnswers ? "#f59e0b" : "#4a5568"),
-          "stroke-width": (isWholeMissing && !showAnswers) || wholeIsEx ? "2.5" : "2",
-          "stroke-dasharray": wholeIsEx ? "none" : (isWholeMissing && !showAnswers ? "5,3" : "none")
+          stroke: wholeIsEx ? "#22c55e" : "#4a5568",
+          "stroke-width": wholeIsEx ? "2.5" : "2"
         }));
         // Whole number text
         if (!isWholeMissing || showAnswers || wholeIsEx) {
@@ -1042,9 +1041,8 @@
         svg.appendChild(svgEl("circle", {
           cx: botLeftCX, cy: botLeftCY, r: botR,
           fill: "#fff",
-          stroke: part1IsEx ? "#22c55e" : (isPart1Missing && !showAnswers ? "#f59e0b" : "#4a5568"),
-          "stroke-width": (isPart1Missing && !showAnswers) || part1IsEx ? "2.5" : "2",
-          "stroke-dasharray": part1IsEx ? "none" : (isPart1Missing && !showAnswers ? "5,3" : "none")
+          stroke: part1IsEx ? "#22c55e" : "#4a5568",
+          "stroke-width": part1IsEx ? "2.5" : "2"
         }));
         if (!isPart1Missing || showAnswers || part1IsEx) {
           const p1Text = svgEl("text", {
@@ -1065,9 +1063,8 @@
         svg.appendChild(svgEl("circle", {
           cx: botRightCX, cy: botRightCY, r: botR,
           fill: "#fff",
-          stroke: part2IsEx ? "#22c55e" : (isPart2Missing && !showAnswers ? "#f59e0b" : "#4a5568"),
-          "stroke-width": (isPart2Missing && !showAnswers) || part2IsEx ? "2.5" : "2",
-          "stroke-dasharray": part2IsEx ? "none" : (isPart2Missing && !showAnswers ? "5,3" : "none")
+          stroke: part2IsEx ? "#22c55e" : "#4a5568",
+          "stroke-width": part2IsEx ? "2.5" : "2"
         }));
         if (!isPart2Missing || showAnswers || part2IsEx) {
           const p2Text = svgEl("text", {
