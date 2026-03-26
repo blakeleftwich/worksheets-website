@@ -1266,7 +1266,7 @@ function makeSymbolVB(id, innerHTML, viewBox) {
 
           // Answer underline after equals
           const ansEqX = equalsCenterX + eqFontSize * 1.5;
-          svg.appendChild(svgEl("line", { x1: ansEqX - underlineW/2, y1: eqLineY + 4, x2: ansEqX + underlineW/2, y2: eqLineY + 4, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
+          svg.appendChild(svgEl("line", { x1: ansEqX - underlineW/2, y1: eqLineY + eqFontSize * 0.35, x2: ansEqX + underlineW/2, y2: eqLineY + eqFontSize * 0.35, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
           if (showAnswers) {
             const ansNum = svgEl("text", { x: ansEqX, y: eqLineY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(eqFontSize), "font-weight": "700", fill: ansColor });
             ansNum.textContent = String(answer); svg.appendChild(ansNum);
