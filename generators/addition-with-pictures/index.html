@@ -1200,12 +1200,15 @@ function makeSymbolVB(id, innerHTML, viewBox) {
         }
         cx += probNumW;
 
-        // -- Group 1 icons (centered in halfGroupW) --
+        // -- Group 1 icons --
         const grp1Left = cx;
         const group1CenterX = grp1Left + halfGroupW / 2;
         {
           const grpDims = getGroupDims(a, group1Icon, iconSize, mpr1, useDots, globalDotR);
-          const gx = grp1Left + (halfGroupW - grpDims.w) / 2;
+          // Right-align groups in stories mode, center otherwise
+          const gx = worksheetMode === "stories"
+            ? grp1Left + halfGroupW - grpDims.w
+            : grp1Left + (halfGroupW - grpDims.w) / 2;
           const gy = picCenterY - grpDims.h / 2;
           drawIconGroup(svg, gx, gy, a, group1Icon, iconSize, mpr1, useDots, globalDotR);
         }
@@ -1219,12 +1222,14 @@ function makeSymbolVB(id, innerHTML, viewBox) {
         }
         cx += opW;
 
-        // -- Group 2 icons (centered in halfGroupW) --
+        // -- Group 2 icons --
         const grp2Left = cx;
         const group2CenterX = grp2Left + halfGroupW / 2;
         {
           const grpDims = getGroupDims(b, group2Icon, iconSize, mpr2, useDots, globalDotR);
-          const gx = grp2Left + (halfGroupW - grpDims.w) / 2;
+          const gx = worksheetMode === "stories"
+            ? grp2Left + halfGroupW - grpDims.w
+            : grp2Left + (halfGroupW - grpDims.w) / 2;
           const gy = picCenterY - grpDims.h / 2;
           drawIconGroup(svg, gx, gy, b, group2Icon, iconSize, mpr2, useDots, globalDotR);
         }
@@ -1282,25 +1287,35 @@ function makeSymbolVB(id, innerHTML, viewBox) {
             const iconName = iconNames[group1Icon] || "item";
             const plural = (n) => n === 1 ? iconName : iconName + "s";
             const storyText = a + " " + plural(a) + " and " + b + " " + plural(b) + " make";
-            const storyFontSize = Math.min(eqFontSize * 0.65, 14);
-            const storyCenterX = cellLeft + colW / 2;
+            const storyFontSize = Math.min(eqFontSize * 1.14, 24);
+            const storyRightX = cellLeft + colW - 4;
             const storyY = eqLineY - storyFontSize * 0.2;
-            const storyEl = svgEl("text", { x: storyCenterX, y: storyY, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": String(storyFontSize), "font-weight": "500", fill: eqColor });
+            // Build full story: "2 apples and 1 apple make ___ apples."
+            // Render "make" part, then underline, then plural label — all right-aligned
+            const storyUnderW = storyFontSize * 2.2;
+            const storyUnderY = storyY + storyFontSize * 0.5;
+            const pluralLabel = plural(answer) + ".";
+            // Approximate widths
+            const labelW = pluralLabel.length * storyFontSize * 0.45;
+            const gapW = storyFontSize * 0.3;
+            // Position from right: label, underline, then story text
+            const labelX = storyRightX;
+            const underEndX = labelX - labelW - gapW;
+            const underStartX = underEndX - storyUnderW;
+            const storyTextEndX = underStartX - gapW;
+            // Story text (right-aligned, ends at storyTextEndX)
+            const storyEl = svgEl("text", { x: storyTextEndX, y: storyY, "text-anchor": "end", "font-family": "Fredoka, sans-serif", "font-size": String(storyFontSize), "font-weight": "500", fill: eqColor });
             storyEl.textContent = storyText;
             svg.appendChild(storyEl);
-            // Underline for answer
-            const storyUnderW = storyFontSize * 2.5;
-            const storyUnderY = storyY + storyFontSize * 0.6;
-            // Measure approximate text width to place underline after "make"
-            const approxTextW = storyText.length * storyFontSize * 0.45;
-            const underX = storyCenterX + approxTextW / 2 + storyFontSize * 0.5;
-            svg.appendChild(svgEl("line", { x1: underX - storyUnderW/2, y1: storyUnderY, x2: underX + storyUnderW/2, y2: storyUnderY, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
+            // Underline
+            svg.appendChild(svgEl("line", { x1: underStartX, y1: storyUnderY, x2: underEndX, y2: storyUnderY, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
             // Plural label after underline
-            const labelEl = svgEl("text", { x: underX + storyUnderW/2 + storyFontSize * 0.3, y: storyY, "font-family": "Fredoka, sans-serif", "font-size": String(storyFontSize), "font-weight": "500", fill: eqColor });
-            labelEl.textContent = plural(answer) + ".";
+            const labelEl = svgEl("text", { x: underEndX + gapW, y: storyY, "font-family": "Fredoka, sans-serif", "font-size": String(storyFontSize), "font-weight": "500", fill: eqColor });
+            labelEl.textContent = pluralLabel;
             svg.appendChild(labelEl);
             if (showAnswers) {
-              const ansEl = svgEl("text", { x: underX, y: storyY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(storyFontSize * 1.2), "font-weight": "700", fill: ansColor });
+              const underCenterX = (underStartX + underEndX) / 2;
+              const ansEl = svgEl("text", { x: underCenterX, y: storyY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(storyFontSize * 1.1), "font-weight": "700", fill: ansColor });
               ansEl.textContent = String(answer);
               svg.appendChild(ansEl);
             }
