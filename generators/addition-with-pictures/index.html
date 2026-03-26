@@ -1191,7 +1191,7 @@ function makeSymbolVB(id, innerHTML, viewBox) {
         const iconGap = iconSize * gapRatio;
 
         // Vertical center of the picture area
-        const picCenterY = cellTop + (pictureH) / 2;
+        const picCenterY = cellTop + (pictureH) / 2 + pictureH * 0.06;
 
         // Center the whole problem horizontally
         const totalProbW = probNumW + halfGroupW + opW + halfGroupW + eqW + ansW;
@@ -1288,24 +1288,37 @@ function makeSymbolVB(id, innerHTML, viewBox) {
               "icon-strawberry": "strawberry", "icon-watermelon": "watermelon", "icon-pear": "pear",
               "icon-carrot": "carrot", "icon-potato": "potato", "icon-lettuce": "lettuce"
             };
-            const iconName = iconNames[group1Icon] || "item";
-            const plural = (n) => n === 1 ? iconName : iconName + "s";
-            const storyText = a + " " + plural(a) + " and " + b + " " + plural(b) + " make";
+            const iconName1 = iconNames[group1Icon] || "item";
+            const iconName2 = iconNames[group2Icon] || "item";
+            const plural1 = (n) => n === 1 ? iconName1 : iconName1 + "s";
+            const plural2 = (n) => n === 1 ? iconName2 : iconName2 + "s";
+            // Use the answer icon name (group1's name since answer represents the combined total)
+            const answerIconName = iconName1 === iconName2 ? iconName1 : "item";
+            const pluralAns = (n) => n === 1 ? answerIconName : answerIconName + "s";
+            const storyText = a + " " + plural1(a) + " and " + b + " " + plural2(b) + " make";
             const storyFontSize = Math.min(eqFontSize * 0.85, 18);
             const storyLeftX = cellLeft + (colW - totalProbW) / 2 + probNumW;
             const storyY = eqLineY - storyFontSize * 0.2;
             const storyUnderW = storyFontSize * 2.0;
             const storyUnderY = storyY + storyFontSize * 0.5;
-            const pluralLabel = plural(answer) + ".";
+            const pluralLabel = pluralAns(answer) + ".";
             const gapW = storyFontSize * 0.2;
             // Story text with "make " included, left-aligned
             const storyWithMake = storyText + " ";
             const storyEl = svgEl("text", { x: storyLeftX, y: storyY, "text-anchor": "start", "font-family": "Fredoka, sans-serif", "font-size": String(storyFontSize), "font-weight": "500", fill: eqColor });
             storyEl.textContent = storyWithMake;
             svg.appendChild(storyEl);
-            // Use Fredoka character width ~0.48em for more accurate measurement
+            // Approximate text widths using Fredoka ~0.48em per char
             const approxStoryW = storyWithMake.length * storyFontSize * 0.48;
-            const underStartX = storyLeftX + approxStoryW;
+            const approxLabelW = pluralLabel.length * storyFontSize * 0.48;
+            // Available space between story text end and right edge of problem area
+            const storyTextEnd = storyLeftX + approxStoryW;
+            const rightEdge = cellLeft + colW - (colW - totalProbW) / 2;
+            const labelStartFromRight = rightEdge - approxLabelW;
+            // Center underline between story text end and plural label start
+            const gapForUnderline = labelStartFromRight - storyTextEnd;
+            const underCenterGap = (gapForUnderline - storyUnderW) / 2;
+            const underStartX = storyTextEnd + Math.max(gapW, underCenterGap);
             const underEndX = underStartX + storyUnderW;
             // Underline
             svg.appendChild(svgEl("line", { x1: underStartX, y1: storyUnderY, x2: underEndX, y2: storyUnderY, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
