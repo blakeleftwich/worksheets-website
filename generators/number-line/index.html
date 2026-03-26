@@ -1056,7 +1056,7 @@
         const lineW = lineX2 - lineX1;
 
         // Vertical positioning within slot — equation closer to number line, tighter spacing
-        const instructionY = slotTop + slotH * 0.30;
+        const instructionY = slotTop + slotH * 0.35;
         const lineY = slotTop + slotH * 0.58;
         const tickH = 8;
         const labelY = lineY + tickH + 14;
@@ -1080,7 +1080,7 @@
 
         // Instruction text above the line — scale font based on problem count
         const instrX = margin + 18;
-        const eqFontSize = count <= 4 ? 32 : count <= 5 ? 28 : 24;
+        const eqFontSize = count <= 4 ? 28 : count <= 5 ? 24 : 21;
         const textFontSize = count <= 4 ? 20 : count <= 5 ? 18 : 16;
         // Measure text width: digits ~0.55em, spaces ~0.28em, operators ~0.55em
         function approxTextW(text, fs) {
