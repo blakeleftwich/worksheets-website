@@ -1097,14 +1097,14 @@
           const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "'Google Sans Flex', sans-serif", "font-size": eqFontSize, "font-weight": "700", fill: "#1a202c" });
           instrEl.textContent = eqText;
           svg.appendChild(instrEl);
-          const ulStartX = instrX + approxTextW(eqText, eqFontSize) + eqFontSize * 0.15;
+          const ulStartX = instrX + approxTextW(eqText, eqFontSize) - eqFontSize * 0.125;
           svg.appendChild(svgEl("line", { x1: ulStartX, y1: instructionY + 4, x2: ulStartX + 50, y2: instructionY + 4, stroke: "#cbd5e1", "stroke-width": 1.5 }));
         } else if (prob.mode === "subtraction") {
           const eqText = prob.a + " \u2212 " + prob.b + " = ";
           const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "'Google Sans Flex', sans-serif", "font-size": eqFontSize, "font-weight": "700", fill: "#1a202c" });
           instrEl.textContent = eqText;
           svg.appendChild(instrEl);
-          const ulStartX = instrX + approxTextW(eqText, eqFontSize) + eqFontSize * 0.15;
+          const ulStartX = instrX + approxTextW(eqText, eqFontSize) - eqFontSize * 0.125;
           svg.appendChild(svgEl("line", { x1: ulStartX, y1: instructionY + 4, x2: ulStartX + 50, y2: instructionY + 4, stroke: "#cbd5e1", "stroke-width": 1.5 }));
         } else if (prob.mode === "place") {
           const instrEl = svgEl("text", { x: instrX, y: instructionY, "font-family": "Fredoka, sans-serif", "font-size": textFontSize, "font-weight": "600", fill: "#1a202c" });
