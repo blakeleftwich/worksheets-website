@@ -1186,6 +1186,8 @@ function makeSymbolVB(id, innerHTML, viewBox) {
           }
           iconSize = Math.max(12, Math.floor(bestSize));
         }
+        // Scale up icons in stories mode
+        if (worksheetMode === "stories") iconSize = Math.floor(iconSize * 1.14);
         const iconGap = iconSize * gapRatio;
 
         // Vertical center of the picture area
@@ -1205,9 +1207,9 @@ function makeSymbolVB(id, innerHTML, viewBox) {
         const group1CenterX = grp1Left + halfGroupW / 2;
         {
           const grpDims = getGroupDims(a, group1Icon, iconSize, mpr1, useDots, globalDotR);
-          // Right-align groups in stories mode, center otherwise
+          // Left-align groups in stories mode, center otherwise
           const gx = worksheetMode === "stories"
-            ? grp1Left + halfGroupW - grpDims.w
+            ? grp1Left
             : grp1Left + (halfGroupW - grpDims.w) / 2;
           const gy = picCenterY - grpDims.h / 2;
           drawIconGroup(svg, gx, gy, a, group1Icon, iconSize, mpr1, useDots, globalDotR);
@@ -1228,7 +1230,7 @@ function makeSymbolVB(id, innerHTML, viewBox) {
         {
           const grpDims = getGroupDims(b, group2Icon, iconSize, mpr2, useDots, globalDotR);
           const gx = worksheetMode === "stories"
-            ? grp2Left + halfGroupW - grpDims.w
+            ? grp2Left
             : grp2Left + (halfGroupW - grpDims.w) / 2;
           const gy = picCenterY - grpDims.h / 2;
           drawIconGroup(svg, gx, gy, b, group2Icon, iconSize, mpr2, useDots, globalDotR);
@@ -1287,26 +1289,21 @@ function makeSymbolVB(id, innerHTML, viewBox) {
             const iconName = iconNames[group1Icon] || "item";
             const plural = (n) => n === 1 ? iconName : iconName + "s";
             const storyText = a + " " + plural(a) + " and " + b + " " + plural(b) + " make";
-            const storyFontSize = Math.min(eqFontSize * 1.14, 24);
-            const storyRightX = cellLeft + colW - 4;
+            const storyFontSize = Math.min(eqFontSize * 0.98, 20.6);
+            const storyLeftX = cellLeft + probNumW + 8;
             const storyY = eqLineY - storyFontSize * 0.2;
-            // Build full story: "2 apples and 1 apple make ___ apples."
-            // Render "make" part, then underline, then plural label — all right-aligned
             const storyUnderW = storyFontSize * 2.2;
             const storyUnderY = storyY + storyFontSize * 0.5;
             const pluralLabel = plural(answer) + ".";
-            // Approximate widths
-            const labelW = pluralLabel.length * storyFontSize * 0.45;
             const gapW = storyFontSize * 0.3;
-            // Position from right: label, underline, then story text
-            const labelX = storyRightX;
-            const underEndX = labelX - labelW - gapW;
-            const underStartX = underEndX - storyUnderW;
-            const storyTextEndX = underStartX - gapW;
-            // Story text (right-aligned, ends at storyTextEndX)
-            const storyEl = svgEl("text", { x: storyTextEndX, y: storyY, "text-anchor": "end", "font-family": "Fredoka, sans-serif", "font-size": String(storyFontSize), "font-weight": "500", fill: eqColor });
+            // Story text (left-aligned)
+            const storyEl = svgEl("text", { x: storyLeftX, y: storyY, "text-anchor": "start", "font-family": "Fredoka, sans-serif", "font-size": String(storyFontSize), "font-weight": "500", fill: eqColor });
             storyEl.textContent = storyText;
             svg.appendChild(storyEl);
+            // Approximate text width to position underline after story text
+            const approxStoryW = storyText.length * storyFontSize * 0.45;
+            const underStartX = storyLeftX + approxStoryW + gapW;
+            const underEndX = underStartX + storyUnderW;
             // Underline
             svg.appendChild(svgEl("line", { x1: underStartX, y1: storyUnderY, x2: underEndX, y2: storyUnderY, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
             // Plural label after underline
