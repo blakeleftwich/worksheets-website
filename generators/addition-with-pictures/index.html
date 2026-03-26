@@ -811,36 +811,61 @@ function makeSymbolVB(id, innerHTML, viewBox) {
     function drawIconGroup(svg, x, y, count, iconId, iconSize, maxPerRow, useDots, fixedDotR) {
       if (count === 0) return;
       maxPerRow = maxPerRow || 5;
-      const dims = getIconDims(iconId, iconSize);
-      const gapX = dims.w * 0.05;
-      const gapY = dims.h * 0.05;
+      let cellW, cellH, gapX, gapY;
+      if (useDots && fixedDotR) {
+        const dotDiam = fixedDotR * 2;
+        cellW = dotDiam * 1.2;
+        cellH = dotDiam * 1.2;
+        gapX = cellW * 0.15;
+        gapY = cellH * 0.15;
+      } else {
+        const dims = getIconDims(iconId, iconSize);
+        cellW = dims.w;
+        cellH = dims.h;
+        gapX = dims.w * 0.05;
+        gapY = dims.h * 0.05;
+      }
       const cols = Math.min(count, maxPerRow);
       const rows = Math.ceil(count / maxPerRow);
       let drawn = 0;
       for (let r = 0; r < rows && drawn < count; r++) {
         const inThisRow = Math.min(maxPerRow, count - drawn);
         for (let c = 0; c < inThisRow; c++) {
-          const ix = x + c * (dims.w + gapX);
-          const iy = y + r * (dims.h + gapY);
-          if (useDots) {
-            const dotR = fixedDotR || Math.min(dims.w, dims.h) * 0.4;
-            svg.appendChild(svgEl("circle", { cx: ix + dims.w / 2, cy: iy + dims.h / 2, r: dotR, fill: "#4a5568" }));
+          const ix = x + c * (cellW + gapX);
+          const iy = y + r * (cellH + gapY);
+          if (useDots && fixedDotR) {
+            svg.appendChild(svgEl("circle", { cx: ix + cellW / 2, cy: iy + cellH / 2, r: fixedDotR, fill: "#4a5568" }));
+          } else if (useDots) {
+            const dims = getIconDims(iconId, iconSize);
+            const dotR = Math.min(dims.w, dims.h) * 0.4;
+            svg.appendChild(svgEl("circle", { cx: ix + cellW / 2, cy: iy + cellH / 2, r: dotR, fill: "#4a5568" }));
           } else {
-            svg.appendChild(svgEl("use", { href: "#" + iconId, x: ix, y: iy, width: dims.w, height: dims.h }));
+            svg.appendChild(svgEl("use", { href: "#" + iconId, x: ix, y: iy, width: cellW, height: cellH }));
           }
           drawn++;
         }
       }
     }
     // Get group bounding box (for centering)
-    function getGroupDims(count, iconId, iconSize, maxPerRow) {
+    function getGroupDims(count, iconId, iconSize, maxPerRow, useDots, fixedDotR) {
       maxPerRow = maxPerRow || 5;
-      const dims = getIconDims(iconId, iconSize);
-      const gapX = dims.w * 0.05;
-      const gapY = dims.h * 0.05;
+      let cellW, cellH, gapX, gapY;
+      if (useDots && fixedDotR) {
+        const dotDiam = fixedDotR * 2;
+        cellW = dotDiam * 1.2;
+        cellH = dotDiam * 1.2;
+        gapX = cellW * 0.15;
+        gapY = cellH * 0.15;
+      } else {
+        const dims = getIconDims(iconId, iconSize);
+        cellW = dims.w;
+        cellH = dims.h;
+        gapX = dims.w * 0.05;
+        gapY = dims.h * 0.05;
+      }
       const cols = Math.min(count, maxPerRow);
       const rows = Math.ceil(count / maxPerRow);
-      return { w: cols * dims.w + (cols - 1) * gapX, h: rows * dims.h + (rows - 1) * gapY };
+      return { w: cols * cellW + (cols - 1) * gapX, h: rows * cellH + (rows - 1) * gapY };
     }
 
     // ===== Problem generation =====
@@ -1177,7 +1202,7 @@ function makeSymbolVB(id, innerHTML, viewBox) {
         const grp1Left = cx;
         const group1CenterX = grp1Left + halfGroupW / 2;
         {
-          const grpDims = getGroupDims(a, group1Icon, iconSize, mpr1);
+          const grpDims = getGroupDims(a, group1Icon, iconSize, mpr1, useDots, globalDotR);
           const gx = grp1Left + (halfGroupW - grpDims.w) / 2;
           const gy = picCenterY - grpDims.h / 2;
           drawIconGroup(svg, gx, gy, a, group1Icon, iconSize, mpr1, useDots, globalDotR);
@@ -1196,7 +1221,7 @@ function makeSymbolVB(id, innerHTML, viewBox) {
         const grp2Left = cx;
         const group2CenterX = grp2Left + halfGroupW / 2;
         {
-          const grpDims = getGroupDims(b, group2Icon, iconSize, mpr2);
+          const grpDims = getGroupDims(b, group2Icon, iconSize, mpr2, useDots, globalDotR);
           const gx = grp2Left + (halfGroupW - grpDims.w) / 2;
           const gy = picCenterY - grpDims.h / 2;
           drawIconGroup(svg, gx, gy, b, group2Icon, iconSize, mpr2, useDots, globalDotR);
