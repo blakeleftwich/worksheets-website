@@ -1243,7 +1243,7 @@ function makeSymbolVB(id, innerHTML, viewBox) {
           const ansColor = "#3182ce";
 
           // Underline under group 1
-          svg.appendChild(svgEl("line", { x1: group1CenterX - underlineW/2, y1: eqLineY + 4, x2: group1CenterX + underlineW/2, y2: eqLineY + 4, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
+          svg.appendChild(svgEl("line", { x1: group1CenterX - underlineW/2, y1: eqLineY + eqFontSize * 0.35, x2: group1CenterX + underlineW/2, y2: eqLineY + eqFontSize * 0.35, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
           if (showAnswers) {
             const numA = svgEl("text", { x: group1CenterX, y: eqLineY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(eqFontSize), "font-weight": "700", fill: ansColor });
             numA.textContent = String(a); svg.appendChild(numA);
@@ -1254,7 +1254,7 @@ function makeSymbolVB(id, innerHTML, viewBox) {
           eqPlusEl.textContent = "+"; svg.appendChild(eqPlusEl);
 
           // Underline under group 2
-          svg.appendChild(svgEl("line", { x1: group2CenterX - underlineW/2, y1: eqLineY + 4, x2: group2CenterX + underlineW/2, y2: eqLineY + 4, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
+          svg.appendChild(svgEl("line", { x1: group2CenterX - underlineW/2, y1: eqLineY + eqFontSize * 0.35, x2: group2CenterX + underlineW/2, y2: eqLineY + eqFontSize * 0.35, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
           if (showAnswers) {
             const numB = svgEl("text", { x: group2CenterX, y: eqLineY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(eqFontSize), "font-weight": "700", fill: ansColor });
             numB.textContent = String(b); svg.appendChild(numB);
