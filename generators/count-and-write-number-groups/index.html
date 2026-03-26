@@ -571,17 +571,21 @@
             <label for="sortRows">Sort Rows</label>
           </div>
 
-          <!-- Split Groups -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="splitGroups" />
-            <label for="splitGroups">Split Groups</label>
+          <!-- Organization -->
+          <div class="control-group" id="organizationGroup">
+            <label for="organization">Organization</label>
+            <select id="organization">
+              <option value="none" selected>None</option>
+              <option value="scattered">Scattered</option>
+              <option value="split">Split Groups</option>
+              <option value="both">Both</option>
+              <option value="mixed">Mixed</option>
+            </select>
           </div>
 
-          <!-- Scattered -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="scattered" />
-            <label for="scattered">Scattered</label>
-          </div>
+          <!-- Hidden checkboxes to maintain compatibility -->
+          <input type="checkbox" id="splitGroups" style="display:none;" />
+          <input type="checkbox" id="scattered" style="display:none;" />
 
           <!-- Style -->
           <div class="control-group" id="styleGroup">
@@ -807,6 +811,7 @@ updateAllowZeroVisibility();
 const elSortRows = document.getElementById("sortRows");
 const elSplitGroups = document.getElementById("splitGroups");
 const elScattered = document.getElementById("scattered");
+const elOrganization = document.getElementById("organization");
 
 function updateStyleDependentOptions() {
   const style = parseInt(elStyle.value, 10);
@@ -829,13 +834,24 @@ function updateStyleDependentOptions() {
     sel.value = (currentVal === "6" || currentVal === "8") ? currentVal : "6";
   }
 
-  // Scattered: hide for 1-column
-  const scatteredRow = document.getElementById("scattered").closest(".adv-checkbox-row");
+  // Organization: limit options for 1-column (no scattered)
+  const orgSel = document.getElementById("organization");
+  const orgVal = orgSel.value;
+  orgSel.innerHTML = "";
+  orgSel.add(new Option("None", "none"));
   if (isOneCol) {
-    scatteredRow.style.display = "none";
-    document.getElementById("scattered").checked = false;
+    orgSel.add(new Option("Split Groups", "split"));
   } else {
-    scatteredRow.style.display = "";
+    orgSel.add(new Option("Scattered", "scattered"));
+    orgSel.add(new Option("Split Groups", "split"));
+    orgSel.add(new Option("Both", "both"));
+    orgSel.add(new Option("Mixed", "mixed"));
+  }
+  // Restore previous value if still valid
+  if ([...orgSel.options].some(o => o.value === orgVal)) {
+    orgSel.value = orgVal;
+  } else {
+    orgSel.value = "none";
   }
 
 }
@@ -848,6 +864,13 @@ document.getElementById("problems").addEventListener("change", () => renderWithN
 elSortRows.addEventListener("change", () => renderWithoutRandomization());
 elSplitGroups.addEventListener("change", () => renderWithNewRandomization());
 elScattered.addEventListener("change", () => renderWithNewRandomization());
+elOrganization.addEventListener("change", () => {
+  // Sync hidden checkboxes for backward compatibility
+  const val = elOrganization.value;
+  elSplitGroups.checked = (val === "split" || val === "both" || val === "mixed");
+  elScattered.checked = (val === "scattered" || val === "both" || val === "mixed");
+  renderWithNewRandomization();
+});
 elShowHeader.addEventListener("change", () => renderWithoutRandomization());
 elNumbered.addEventListener("change", () => renderWithoutRandomization());
 elBranded.addEventListener("change", () => renderWithoutRandomization());
@@ -963,7 +986,7 @@ async function generatePdfBlob() {
   const wsCodes = currentState.sheets.map((_, i) => '(' + (i + 1) + ')');
   if (elAnswerKey.checked) {
       for (let i = 0; i < currentState.sheets.length; i++) {
-        svgPages.push(generateAnswerKeySvg(currentState.sheets[i], style, "none", branded, numbered, title, subtitle, true, perRowMax, wsCodes[i], elSplitGroups.checked, elScattered.checked));
+        svgPages.push(generateAnswerKeySvg(currentState.sheets[i], style, "none", branded, numbered, title, subtitle, true, perRowMax, wsCodes[i], true, true));
       }
     }
   const fontCSS = await buildFontCSS();
@@ -1171,19 +1194,27 @@ function renderWithNewRandomization() {
 
   for (let s = 0; s < numSheets; s++) {
     const problems = generateRandomProblems(minCount, maxCount, numProblems);
-    // Generate split data if Split Groups is checked
-    if (elSplitGroups.checked) {
-      for (const p of problems) {
+    // Assign per-problem organization flags based on Organization dropdown
+    const orgVal = elOrganization.value;
+    const mixedOptions = ["scattered", "split", "both"];
+    for (const p of problems) {
+      if (orgVal === "mixed") {
+        const pick = mixedOptions[Math.floor(Math.random() * mixedOptions.length)];
+        p.orgSplit = (pick === "split" || pick === "both");
+        p.orgScattered = (pick === "scattered" || pick === "both");
+      } else {
+        p.orgSplit = (orgVal === "split" || orgVal === "both");
+        p.orgScattered = (orgVal === "scattered" || orgVal === "both");
+      }
+      // Generate split data if this problem uses split
+      if (p.orgSplit) {
         if (p.count === 0 || p.count === 1) {
-          // 0 or 1: no split possible, display as normal
           p.splitA = p.count;
           p.splitB = 0;
         } else if (p.count === 2) {
-          // Always 1 + 1
           p.splitA = 1;
           p.splitB = 1;
         } else {
-          // Split into two groups where neither is less than 1
           const minGroup = Math.max(1, Math.round(p.count * 0.3));
           const maxGroup = p.count - minGroup;
           const splitA = minGroup + Math.floor(Math.random() * (maxGroup - minGroup + 1));
@@ -1229,8 +1260,13 @@ function renderWorksheet() {
   // perRowMax: -1 = 2col sorted (always 5), -2 = 1col sorted (auto), -3 = 1col unsorted (force 10 for 11+)
   const isOneCol = style === 2;
   const perRowMax = elSortRows.checked ? (isOneCol ? -2 : -1) : (isOneCol ? -3 : 0);
-  const splitGroups = elSplitGroups.checked;
-  const scattered = elScattered.checked;
+  const orgMode = elOrganization.value;
+  // For non-mixed modes, all problems get the same flags
+  const globalSplit = (orgMode === "split" || orgMode === "both");
+  const globalScattered = (orgMode === "scattered" || orgMode === "both");
+  const isMixed = (orgMode === "mixed");
+  const splitGroups = globalSplit || isMixed;
+  const scattered = globalScattered || isMixed;
 
   const icons = ["icon-apple-new", "icon-balloon", "icon-icecream", "icon-pepper", "icon-pizza", "icon-corn", "icon-broccoli", "icon-fish", "icon-tomato", "icon-banana", "icon-grapes", "icon-orange", "icon-strawberry", "icon-watermelon", "icon-pear", "icon-carrot", "icon-potato", "icon-lettuce"];
 
@@ -1627,10 +1663,10 @@ function renderStyle1(problems, headerMode, branded, numbered, icons, title, sub
       problemIndex: i,
       problemCount: problems.length,
       perRowMax,
-      splitGroups: splitGroups && problem.splitA !== undefined,
+      splitGroups: problem.orgSplit && problem.splitA !== undefined,
       splitA: problem.splitA,
       splitB: problem.splitB,
-      scattered
+      scattered: problem.orgScattered || false
     });
 
     const isExample = (i === 0 && includeExample);
@@ -1893,10 +1929,10 @@ function renderStyle2(problems, headerMode, branded, numbered, icons, title, sub
       h: rowHeight - 20,
       maxCount: maxCount,
       perRowMax,
-      splitGroups: splitGroups && problem.splitA !== undefined,
+      splitGroups: problem.orgSplit && problem.splitA !== undefined,
       splitA: problem.splitA,
       splitB: problem.splitB,
-      scattered,
+      scattered: problem.orgScattered || false,
       problemIndex: i
     });
 
@@ -2160,10 +2196,10 @@ function renderAnswerKeyStyle1(problems, headerMode, branded, numbered, icons, t
       problemIndex: i,
       problemCount: problems.length,
       perRowMax,
-      splitGroups: splitGroups && problem.splitA !== undefined,
+      splitGroups: problem.orgSplit && problem.splitA !== undefined,
       splitA: problem.splitA,
       splitB: problem.splitB,
-      scattered
+      scattered: problem.orgScattered || false
     });
 
     const answerMode = elAnswerMode.value;
@@ -2378,10 +2414,10 @@ function renderAnswerKeyStyle2(problems, headerMode, branded, numbered, icons, t
       h: rowHeight - 20,
       maxCount: maxCount,
       perRowMax,
-      splitGroups: splitGroups && problem.splitA !== undefined,
+      splitGroups: problem.orgSplit && problem.splitA !== undefined,
       splitA: problem.splitA,
       splitB: problem.splitB,
-      scattered,
+      scattered: problem.orgScattered || false,
       problemIndex: i
     });
 
