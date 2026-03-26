@@ -731,16 +731,29 @@
           wholePoolIdx++;
         }
 
-        // Pick part1 randomly
-        const maxPart1 = whole - minPart;
-        const minPart1 = minPart;
-        if (maxPart1 < minPart1) continue;
-        const part1 = minPart1 + Math.floor(Math.random() * (maxPart1 - minPart1 + 1));
-        const part2 = whole - part1;
+        // Pick addend pair — distribute evenly for small ranges
+        let part1, part2;
+        // Build all valid pairs for this whole
+        const validPairs = [];
+        for (let p = minPart; p <= whole - minPart; p++) {
+          validPairs.push([p, whole - p]);
+        }
+        if (validPairs.length === 0) continue;
 
-        // Ensure parts are valid
-        if (part2 < minPart) continue;
-        if (part1 < minPart) continue;
+        // Pick from valid pairs, preferring unseen ones
+        const pairKey = (w, p1, p2) => w + ":" + Math.min(p1, p2) + "," + Math.max(p1, p2);
+        const unseenPairs = validPairs.filter(([p1, p2]) => !seen.has(pairKey(whole, p1, p2) + ",part1") && !seen.has(pairKey(whole, p1, p2) + ",part2") && !seen.has(pairKey(whole, p1, p2) + ",whole"));
+        const pickFrom = unseenPairs.length > 0 ? unseenPairs : validPairs;
+        const picked = pickFrom[Math.floor(Math.random() * pickFrom.length)];
+        part1 = picked[0];
+        part2 = picked[1];
+
+        // ~80% of the time smaller number on left, ~20% larger on left
+        if (part1 > part2) {
+          if (Math.random() > 0.2) [part1, part2] = [part2, part1];
+        } else if (part1 < part2) {
+          if (Math.random() < 0.2) [part1, part2] = [part2, part1];
+        }
 
         // Decide which value is missing
         let missing;
