@@ -457,12 +457,38 @@
       <h2>Picture Addition</h2>
 
       <div class="control-group">
+        <label for="modeSelect">Mode</label>
+        <select id="modeSelect">
+          <option value="pictures" selected>Pictures</option>
+          <option value="dots">Dots</option>
+        </select>
+      </div>
+
+      <div class="checkbox-row" style="margin-bottom:12px;">
+        <label>
+          <input type="checkbox" id="addEquations">
+          <span>Add Equations</span>
+        </label>
+      </div>
+
+      <div class="control-group">
         <label for="rangeSelect">Number Range</label>
         <select id="rangeSelect">
           <option value="5" selected>Within 5</option>
           <option value="10">Within 10</option>
           <option value="20">Within 20</option>
           <option value="10to20">10 to 20</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="problemsPerSheet">Number of Problems</label>
+        <select id="problemsPerSheet">
+          <option value="4" selected>4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
         </select>
       </div>
 
@@ -727,8 +753,10 @@ function makeSymbolVB(id, innerHTML, viewBox) {
     // ===== Element refs =====
     const sheetWrap = document.getElementById("sheetWrap");
     const elRange = document.getElementById("rangeSelect");
-    const elProblems = { value: "4", addEventListener: function(){} };
-    const elShowEquation = { checked: false, addEventListener: function(){} };
+    const elProblems = document.getElementById("problemsPerSheet");
+    const elModeSelect = document.getElementById("modeSelect");
+    const elAddEquations = document.getElementById("addEquations");
+    const elShowEquation = { get checked() { return elAddEquations.checked; }, addEventListener: function(){} };
     const elNumSheets = document.getElementById("numWorksheets");
     const elAnswerKey = document.getElementById("answerKey");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
@@ -780,7 +808,7 @@ function makeSymbolVB(id, innerHTML, viewBox) {
     let currentState = { sheets: [] };
 
     // ===== Draw icon group (aspect-aware) =====
-    function drawIconGroup(svg, x, y, count, iconId, iconSize, maxPerRow) {
+    function drawIconGroup(svg, x, y, count, iconId, iconSize, maxPerRow, useDots, fixedDotR) {
       if (count === 0) return;
       maxPerRow = maxPerRow || 5;
       const dims = getIconDims(iconId, iconSize);
@@ -794,7 +822,12 @@ function makeSymbolVB(id, innerHTML, viewBox) {
         for (let c = 0; c < inThisRow; c++) {
           const ix = x + c * (dims.w + gapX);
           const iy = y + r * (dims.h + gapY);
-          svg.appendChild(svgEl("use", { href: "#" + iconId, x: ix, y: iy, width: dims.w, height: dims.h }));
+          if (useDots) {
+            const dotR = fixedDotR || Math.min(dims.w, dims.h) * 0.4;
+            svg.appendChild(svgEl("circle", { cx: ix + dims.w / 2, cy: iy + dims.h / 2, r: dotR, fill: "#4a5568" }));
+          } else {
+            svg.appendChild(svgEl("use", { href: "#" + iconId, x: ix, y: iy, width: dims.w, height: dims.h }));
+          }
           drawn++;
         }
       }
@@ -893,7 +926,7 @@ function makeSymbolVB(id, innerHTML, viewBox) {
 
     // ===== SVG Rendering =====
     function renderWorksheetSVG(problems, options, wsCode) {
-      const { showHeader, title, subtitle, branded, showAnswers, showEquation, numbered, includeExample, isAnswerKey } = options;
+      const { showHeader, title, subtitle, branded, showAnswers, showEquation, numbered, includeExample, isAnswerKey, useDots } = options;
       const pageW = 612, pageH = 792, margin = 36;
       const svg = svgEl("svg", {
         width: pageW, height: pageH,
@@ -1015,7 +1048,7 @@ function makeSymbolVB(id, innerHTML, viewBox) {
       const probNumW = probNumSize * 1.6;
 
       // Equation row height when showEquation is on
-      const eqRowH = showEquation ? fontSize * 1.0 : 0;
+      const eqRowH = showEquation ? fontSize * 1.8 : 0;
 
       // Icon sizing — large to fill the area
       const maxNum = parseInt(elRange.value, 10);
@@ -1041,6 +1074,36 @@ function makeSymbolVB(id, innerHTML, viewBox) {
       const groupsAvailW = colW - probNumW - 8 - opW - eqW - ansW;
       const halfGroupW = groupsAvailW / 2;
       const gapRatio = 0.05;
+
+      // Pre-calculate global minimum dot radius for dots mode
+      let globalDotR = null;
+      if (useDots) {
+        let minIconSize = Infinity;
+        for (let pi = 0; pi < problems.length; pi++) {
+          const { a: pa, b: pb, group1Icon: g1i, group2Icon: g2i } = problems[pi];
+          function preCalcSize(cnt, iid, mpr) {
+            const ar = iconAspect[iid] || 1;
+            const cc = Math.min(cnt, mpr);
+            const rr = Math.ceil(Math.max(cnt, 1) / mpr);
+            const wf = Math.max(1, ar);
+            const hf = Math.max(1, 1/ar);
+            const sw = (halfGroupW - 8) / (cc * wf + (cc - 1) * gapRatio);
+            const sh = (pictureH * 0.85) / (rr * hf + (rr - 1) * gapRatio);
+            return Math.min(sw, sh);
+          }
+          if (useRowsOf5) {
+            minIconSize = Math.min(minIconSize, preCalcSize(pa, g1i, 5), preCalcSize(pb, g2i, 5));
+          } else {
+            for (let m1 = Math.min(2, Math.max(pa,1)); m1 <= Math.max(pa,1); m1++) {
+              for (let m2 = Math.min(2, Math.max(pb,1)); m2 <= Math.max(pb,1); m2++) {
+                minIconSize = Math.min(minIconSize, preCalcSize(pa, g1i, m1), preCalcSize(pb, g2i, m2));
+              }
+            }
+          }
+        }
+        minIconSize = Math.max(12, Math.floor(minIconSize));
+        globalDotR = minIconSize * 0.4;
+      }
 
       for (let i = 0; i < problems.length; i++) {
         const cellLeft = margin;
@@ -1112,70 +1175,102 @@ function makeSymbolVB(id, innerHTML, viewBox) {
 
         // -- Group 1 icons (centered in halfGroupW) --
         const grp1Left = cx;
+        const group1CenterX = grp1Left + halfGroupW / 2;
         {
           const grpDims = getGroupDims(a, group1Icon, iconSize, mpr1);
           const gx = grp1Left + (halfGroupW - grpDims.w) / 2;
           const gy = picCenterY - grpDims.h / 2;
-          drawIconGroup(svg, gx, gy, a, group1Icon, iconSize, mpr1);
+          drawIconGroup(svg, gx, gy, a, group1Icon, iconSize, mpr1, useDots, globalDotR);
         }
         cx += halfGroupW;
 
-        // -- Plus sign --
-        const opEl = svgEl("text", { x: cx + opW / 2, y: picCenterY + fontSize * 0.35, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
-        opEl.textContent = "+"; svg.appendChild(opEl);
+        // -- Plus sign (only when no equations below) --
+        const plusCenterX = cx + opW / 2;
+        if (!showEquation) {
+          const opEl = svgEl("text", { x: plusCenterX, y: picCenterY + fontSize * 0.35, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
+          opEl.textContent = "+"; svg.appendChild(opEl);
+        }
         cx += opW;
 
         // -- Group 2 icons (centered in halfGroupW) --
         const grp2Left = cx;
+        const group2CenterX = grp2Left + halfGroupW / 2;
         {
           const grpDims = getGroupDims(b, group2Icon, iconSize, mpr2);
           const gx = grp2Left + (halfGroupW - grpDims.w) / 2;
           const gy = picCenterY - grpDims.h / 2;
-          drawIconGroup(svg, gx, gy, b, group2Icon, iconSize, mpr2);
+          drawIconGroup(svg, gx, gy, b, group2Icon, iconSize, mpr2, useDots, globalDotR);
         }
         cx += halfGroupW;
 
-        // -- Equals sign --
-        const eqEl = svgEl("text", { x: cx + eqW / 2, y: picCenterY + fontSize * 0.35, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
-        eqEl.textContent = "="; svg.appendChild(eqEl);
-        cx += eqW;
+        // -- Equals sign and answer (only in Pictures mode) --
+        const equalsCenterX = cx + eqW / 2;
+        const ansLeft = cx + eqW;
+        const ansCenter = ansLeft + boxW / 2;
+        if (!showEquation) {
+          const eqEl = svgEl("text", { x: equalsCenterX, y: picCenterY + fontSize * 0.35, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "700", fill: "#1a202c" });
+          eqEl.textContent = "="; svg.appendChild(eqEl);
+          cx += eqW;
 
-        // -- Answer underline --
-        const blankY = picCenterY + fontSize * 0.5;
-        const ansLeft = cx;
-        const ansCenter = cx + boxW / 2;
-        svg.appendChild(svgEl("line", {
-          x1: ansLeft, y1: blankY, x2: ansLeft + boxW, y2: blankY,
-          stroke: isExample ? "#22c55e" : "#cbd5e1", "stroke-width": "1.5"
-        }));
+          // Answer underline
+          const blankY = picCenterY + fontSize * 1.2;
+          svg.appendChild(svgEl("line", {
+            x1: ansLeft, y1: blankY, x2: ansLeft + boxW, y2: blankY,
+            stroke: isExample ? "#22c55e" : "#cbd5e1", "stroke-width": "1.5"
+          }));
 
-        if (isExample) {
-          const badgeX = ansLeft + boxW - 42, badgeY = blankY - fontSize * 1.5;
-          svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
-          const bt = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
-          bt.textContent = "Example"; svg.appendChild(bt);
-          const ansEl = svgEl("text", { x: ansCenter, y: picCenterY + fontSize * 0.35, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#16a34a" });
-          ansEl.textContent = String(answer); svg.appendChild(ansEl);
-        } else if (showAnswers) {
-          const ansEl = svgEl("text", { x: ansCenter, y: picCenterY + fontSize * 0.35, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
-          ansEl.textContent = String(answer); svg.appendChild(ansEl);
+          if (isExample) {
+            const badgeX = ansLeft + boxW - 42, badgeY = blankY - fontSize * 1.5;
+            svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
+            const bt = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
+            bt.textContent = "Example"; svg.appendChild(bt);
+            const ansEl = svgEl("text", { x: ansCenter, y: picCenterY + fontSize * 0.35, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#16a34a" });
+            ansEl.textContent = String(answer); svg.appendChild(ansEl);
+          } else if (showAnswers) {
+            const ansEl = svgEl("text", { x: ansCenter, y: picCenterY + fontSize * 0.35, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
+            ansEl.textContent = String(answer); svg.appendChild(ansEl);
+          }
         }
+        cx += eqW + boxW;
 
         // ===== Equation below pictures =====
         if (showEquation) {
-          const eqLineY = cellTop + pictureH + eqRowH * 0.6;
-          const eqFontSize = fontSize * 0.6;
-          const eqText = showAnswers
-            ? String(a) + " + " + String(b) + " = " + String(answer)
-            : String(a) + " + " + String(b) + " = ___";
-          const eqTextEl = svgEl("text", {
-            x: cellLeft + colW / 2, y: eqLineY,
-            "text-anchor": "middle",
-            "font-family": "'Google Sans Flex', sans-serif",
-            "font-size": String(eqFontSize), "font-weight": "500",
-            fill: showAnswers ? "#3182ce" : "#4a5568"
-          });
-          eqTextEl.textContent = eqText; svg.appendChild(eqTextEl);
+          const eqLineY = cellTop + pictureH + eqRowH * 0.5;
+          const eqFontSize = fontSize;
+          const underlineW = eqFontSize * 2.2;
+          const underlineStroke = 1.2;
+          const eqColor = "#4a5568";
+          const ansColor = "#3182ce";
+
+          // Underline under group 1
+          svg.appendChild(svgEl("line", { x1: group1CenterX - underlineW/2, y1: eqLineY + 4, x2: group1CenterX + underlineW/2, y2: eqLineY + 4, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
+          if (showAnswers) {
+            const numA = svgEl("text", { x: group1CenterX, y: eqLineY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(eqFontSize), "font-weight": "700", fill: ansColor });
+            numA.textContent = String(a); svg.appendChild(numA);
+          }
+
+          // Plus sign between groups
+          const eqPlusEl = svgEl("text", { x: plusCenterX, y: eqLineY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(eqFontSize), "font-weight": "700", fill: eqColor });
+          eqPlusEl.textContent = "+"; svg.appendChild(eqPlusEl);
+
+          // Underline under group 2
+          svg.appendChild(svgEl("line", { x1: group2CenterX - underlineW/2, y1: eqLineY + 4, x2: group2CenterX + underlineW/2, y2: eqLineY + 4, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
+          if (showAnswers) {
+            const numB = svgEl("text", { x: group2CenterX, y: eqLineY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(eqFontSize), "font-weight": "700", fill: ansColor });
+            numB.textContent = String(b); svg.appendChild(numB);
+          }
+
+          // Equals sign
+          const eqEqualsEl = svgEl("text", { x: equalsCenterX, y: eqLineY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(eqFontSize), "font-weight": "700", fill: eqColor });
+          eqEqualsEl.textContent = "="; svg.appendChild(eqEqualsEl);
+
+          // Answer underline after equals
+          const ansEqX = equalsCenterX + eqFontSize * 1.5;
+          svg.appendChild(svgEl("line", { x1: ansEqX - underlineW/2, y1: eqLineY + 4, x2: ansEqX + underlineW/2, y2: eqLineY + 4, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
+          if (showAnswers) {
+            const ansNum = svgEl("text", { x: ansEqX, y: eqLineY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(eqFontSize), "font-weight": "700", fill: ansColor });
+            ansNum.textContent = String(answer); svg.appendChild(ansNum);
+          }
         }
 
         // (no separator lines between problems)
@@ -1194,7 +1289,8 @@ function makeSymbolVB(id, innerHTML, viewBox) {
         maxSum: parseInt(elRange.value, 10) || 10,
         variety: elObjectVariety.value,
         problemsPerSheet: parseInt(elProblems.value, 10),
-        showEquation: elShowEquation.checked,
+        showEquation: elAddEquations.checked,
+        useDots: elModeSelect.value === "dots",
         numWorksheets: parseInt(elNumSheets.value, 10),
         answerKey: elAnswerKey.checked,
         showHeader: showHeader,
@@ -1239,7 +1335,7 @@ function makeSymbolVB(id, innerHTML, viewBox) {
           const p = document.createElement("div"); p.className = "worksheet-page";
           const v = renderWorksheetSVG(currentState.sheets[s], {
             showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
-            showAnswers: false, showEquation: opts.showEquation, numbered: opts.numbered,
+            showAnswers: false, showEquation: opts.showEquation, useDots: opts.useDots, numbered: opts.numbered,
             includeExample: opts.includeExample
           });
           p.appendChild(v); sheetWrap.appendChild(p);
@@ -1263,7 +1359,7 @@ function makeSymbolVB(id, innerHTML, viewBox) {
           const p = document.createElement("div"); p.className = "worksheet-page";
           const v = renderWorksheetSVG(currentState.sheets[s], {
             showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
-            showAnswers: false, showEquation: opts.showEquation, numbered: opts.numbered,
+            showAnswers: false, showEquation: opts.showEquation, useDots: opts.useDots, numbered: opts.numbered,
             includeExample: opts.includeExample
           });
           v.setAttribute("width", sw); v.setAttribute("height", sh);
@@ -1273,7 +1369,7 @@ function makeSymbolVB(id, innerHTML, viewBox) {
         const p = document.createElement("div"); p.className = "worksheet-page";
         const v = renderWorksheetSVG(currentState.sheets[0], {
           showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle, branded: opts.branded,
-          showAnswers: false, showEquation: opts.showEquation, numbered: opts.numbered,
+          showAnswers: false, showEquation: opts.showEquation, useDots: opts.useDots, numbered: opts.numbered,
           includeExample: opts.includeExample
         });
         p.appendChild(v); sheetWrap.appendChild(p);
@@ -1374,7 +1470,7 @@ function makeSymbolVB(id, innerHTML, viewBox) {
               for (let i = 0; i < currentState.sheets.length; i++) {
                 svgPages.push(renderWorksheetSVG(currentState.sheets[i], {
                   showHeader: "none", title: opts.title, subtitle: "", branded: opts.branded,
-                  showAnswers: true, isAnswerKey: true, showEquation: opts.showEquation, numbered: opts.numbered,
+                  showAnswers: true, isAnswerKey: true, showEquation: opts.showEquation, useDots: opts.useDots, numbered: opts.numbered,
                   includeExample: false
                 }, wsCodes[i]));
               }
@@ -1438,7 +1534,8 @@ function makeSymbolVB(id, innerHTML, viewBox) {
     // ===== Event Listeners =====
     elRange.addEventListener("change", () => renderWithNewRandomization());
     elProblems.addEventListener("change", () => renderWithNewRandomization());
-    elShowEquation.addEventListener("change", () => renderWithoutRandomization());
+    elModeSelect.addEventListener("change", () => renderWithNewRandomization());
+    elAddEquations.addEventListener("change", () => renderWithoutRandomization());
     elNumSheets.addEventListener("change", () => renderWithNewRandomization());
     elObjectVariety.addEventListener("change", () => renderWithNewRandomization());
     elLargerFirst.addEventListener("change", () => renderWithNewRandomization());

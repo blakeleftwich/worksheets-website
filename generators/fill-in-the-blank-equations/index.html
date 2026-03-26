@@ -563,6 +563,11 @@
       <div class="advanced-panel" id="advPanel">
         <div class="advanced-panel-inner">
 
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="largerFirst" checked />
+            <label for="largerFirst">Larger Number First</label>
+          </div>
+
           <div class="control-group">
             <label for="numWorksheets">Number of Worksheets</label>
             <select id="numWorksheets">
@@ -791,6 +796,7 @@
     const elAdvMin2 = document.getElementById("advMin2");
     const elAdvMax2 = document.getElementById("advMax2");
     const elAdvMaxAnswer = document.getElementById("advMaxAnswer");
+    const elLargerFirst = document.getElementById("largerFirst");
     const elNumSheets = document.getElementById("numWorksheets");
     const elProblems = document.getElementById("problemsPerSheet");
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
@@ -834,6 +840,7 @@
 
     // ===== Advanced panel toggle =====
     advToggle.addEventListener("click", () => { advPanel.classList.toggle("open"); advArrow.classList.toggle("open"); });
+    elLargerFirst.addEventListener("change", () => renderWithNewRandomization());
     elRegroupEnabled.addEventListener("change", () => { elRegroupOptions.style.display = elRegroupEnabled.checked ? "block" : "none"; renderWithNewRandomization(); });
 
     // ===== Overrides toggle =====
@@ -1216,6 +1223,15 @@
         }
         if (!hasAdjacentConflict(problems)) break;
       }
+      // Apply larger-first: for + and ×, ensure top >= bottom
+      if (opts.largerFirst) {
+        for (const p of problems) {
+          if ((p.op === "+" || p.op === "\u00d7") && p.top < p.bottom) {
+            [p.top, p.bottom] = [p.bottom, p.top];
+          }
+        }
+      }
+
       return problems;
     }
 
@@ -1529,6 +1545,7 @@
         includeExample: elIncludeExample.checked,
         useZero: elUseZero.checked,
         zeroPercent: parseInt(elZeroPercent.value, 10),
+        largerFirst: elLargerFirst.checked,
       };
     }
 
