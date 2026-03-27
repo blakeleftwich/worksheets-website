@@ -757,7 +757,9 @@
       const sequences = [];
 
       // Pre-compute all possible unique start numbers for this mode/range
+      // Ensure no number in the sequence exceeds rangeMax
       const { rangeMin, rangeMax } = parseRange();
+      const maxStart = rangeMax - (numsPerSeq - 1) * skipBy;
       const allStarts = [];
       if (startMode === "0") {
         allStarts.push(0);
@@ -765,17 +767,24 @@
         allStarts.push(1);
       } else if (startMode === "multiples") {
         const minMult = Math.max(1, Math.ceil(rangeMin / skipBy));
-        const maxMult = Math.floor(rangeMax / skipBy);
+        const maxMult = maxStart > 0 ? Math.floor(maxStart / skipBy) : 0;
         for (let m = minMult; m <= maxMult; m++) allStarts.push(skipBy * m);
       } else if (startMode === "any") {
-        for (let n = rangeMin; n <= rangeMax; n++) {
-          if (skipBy === 1 || n % skipBy !== 0) allStarts.push(n);
+        const lo = Math.min(rangeMin, maxStart);
+        const hi = maxStart;
+        for (let n = lo; n <= hi; n++) {
+          if (n >= 0 && (skipBy === 1 || n % skipBy !== 0)) allStarts.push(n);
         }
       } else {
         // mixed: both multiples and non-multiples
-        for (let n = rangeMin; n <= rangeMax; n++) allStarts.push(n);
+        const lo = Math.min(rangeMin, maxStart);
+        const hi = maxStart;
+        for (let n = lo; n <= hi; n++) {
+          if (n >= 0) allStarts.push(n);
+        }
       }
-      if (allStarts.length === 0) allStarts.push(skipBy); // fallback
+      // Fallback: if no valid starts, use rangeMin (sequence may exceed max, but this is the best we can do)
+      if (allStarts.length === 0) allStarts.push(rangeMin);
 
       // Shuffle the pool of unique starts
       for (let i = allStarts.length - 1; i > 0; i--) {
