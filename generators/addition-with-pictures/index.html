@@ -1184,31 +1184,22 @@
             const fullSentence = leftPart + gapSpaces + pluralLabel;
             const gapStartIdx = leftPart.length;
             const gapEndIdx = leftPart.length + gapSpaces.length;
-            // Single text element for entire sentence
+            // Single text element with non-breaking spaces for the gap
             const storyEl = svgEl("text", { x: storyLeftX, y: storyY, "text-anchor": "start", "font-family": "Fredoka, sans-serif", "font-size": String(storyFontSize), "font-weight": "500", fill: eqColor });
             storyEl.textContent = fullSentence;
+            storyEl.dataset.gapStart = gapStartIdx;
+            storyEl.dataset.gapEnd = gapEndIdx;
+            storyEl.classList.add("story-sentence");
             svg.appendChild(storyEl);
-            // Find the gap center: measure the full text, then measure without the gap+label
-            // to find where the gap starts. The gap is always 10 chars of equal width,
-            // so its center is always at gapStart + 5 * spaceWidth.
-            const fullLen = storyEl.getComputedTextLength();
-            // Temporarily set text to just the left part to measure its width
-            storyEl.textContent = leftPart;
-            const leftLen = storyEl.getComputedTextLength();
-            // Measure one space width
-            storyEl.textContent = leftPart + "\u00A0";
-            const leftPlusOneSpace = storyEl.getComputedTextLength();
-            const spaceW = leftPlusOneSpace - leftLen;
-            // Restore full sentence
-            storyEl.textContent = fullSentence;
-            // Gap center = end of left text + half the gap (5 spaces)
-            const gapCenterX = storyLeftX + leftLen + spaceW * 5;
-            const underStartX = gapCenterX - storyUnderW / 2;
-            const underEndX = gapCenterX + storyUnderW / 2;
-            svg.appendChild(svgEl("line", { x1: underStartX, y1: storyUnderY, x2: underEndX, y2: storyUnderY, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
+            // Placeholder underline and answer — will be repositioned after fonts load
+            const underLine = svgEl("line", { x1: 0, y1: storyUnderY, x2: 0, y2: storyUnderY, stroke: "#cbd5e1", "stroke-width": underlineStroke });
+            underLine.classList.add("story-underline");
+            underLine.dataset.underW = storyUnderW;
+            svg.appendChild(underLine);
             if (showAnswers) {
-              const ansEl = svgEl("text", { x: gapCenterX, y: storyY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(storyFontSize * 1.1), "font-weight": "700", fill: ansColor });
+              const ansEl = svgEl("text", { x: 0, y: storyY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(storyFontSize * 1.1), "font-weight": "700", fill: ansColor });
               ansEl.textContent = String(answer);
+              ansEl.classList.add("story-answer");
               svg.appendChild(ansEl);
             }
           } else {
@@ -1347,6 +1338,46 @@
         });
         p.appendChild(v); sheetWrap.appendChild(p);
       }
+      // Defer underline positioning until after layout/fonts
+      requestAnimationFrame(() => repositionStoryUnderlines());
+    }
+
+    // Reposition story underlines after fonts are loaded and text is measurable
+    function repositionStoryUnderlines() {
+      document.querySelectorAll(".story-sentence").forEach(storyEl => {
+        const svg = storyEl.closest("svg");
+        if (!svg) return;
+        const gapStart = parseInt(storyEl.dataset.gapStart);
+        const gapEnd = parseInt(storyEl.dataset.gapEnd);
+        const orig = storyEl.textContent;
+        const leftPart = orig.substring(0, gapStart);
+        // Measure left part width
+        storyEl.textContent = leftPart;
+        const leftW = storyEl.getComputedTextLength();
+        // Measure one space
+        storyEl.textContent = leftPart + "\u00A0";
+        const spaceW = storyEl.getComputedTextLength() - leftW;
+        // Restore
+        storyEl.textContent = orig;
+        const x = parseFloat(storyEl.getAttribute("x"));
+        const gapCenterX = x + leftW + spaceW * ((gapEnd - gapStart) / 2);
+        // Find the next sibling underline and answer
+        let sib = storyEl.nextElementSibling;
+        while (sib) {
+          if (sib.classList.contains("story-underline")) {
+            const underW = parseFloat(sib.dataset.underW);
+            sib.setAttribute("x1", gapCenterX - underW / 2);
+            sib.setAttribute("x2", gapCenterX + underW / 2);
+            sib = sib.nextElementSibling;
+            continue;
+          }
+          if (sib.classList.contains("story-answer")) {
+            sib.setAttribute("x", gapCenterX);
+            break;
+          }
+          break;
+        }
+      });
     }
 
     // ===== Print =====
