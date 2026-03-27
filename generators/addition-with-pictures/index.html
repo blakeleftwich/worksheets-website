@@ -1172,37 +1172,44 @@
             // Use the answer icon name (group1's name since answer represents the combined total)
             const answerIconName = iconName1 === iconName2 ? iconName1 : "item";
             const pluralAns = (n) => n === 1 ? answerIconName : pluralize(answerIconName);
-            const storyText = a + " " + plural1(a) + " and " + b + " " + plural2(b) + " make";
             const storyFontSize = Math.min(eqFontSize * 0.85, 18);
             const storyLeftX = cellLeft + (colW - totalProbW) / 2 + probNumW;
             const storyY = eqLineY - storyFontSize * 0.2;
             const storyUnderW = storyFontSize * 2.0;
             const storyUnderY = storyY + storyFontSize * 0.5;
             const pluralLabel = pluralAns(answer) + ".";
-            const gapW = storyFontSize * 0.25;
-            // Story text with "make" included, left-aligned
-            const storyWithMake = storyText + " ";
+            // Build single sentence with spaces for the blank gap
+            const leftPart = a + " " + plural1(a) + " and " + b + " " + plural2(b) + " make";
+            const gapSpaces = "\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0"; // 10 non-breaking spaces
+            const fullSentence = leftPart + gapSpaces + pluralLabel;
+            const gapStartIdx = leftPart.length;
+            const gapEndIdx = leftPart.length + gapSpaces.length;
+            // Single text element for entire sentence
             const storyEl = svgEl("text", { x: storyLeftX, y: storyY, "text-anchor": "start", "font-family": "Fredoka, sans-serif", "font-size": String(storyFontSize), "font-weight": "500", fill: eqColor });
-            storyEl.textContent = storyWithMake;
+            storyEl.textContent = fullSentence;
             svg.appendChild(storyEl);
-            // Measure rendered text width (use approximation as fallback)
-            let measuredStoryW = storyWithMake.length * storyFontSize * 0.44;
-            try { const len = storyEl.getComputedTextLength(); if (len > 0) measuredStoryW = len; } catch(e) {}
-            const storyTextEnd = storyLeftX + measuredStoryW;
-            // Wider gap with underline centered within it
-            const blankGap = storyFontSize * 3.2;
-            const blankStart = storyTextEnd + gapW;
-            const underStartX = blankStart + (blankGap - storyUnderW) / 2;
-            const underEndX = underStartX + storyUnderW;
-            // Underline
+            // Measure full sentence and left part to find gap position
+            let fullW = fullSentence.length * storyFontSize * 0.44;
+            let leftW = leftPart.length * storyFontSize * 0.44;
+            let leftPlusGapW = (leftPart.length + gapSpaces.length) * storyFontSize * 0.44;
+            try {
+              const len = storyEl.getComputedTextLength();
+              if (len > 0) {
+                // Scale proportionally: measured total / estimated total
+                const scale = len / fullW;
+                leftW *= scale;
+                leftPlusGapW *= scale;
+              }
+            } catch(e) {}
+            const gapStartX = storyLeftX + leftW;
+            const gapEndX = storyLeftX + leftPlusGapW;
+            // Center underline within the gap
+            const gapCenterX = (gapStartX + gapEndX) / 2;
+            const underStartX = gapCenterX - storyUnderW / 2;
+            const underEndX = gapCenterX + storyUnderW / 2;
             svg.appendChild(svgEl("line", { x1: underStartX, y1: storyUnderY, x2: underEndX, y2: storyUnderY, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
-            // Plural label after gap
-            const labelEl = svgEl("text", { x: blankStart + blankGap + gapW, y: storyY, "font-family": "Fredoka, sans-serif", "font-size": String(storyFontSize), "font-weight": "500", fill: eqColor });
-            labelEl.textContent = pluralLabel;
-            svg.appendChild(labelEl);
             if (showAnswers) {
-              const underCenterX = blankStart + blankGap / 2;
-              const ansEl = svgEl("text", { x: underCenterX, y: storyY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(storyFontSize * 1.1), "font-weight": "700", fill: ansColor });
+              const ansEl = svgEl("text", { x: gapCenterX, y: storyY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(storyFontSize * 1.1), "font-weight": "700", fill: ansColor });
               ansEl.textContent = String(answer);
               svg.appendChild(ansEl);
             }
