@@ -781,10 +781,71 @@
     // ===== Problem generation =====
     function generateProblems(count, opts) {
       const { min1, max1, min2, max2, maxAnswer, operations } = opts;
-      const problems = [];
-      const seen = new Set();
 
-      // Determine how many problems per operation (even split)
+      // Build complete pool of all valid unique equations (including zero variants)
+      function buildPool() {
+        const pool = [];
+        const poolKeys = new Set();
+        function addToPool(top, bottom, op, answer) {
+          const key = op + ":" + top + "," + bottom;
+          if (poolKeys.has(key)) return;
+          if (maxAnswer !== null && Math.abs(answer) > maxAnswer) return;
+          poolKeys.add(key);
+          pool.push({ top, bottom, op, answer });
+        }
+        for (const op of operations) {
+          if (op === "+") {
+            for (let a = min1; a <= max1; a++) for (let b = min2; b <= max2; b++) addToPool(a, b, op, a + b);
+          } else if (op === "-") {
+            for (let a = min1; a <= max1; a++) for (let b = min2; b <= max2; b++) {
+              const t = Math.max(a, b), bo = Math.min(a, b);
+              addToPool(t, bo, op, t - bo);
+            }
+          } else if (op === "\u00d7") {
+            for (let a = min1; a <= max1; a++) for (let b = min2; b <= max2; b++) addToPool(a, b, op, a * b);
+          } else if (op === "\u00f7") {
+            for (let d = Math.max(1, min2); d <= max2; d++) for (let q = Math.max(1, min1); q <= max1; q++) addToPool(d * q, d, op, q);
+          }
+        }
+        // Add zero variants if enabled
+        if (opts.useZero) {
+          for (const op of operations) {
+            for (let v = 0; v <= Math.max(max1, max2); v++) {
+              if (op === "+") {
+                addToPool(0, v, op, v);
+                addToPool(v, 0, op, v);
+              } else if (op === "-") {
+                addToPool(v, 0, op, v);
+              } else if (op === "\u00d7") {
+                addToPool(0, v, op, 0);
+                addToPool(v, 0, op, 0);
+              } else if (op === "\u00f7") {
+                if (v >= 1) addToPool(0, v, op, 0);
+              }
+            }
+          }
+        }
+        return pool;
+      }
+
+      const fullPool = buildPool();
+
+      // Shuffle pool
+      for (let i = fullPool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [fullPool[i], fullPool[j]] = [fullPool[j], fullPool[i]]; }
+
+      // Split pool into non-zero and zero equations
+      const nonZeroPool = fullPool.filter(p => p.top !== 0 && p.bottom !== 0);
+      const zeroPool = fullPool.filter(p => p.top === 0 || p.bottom === 0);
+
+      // Determine how many zero problems we want
+      const targetZeroCount = opts.useZero ? Math.max(1, Math.round(count * opts.zeroPercent / 100)) : 0;
+      const targetNonZeroCount = count - targetZeroCount;
+
+      // Pick problems, preferring unique
+      const problems = [];
+      const usedKeys = new Set();
+
+      // Determine per-operation quotas
       let opQuotas = null;
       if (operations.length > 1) {
         opQuotas = {};
@@ -796,112 +857,44 @@
         }
       }
 
-      function opCountFor(op) {
-        return problems.filter(p => p.op === op).length;
-      }
+      function opCountFor(op) { return problems.filter(p => p.op === op).length; }
+      function opFull(op) { return opQuotas ? opCountFor(op) >= opQuotas[op] : false; }
 
-      function opFull(op) {
-        if (!opQuotas) return false;
-        return opCountFor(op) >= opQuotas[op];
-      }
-
-      let attempts = 0;
-      while (problems.length < count && attempts < count * 500) {
-        attempts++;
-
-        let op;
-        if (opQuotas) {
-          const available = operations.filter(o => !opFull(o));
-          if (available.length === 0) break;
-          op = available[Math.floor(Math.random() * available.length)];
-        } else {
-          op = operations[Math.floor(Math.random() * operations.length)];
+      function pickFrom(pool, needed) {
+        // First pass: unique only, respecting op quotas
+        const unused = pool.filter(p => {
+          const key = p.op + ":" + p.top + "," + p.bottom;
+          return !usedKeys.has(key);
+        });
+        for (const p of unused) {
+          if (problems.length >= count) break;
+          if (needed <= 0) break;
+          if (opQuotas && opFull(p.op)) continue;
+          const key = p.op + ":" + p.top + "," + p.bottom;
+          usedKeys.add(key);
+          problems.push({ ...p });
+          needed--;
         }
-
-        let top, bottom, answer;
-
-        if (op === "+") {
-          top = min1 + Math.floor(Math.random() * (max1 - min1 + 1));
-          bottom = min2 + Math.floor(Math.random() * (max2 - min2 + 1));
-          answer = top + bottom;
-
-        } else if (op === "-") {
-          let a = min1 + Math.floor(Math.random() * (max1 - min1 + 1));
-          let b = min2 + Math.floor(Math.random() * (max2 - min2 + 1));
-          top = Math.max(a, b);
-          bottom = Math.min(a, b);
-          answer = top - bottom;
-
-        } else if (op === "\u00d7") {
-          top = min1 + Math.floor(Math.random() * (max1 - min1 + 1));
-          bottom = min2 + Math.floor(Math.random() * (max2 - min2 + 1));
-          answer = top * bottom;
-
-        } else if (op === "\u00f7") {
-          const divisor = Math.max(1, min2) + Math.floor(Math.random() * (Math.max(1, max2) - Math.max(1, min2) + 1));
-          const quotient = Math.max(1, min1) + Math.floor(Math.random() * (max1 - Math.max(1, min1) + 1));
-          top = divisor * quotient;
-          bottom = divisor;
-          answer = quotient;
-        }
-
-        if (maxAnswer !== null && Math.abs(answer) > maxAnswer) continue;
-        const key = op + ":" + top + "," + bottom;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        problems.push({ top, bottom, op, answer });
+        return needed;
       }
 
-      // Fill remainder if needed (allow duplicates as fallback)
-      let fa = 0;
-      while (problems.length < count && fa < count * 500) {
-        fa++;
-        const op = operations[Math.floor(Math.random() * operations.length)];
-        const a = min1 + Math.floor(Math.random() * (max1 - min1 + 1));
-        const b = Math.max(1, min2 + Math.floor(Math.random() * (max2 - min2 + 1)));
-        let top = a, bottom = b, answer;
-        if (op === "+") { answer = a + b; }
-        else if (op === "-") { top = Math.max(a, b); bottom = Math.min(a, b); answer = top - bottom; }
-        else if (op === "\u00d7") { answer = a * b; }
-        else {
-          if (bottom === 0) bottom = 1;
-          top = Math.max(a, b);
-          bottom = Math.min(a, b);
-          if (bottom === 0) bottom = 1;
-          answer = Math.floor(top / bottom);
-        }
-        if (maxAnswer !== null && Math.abs(answer) > maxAnswer) continue;
-        const key = op + ":" + top + "," + bottom;
-        if (seen.has(key) && fa < count * 200) continue;
-        seen.add(key);
-        problems.push({ top, bottom, op, answer });
-      }
-      while (problems.length < count) {
-        problems.push({ top: Math.max(1, min1), bottom: Math.max(1, min2), op: operations[0], answer: 0 });
-      }
+      // Pick non-zero problems first, then zero problems
+      let remainNonZero = pickFrom(nonZeroPool, targetNonZeroCount);
+      let remainZero = pickFrom(zeroPool, targetZeroCount);
 
-      // Apply zero percentage: replace one operand with 0 for the specified % of problems
-      if (opts.useZero) {
-        const zeroCount = Math.max(1, Math.round(problems.length * opts.zeroPercent / 100));
-        const indices = problems.map((_, i) => i);
-        for (let i = indices.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [indices[i], indices[j]] = [indices[j], indices[i]]; }
-        const zeroIndices = new Set(indices.slice(0, zeroCount));
-        for (const idx of zeroIndices) {
-          const p = problems[idx];
-          const zeroTop = (p.op === "\u00f7") ? true : Math.random() < 0.5;
-          if (zeroTop) {
-            p.top = 0;
-            if (p.op === "+") p.answer = p.bottom;
-            else if (p.op === "-") { p.top = p.bottom; p.bottom = 0; p.answer = p.top; }
-            else if (p.op === "\u00d7") p.answer = 0;
-            else if (p.op === "\u00f7") { p.top = 0; p.answer = 0; }
-          } else {
-            p.bottom = 0;
-            if (p.op === "+") p.answer = p.top;
-            else if (p.op === "-") p.answer = p.top;
-            else if (p.op === "\u00d7") p.answer = 0;
-            else if (p.op === "\u00f7") { p.top = 0; p.answer = 0; }
-          }
+      // If either pool was too small, fill from the other
+      if (remainNonZero > 0) remainNonZero = pickFrom(zeroPool, remainNonZero);
+      if (remainZero > 0) remainZero = pickFrom(nonZeroPool, remainZero);
+
+      // If still short, allow duplicates as fallback (pick from full pool again)
+      if (problems.length < count) {
+        const remaining = count - problems.length;
+        // Re-shuffle the full pool and pick, allowing dupes
+        for (let i = fullPool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [fullPool[i], fullPool[j]] = [fullPool[j], fullPool[i]]; }
+        let fi = 0;
+        while (problems.length < count) {
+          problems.push({ ...fullPool[fi % fullPool.length] });
+          fi++;
         }
       }
 
