@@ -510,12 +510,6 @@
             <label for="hideExample">Hide example</label>
           </div>
 
-          <!-- Guidelines Only -->
-          <div class="adv-checkbox-row">
-            <input type="checkbox" id="guidelinesOnly" />
-            <label for="guidelinesOnly">Guidelines Only</label>
-          </div>
-
           <!-- Fade away -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="fadeAway" checked />
@@ -611,7 +605,6 @@
     const sheetWrap = document.getElementById("sheetWrap");
     const elNumSheets = document.getElementById("numWorksheets");
     const elHideExample = document.getElementById("hideExample");
-    const elGuidelinesOnly = document.getElementById("guidelinesOnly");
     const elFadeAway = document.getElementById("fadeAway");
     const elSizeSelect = document.getElementById("sizeSelect");
     const elOnePerPage = document.getElementById("onePerPage");
@@ -697,7 +690,6 @@
         subtitle: getSubtitle(),
         branded: elBranded.checked,
         hideExample: elHideExample.checked,
-        guidelinesOnly: elGuidelinesOnly.checked,
         fadeAway: elFadeAway.checked,
       };
     }
@@ -1002,7 +994,6 @@
       var subtitle = options.subtitle;
       var branded = options.branded;
       var hideExample = options.hideExample || false;
-      var guidelinesOnly = options.guidelinesOnly || false;
       var onePerPage = options.onePerPage || false;
       var fadeAway = options.fadeAway !== false;
 
@@ -1060,35 +1051,16 @@
 
       var bottomMargin = branded ? 56 : 24;
       var gridBot = pageH - bottomMargin;
+      var numRows = numbers.length;
+      var rowH = (gridBot - gridTop) / numRows;
 
-      if (guidelinesOnly) {
-        // Draw 5 rows of just guidelines (no numbers)
-        var glRows = 5;
-        var glRowH = (gridBot - gridTop) / glRows;
-        var lineRight = pageW - margin;
-        for (var gr = 0; gr < glRows; gr++) {
-          var digitH = glRowH * 0.88;
-          var digitTop = gridTop + gr * glRowH + (glRowH - digitH) / 2;
-          var halfStroke = 1.4;
-          var actualTop = digitTop + 0.05 * digitH - halfStroke;
-          var actualBot = digitTop + 0.95 * digitH + halfStroke;
-          var actualMid = (actualTop + actualBot) / 2;
-          svg.appendChild(svgEl("line", { x1: String(margin), y1: String(actualTop), x2: String(lineRight), y2: String(actualTop), stroke: "#aaa", "stroke-width": "1" }));
-          svg.appendChild(svgEl("line", { x1: String(margin), y1: String(actualMid), x2: String(lineRight), y2: String(actualMid), stroke: "#ccc", "stroke-width": "0.75", "stroke-dasharray": "8 5" }));
-          svg.appendChild(svgEl("line", { x1: String(margin), y1: String(actualBot), x2: String(lineRight), y2: String(actualBot), stroke: "#aaa", "stroke-width": "1" }));
-        }
-      } else {
-        var numRows = numbers.length;
-        var rowH = (gridBot - gridTop) / numRows;
+      // Scale factor for indicator sizing based on how many rows
+      var scale = numRows <= 4 ? 1 : (4 / numRows);
 
-        // Scale factor for indicator sizing based on how many rows
-        var scale = numRows <= 4 ? 1 : (4 / numRows);
-
-        for (var r = 0; r < numRows; r++) {
-          // In one-per-page mode, only first row gets example; rest are hidden
-          var rowHideExample = hideExample || (onePerPage && r > 0);
-          drawTracingRow(svg, numbers[r], gridTop + r * rowH, rowH, margin, pageW, scale, rowHideExample, fadeAway);
-        }
+      for (var r = 0; r < numRows; r++) {
+        // In one-per-page mode, only first row gets example; rest are hidden
+        var rowHideExample = hideExample || (onePerPage && r > 0);
+        drawTracingRow(svg, numbers[r], gridTop + r * rowH, rowH, margin, pageW, scale, rowHideExample, fadeAway);
       }
 
       return svg;
@@ -1099,13 +1071,6 @@
     // If onePerPage, each number gets its own page of 5 rows.
     function buildPages() {
       var opts = gatherOptions();
-      if (opts.guidelinesOnly) {
-        // Guidelines only: one page per worksheet with placeholder rows
-        var result = [];
-        for (var s = 0; s < opts.numWorksheets; s++) result.push([0, 0, 0, 0, 0]);
-        currentState.pages = result;
-        return;
-      }
       var allNumbers = opts.selectedNumbers;
       if (allNumbers.length === 0) { currentState.pages = []; return; }
 
@@ -1356,7 +1321,6 @@
     elSizeSelect.addEventListener("change", regenerate);
     elOnePerPage.addEventListener("change", regenerate);
     elHideExample.addEventListener("change", regenerate);
-    elGuidelinesOnly.addEventListener("change", regenerate);
     elFadeAway.addEventListener("change", regenerate);
     elShowHeaderEnabled.addEventListener("change", function() {
       elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
