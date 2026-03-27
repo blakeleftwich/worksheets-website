@@ -872,7 +872,7 @@
       const { max: rangeMax } = getRangeMinMax();
       const useTwoCols = rangeMax <= 20;
       const colCount = useTwoCols ? 2 : 1;
-      const colGap = useTwoCols ? 16 : 0;
+      const colGap = useTwoCols ? 36 : 0;
       const layoutColW = useTwoCols ? (availW - colGap) / 2 : availW;
       const visualRows = useTwoCols ? Math.ceil(numRows / 2) : numRows;
 
@@ -898,7 +898,7 @@
         const groupGap = Math.round(us * gapMult);
         const itemGap = Math.max(1, Math.round(us * itemGapMult));
         // In 2-col mode, use a narrower chart to fit within the column
-        const baseChartW = useTwoCols ? Math.min(120, layoutColW * 0.48) : 180 - us;
+        const baseChartW = useTwoCols ? Math.min(140, layoutColW * 0.55) : 180 - us;
         return {
           unitSize: us, rodW: us, rodH: us * 10,
           rodGap: itemGap,
@@ -906,9 +906,9 @@
           flatSize: us * 10, flatGap: itemGap,
           groupGap: groupGap,
           chartW: baseChartW, chartHeaderH: 22,
-          chartBodyH: 36 + us * 2,
-          chartTotalH: 22 + 36 + us * 2,
-          chartFontSize: useTwoCols ? 10 : 11
+          chartBodyH: 42 + us * 2,
+          chartTotalH: 22 + 42 + us * 2,
+          chartFontSize: useTwoCols ? 11 : 11
         };
       }
 
@@ -973,7 +973,8 @@
         // Draw place value chart — in 2-col mode, place right after blocks; in 1-col, right-align
         const chartX = useTwoCols ? (contentLeft + blocksW + 8 - 24) : (cellLeft + cellAvailW - chartW);
         const blocksTallestH = (useHundreds && hundreds > 0) ? Math.max(rodH, flatSize) : rodH;
-        const chartY = contentTop + blocksTallestH / 2 - chartTotalH / 2;
+        // Bottom-align chart with blocks
+        const chartY = contentTop + blocksTallestH - chartTotalH;
         const numCols = useHundreds ? 3 : 2;
         const chartColW = chartW / numCols;
 
