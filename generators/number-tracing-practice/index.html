@@ -510,6 +510,18 @@
             <label for="hideExample">Hide example</label>
           </div>
 
+          <!-- Zero Last -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="zeroLast" />
+            <label for="zeroLast">Zero Last</label>
+          </div>
+
+          <!-- Hide Numbers -->
+          <div class="adv-checkbox-row">
+            <input type="checkbox" id="hideNumbers" />
+            <label for="hideNumbers">Hide Numbers</label>
+          </div>
+
           <!-- Fade away -->
           <div class="adv-checkbox-row">
             <input type="checkbox" id="fadeAway" checked />
@@ -605,6 +617,8 @@
     const sheetWrap = document.getElementById("sheetWrap");
     const elNumSheets = document.getElementById("numWorksheets");
     const elHideExample = document.getElementById("hideExample");
+    const elHideNumbers = document.getElementById("hideNumbers");
+    const elZeroLast = document.getElementById("zeroLast");
     const elFadeAway = document.getElementById("fadeAway");
     const elSizeSelect = document.getElementById("sizeSelect");
     const elOnePerPage = document.getElementById("onePerPage");
@@ -630,6 +644,9 @@
         nums.push(parseInt(b.dataset.num));
       });
       nums.sort(function(a, b) { return a - b; });
+      if (elZeroLast.checked && nums.length > 0 && nums[0] === 0) {
+        nums.push(nums.shift());
+      }
       return nums;
     }
     const elShowHeaderEnabled = document.getElementById("showHeaderEnabled");
@@ -669,6 +686,7 @@
       if (elCustomTitleEnabled.checked) {
         return elShowSubtitle.checked ? elSubtitleText.value : "";
       }
+      if (elHideNumbers.checked) return "Practice writing numbers.";
       return "Trace each number, then practice writing it on your own.";
     }
 
@@ -690,6 +708,7 @@
         subtitle: getSubtitle(),
         branded: elBranded.checked,
         hideExample: elHideExample.checked,
+        hideNumbers: elHideNumbers.checked,
         fadeAway: elFadeAway.checked,
       };
     }
@@ -924,7 +943,7 @@
       });
     }
 
-    function drawTracingRow(svg, num, rowTop, rowH, margin, pageW, scale, hideExample, fadeAway) {
+    function drawTracingRow(svg, num, rowTop, rowH, margin, pageW, scale, hideExample, hideNumbers, fadeAway) {
       scale = scale || 1;
       var lineRight = pageW - margin;
       var digits = String(num).split("").map(Number);
@@ -952,37 +971,41 @@
         svg.appendChild(svgEl("line", { x1: String(linesStart), y1: String(actualMid), x2: String(lineRight), y2: String(actualMid), stroke: "#ccc", "stroke-width": "0.75", "stroke-dasharray": "8 5" }));
         svg.appendChild(svgEl("line", { x1: String(linesStart), y1: String(actualBot), x2: String(lineRight), y2: String(actualBot), stroke: "#aaa", "stroke-width": "1" }));
 
-        var traceAreaW = lineRight - linesStart;
-        var numTraced = isMultiDigit ? 2 : 4;
-        var spacing = isMultiDigit ? traceAreaW / 2 : traceAreaW / numTraced;
+        if (!hideNumbers) {
+          var traceAreaW = lineRight - linesStart;
+          var numTraced = isMultiDigit ? 2 : 4;
+          var spacing = isMultiDigit ? traceAreaW / 2 : traceAreaW / numTraced;
 
-        var opacities = fadeAway ? [0.80, 0.50, 0.25, 0.10] : [0.60, 0.60, 0.60, 0.60];
-        for (var i = 0; i < numTraced; i++) {
-          var cx = linesStart + spacing * (i + 0.5);
-          drawNumber(svg, num, cx, digitTop, digitH, {
-            opacity: opacities[i] || (fadeAway ? 0.08 : 0.60),
-            strokeWidth: 2.2,
-          });
+          var opacities = fadeAway ? [0.80, 0.50, 0.25, 0.10] : [0.60, 0.60, 0.60, 0.60];
+          for (var i = 0; i < numTraced; i++) {
+            var cx = linesStart + spacing * (i + 0.5);
+            drawNumber(svg, num, cx, digitTop, digitH, {
+              opacity: opacities[i] || (fadeAway ? 0.08 : 0.60),
+              strokeWidth: 2.2,
+            });
+          }
         }
       } else {
-        // No guide — guidelines extend to margin, one extra traced number
+        // No guide — guidelines extend to margin
         var linesStartH = margin;
 
         svg.appendChild(svgEl("line", { x1: String(linesStartH), y1: String(actualTop), x2: String(lineRight), y2: String(actualTop), stroke: "#aaa", "stroke-width": "1" }));
         svg.appendChild(svgEl("line", { x1: String(linesStartH), y1: String(actualMid), x2: String(lineRight), y2: String(actualMid), stroke: "#ccc", "stroke-width": "0.75", "stroke-dasharray": "8 5" }));
         svg.appendChild(svgEl("line", { x1: String(linesStartH), y1: String(actualBot), x2: String(lineRight), y2: String(actualBot), stroke: "#aaa", "stroke-width": "1" }));
 
-        var traceAreaWH = lineRight - linesStartH;
-        var numTracedH = isMultiDigit ? 3 : 5;
-        var spacingH = traceAreaWH / numTracedH;
+        if (!hideNumbers) {
+          var traceAreaWH = lineRight - linesStartH;
+          var numTracedH = isMultiDigit ? 3 : 5;
+          var spacingH = traceAreaWH / numTracedH;
 
-        var opacitiesH = fadeAway ? [0.80, 0.50, 0.25, 0.10, 0.05] : [0.60, 0.60, 0.60, 0.60, 0.60];
-        for (var j = 0; j < numTracedH; j++) {
-          var cxH = linesStartH + spacingH * (j + 0.5);
-          drawNumber(svg, num, cxH, digitTop, digitH, {
-            opacity: opacitiesH[j] || (fadeAway ? 0.05 : 0.60),
-            strokeWidth: 2.2,
-          });
+          var opacitiesH = fadeAway ? [0.80, 0.50, 0.25, 0.10, 0.05] : [0.60, 0.60, 0.60, 0.60, 0.60];
+          for (var j = 0; j < numTracedH; j++) {
+            var cxH = linesStartH + spacingH * (j + 0.5);
+            drawNumber(svg, num, cxH, digitTop, digitH, {
+              opacity: opacitiesH[j] || (fadeAway ? 0.05 : 0.60),
+              strokeWidth: 2.2,
+            });
+          }
         }
       }
     }
@@ -994,6 +1017,7 @@
       var subtitle = options.subtitle;
       var branded = options.branded;
       var hideExample = options.hideExample || false;
+      var hideNumbers = options.hideNumbers || false;
       var onePerPage = options.onePerPage || false;
       var fadeAway = options.fadeAway !== false;
 
@@ -1060,7 +1084,7 @@
       for (var r = 0; r < numRows; r++) {
         // In one-per-page mode, only first row gets example; rest are hidden
         var rowHideExample = hideExample || (onePerPage && r > 0);
-        drawTracingRow(svg, numbers[r], gridTop + r * rowH, rowH, margin, pageW, scale, rowHideExample, fadeAway);
+        drawTracingRow(svg, numbers[r], gridTop + r * rowH, rowH, margin, pageW, scale, rowHideExample, hideNumbers, fadeAway);
       }
 
       return svg;
@@ -1321,6 +1345,8 @@
     elSizeSelect.addEventListener("change", regenerate);
     elOnePerPage.addEventListener("change", regenerate);
     elHideExample.addEventListener("change", regenerate);
+    elHideNumbers.addEventListener("change", regenerate);
+    elZeroLast.addEventListener("change", regenerate);
     elFadeAway.addEventListener("change", regenerate);
     elShowHeaderEnabled.addEventListener("change", function() {
       elHeaderModeOptions.style.display = elShowHeaderEnabled.checked ? "block" : "none";
