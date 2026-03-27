@@ -794,20 +794,27 @@
         return a;
       }
 
+      // In stories mode, exclude icons with complex/multi-word names
+      const storyExclude = ["icon-pizza", "icon-watermelon", "icon-icecream", "icon-corn", "icon-broccoli"];
+      const isStories = elWorksheetMode && elWorksheetMode.value === "stories";
+      const iconPool = isStories
+        ? ICON_LIST.filter(id => !storyExclude.includes(id))
+        : ICON_LIST;
+
       // Assign icons based on variety mode — no icon reused on the same page
       if (variety === "same") {
-        const icon = ICON_LIST[Math.floor(Math.random() * ICON_LIST.length)];
+        const icon = iconPool[Math.floor(Math.random() * iconPool.length)];
         for (const p of problems) { p.group1Icon = icon; p.group2Icon = icon; }
       } else if (variety === "mixed") {
         // Each problem gets 2 unique icons, no icon repeated across problems
-        const shuffled = shuffleArray(ICON_LIST);
+        const shuffled = shuffleArray(iconPool);
         for (let i = 0; i < problems.length; i++) {
           problems[i].group1Icon = shuffled[i * 2 % shuffled.length];
           problems[i].group2Icon = shuffled[(i * 2 + 1) % shuffled.length];
         }
       } else {
         // variety === "row" (default) — each problem gets a unique icon
-        const shuffled = shuffleArray(ICON_LIST);
+        const shuffled = shuffleArray(iconPool);
         for (let i = 0; i < problems.length; i++) {
           const icon = shuffled[i % shuffled.length];
           problems[i].group1Icon = icon;
@@ -1149,11 +1156,22 @@
             // Icon name mapping is in ../shared/icons.js (ICON_NAMES)
             const iconName1 = ICON_NAMES[group1Icon] || "item";
             const iconName2 = ICON_NAMES[group2Icon] || "item";
-            const plural1 = (n) => n === 1 ? iconName1 : iconName1 + "s";
-            const plural2 = (n) => n === 1 ? iconName2 : iconName2 + "s";
+            const pluralize = (name) => {
+              const same = ["fish", "broccoli"];
+              if (same.includes(name)) return name;
+              if (name === "corn cob") return "corn cobs";
+              if (name === "watermelon slice") return "watermelon slices";
+              if (name === "ice cream") return "ice creams";
+              if (name.endsWith("y") && !/[aeiou]y$/i.test(name)) return name.slice(0, -1) + "ies";
+              if (/(?:s|sh|ch|x|z)$/i.test(name)) return name + "es";
+              if (name.endsWith("o")) return name + "es";
+              return name + "s";
+            };
+            const plural1 = (n) => n === 1 ? iconName1 : pluralize(iconName1);
+            const plural2 = (n) => n === 1 ? iconName2 : pluralize(iconName2);
             // Use the answer icon name (group1's name since answer represents the combined total)
             const answerIconName = iconName1 === iconName2 ? iconName1 : "item";
-            const pluralAns = (n) => n === 1 ? answerIconName : answerIconName + "s";
+            const pluralAns = (n) => n === 1 ? answerIconName : pluralize(answerIconName);
             const storyText = a + " " + plural1(a) + " and " + b + " " + plural2(b) + " make";
             const storyFontSize = Math.min(eqFontSize * 0.85, 18);
             const storyLeftX = cellLeft + (colW - totalProbW) / 2 + probNumW;
