@@ -757,15 +757,22 @@
       const sequences = [];
       const usedStarts = new Set();
 
+      const usedSeqKeys = new Set();
+
       for (let s = 0; s < count; s++) {
-        // Try multiple candidates to avoid duplicate starting numbers
+        // Try multiple candidates to avoid duplicate sequences
         let bestStart = null;
         let bestScore = Infinity;
-        const startAttempts = Math.min(30, count * 3);
+        const startAttempts = Math.min(50, count * 5);
         for (let a = 0; a < startAttempts; a++) {
           const candidate = getStartNum(startMode, skipBy, s);
+          // Build the full sequence key to check for exact duplicates
+          const seqNums = [];
+          for (let i = 0; i < numsPerSeq; i++) seqNums.push(candidate + i * skipBy);
+          const fullKey = seqNums.join(",");
           let score = 0;
-          if (usedStarts.has(candidate)) score += 2;
+          if (usedSeqKeys.has(fullKey)) score += 10; // heavy penalty for exact duplicate sequence
+          else if (usedStarts.has(candidate)) score += 2;
           // Penalize same start as previous sequence (adjacent)
           if (sequences.length > 0 && sequences[sequences.length - 1].numbers[0] === candidate) score += 3;
           if (score < bestScore) {
@@ -837,12 +844,13 @@
         }
 
         sequences.push({ numbers, blanks });
+        usedSeqKeys.add(numbers.join(","));
       }
 
       // Adjacency-aware shuffle: space out duplicate/similar sequences
       // In 2-col layout, neighbors are: same row (side), row above, row below
       const layoutCols = numsPerSeq <= 4 ? 2 : 1;
-      function seqKey(seq) { return seq.numbers[0] + ":" + skipBy; }
+      function seqKey(seq) { return seq.numbers.join(","); }
       function blankKey(seq) { return Array.from(seq.blanks).sort((a, b) => a - b).join(","); }
       function getAdjacentIndices(i, len) {
         const cols = layoutCols;
@@ -869,7 +877,7 @@
           const bi = blankKey(arr[i]);
           for (const j of getAdjacentIndices(i, arr.length)) {
             if (j > i) {
-              if (ki === seqKey(arr[j])) c += 3;
+              if (ki === seqKey(arr[j])) c += 10;
               if (bi === blankKey(arr[j])) c += 1;
             }
           }
