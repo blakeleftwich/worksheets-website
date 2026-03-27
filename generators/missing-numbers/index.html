@@ -809,7 +809,14 @@
       let attempts = 0;
       while (problems.length < count && attempts < count * 200) {
         attempts++;
-        const type = types[Math.floor(Math.random() * types.length)];
+        let type;
+        if (mode === "mixed-ba") {
+          // 50/50 split: alternate between before-after and before-or-after
+          if (problems.length % 2 === 0) type = "before-after";
+          else type = Math.random() < 0.5 ? "before" : "after";
+        } else {
+          type = types[Math.floor(Math.random() * types.length)];
+        }
         let problem;
 
         if (type === "before-after") {
