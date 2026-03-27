@@ -755,33 +755,68 @@
     function generateSequences(count, opts) {
       const { skipBy, startMode, numsPerSeq, blanksPerSeq, randomPlacement, allowFirstBlank } = opts;
       const sequences = [];
-      const usedStarts = new Set();
+
+      // Pre-compute all possible unique start numbers for this mode/range
+      const { rangeMin, rangeMax } = parseRange();
+      const allStarts = [];
+      if (startMode === "0") {
+        allStarts.push(0);
+      } else if (startMode === "1") {
+        allStarts.push(1);
+      } else if (startMode === "multiples") {
+        const minMult = Math.max(1, Math.ceil(rangeMin / skipBy));
+        const maxMult = Math.floor(rangeMax / skipBy);
+        for (let m = minMult; m <= maxMult; m++) allStarts.push(skipBy * m);
+      } else if (startMode === "any") {
+        for (let n = rangeMin; n <= rangeMax; n++) {
+          if (skipBy === 1 || n % skipBy !== 0) allStarts.push(n);
+        }
+      } else {
+        // mixed: both multiples and non-multiples
+        for (let n = rangeMin; n <= rangeMax; n++) allStarts.push(n);
+      }
+      if (allStarts.length === 0) allStarts.push(skipBy); // fallback
+
+      // Shuffle the pool of unique starts
+      for (let i = allStarts.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allStarts[i], allStarts[j]] = [allStarts[j], allStarts[i]];
+      }
 
       const usedSeqKeys = new Set();
+      let startPool = allStarts.slice();
+      let poolIdx = 0;
 
       for (let s = 0; s < count; s++) {
-        // Try multiple candidates to avoid duplicate sequences
-        let bestStart = null;
+        // If we've used all unique starts, reshuffle and start over
+        if (poolIdx >= startPool.length) {
+          startPool = allStarts.slice();
+          for (let i = startPool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [startPool[i], startPool[j]] = [startPool[j], startPool[i]];
+          }
+          poolIdx = 0;
+        }
+
+        // Pick from pool, but try to avoid adjacent same start
+        let bestStart = startPool[poolIdx];
         let bestScore = Infinity;
-        const startAttempts = Math.min(50, count * 5);
-        for (let a = 0; a < startAttempts; a++) {
-          const candidate = getStartNum(startMode, skipBy, s);
-          // Build the full sequence key to check for exact duplicates
+        const lookAhead = Math.min(startPool.length - poolIdx, 5);
+        for (let a = 0; a < lookAhead; a++) {
+          const candidate = startPool[poolIdx + a];
           const seqNums = [];
           for (let i = 0; i < numsPerSeq; i++) seqNums.push(candidate + i * skipBy);
           const fullKey = seqNums.join(",");
           let score = 0;
-          if (usedSeqKeys.has(fullKey)) score += 10; // heavy penalty for exact duplicate sequence
-          else if (usedStarts.has(candidate)) score += 2;
-          // Penalize same start as previous sequence (adjacent)
+          if (usedSeqKeys.has(fullKey)) score += 10;
           if (sequences.length > 0 && sequences[sequences.length - 1].numbers[0] === candidate) score += 3;
           if (score < bestScore) {
             bestScore = score;
             bestStart = candidate;
-            if (score === 0) break;
+            if (score === 0) { poolIdx += a; break; }
           }
         }
-        usedStarts.add(bestStart);
+        poolIdx++;
 
         const numbers = [];
         for (let i = 0; i < numsPerSeq; i++) {
