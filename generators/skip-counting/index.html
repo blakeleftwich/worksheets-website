@@ -1054,7 +1054,13 @@
       const itemWRaw = (colW - leftPad - totalGapSpace) / numsPerSeq;
       const rowBoost = layoutRows <= 3 ? 1.25 : layoutRows <= 5 ? 1.1 : 1;
       const colBoost = (layoutCols === 2 && numsPerSeq <= 4) ? 1.3 : 1;
-      const sizeBoost = rowBoost * colBoost;
+      // Scale down commas style in 2-col to prevent overlap
+      let commaScale = 1;
+      if (!useBoxes && layoutCols === 2) {
+        if (numsPerSeq === 4) commaScale = 0.82;
+        else if (numsPerSeq <= 3 && seqCount <= 6) commaScale = 0.85;
+      }
+      const sizeBoost = rowBoost * colBoost * commaScale;
       const itemW = Math.min(itemWRaw, useBoxes ? 42 * sizeBoost : 80 * sizeBoost);
       const boxH = useBoxes ? Math.min(rowH * 0.55, itemW * 0.95) : 0;
       const fontSize = useBoxes
@@ -1115,7 +1121,9 @@
           }
           const numValue = seq.numbers[i];
           const numStr = String(numValue);
-          const centerX = x + itemW / 2;
+          // Nudge underlines right in 3-per-seq 2-col commas mode
+          const ulNudge = (!useBoxes && layoutCols === 2 && numsPerSeq <= 3) ? 6 : 0;
+          const centerX = x + itemW / 2 + ulNudge;
 
           const isExample = (s === 0 && isBlank && !firstBlankDrawn && includeExample && !showAnswers);
           if (isBlank && isExample) firstBlankDrawn = true;
