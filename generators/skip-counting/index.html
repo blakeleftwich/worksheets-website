@@ -952,10 +952,10 @@
       const totalGapSpace = (numsPerSeq - 1) * (commaSpace + itemGap);
       const itemWRaw = (colW - leftPad - totalGapSpace) / numsPerSeq;
       const sizeBoost = layoutRows <= 3 ? 1.25 : layoutRows <= 5 ? 1.1 : 1;
-      const itemW = Math.min(itemWRaw, useBoxes ? 50 * sizeBoost : 80);
-      const boxH = useBoxes ? Math.min(rowH * 0.7, itemW * 1.1) : 0;
+      const itemW = Math.min(itemWRaw, useBoxes ? 42 * sizeBoost : 80);
+      const boxH = useBoxes ? Math.min(rowH * 0.55, itemW * 0.95) : 0;
       const fontSize = useBoxes
-        ? Math.min(boxH * 0.5, itemW * 0.5, 20 * sizeBoost)
+        ? Math.min(boxH * 0.65, itemW * 0.65, 24 * sizeBoost)
         : Math.min(itemW * 0.55, 24 * sizeBoost, rowH * 0.35) * 1.5;
       const commaSize = fontSize * 1.5;
       const underlineW = useBoxes
