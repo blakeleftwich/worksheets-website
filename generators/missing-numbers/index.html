@@ -1142,12 +1142,15 @@
       // 2-column layout
       const cols = 2;
       const rows = Math.ceil(count / cols);
-      const colW = availW / cols;
+      const colGap = 16;
+      const colW = (availW - colGap) / cols;
       const rowH = availH / rows;
       // Size boxes and text based on available row height
       const boxSize = Math.min(56, Math.max(28, Math.floor(rowH * 0.55)));
       const fontSize = Math.min(32, Math.max(14, Math.floor(boxSize * 0.6)));
+      const commaSize = Math.round(fontSize * 0.85);
       const boxGap = Math.min(16, Math.max(6, Math.floor(boxSize * 0.25)));
+      const commaSpace = showBoxes ? 0 : Math.round(commaSize * 0.4);
 
       // Fixed problem number size
       const probNumSize = 10;
@@ -1157,7 +1160,7 @@
         const p = problems[i];
         const col = Math.floor(i / rows);
         const row = i % rows;
-        const colOffset = col * colW;
+        const colOffset = col * (colW + colGap);
         const cellTop = gridTop + row * rowH;
         const cy = cellTop + rowH / 2;
         const boxY = cy - boxSize / 2;
@@ -1180,7 +1183,7 @@
 
         let nullIdx = 0;
         for (let b = 0; b < boxes.length; b++) {
-          const bx = startX + b * (boxSize + boxGap);
+          const bx = startX + b * (boxSize + boxGap + commaSpace);
           const val = boxes[b];
           const isMissing = val === null;
 
@@ -1256,7 +1259,19 @@
             svg.appendChild(numTxt);
           }
 
-          // No commas between boxes in Missing Numbers
+          // Draw comma separator (except after last, skip in boxes mode)
+          if (!showBoxes && b < boxes.length - 1) {
+            const commaX = bx + boxSize + commaSpace / 2 + boxGap / 2;
+            const comma = svgEl("text", {
+              x: commaX, y: cy + fontSize * 0.35 + commaSize * 0.025,
+              "text-anchor": "middle",
+              "font-family": "Fredoka, sans-serif",
+              "font-size": String(commaSize), "font-weight": "400",
+              fill: "#a0aec0"
+            });
+            comma.textContent = ",";
+            svg.appendChild(comma);
+          }
         }
       }
       } // end standard mode
