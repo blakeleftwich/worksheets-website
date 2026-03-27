@@ -147,6 +147,7 @@
 
   // ===== Inject UI =====
   function injectUI() {
+    return; // HIDDEN — temporarily disabled while feature is in development
     const buttonGroup = document.querySelector('.button-group');
     if (!buttonGroup) return;
 
