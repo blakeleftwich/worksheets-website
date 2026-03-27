@@ -755,12 +755,30 @@
     function generateSequences(count, opts) {
       const { skipBy, startMode, numsPerSeq, blanksPerSeq, randomPlacement, allowFirstBlank } = opts;
       const sequences = [];
+      const usedStarts = new Set();
 
       for (let s = 0; s < count; s++) {
+        // Try multiple candidates to avoid duplicate starting numbers
+        let bestStart = null;
+        let bestScore = Infinity;
+        const startAttempts = Math.min(30, count * 3);
+        for (let a = 0; a < startAttempts; a++) {
+          const candidate = getStartNum(startMode, skipBy, s);
+          let score = 0;
+          if (usedStarts.has(candidate)) score += 2;
+          // Penalize same start as previous sequence (adjacent)
+          if (sequences.length > 0 && sequences[sequences.length - 1].numbers[0] === candidate) score += 3;
+          if (score < bestScore) {
+            bestScore = score;
+            bestStart = candidate;
+            if (score === 0) break;
+          }
+        }
+        usedStarts.add(bestStart);
+
         const numbers = [];
-        const seqStart = getStartNum(startMode, skipBy, s);
         for (let i = 0; i < numsPerSeq; i++) {
-          numbers.push(seqStart + i * skipBy);
+          numbers.push(bestStart + i * skipBy);
         }
 
         const isEveryOther = blanksPerSeq === "every-other";
@@ -819,6 +837,81 @@
         }
 
         sequences.push({ numbers, blanks });
+      }
+
+      // Adjacency-aware shuffle: space out duplicate/similar sequences
+      // In 2-col layout, neighbors are: same row (side), row above, row below
+      const layoutCols = numsPerSeq <= 4 ? 2 : 1;
+      function seqKey(seq) { return seq.numbers[0] + ":" + skipBy; }
+      function blankKey(seq) { return Array.from(seq.blanks).sort((a, b) => a - b).join(","); }
+      function getAdjacentIndices(i, len) {
+        const cols = layoutCols;
+        const rows = Math.ceil(len / cols);
+        const adj = [];
+        const col = cols > 1 ? Math.floor(i / rows) : 0;
+        const row = cols > 1 ? i % rows : i;
+        // Same row partner (2-col only)
+        if (cols > 1) {
+          const partner = col === 0 ? row + rows : row;
+          if (partner < len && partner !== i) adj.push(partner);
+        }
+        // Above and below in same column
+        const above = cols > 1 ? col * rows + (row - 1) : i - 1;
+        const below = cols > 1 ? col * rows + (row + 1) : i + 1;
+        if (row > 0 && above >= 0 && above < len) adj.push(above);
+        if (below < len && (cols === 1 || (row + 1) < rows)) adj.push(below);
+        return adj;
+      }
+      function countConflicts(arr) {
+        let c = 0;
+        for (let i = 0; i < arr.length; i++) {
+          const ki = seqKey(arr[i]);
+          const bi = blankKey(arr[i]);
+          for (const j of getAdjacentIndices(i, arr.length)) {
+            if (j > i) {
+              if (ki === seqKey(arr[j])) c += 3;
+              if (bi === blankKey(arr[j])) c += 1;
+            }
+          }
+        }
+        return c;
+      }
+      // Try shuffle + improve
+      for (let attempt = 0; attempt < 8; attempt++) {
+        for (let i = sequences.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [sequences[i], sequences[j]] = [sequences[j], sequences[i]];
+        }
+        for (let pass = 0; pass < 100; pass++) {
+          const before = countConflicts(sequences);
+          if (before === 0) break;
+          let improved = false;
+          for (let i = 0; i < sequences.length && !improved; i++) {
+            const adj = getAdjacentIndices(i, sequences.length);
+            const ki = seqKey(sequences[i]);
+            const bi = blankKey(sequences[i]);
+            let hasConflict = false;
+            for (const j of adj) {
+              if (ki === seqKey(sequences[j]) || bi === blankKey(sequences[j])) { hasConflict = true; break; }
+            }
+            if (!hasConflict) continue;
+            let bestSwap = -1, bestDelta = 0;
+            for (let sw = 0; sw < sequences.length; sw++) {
+              if (sw === i) continue;
+              [sequences[i], sequences[sw]] = [sequences[sw], sequences[i]];
+              const after = countConflicts(sequences);
+              const delta = before - after;
+              if (delta > bestDelta) { bestDelta = delta; bestSwap = sw; }
+              [sequences[i], sequences[sw]] = [sequences[sw], sequences[i]];
+            }
+            if (bestSwap >= 0) {
+              [sequences[i], sequences[bestSwap]] = [sequences[bestSwap], sequences[i]];
+              improved = true;
+            }
+          }
+          if (!improved) break;
+        }
+        if (countConflicts(sequences) === 0) break;
       }
 
       return sequences;
