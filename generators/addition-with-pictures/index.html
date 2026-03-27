@@ -1566,8 +1566,12 @@
       resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150);
     });
 
-    // ===== Init =====
-    renderWithNewRandomization();
+    // ===== Init (wait for fonts so text measurements are accurate) =====
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => renderWithNewRandomization());
+    } else {
+      renderWithNewRandomization();
+    }
 
     // Expose answer key capture for favorites pack system
     window._amCaptureAnswerKeys = function() {
