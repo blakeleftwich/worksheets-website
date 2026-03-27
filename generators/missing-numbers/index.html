@@ -458,6 +458,8 @@
         <select id="modeSelect">
           <option value="between" selected>Between</option>
           <option value="before-after">Before &amp; After</option>
+          <option value="before-or-after">Before or After</option>
+          <option value="mixed-ba">Mixed Before &amp; After</option>
           <option value="mixed">Mixed</option>
           <option value="sequence">Sequence</option>
         </select>
@@ -712,6 +714,8 @@
       const modeNames = {
         "between": "Between",
         "before-after": "Before & After",
+        "before-or-after": "Before or After",
+        "mixed-ba": "Before & After",
         "mixed": "Missing Numbers"
       };
       return (modeNames[mode] || "Missing Numbers") + " \u2014 Within " + range;
@@ -798,6 +802,8 @@
       let types;
       if (mode === "between") types = ["between"];
       else if (mode === "before-after") types = ["before-after"];
+      else if (mode === "before-or-after") types = ["before", "after"];
+      else if (mode === "mixed-ba") types = ["before-after", "before", "after"];
       else types = ["before", "after", "between"];
 
       let attempts = 0;
