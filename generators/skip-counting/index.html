@@ -750,16 +750,43 @@
             blanks.add(i);
           }
         } else {
-          // Random placement
-          const allPositions = [];
-          for (let i = minPos; i < numsPerSeq; i++) allPositions.push(i);
-          for (let i = allPositions.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [allPositions[i], allPositions[j]] = [allPositions[j], allPositions[i]];
+          // Random placement — try to avoid repeating blank patterns
+          const availPositions = [];
+          for (let i = minPos; i < numsPerSeq; i++) availPositions.push(i);
+
+          let bestPattern = null;
+          let bestScore = Infinity;
+          const attempts = Math.min(20, Math.max(5, availPositions.length));
+
+          for (let a = 0; a < attempts; a++) {
+            // Shuffle available positions
+            const shuffled = availPositions.slice();
+            for (let i = shuffled.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            const candidate = shuffled.slice(0, blankCount).sort((a, b) => a - b);
+            const candKey = candidate.join(",");
+
+            // Score: 0 if never used, 1 if used but not adjacent, 2 if used and adjacent
+            let score = 0;
+            for (let p = 0; p < sequences.length; p++) {
+              const prevKey = Array.from(sequences[p].blanks).sort((a, b) => a - b).join(",");
+              if (prevKey === candKey) {
+                // Check adjacency in layout (sequences are rendered top to bottom)
+                const dist = sequences.length - p;
+                if (dist <= 2) score += 3; // adjacent or near-adjacent
+                else score += 1; // repeated but far away
+              }
+            }
+            if (score < bestScore) {
+              bestScore = score;
+              bestPattern = candidate;
+              if (score === 0) break; // perfect — no repeat
+            }
           }
-          for (let i = 0; i < allPositions.length && blanks.size < blankCount; i++) {
-            blanks.add(allPositions[i]);
-          }
+
+          for (const pos of bestPattern) blanks.add(pos);
         }
 
         sequences.push({ numbers, blanks });
