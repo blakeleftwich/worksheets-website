@@ -153,6 +153,15 @@
     .op-chip:hover { border-color: #cbd5e0; }
 
     .ak-print-only { display: none !important; }
+
+    @media (max-width: 480px) {
+      .sidebar { padding: 20px 16px; }
+      .sidebar h2 { font-size: 18px; }
+      .preview-area { padding: 8px; }
+      .action-buttons { flex-direction: column; gap: 8px; }
+      .action-buttons button { width: 100%; }
+    }
+
     @media print {
       .site-header { display: none !important; }
       .ak-print-only { display: block !important; }
