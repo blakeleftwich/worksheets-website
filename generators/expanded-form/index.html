@@ -1000,8 +1000,8 @@
       }
 
       if (useTwoColumns) {
-        // For 3-digit, indent to center the two-column group
-        const colIndent = digits === 3 ? 24 : 0;
+        // For 3-digit, reduce left margin to pull problems toward center
+        const colIndent = digits === 3 ? -16 : 0;
 
         // Left column
         for (let i = 0; i < leftCount; i++) {
