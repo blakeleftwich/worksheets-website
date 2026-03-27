@@ -1161,23 +1161,18 @@
             const storyUnderW = storyFontSize * 2.0;
             const storyUnderY = storyY + storyFontSize * 0.5;
             const pluralLabel = pluralAns(answer) + ".";
-            const gapW = storyFontSize * 0.2;
-            // Story text with "make " included, left-aligned
+            const gapW = storyFontSize * 0.25;
+            // Story text with "make" included, left-aligned
             const storyWithMake = storyText + " ";
             const storyEl = svgEl("text", { x: storyLeftX, y: storyY, "text-anchor": "start", "font-family": "Fredoka, sans-serif", "font-size": String(storyFontSize), "font-weight": "500", fill: eqColor });
             storyEl.textContent = storyWithMake;
             svg.appendChild(storyEl);
-            // Approximate text widths using Fredoka ~0.48em per char
-            const approxStoryW = storyWithMake.length * storyFontSize * 0.48;
-            const approxLabelW = pluralLabel.length * storyFontSize * 0.48;
-            // Available space between story text end and right edge of problem area
-            const storyTextEnd = storyLeftX + approxStoryW;
-            const rightEdge = cellLeft + colW - (colW - totalProbW) / 2;
-            const labelStartFromRight = rightEdge - approxLabelW;
-            // Center underline between story text end and plural label start
-            const gapForUnderline = labelStartFromRight - storyTextEnd;
-            const underCenterGap = (gapForUnderline - storyUnderW) / 2;
-            const underStartX = storyTextEnd + Math.max(gapW, underCenterGap);
+            // Measure rendered text width (use approximation as fallback)
+            let measuredStoryW = storyWithMake.length * storyFontSize * 0.44;
+            try { const len = storyEl.getComputedTextLength(); if (len > 0) measuredStoryW = len; } catch(e) {}
+            const storyTextEnd = storyLeftX + measuredStoryW;
+            // Place underline right after story text with small gap
+            const underStartX = storyTextEnd + gapW;
             const underEndX = underStartX + storyUnderW;
             // Underline
             svg.appendChild(svgEl("line", { x1: underStartX, y1: storyUnderY, x2: underEndX, y2: storyUnderY, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
