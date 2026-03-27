@@ -868,8 +868,8 @@
 
           const firstBlankX = x;
           for (let p = 0; p < numParts; p++) {
-            const lineY = cy + fontSize * 0.15;
-            svg.appendChild(svgEl("line", { x1: x, y1: lineY, x2: x + adjBlankW, y2: lineY, stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": "1.5" }));
+            const lineY = cy + fontSize * 0.35;
+            svg.appendChild(svgEl("line", { x1: x, y1: lineY, x2: x + adjBlankW, y2: lineY, stroke: isExample ? "#22c55e" : "#cbd5e1", "stroke-width": "1.5" }));
 
             if (isExample) {
               const ansEl = svgEl("text", { x: x + adjBlankW / 2, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.82), "font-weight": "500", fill: "#16a34a" });
@@ -925,8 +925,8 @@
           x += charW * 1.4;
 
           const blankW = computeBlankWidth([prob.number], charW, fontSize);
-          const lineY = cy + fontSize * 0.15;
-          svg.appendChild(svgEl("line", { x1: x, y1: lineY, x2: x + blankW, y2: lineY, stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": "1.5" }));
+          const lineY = cy + fontSize * 0.35;
+          svg.appendChild(svgEl("line", { x1: x, y1: lineY, x2: x + blankW, y2: lineY, stroke: isExample ? "#22c55e" : "#cbd5e1", "stroke-width": "1.5" }));
 
           if (isExample) {
             const numStr = String(prob.number).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -947,10 +947,6 @@
       }
 
       if (useTwoColumns) {
-        // Draw a thin separator line between columns
-        const sepX = margin + colW + colGap / 2;
-        svg.appendChild(svgEl("line", { x1: sepX, y1: gridTop + 4, x2: sepX, y2: pageH - bottomMargin - 4, stroke: "#e2e8f0", "stroke-width": "1" }));
-
         // Left column
         for (let i = 0; i < leftCount; i++) {
           const cellTop = gridTop + i * rowH;
