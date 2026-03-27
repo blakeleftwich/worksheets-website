@@ -88,6 +88,58 @@
       color: #92400e;
     }
 
+    /* ===== Hamburger Menu (Mobile) ===== */
+    .hamburger-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      z-index: 200;
+    }
+    .hamburger-btn span {
+      display: block;
+      width: 24px;
+      height: 2.5px;
+      background: #64748b;
+      border-radius: 2px;
+      transition: all 0.3s;
+      margin: 5px 0;
+    }
+    .hamburger-btn.open span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5.5px);
+    }
+    .hamburger-btn.open span:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger-btn.open span:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5.5px);
+    }
+    @media (max-width: 768px) {
+      .hamburger-btn { display: block; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 64px;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 8px 16px 16px;
+        border-bottom: 1px solid #e5e7eb;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        gap: 2px;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links a {
+        padding: 12px 16px;
+        font-size: 16px;
+        border-radius: 8px;
+      }
+      .nav-links a:hover { background: #f1f5f9; }
+      .site-header { padding: 0 16px; }
+    }
+
 
     .main-container {
       display: grid;
@@ -563,6 +615,9 @@
         <a href="../../about.html">About</a>
         <a href="../../my-sets/index.html" style="display:none">My Worksheet Sets</a>
       </nav>
+      <button class="hamburger-btn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </header>
   <div class="main-container">
@@ -1028,5 +1083,23 @@
 })();
 </script>
 
+<script>
+(function(){
+  var btn=document.querySelector('.hamburger-btn');
+  var nav=document.querySelector('.nav-links');
+  if(btn&&nav){
+    btn.addEventListener('click',function(){
+      btn.classList.toggle('open');
+      nav.classList.toggle('open');
+    });
+    document.addEventListener('click',function(e){
+      if(!btn.contains(e.target)&&!nav.contains(e.target)){
+        btn.classList.remove('open');
+        nav.classList.remove('open');
+      }
+    });
+  }
+})();
+</script>
 </body>
 </html>
