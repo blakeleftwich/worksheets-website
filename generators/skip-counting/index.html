@@ -1068,13 +1068,17 @@
       const totalRowW = leftPad + numsPerSeq * itemW + (numsPerSeq - 1) * (commaSpace + itemGap);
       const firstNumHalfW = useBoxes ? 0 : fontSize * 0.35 * maxNumStr;
       const rowIndent = totalRowW < colW ? (colW - totalRowW) / 2 : 0;
-      const colNudge = layoutCols === 2 ? 12 : 0;
-
       for (let s = 0; s < seqCount; s++) {
         const seq = sequences[s];
         const col = layoutCols > 1 ? Math.floor(s / layoutRows) : 0;
         const row = layoutCols > 1 ? s % layoutRows : s;
         const colOffset = col * colW;
+        // Column nudge: 3-per-seq → nudge all right; 4-per-seq → nudge second column right
+        let colNudge = 0;
+        if (layoutCols === 2) {
+          if (numsPerSeq <= 3) colNudge = 18;
+          else colNudge = col === 0 ? 0 : 16;
+        }
         const rowLeftOffset = margin + colOffset - leftPad - itemW / 2 + firstNumHalfW + rowIndent + colNudge;
         const rowTop = topGridY + row * rowH;
         const cy = rowTop + rowH / 2;
