@@ -661,18 +661,39 @@
       return parts;
     }
 
+    function getPlaceDigits(num) {
+      // Returns the digit at each place position, e.g. 347 => [3,4,7]
+      return String(num).split('').map(Number);
+    }
+
     function generateProblems(count) {
       const range = getRange();
       const mode = elMode.value;
+      const digits = String(range.min).length;
       const problems = [];
       const seen = new Set();
-      let attempts = 0;
 
-      while (problems.length < count && attempts < count * 200) {
+      // Track used digits at each place position to maximize variety
+      const usedAtPlace = [];
+      for (let p = 0; p < digits; p++) usedAtPlace.push(new Set());
+
+      let attempts = 0;
+      while (problems.length < count && attempts < count * 500) {
         attempts++;
         const num = range.min + Math.floor(Math.random() * (range.max - range.min + 1));
         if (seen.has(num)) continue;
+
+        const pd = getPlaceDigits(num);
+        // Score: count how many place positions reuse an already-used digit
+        let conflicts = 0;
+        for (let p = 0; p < digits; p++) {
+          if (usedAtPlace[p].has(pd[p])) conflicts++;
+        }
+        // Accept if no conflicts, or probabilistically accept with increasing leniency
+        if (conflicts > 0 && Math.random() > (attempts / (count * 500))) continue;
+
         seen.add(num);
+        for (let p = 0; p < digits; p++) usedAtPlace[p].add(pd[p]);
 
         const expanded = expandNumber(num);
         let type;
@@ -686,15 +707,44 @@
       // Fill remainder if needed
       while (problems.length < count) {
         const num = range.min + Math.floor(Math.random() * (range.max - range.min + 1));
+        if (seen.has(num)) { continue; }
+        seen.add(num);
         const expanded = expandNumber(num);
         const type = mode === "mixed" ? (Math.random() < 0.5 ? "std-to-exp" : "exp-to-std") : mode;
         problems.push({ number: num, expanded, type });
       }
 
-      // Shuffle
+      // Shuffle then space out problems that share place value digits
       for (let i = problems.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [problems[i], problems[j]] = [problems[j], problems[i]];
+      }
+
+      // Spacing pass: swap adjacent problems that share a leading place digit
+      for (let pass = 0; pass < 3; pass++) {
+        for (let i = 0; i < problems.length - 1; i++) {
+          const dA = getPlaceDigits(problems[i].number);
+          const dB = getPlaceDigits(problems[i + 1].number);
+          // Check if they share the leading (most prominent) place digit
+          if (dA[0] === dB[0]) {
+            // Find a non-adjacent problem to swap with
+            let bestJ = -1, bestDist = 0;
+            for (let j = i + 2; j < problems.length; j++) {
+              const dC = getPlaceDigits(problems[j].number);
+              if (dC[0] !== dA[0]) {
+                // Also check it won't conflict with its new neighbor
+                const prevOk = i === 0 || getPlaceDigits(problems[i - 1].number)[0] !== dC[0];
+                const nextOk = j + 1 >= problems.length || getPlaceDigits(problems[j + 1].number)[0] !== dB[0];
+                if (prevOk && nextOk && (j - i) > bestDist) {
+                  bestJ = j; bestDist = j - i;
+                }
+              }
+            }
+            if (bestJ > -1) {
+              [problems[i + 1], problems[bestJ]] = [problems[bestJ], problems[i + 1]];
+            }
+          }
+        }
       }
 
       return problems;
