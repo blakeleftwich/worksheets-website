@@ -1188,23 +1188,21 @@
             const storyEl = svgEl("text", { x: storyLeftX, y: storyY, "text-anchor": "start", "font-family": "Fredoka, sans-serif", "font-size": String(storyFontSize), "font-weight": "500", fill: eqColor });
             storyEl.textContent = fullSentence;
             svg.appendChild(storyEl);
-            // Measure full sentence and left part to find gap position
-            let fullW = fullSentence.length * storyFontSize * 0.44;
-            let leftW = leftPart.length * storyFontSize * 0.44;
-            let leftPlusGapW = (leftPart.length + gapSpaces.length) * storyFontSize * 0.44;
-            try {
-              const len = storyEl.getComputedTextLength();
-              if (len > 0) {
-                // Scale proportionally: measured total / estimated total
-                const scale = len / fullW;
-                leftW *= scale;
-                leftPlusGapW *= scale;
-              }
-            } catch(e) {}
-            const gapStartX = storyLeftX + leftW;
-            const gapEndX = storyLeftX + leftPlusGapW;
-            // Center underline within the gap
-            const gapCenterX = (gapStartX + gapEndX) / 2;
+            // Find the gap center: measure the full text, then measure without the gap+label
+            // to find where the gap starts. The gap is always 10 chars of equal width,
+            // so its center is always at gapStart + 5 * spaceWidth.
+            const fullLen = storyEl.getComputedTextLength();
+            // Temporarily set text to just the left part to measure its width
+            storyEl.textContent = leftPart;
+            const leftLen = storyEl.getComputedTextLength();
+            // Measure one space width
+            storyEl.textContent = leftPart + "\u00A0";
+            const leftPlusOneSpace = storyEl.getComputedTextLength();
+            const spaceW = leftPlusOneSpace - leftLen;
+            // Restore full sentence
+            storyEl.textContent = fullSentence;
+            // Gap center = end of left text + half the gap (5 spaces)
+            const gapCenterX = storyLeftX + leftLen + spaceW * 5;
             const underStartX = gapCenterX - storyUnderW / 2;
             const underEndX = gapCenterX + storyUnderW / 2;
             svg.appendChild(svgEl("line", { x1: underStartX, y1: storyUnderY, x2: underEndX, y2: storyUnderY, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
