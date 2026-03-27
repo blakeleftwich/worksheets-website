@@ -583,12 +583,11 @@
           <div class="control-group" style="margin-bottom:12px;">
         <label for="problemsPerSheet">Problems per Sheet</label>
         <select id="problemsPerSheet">
-          <option value="20">20</option>
+          <option value="18">18</option>
+          <option value="21">21</option>
+          <option value="24">24</option>
           <option value="30">30</option>
           <option value="40" selected>40</option>
-          <option value="50">50</option>
-          <option value="60">60</option>
-          <option value="100">100</option>
         </select>
       </div>
 
@@ -1072,10 +1071,9 @@
 
       // Determine columns based on problem count
       let cols;
-      if (count <= 20) cols = 2;
+      if (count <= 24) cols = 3;
       else if (count <= 30) cols = 3;
-      else if (count <= 50) cols = 4;
-      else cols = 5;
+      else cols = 4;
 
       const rows = Math.ceil(count / cols);
       const colW = availW / cols;
