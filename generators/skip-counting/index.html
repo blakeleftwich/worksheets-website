@@ -563,6 +563,10 @@
 
           <!-- Numbered -->
           <div class="adv-checkbox-row">
+            <input type="checkbox" id="allowFirstBlank" />
+            <label for="allowFirstBlank">Allow First Number Blank</label>
+          </div>
+          <div class="adv-checkbox-row">
             <input type="checkbox" id="numbered" />
             <label for="numbered">Numbered</label>
           </div>
@@ -660,6 +664,7 @@
     const elSubtitleInputWrap = document.getElementById("subtitleInputWrap");
     const elBranded = document.getElementById("branded");
     const elNumbered = document.getElementById("numbered");
+    const elAllowFirstBlank = document.getElementById("allowFirstBlank");
     const elIncludeExample = document.getElementById("includeExample") || { checked: false, addEventListener: function(){} };
     const advToggle = document.getElementById("advToggle");
     const advPanel = document.getElementById("advPanel");
@@ -719,7 +724,7 @@
     }
 
     function generateSequences(count, opts) {
-      const { skipBy, startMode, numsPerSeq, blanksPerSeq, randomPlacement } = opts;
+      const { skipBy, startMode, numsPerSeq, blanksPerSeq, randomPlacement, allowFirstBlank } = opts;
       const sequences = [];
 
       for (let s = 0; s < count; s++) {
@@ -732,21 +737,22 @@
         const isEveryOther = blanksPerSeq === "every-other";
         const blankCount = isEveryOther ? Math.floor(numsPerSeq / 2) : Math.min(blanksPerSeq, numsPerSeq - 1);
         const blanks = new Set();
+        const minPos = allowFirstBlank ? 0 : 1;
 
         if (isEveryOther) {
           // Every other number is blank (positions 1, 3, 5, ...)
-          for (let i = 1; i < numsPerSeq; i += 2) {
+          for (let i = Math.max(1, minPos); i < numsPerSeq; i += 2) {
             blanks.add(i);
           }
         } else if (!randomPlacement) {
           // Blanks on the right side of the sequence
-          for (let i = numsPerSeq - 1; i >= 0 && blanks.size < blankCount; i--) {
+          for (let i = numsPerSeq - 1; i >= minPos && blanks.size < blankCount; i--) {
             blanks.add(i);
           }
         } else {
-          // Random placement: any position can be blank, including first and last
+          // Random placement
           const allPositions = [];
-          for (let i = 0; i < numsPerSeq; i++) allPositions.push(i);
+          for (let i = minPos; i < numsPerSeq; i++) allPositions.push(i);
           for (let i = allPositions.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [allPositions[i], allPositions[j]] = [allPositions[j], allPositions[i]];
@@ -901,13 +907,14 @@
 
       const totalRowW = leftPad + numsPerSeq * itemW + (numsPerSeq - 1) * (commaSpace + itemGap);
       const firstNumHalfW = useBoxes ? 0 : fontSize * 0.35 * maxNumStr;
+      const rowIndent = totalRowW < colW ? (colW - totalRowW) / 2 : 0;
 
       for (let s = 0; s < seqCount; s++) {
         const seq = sequences[s];
         const col = layoutCols > 1 ? Math.floor(s / layoutRows) : 0;
         const row = layoutCols > 1 ? s % layoutRows : s;
         const colOffset = col * colW;
-        const rowLeftOffset = margin + colOffset - leftPad - itemW / 2 + firstNumHalfW;
+        const rowLeftOffset = margin + colOffset - leftPad - itemW / 2 + firstNumHalfW + rowIndent;
         const rowTop = topGridY + row * rowH;
         const cy = rowTop + rowH / 2;
 
@@ -1054,6 +1061,7 @@
         answerKey: elAnswerKey.checked,
         numbered: elNumbered.checked,
         includeExample: elIncludeExample.checked,
+        allowFirstBlank: elAllowFirstBlank.checked,
       };
     }
 
@@ -1283,6 +1291,7 @@
     elHeaderMode.addEventListener("change", () => renderWithoutRandomization());
     elBranded.addEventListener("change", () => renderWithoutRandomization());
     elNumbered.addEventListener("change", () => renderWithoutRandomization());
+    elAllowFirstBlank.addEventListener("change", () => renderWithNewRandomization());
     elIncludeExample.addEventListener("change", () => renderWithoutRandomization());
     elCustomTitleEnabled.addEventListener("change", () => {
       elCustomTitleOptions.style.display = elCustomTitleEnabled.checked ? "" : "none";
