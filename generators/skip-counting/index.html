@@ -792,7 +792,8 @@
         [allStarts[i], allStarts[j]] = [allStarts[j], allStarts[i]];
       }
 
-      const usedSeqKeys = new Set();
+      // Track full problem keys (sequence + blanks) for true uniqueness
+      const usedProblemKeys = new Set();
       let startPool = allStarts.slice();
       let poolIdx = 0;
 
@@ -807,22 +808,61 @@
           poolIdx = 0;
         }
 
-        // Pick from pool, but try to avoid adjacent same start
+        const isEveryOther = blanksPerSeq === "every-other";
+        const blankCount = isEveryOther ? Math.floor(numsPerSeq / 2) : Math.min(blanksPerSeq, numsPerSeq - 1);
+
+        // Cap first-blank at ~20% of problems
+        const firstBlankCount = sequences.filter(sq => sq.blanks.has(0)).length;
+        const firstBlankAllowed = allowFirstBlank && firstBlankCount < Math.max(1, Math.ceil(count * 0.2));
+        const minPos = firstBlankAllowed ? 0 : 1;
+
+        // Try multiple start+blank combos to find a unique problem
         let bestStart = startPool[poolIdx];
+        let bestBlanks = null;
         let bestScore = Infinity;
-        const lookAhead = Math.min(startPool.length - poolIdx, 5);
-        for (let a = 0; a < lookAhead; a++) {
-          const candidate = startPool[poolIdx + a];
+        const lookAhead = Math.min(startPool.length - poolIdx, Math.max(5, allStarts.length));
+
+        for (let a = 0; a < lookAhead && bestScore > 0; a++) {
+          const candidate = startPool[(poolIdx + a) % startPool.length];
           const seqNums = [];
           for (let i = 0; i < numsPerSeq; i++) seqNums.push(candidate + i * skipBy);
-          const fullKey = seqNums.join(",");
-          let score = 0;
-          if (usedSeqKeys.has(fullKey)) score += 10;
-          if (sequences.length > 0 && sequences[sequences.length - 1].numbers[0] === candidate) score += 3;
-          if (score < bestScore) {
-            bestScore = score;
-            bestStart = candidate;
-            if (score === 0) { poolIdx += a; break; }
+          const seqStr = seqNums.join(",");
+
+          // Generate blank patterns to try with this start
+          const blankAttempts = randomPlacement ? 10 : 1;
+          for (let ba = 0; ba < blankAttempts && bestScore > 0; ba++) {
+            const blanks = new Set();
+
+            if (isEveryOther) {
+              for (let i = Math.max(1, minPos); i < numsPerSeq; i += 2) blanks.add(i);
+            } else if (!randomPlacement) {
+              for (let i = numsPerSeq - 1; i >= minPos && blanks.size < blankCount; i--) blanks.add(i);
+            } else {
+              const avail = [];
+              for (let i = minPos; i < numsPerSeq; i++) avail.push(i);
+              for (let i = avail.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [avail[i], avail[j]] = [avail[j], avail[i]];
+              }
+              for (let i = 0; i < blankCount; i++) blanks.add(avail[i]);
+            }
+
+            const blankStr = Array.from(blanks).sort((a, b) => a - b).join(",");
+            const problemKey = seqStr + "|" + blankStr;
+
+            let score = 0;
+            if (usedProblemKeys.has(problemKey)) score += 20; // exact duplicate problem
+            // Penalize same sequence (even with different blanks) less
+            if (sequences.some(sq => sq.numbers.join(",") === seqStr)) score += 1;
+            // Penalize adjacent same start
+            if (sequences.length > 0 && sequences[sequences.length - 1].numbers[0] === candidate) score += 3;
+
+            if (score < bestScore) {
+              bestScore = score;
+              bestStart = candidate;
+              bestBlanks = new Set(blanks);
+              if (score === 0) { poolIdx += a; break; }
+            }
           }
         }
         poolIdx++;
@@ -832,66 +872,15 @@
           numbers.push(bestStart + i * skipBy);
         }
 
-        const isEveryOther = blanksPerSeq === "every-other";
-        const blankCount = isEveryOther ? Math.floor(numsPerSeq / 2) : Math.min(blanksPerSeq, numsPerSeq - 1);
-        const blanks = new Set();
-        // Cap first-blank at ~20% of problems
-        const firstBlankCount = sequences.filter(sq => sq.blanks.has(0)).length;
-        const firstBlankAllowed = allowFirstBlank && firstBlankCount < Math.max(1, Math.ceil(count * 0.2));
-        const minPos = firstBlankAllowed ? 0 : 1;
-
-        if (isEveryOther) {
-          // Every other number is blank (positions 1, 3, 5, ...)
-          for (let i = Math.max(1, minPos); i < numsPerSeq; i += 2) {
-            blanks.add(i);
-          }
-        } else if (!randomPlacement) {
-          // Blanks on the right side of the sequence
-          for (let i = numsPerSeq - 1; i >= minPos && blanks.size < blankCount; i--) {
-            blanks.add(i);
-          }
-        } else {
-          // Random placement — try to avoid repeating blank patterns
-          const availPositions = [];
-          for (let i = minPos; i < numsPerSeq; i++) availPositions.push(i);
-
-          let bestPattern = null;
-          let bestScore = Infinity;
-          const attempts = Math.min(20, Math.max(5, availPositions.length));
-
-          for (let a = 0; a < attempts; a++) {
-            // Shuffle available positions
-            const shuffled = availPositions.slice();
-            for (let i = shuffled.length - 1; i > 0; i--) {
-              const j = Math.floor(Math.random() * (i + 1));
-              [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-            }
-            const candidate = shuffled.slice(0, blankCount).sort((a, b) => a - b);
-            const candKey = candidate.join(",");
-
-            // Score: 0 if never used, 1 if used but not adjacent, 2 if used and adjacent
-            let score = 0;
-            for (let p = 0; p < sequences.length; p++) {
-              const prevKey = Array.from(sequences[p].blanks).sort((a, b) => a - b).join(",");
-              if (prevKey === candKey) {
-                // Check adjacency in layout (sequences are rendered top to bottom)
-                const dist = sequences.length - p;
-                if (dist <= 2) score += 3; // adjacent or near-adjacent
-                else score += 1; // repeated but far away
-              }
-            }
-            if (score < bestScore) {
-              bestScore = score;
-              bestPattern = candidate;
-              if (score === 0) break; // perfect — no repeat
-            }
-          }
-
-          for (const pos of bestPattern) blanks.add(pos);
+        // If no blanks were set (shouldn't happen), use default
+        if (!bestBlanks) {
+          bestBlanks = new Set();
+          for (let i = numsPerSeq - 1; i >= 1 && bestBlanks.size < blankCount; i--) bestBlanks.add(i);
         }
 
-        sequences.push({ numbers, blanks });
-        usedSeqKeys.add(numbers.join(","));
+        const blankStr = Array.from(bestBlanks).sort((a, b) => a - b).join(",");
+        usedProblemKeys.add(numbers.join(",") + "|" + blankStr);
+        sequences.push({ numbers, blanks: bestBlanks });
       }
 
       // Adjacency-aware shuffle: space out duplicate/similar sequences
