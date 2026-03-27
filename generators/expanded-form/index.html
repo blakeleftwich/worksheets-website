@@ -456,9 +456,9 @@
       <div class="control-group">
         <label for="modeSelect">Mode</label>
         <select id="modeSelect">
-          <option value="std-to-exp" selected>Standard → Expanded</option>
-          <option value="exp-to-std">Expanded → Standard</option>
-          <option value="mixed">Mixed</option>
+          <option value="std-to-exp" selected>Write in Expanded Form</option>
+          <option value="exp-to-std">Write in Standard Form</option>
+          <option value="mixed">Mixed Form Practice</option>
         </select>
       </div>
 
@@ -627,7 +627,7 @@
       if (elCustomTitleEnabled.checked) {
         return elShowTitle.checked ? elHeaderText.value : "";
       }
-      return "Expanded Form";
+      return generateAutoTitle();
     }
 
     function getSubtitle() {
@@ -1035,11 +1035,9 @@
     // ===== Auto title =====
     function generateAutoTitle() {
       const mode = elMode.value;
-      const digits = elRange.value;
-      let digitLabel = digits + "-Digit";
-      if (mode === "std-to-exp") return digitLabel + " Expanded Form";
-      if (mode === "exp-to-std") return digitLabel + " Standard Form";
-      return digitLabel + " Expanded Form";
+      if (mode === "exp-to-std") return "Write in Standard Form";
+      if (mode === "mixed") return "Mixed Form Practice";
+      return "Write in Expanded Form";
     }
 
     // ===== Gather options =====
