@@ -698,7 +698,8 @@
       popularGrid.id = 'popularGrid';
       popularGrid.style.padding = '0 0 40px';
 
-      var top3 = allPrintables.slice(0, 3);
+      var popularFolders = ['count-and-circle-to-10', 'number-bonds-to-5', 'hundreds-chart-missing-numbers'];
+      var top3 = popularFolders.map(function(f) { return allPrintables.find(function(p) { return p.folder === f; }); }).filter(Boolean);
       top3.forEach(function(p, i) {
         var card = document.createElement('div');
         card.className = 'ws-card';
