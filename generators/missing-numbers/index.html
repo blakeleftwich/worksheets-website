@@ -1201,10 +1201,11 @@
                   stroke: "#cbd5e1", "stroke-width": "1.5"
                 }));
               } else {
-                // Underline only for missing number
+                // Underline only for missing number — aligned with comma baseline
+                const underlineY = cy + fontSize * 0.35;
                 svg.appendChild(svgEl("line", {
-                  x1: bx + boxSize * 0.1, y1: boxY + boxSize - 2,
-                  x2: bx + boxSize * 0.9, y2: boxY + boxSize - 2,
+                  x1: bx + boxSize * 0.1, y1: underlineY,
+                  x2: bx + boxSize * 0.9, y2: underlineY,
                   stroke: "#cbd5e1", "stroke-width": "1.5"
                 }));
               }
