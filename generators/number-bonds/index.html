@@ -772,14 +772,12 @@
         } else if (missingMode === "right") {
           missing = "part2";
         } else if (missingMode === "part") {
-          // Randomly pick which part is missing
-          missing = Math.random() < 0.5 ? "part1" : "part2";
+          // Alternate evenly between part1 and part2
+          missing = problems.length % 2 === 0 ? "part1" : "part2";
         } else {
-          // Random mix: any of the three
-          const r = Math.random();
-          if (r < 0.33) missing = "whole";
-          else if (r < 0.66) missing = "part1";
-          else missing = "part2";
+          // Random mix: cycle evenly through all three
+          const slot = problems.length % 3;
+          missing = slot === 0 ? "whole" : slot === 1 ? "part1" : "part2";
         }
 
         // Create a unique key (normalize part order for uniqueness only when both parts are shown)
@@ -808,8 +806,8 @@
         if (missingMode === "whole") missing = "whole";
         else if (missingMode === "left") missing = "part1";
         else if (missingMode === "right") missing = "part2";
-        else if (missingMode === "part") missing = Math.random() < 0.5 ? "part1" : "part2";
-        else { const r = Math.random(); missing = r < 0.33 ? "whole" : r < 0.66 ? "part1" : "part2"; }
+        else if (missingMode === "part") missing = problems.length % 2 === 0 ? "part1" : "part2";
+        else { const slot = problems.length % 3; missing = slot === 0 ? "whole" : slot === 1 ? "part1" : "part2"; }
         const key = [whole, Math.min(part1, part2), Math.max(part1, part2), missing].join(",");
         if (seen.has(key) && fa < count * 200) continue;
         seen.add(key);
