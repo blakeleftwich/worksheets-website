@@ -829,7 +829,7 @@
     // ===== Circle Mode =====
     function renderCircleMode(svg, numbers, topGridY, availW, availH, margin, pageW, showAnswers, targetType, includeExample) {
       // No instruction text — subtitle already says it
-      const gridTop = topGridY + 10;
+      const gridTop = topGridY - 6;
       const gridAvailH = availH - (gridTop - topGridY);
       const count = numbers.length;
 
@@ -925,29 +925,29 @@
       const oddHeaderEl = svgEl("text", {
         x: margin + halfW / 2, y: headerY,
         "font-family": "Fredoka, sans-serif", "font-size": 20, "font-weight": 700,
-        "text-anchor": "middle", fill: "#2d3748"
+        "text-anchor": "middle", fill: "#9ca3af"
       });
-      oddHeaderEl.textContent = "Odd";
+      oddHeaderEl.textContent = "ODD";
       svg.appendChild(oddHeaderEl);
 
       const evenHeaderEl = svgEl("text", {
         x: centerX + halfW / 2, y: headerY,
         "font-family": "Fredoka, sans-serif", "font-size": 20, "font-weight": 700,
-        "text-anchor": "middle", fill: "#2d3748"
+        "text-anchor": "middle", fill: "#9ca3af"
       });
-      evenHeaderEl.textContent = "Even";
+      evenHeaderEl.textContent = "EVEN";
       svg.appendChild(evenHeaderEl);
 
       // Header underline
       const headerLineY = headerY + 8;
-      svg.appendChild(svgEl("line", { x1: margin + 20, y1: headerLineY, x2: centerX - 20, y2: headerLineY, stroke: "#2d3748", "stroke-width": 1 }));
-      svg.appendChild(svgEl("line", { x1: centerX + 20, y1: headerLineY, x2: pageW - margin - 20, y2: headerLineY, stroke: "#2d3748", "stroke-width": 1 }));
+      svg.appendChild(svgEl("line", { x1: margin + 20, y1: headerLineY, x2: centerX - 20, y2: headerLineY, stroke: "#718096", "stroke-width": 0.75 }));
+      svg.appendChild(svgEl("line", { x1: centerX + 20, y1: headerLineY, x2: pageW - margin - 20, y2: headerLineY, stroke: "#718096", "stroke-width": 0.75 }));
 
       // Blank lines for student to write answers — fill all the way down
       const lineStartY = headerLineY + 30;
       const oddNums = numbers.filter(n => n % 2 !== 0).sort((a, b) => a - b);
       const evenNums = numbers.filter(n => n % 2 === 0).sort((a, b) => a - b);
-      const lineSpacing = 32;
+      const lineSpacing = 42;
       const colBottom = colAreaTop + colAreaH;
       const maxLines = Math.max(oddNums.length, evenNums.length, Math.floor((colBottom - lineStartY) / lineSpacing) + 1);
 
@@ -997,7 +997,7 @@
         const col = i % cols;
         const row = Math.floor(i / cols);
         const cellLeft = margin + col * colW;
-        const cellTop = topGridY + row * rowH;
+        const cellTop = topGridY + 12 + row * rowH;
         const cy = cellTop + rowH / 2 + fontSize * 0.35;
         const isExample = (i === 0 && includeExample && !showAnswers);
 
