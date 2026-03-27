@@ -1000,15 +1000,18 @@
       }
 
       if (useTwoColumns) {
+        // For 3-digit, indent to center the two-column group
+        const colIndent = digits === 3 ? 24 : 0;
+
         // Left column
         for (let i = 0; i < leftCount; i++) {
           const cellTop = gridTop + i * rowH;
-          renderProblem(problems[i], i, margin, colW, cellTop, rowH);
+          renderProblem(problems[i], i, margin + colIndent, colW, cellTop, rowH);
         }
         // Right column
         for (let i = 0; i < rightCount; i++) {
           const cellTop = gridTop + i * rowH;
-          const colLeft = margin + colW + colGap;
+          const colLeft = margin + colIndent + colW + colGap;
           renderProblem(problems[leftCount + i], leftCount + i, colLeft, colW, cellTop, rowH);
         }
       } else {
