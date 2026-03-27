@@ -634,6 +634,9 @@
       if (elCustomTitleEnabled.checked) {
         return elShowSubtitle.checked ? elSubtitleText.value : "";
       }
+      const mode = elMode.value;
+      if (mode === "exp-to-std") return "Write each number in standard form.";
+      if (mode === "mixed") return "Convert between standard and expanded form.";
       return "Write each number in expanded form.";
     }
 
