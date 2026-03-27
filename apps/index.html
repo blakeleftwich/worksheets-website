@@ -402,14 +402,26 @@
         return 'url(icons/appstore_' + info.trackId + '.jpg)';
       }
 
+      function truncateDesc(text, maxSentences) {
+        if (!text) return '';
+        // Take first paragraph only (split on double newline)
+        var firstPara = text.split(/\n\n/)[0].trim();
+        var sentences = firstPara.match(/[^.!?]+[.!?]+/g) || [firstPara];
+        var n = maxSentences || 2;
+        var short = sentences.slice(0, n).join(' ').trim();
+        if (sentences.length > n || text.split(/\n\n/).length > 1) short += '..';
+        return short;
+      }
+
       function buildCardHTML(info, folder) {
+        var shortDesc = truncateDesc(info.description, 2);
         return '<img class="featured-icon" src="icons/appstore_' + info.trackId + '.jpg" alt="' + info.title + '" loading="lazy">' +
           '<div class="featured-content">' +
             '<div class="featured-name">' + info.title + '</div>' +
             '<div class="featured-meta">' +
               '<span class="grade-badge">' + (info.grade || '') + '</span>' +
             '</div>' +
-            '<p class="app-description">' + info.description + '</p>' +
+            '<p class="app-description">' + shortDesc + '</p>' +
             '<div class="featured-actions">' +
               '<a href="' + info.appStoreUrl + '" target="_blank" rel="noopener" class="appstore-btn">App Store &#10148;</a>' +
             '</div>' +
