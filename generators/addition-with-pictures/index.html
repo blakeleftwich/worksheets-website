@@ -1171,17 +1171,19 @@
             let measuredStoryW = storyWithMake.length * storyFontSize * 0.44;
             try { const len = storyEl.getComputedTextLength(); if (len > 0) measuredStoryW = len; } catch(e) {}
             const storyTextEnd = storyLeftX + measuredStoryW;
-            // Place underline right after story text with small gap
-            const underStartX = storyTextEnd + gapW;
+            // Wider gap with underline centered within it
+            const blankGap = storyFontSize * 3.2;
+            const blankStart = storyTextEnd + gapW;
+            const underStartX = blankStart + (blankGap - storyUnderW) / 2;
             const underEndX = underStartX + storyUnderW;
             // Underline
             svg.appendChild(svgEl("line", { x1: underStartX, y1: storyUnderY, x2: underEndX, y2: storyUnderY, stroke: "#cbd5e1", "stroke-width": underlineStroke }));
-            // Plural label after underline
-            const labelEl = svgEl("text", { x: underEndX + gapW, y: storyY, "font-family": "Fredoka, sans-serif", "font-size": String(storyFontSize), "font-weight": "500", fill: eqColor });
+            // Plural label after gap
+            const labelEl = svgEl("text", { x: blankStart + blankGap + gapW, y: storyY, "font-family": "Fredoka, sans-serif", "font-size": String(storyFontSize), "font-weight": "500", fill: eqColor });
             labelEl.textContent = pluralLabel;
             svg.appendChild(labelEl);
             if (showAnswers) {
-              const underCenterX = (underStartX + underEndX) / 2;
+              const underCenterX = blankStart + blankGap / 2;
               const ansEl = svgEl("text", { x: underCenterX, y: storyY, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(storyFontSize * 1.1), "font-weight": "700", fill: ansColor });
               ansEl.textContent = String(answer);
               svg.appendChild(ansEl);
