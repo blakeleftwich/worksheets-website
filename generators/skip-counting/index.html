@@ -826,7 +826,10 @@
         const isEveryOther = blanksPerSeq === "every-other";
         const blankCount = isEveryOther ? Math.floor(numsPerSeq / 2) : Math.min(blanksPerSeq, numsPerSeq - 1);
         const blanks = new Set();
-        const minPos = allowFirstBlank ? 0 : 1;
+        // Cap first-blank at ~20% of problems
+        const firstBlankCount = sequences.filter(sq => sq.blanks.has(0)).length;
+        const firstBlankAllowed = allowFirstBlank && firstBlankCount < Math.max(1, Math.ceil(count * 0.2));
+        const minPos = firstBlankAllowed ? 0 : 1;
 
         if (isEveryOther) {
           // Every other number is blank (positions 1, 3, 5, ...)
