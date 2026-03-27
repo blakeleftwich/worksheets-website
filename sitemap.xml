@@ -4,15 +4,27 @@
   <url><loc>https://animalmath.com/</loc><priority>1.0</priority></url>
   <url><loc>https://animalmath.com/printables/</loc><priority>0.9</priority></url>
   <url><loc>https://animalmath.com/generators.html</loc><priority>0.9</priority></url>
+  <url><loc>https://animalmath.com/tools/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/songs/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/apps/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/about.html</loc><priority>0.5</priority></url>
 
   <!-- Printable detail pages -->
-  <url><loc>https://animalmath.com/printables/count-and-write-1-to-5/</loc><priority>0.8</priority></url>
-  <url><loc>https://animalmath.com/printables/count-and-write-1-to-10/</loc><priority>0.8</priority></url>
-  <url><loc>https://animalmath.com/printables/count-and-write-1-to-20/</loc><priority>0.8</priority></url>
-  <url><loc>https://animalmath.com/printables/count-and-write-10-to-20/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/addition-fact-drills-to-5/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/addition-to-5/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/count-and-circle-to-5/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/count-and-circle-to-10/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/count-and-write-to-5/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/count-and-write-to-10/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/expanded-and-standard-form-2-digit/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/expanded-and-standard-form-3-digit/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/fill-in-hundreds-chart/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/hundreds-chart-missing-numbers/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/hundreds-chart-reference/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/missing-numbers-to-5/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/number-bonds-to-5/</loc><priority>0.8</priority></url>
 
-  <!-- Generator pages -->
+  <!-- Generator pages (excluding hidden: comparing-numbers, fact-families, subtraction-with-pictures) -->
   <url><loc>https://animalmath.com/generators/2d-shapes/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/addition-with-pictures/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/bar-graphs/</loc><priority>0.7</priority></url>
@@ -25,15 +37,15 @@
   <url><loc>https://animalmath.com/generators/color-by-number-math/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/column-math-equations/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/comparing-groups/</loc><priority>0.7</priority></url>
-  <url><loc>https://animalmath.com/generators/comparing-numbers/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/count-and-paste/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/count-and-write-number-groups/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/counting-money/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/data-table-and-survey/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/decompose-to-subtract/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/division-equal-groups/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/dot-to-dot/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/doubles-and-near-doubles/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/expanded-form/</loc><priority>0.7</priority></url>
-  <url><loc>https://animalmath.com/generators/fact-families/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/fill-in-the-blank-equations/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/greater-than-less-than/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/horizontal-math-equations/</loc><priority>0.7</priority></url>
@@ -43,6 +55,7 @@
   <url><loc>https://animalmath.com/generators/math-fact-drills/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/measurement/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/missing-number-sequence-grid/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/generators/missing-numbers/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/multiplication-arrays/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/number-bonds/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/number-line/</loc><priority>0.7</priority></url>
@@ -54,7 +67,6 @@
   <url><loc>https://animalmath.com/generators/pictograph/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/rounding-numbers/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/skip-counting/</loc><priority>0.7</priority></url>
-  <url><loc>https://animalmath.com/generators/subtraction-with-pictures/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/symmetry/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/tally-marks/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/telling-time-draw-the-clock-hands/</loc><priority>0.7</priority></url>
@@ -66,4 +78,9 @@
   <url><loc>https://animalmath.com/generators/three-digit-place-value/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/venn-diagram/</loc><priority>0.7</priority></url>
   <url><loc>https://animalmath.com/generators/word-problems/</loc><priority>0.7</priority></url>
+
+  <!-- Tools (excluding hidden: fraction-strips, geoboard) -->
+  <url><loc>https://animalmath.com/tools/base-ten-blocks/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/tools/number-line/</loc><priority>0.7</priority></url>
+  <url><loc>https://animalmath.com/tools/ten-frames/</loc><priority>0.7</priority></url>
 </urlset>
