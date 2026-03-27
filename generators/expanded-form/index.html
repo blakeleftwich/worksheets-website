@@ -974,7 +974,7 @@
           svg.appendChild(eqEl);
           x += charW * 1.4;
 
-          const blankW = computeBlankWidth([prob.number], charW, fontSize);
+          const blankW = computeBlankWidth([prob.number], charW, fontSize) + charW * 1.5;
           const lineY = cy + fontSize * 0.35;
           svg.appendChild(svgEl("line", { x1: x, y1: lineY, x2: x + blankW, y2: lineY, stroke: isExample ? "#22c55e" : "#cbd5e1", "stroke-width": "1.5" }));
 
