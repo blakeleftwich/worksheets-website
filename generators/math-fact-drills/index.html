@@ -905,52 +905,60 @@
         }
       }
 
-      // Adjacency-aware shuffle: no identical or commutative equations adjacent (same row, above, or below in 2-col layout)
-      function pKey(p) { return p.op + ":" + p.top + "," + p.bottom; }
+      // Adjacency-aware shuffle: no identical or commutative equations adjacent (left, right, above, below in grid layout)
+      // Determine actual column count used in rendering
+      let layoutCols;
+      if (count <= 30) layoutCols = 3;
+      else layoutCols = 4;
+
       function adjKey(p) {
         if (p.op === '+' || p.op === '×') return p.op + ":" + Math.min(p.top, p.bottom) + "," + Math.max(p.top, p.bottom);
         return p.op + ":" + p.top + "," + p.bottom;
       }
-      function hasAdjacentConflict(arr) {
-        const cols = 2;
-        for (let i = 0; i < arr.length; i++) {
-          const k = adjKey(arr[i]);
-          if (i % cols === 0 && i + 1 < arr.length && adjKey(arr[i + 1]) === k) return true;
-          if (i + cols < arr.length && adjKey(arr[i + cols]) === k) return true;
-        }
-        return false;
+      function getNeighbors(i, arr, cols) {
+        const neighbors = [];
+        const col = i % cols;
+        if (col > 0 && i - 1 >= 0) neighbors.push(i - 1);           // left
+        if (col < cols - 1 && i + 1 < arr.length) neighbors.push(i + 1); // right
+        if (i - cols >= 0) neighbors.push(i - cols);                  // above
+        if (i + cols < arr.length) neighbors.push(i + cols);          // below
+        return neighbors;
       }
       function countAdjConflicts(arr) {
-        let c = 0; const cols = 2;
+        let c = 0;
         for (let i = 0; i < arr.length; i++) {
           const k = adjKey(arr[i]);
-          if (i % cols === 0 && i + 1 < arr.length && adjKey(arr[i + 1]) === k) c++;
-          if (i + cols < arr.length && adjKey(arr[i + cols]) === k) c++;
+          for (const n of getNeighbors(i, arr, layoutCols)) {
+            if (n > i && adjKey(arr[n]) === k) c++;
+          }
         }
         return c;
       }
-      for (let attempt = 0; attempt < 10; attempt++) {
+      function hasAdjacentConflict(arr) {
+        return countAdjConflicts(arr) > 0;
+      }
+      for (let attempt = 0; attempt < 20; attempt++) {
         for (let i = problems.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [problems[i], problems[j]] = [problems[j], problems[i]]; }
-        for (let pass = 0; pass < 100 && hasAdjacentConflict(problems); pass++) {
-          const cols = 2;
+        for (let pass = 0; pass < 200 && hasAdjacentConflict(problems); pass++) {
           const before = countAdjConflicts(problems);
           for (let i = 0; i < problems.length; i++) {
             const k = adjKey(problems[i]);
-            const right = (i % cols === 0 && i + 1 < problems.length) ? i + 1 : -1;
-            const below = (i + cols < problems.length) ? i + cols : -1;
-            if ((right >= 0 && adjKey(problems[right]) === k) || (below >= 0 && adjKey(problems[below]) === k)) {
-              const conflictIdx = (right >= 0 && adjKey(problems[right]) === k) ? right : below;
-              let bestSwap = -1, bestCount = countAdjConflicts(problems);
-              for (let s = 0; s < problems.length; s++) {
-                if (s === i || s === right || s === below) continue;
-                [problems[conflictIdx], problems[s]] = [problems[s], problems[conflictIdx]];
-                const cnt = countAdjConflicts(problems);
-                if (cnt < bestCount) { bestCount = cnt; bestSwap = s; }
-                [problems[conflictIdx], problems[s]] = [problems[s], problems[conflictIdx]];
-              }
-              if (bestSwap >= 0) {
-                [problems[conflictIdx], problems[bestSwap]] = [problems[bestSwap], problems[conflictIdx]];
-              }
+            const nbrs = getNeighbors(i, problems, layoutCols);
+            const conflictNbr = nbrs.find(n => adjKey(problems[n]) === k);
+            if (conflictNbr === undefined) continue;
+            // Try swapping the conflicting neighbor with every other position, pick best
+            let bestSwap = -1, bestCount = countAdjConflicts(problems);
+            const nbrSet = new Set(nbrs);
+            nbrSet.add(i);
+            for (let s = 0; s < problems.length; s++) {
+              if (nbrSet.has(s)) continue;
+              [problems[conflictNbr], problems[s]] = [problems[s], problems[conflictNbr]];
+              const cnt = countAdjConflicts(problems);
+              if (cnt < bestCount) { bestCount = cnt; bestSwap = s; }
+              [problems[conflictNbr], problems[s]] = [problems[s], problems[conflictNbr]];
+            }
+            if (bestSwap >= 0) {
+              [problems[conflictNbr], problems[bestSwap]] = [problems[bestSwap], problems[conflictNbr]];
             }
           }
           if (countAdjConflicts(problems) >= before) break;
