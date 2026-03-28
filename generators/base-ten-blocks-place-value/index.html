@@ -944,7 +944,7 @@
       const { max: rangeMax } = getRangeMinMax();
       const useTwoCols = rangeMax <= 20;
       const colCount = useTwoCols ? 2 : 1;
-      const colGap = useTwoCols ? 36 : 0;
+      const colGap = useTwoCols ? 8 : 0;
       const layoutColW = useTwoCols ? (availW - colGap) / 2 : availW;
       const visualRows = useTwoCols ? Math.ceil(numRows / 2) : numRows;
 
@@ -1027,8 +1027,9 @@
         const cellLeft = margin + layoutCol * (layoutColW + colGap);
 
         // Compute content height first (needed for bottom-alignment in 2-col mode)
-        const contentLeft = useTwoCols ? cellLeft + 4 : cellLeft;
-        const cellAvailW = useTwoCols ? layoutColW : availW;
+        const boxPad = 8; // inner padding from box wall
+        const contentLeft = useTwoCols ? cellLeft + boxPad : cellLeft;
+        const cellAvailW = useTwoCols ? layoutColW - boxPad * 2 : availW;
         const cellBlocksAreaW = useTwoCols ? cellAvailW * 0.44 : cellAvailW * 0.55;
         const blocksW = cellBlocksAreaW;
         const blocksH = rowH - 12;
@@ -1051,8 +1052,8 @@
         // Draw blocks on the left side — align left edge with header text
         drawBlocksBW(svg, hundreds, tens, ones, contentLeft, contentTop, blocksW, blocksH, useHundreds, unitSize, rodW, rodH, rodGap, unitGap, flatSize, flatGap, strokeColor, strokeW, groupGap);
 
-        // Draw place value chart — in 2-col mode, place right after blocks with gap; in 1-col, right-align
-        const chartX = useTwoCols ? (contentLeft + blocksW + 14) : (cellLeft + cellAvailW - chartW);
+        // Draw place value chart — right-align within the content area
+        const chartX = useTwoCols ? (cellLeft + layoutColW - boxPad - chartW) : (cellLeft + cellAvailW - chartW);
         // Bottom-align chart with blocks
         const chartY = contentTop + blocksTallestH - chartTotalH;
         const numCols = useHundreds ? 3 : 2;
