@@ -1052,8 +1052,8 @@
         // Draw blocks on the left side — align left edge with header text
         drawBlocksBW(svg, hundreds, tens, ones, contentLeft, contentTop, blocksW, blocksH, useHundreds, unitSize, rodW, rodH, rodGap, unitGap, flatSize, flatGap, strokeColor, strokeW, groupGap);
 
-        // Draw place value chart — right-align within the content area
-        const chartX = useTwoCols ? (cellLeft + layoutColW - boxPad - chartW) : (cellLeft + cellAvailW - chartW);
+        // Draw place value chart — right-align within the content area (2-col: shift one block width closer to blocks)
+        const chartX = useTwoCols ? (cellLeft + layoutColW - boxPad - chartW - unitSize) : (cellLeft + cellAvailW - chartW);
         // Bottom-align chart with blocks
         const chartY = contentTop + blocksTallestH - chartTotalH;
         const numCols = useHundreds ? 3 : 2;
