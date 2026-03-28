@@ -727,16 +727,39 @@
 
     // ===== Coin / bill definitions =====
     const COIN_DEFS = {
-      penny:   { value: 1,  label: "1\u00a2",  r: 9.5, fill: "#b87333", stroke: "#8B5A2B", textFill: "#5a3210" },
-      nickel:  { value: 5,  label: "5\u00a2",  r: 11,  fill: "#C0C0C0", stroke: "#808080", textFill: "#404040" },
-      dime:    { value: 10, label: "10\u00a2", r: 8.5, fill: "#D0D0D0", stroke: "#909090", textFill: "#404040" },
-      quarter: { value: 25, label: "25\u00a2", r: 13,  fill: "#C8C8C8", stroke: "#808080", textFill: "#404040" }
+      penny:   { value: 1,  label: "1\u00a2",  r: 9.5, fill: "#b87333", stroke: "#8B5A2B", textFill: "#5a3210", img: "../../images/currencyPenny.png" },
+      nickel:  { value: 5,  label: "5\u00a2",  r: 11,  fill: "#C0C0C0", stroke: "#808080", textFill: "#404040", img: "../../images/currencyNickel.png" },
+      dime:    { value: 10, label: "10\u00a2", r: 8.5, fill: "#D0D0D0", stroke: "#909090", textFill: "#404040", img: "../../images/currencyDime.png" },
+      quarter: { value: 25, label: "25\u00a2", r: 13,  fill: "#C8C8C8", stroke: "#808080", textFill: "#404040", img: "../../images/currencyQuarter.png" }
     };
 
     const BILL_DEFS = {
-      one:  { value: 100, label: "$1", w: 42, h: 20, fill: "#b8d8b8", stroke: "#2d6a2d", textFill: "#1a4a1a" },
-      five: { value: 500, label: "$5", w: 42, h: 20, fill: "#a0cca0", stroke: "#1a5a1a", textFill: "#0e3a0e" }
+      one:  { value: 100, label: "$1", w: 42, h: 20, fill: "#b8d8b8", stroke: "#2d6a2d", textFill: "#1a4a1a", img: "../../images/currencyDollar.png" },
+      five: { value: 500, label: "$5", w: 42, h: 20, fill: "#a0cca0", stroke: "#1a5a1a", textFill: "#0e3a0e", img: "../../images/currencyFiveBill.png" }
     };
+
+    // ===== Preload money images as base64 data URIs =====
+    const MONEY_IMAGE_DATA = {};
+    async function preloadMoneyImages() {
+      const allDefs = { ...COIN_DEFS, ...BILL_DEFS };
+      const promises = Object.entries(allDefs).map(async ([key, def]) => {
+        if (!def.img) return;
+        try {
+          const resp = await fetch(def.img);
+          const blob = await resp.blob();
+          const dataUrl = await new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          });
+          MONEY_IMAGE_DATA[key] = dataUrl;
+        } catch (e) {
+          console.warn("Failed to load money image:", key, e);
+        }
+      });
+      await Promise.all(promises);
+    }
+    preloadMoneyImages();
 
     // ===== Get available denominations =====
     function getAvailableDenoms(coinType) {
@@ -876,68 +899,82 @@
       }
     }
 
-    // ===== Draw a coin as SVG =====
+    // ===== Draw a coin as SVG (real images) =====
     function drawCoin(svg, cx, cy, denom) {
       const def = COIN_DEFS[denom];
       const r = def.r;
+      const dataUrl = MONEY_IMAGE_DATA[denom];
 
-      // Outer circle
-      svg.appendChild(svgEl("circle", {
-        cx: cx, cy: cy, r: r,
-        fill: def.fill, stroke: def.stroke, "stroke-width": "1.5"
-      }));
+      if (dataUrl) {
+        const size = r * 2;
+        const clipId = "coinclip-" + denom + "-" + Math.random().toString(36).slice(2, 8);
+        const clipPath = svgEl("clipPath", { id: clipId });
+        clipPath.appendChild(svgEl("circle", { cx: cx, cy: cy, r: r }));
+        const defs = svg.querySelector("defs") || svgEl("defs", {});
+        if (!defs.parentNode) svg.insertBefore(defs, svg.firstChild);
+        defs.appendChild(clipPath);
 
-      // Inner circle (rim detail)
-      svg.appendChild(svgEl("circle", {
-        cx: cx, cy: cy, r: r * 0.78,
-        fill: "none", stroke: def.stroke, "stroke-width": "0.5", opacity: "0.4"
-      }));
-
-      // Value text
-      const fontSize = denom === "dime" ? 7 : (denom === "penny" ? 7.5 : 8);
-      const txt = svgEl("text", {
-        x: cx, y: cy + fontSize * 0.35,
-        "text-anchor": "middle",
-        "font-family": "'Google Sans Flex', sans-serif",
-        "font-size": fontSize,
-        "font-weight": "500",
-        fill: def.textFill
-      });
-      txt.textContent = def.label;
-      svg.appendChild(txt);
+        const img = svgEl("image", {
+          x: cx - r, y: cy - r,
+          width: size, height: size,
+          href: dataUrl,
+          preserveAspectRatio: "xMidYMid meet",
+          "clip-path": "url(#" + clipId + ")"
+        });
+        svg.appendChild(img);
+      } else {
+        // Fallback: colored circle with label
+        svg.appendChild(svgEl("circle", {
+          cx: cx, cy: cy, r: r,
+          fill: def.fill, stroke: def.stroke, "stroke-width": "1.5"
+        }));
+        const fontSize = denom === "dime" ? 7 : (denom === "penny" ? 7.5 : 8);
+        const txt = svgEl("text", {
+          x: cx, y: cy + fontSize * 0.35,
+          "text-anchor": "middle",
+          "font-family": "'Google Sans Flex', sans-serif",
+          "font-size": fontSize,
+          "font-weight": "500",
+          fill: def.textFill
+        });
+        txt.textContent = def.label;
+        svg.appendChild(txt);
+      }
     }
 
-    // ===== Draw a bill as SVG =====
+    // ===== Draw a bill as SVG (real images) =====
     function drawBill(svg, cx, cy, denom) {
       const def = BILL_DEFS[denom];
-      const x = cx - def.w / 2;
-      const y = cy - def.h / 2;
+      const dataUrl = MONEY_IMAGE_DATA[denom];
 
-      // Bill rectangle
-      svg.appendChild(svgEl("rect", {
-        x: x, y: y, width: def.w, height: def.h,
-        rx: 2, ry: 2,
-        fill: def.fill, stroke: def.stroke, "stroke-width": "1.5"
-      }));
-
-      // Inner border
-      svg.appendChild(svgEl("rect", {
-        x: x + 2, y: y + 2, width: def.w - 4, height: def.h - 4,
-        rx: 1, ry: 1,
-        fill: "none", stroke: def.stroke, "stroke-width": "0.5", opacity: "0.4"
-      }));
-
-      // Value text
-      const txt = svgEl("text", {
-        x: cx, y: cy + 4,
-        "text-anchor": "middle",
-        "font-family": "'Google Sans Flex', sans-serif",
-        "font-size": "10",
-        "font-weight": "500",
-        fill: def.textFill
-      });
-      txt.textContent = def.label;
-      svg.appendChild(txt);
+      if (dataUrl) {
+        const img = svgEl("image", {
+          x: cx - def.w / 2, y: cy - def.h / 2,
+          width: def.w, height: def.h,
+          href: dataUrl,
+          preserveAspectRatio: "xMidYMid meet"
+        });
+        svg.appendChild(img);
+      } else {
+        // Fallback: green rectangle with label
+        const x = cx - def.w / 2;
+        const y = cy - def.h / 2;
+        svg.appendChild(svgEl("rect", {
+          x: x, y: y, width: def.w, height: def.h,
+          rx: 2, ry: 2,
+          fill: def.fill, stroke: def.stroke, "stroke-width": "1.5"
+        }));
+        const txt = svgEl("text", {
+          x: cx, y: cy + 4,
+          "text-anchor": "middle",
+          "font-family": "'Google Sans Flex', sans-serif",
+          "font-size": "10",
+          "font-weight": "500",
+          fill: def.textFill
+        });
+        txt.textContent = def.label;
+        svg.appendChild(txt);
+      }
     }
 
     // ===== SVG Rendering =====
@@ -1055,13 +1092,9 @@
         const isExample = (i === 0 && includeExample && !showAnswers);
 
         // Problem number
-        if (numbered !== false) {
-          const probNumSize = 11;
-          const probNumX = cellLeft + 4;
-          const probNumY = cellTop + 16;
-          const numEl = svgEl("text", { x: probNumX, y: probNumY, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
-          numEl.textContent = (i + 1) + "."; svg.appendChild(numEl);
-        }
+        const probNumSize = 11;
+        const probNumX = cellLeft + 4;
+        const probNumY = cellTop + 16;
 
         // Draw a light box around the problem area
         const boxPad = 4;
@@ -1076,9 +1109,11 @@
           fill: "#fafafa", stroke: "#e2e8f0", "stroke-width": "1"
         }));
 
-        // Re-draw problem number on top of box
-        const numEl2 = svgEl("text", { x: probNumX + 6, y: probNumY + 6, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
-        numEl2.textContent = (i + 1) + "."; svg.appendChild(numEl2);
+        // Draw problem number on top of box
+        if (numbered !== false) {
+          const numEl2 = svgEl("text", { x: probNumX + 6, y: probNumY + 6, "font-family": "Fredoka, sans-serif", "font-size": String(probNumSize), "font-weight": "600", fill: "#a0aec0" });
+          numEl2.textContent = (i + 1) + "."; svg.appendChild(numEl2);
+        }
 
         // Area for coins/bills
         const coinAreaLeft = problemBoxX + 12;

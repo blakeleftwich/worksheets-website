@@ -770,394 +770,73 @@
 
     // ===== Coin data =====
     const COINS = {
-      penny:   { name: "Penny",   value: "1\u00A2",  cents: 1,  color: "#b87333", rimColor: "#8B5A2B", radius: 28, label: "1\u00A2" },
-      nickel:  { name: "Nickel",  value: "5\u00A2",  cents: 5,  color: "#C0C0C0", rimColor: "#8a8a8a", radius: 32, label: "5\u00A2" },
-      dime:    { name: "Dime",    value: "10\u00A2", cents: 10, color: "#D3D3D3", rimColor: "#999",    radius: 24, label: "10\u00A2" },
-      quarter: { name: "Quarter", value: "25\u00A2", cents: 25, color: "#C8C8C8", rimColor: "#888",    radius: 38, label: "25\u00A2" }
+      penny:   { name: "Penny",   value: "1\u00A2",  cents: 1,  color: "#b87333", rimColor: "#8B5A2B", radius: 28, label: "1\u00A2", img: "../../images/currencyPenny.png" },
+      nickel:  { name: "Nickel",  value: "5\u00A2",  cents: 5,  color: "#C0C0C0", rimColor: "#8a8a8a", radius: 32, label: "5\u00A2", img: "../../images/currencyNickel.png" },
+      dime:    { name: "Dime",    value: "10\u00A2", cents: 10, color: "#D3D3D3", rimColor: "#999",    radius: 24, label: "10\u00A2", img: "../../images/currencyDime.png" },
+      quarter: { name: "Quarter", value: "25\u00A2", cents: 25, color: "#C8C8C8", rimColor: "#888",    radius: 38, label: "25\u00A2", img: "../../images/currencyQuarter.png" }
     };
 
-    // ===== Draw coin SVG =====
+    // ===== Preload coin images as base64 data URIs =====
+    const COIN_IMAGE_DATA = {};
+    async function preloadCoinImages() {
+      const promises = Object.entries(COINS).map(async ([key, coin]) => {
+        try {
+          const resp = await fetch(coin.img);
+          const blob = await resp.blob();
+          const dataUrl = await new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          });
+          COIN_IMAGE_DATA[key] = dataUrl;
+        } catch (e) {
+          console.warn("Failed to load coin image:", key, e);
+        }
+      });
+      await Promise.all(promises);
+    }
+    preloadCoinImages();
+
+    // ===== Draw coin SVG (real images) =====
     function drawCoin(parent, cx, cy, coinKey, side, scale) {
       scale = scale || 1;
       const coin = COINS[coinKey];
       const r = coin.radius * scale;
-      const g = svgEl("g", {});
+      const size = r * 2;
 
-      // Outer rim
-      g.appendChild(svgEl("circle", {
-        cx: cx, cy: cy, r: r,
-        fill: coin.rimColor, stroke: "none"
-      }));
-
-      // Inner face
-      g.appendChild(svgEl("circle", {
-        cx: cx, cy: cy, r: r * 0.92,
-        fill: coin.color, stroke: "none"
-      }));
-
-      // Ridged edge for dime and quarter
-      if (coinKey === "dime" || coinKey === "quarter") {
-        const numRidges = coinKey === "quarter" ? 32 : 24;
-        for (let i = 0; i < numRidges; i++) {
-          const angle = (i / numRidges) * Math.PI * 2;
-          const x1 = cx + Math.cos(angle) * r;
-          const y1 = cy + Math.sin(angle) * r;
-          const x2 = cx + Math.cos(angle) * (r * 0.93);
-          const y2 = cy + Math.sin(angle) * (r * 0.93);
-          g.appendChild(svgEl("line", {
-            x1: x1, y1: y1, x2: x2, y2: y2,
-            stroke: coinKey === "dime" ? "#aaa" : "#777",
-            "stroke-width": String(0.8 * scale)
-          }));
-        }
-      }
-
-      // Smooth rim highlight for penny and nickel
-      g.appendChild(svgEl("circle", {
-        cx: cx, cy: cy, r: r,
-        fill: "none", stroke: coinKey === "penny" ? "#d4956a" : "#aaa",
-        "stroke-width": String(1.5 * scale), opacity: "0.5"
-      }));
-
-      if (side === "heads") {
-        drawHeads(g, cx, cy, r, coinKey, scale);
+      const dataUrl = COIN_IMAGE_DATA[coinKey];
+      if (dataUrl) {
+        const img = svgEl("image", {
+          x: cx - r, y: cy - r,
+          width: size, height: size,
+          href: dataUrl,
+          preserveAspectRatio: "xMidYMid meet"
+        });
+        // Clip to circle
+        const clipId = "clip-" + coinKey + "-" + Math.random().toString(36).slice(2, 8);
+        const clipPath = svgEl("clipPath", { id: clipId });
+        clipPath.appendChild(svgEl("circle", { cx: cx, cy: cy, r: r }));
+        const defs = parent.querySelector("defs") || svgEl("defs", {});
+        if (!defs.parentNode) parent.insertBefore(defs, parent.firstChild);
+        defs.appendChild(clipPath);
+        img.setAttribute("clip-path", "url(#" + clipId + ")");
+        parent.appendChild(img);
       } else {
-        drawTails(g, cx, cy, r, coinKey, scale);
-      }
-
-      parent.appendChild(g);
-    }
-
-    function drawHeads(g, cx, cy, r, coinKey, scale) {
-      const coin = COINS[coinKey];
-      const textColor = coinKey === "penny" ? "#6B3A1F" : "#555";
-
-      // Profile silhouette (simplified head shape facing right)
-      const headR = r * 0.32;
-      const headCx = cx - r * 0.05;
-      const headCy = cy - r * 0.05;
-
-      // Head circle
-      g.appendChild(svgEl("circle", {
-        cx: headCx, cy: headCy, r: headR,
-        fill: coinKey === "penny" ? "#a0612b" : "#aaa",
-        stroke: "none"
-      }));
-
-      // Neck (small rectangle below head)
-      const neckW = headR * 0.6;
-      const neckH = headR * 0.7;
-      g.appendChild(svgEl("rect", {
-        x: headCx - neckW / 2, y: headCy + headR * 0.7,
-        width: neckW, height: neckH,
-        fill: coinKey === "penny" ? "#a0612b" : "#aaa",
-        rx: String(2 * scale)
-      }));
-
-      // "LIBERTY" text at top
-      const libertyEl = svgEl("text", {
-        x: cx, y: cy - r * 0.68,
-        "text-anchor": "middle",
-        "font-family": "serif",
-        "font-size": String(Math.max(6, r * 0.22)),
-        "font-weight": "400",
-        "letter-spacing": String(1.5 * scale),
-        fill: textColor
-      });
-      libertyEl.textContent = "LIBERTY";
-      g.appendChild(libertyEl);
-
-      // "IN GOD" text on left
-      const igEl = svgEl("text", {
-        x: cx - r * 0.72, y: cy + r * 0.1,
-        "text-anchor": "start",
-        "font-family": "serif",
-        "font-size": String(Math.max(5, r * 0.16)),
-        fill: textColor
-      });
-      igEl.textContent = "IN GOD";
-      g.appendChild(igEl);
-
-      // "WE TRUST" text on left below
-      const wtEl = svgEl("text", {
-        x: cx - r * 0.72, y: cy + r * 0.3,
-        "text-anchor": "start",
-        "font-family": "serif",
-        "font-size": String(Math.max(5, r * 0.16)),
-        fill: textColor
-      });
-      wtEl.textContent = "WE TRUST";
-      g.appendChild(wtEl);
-
-      // Year at bottom
-      const yearEl = svgEl("text", {
-        x: cx, y: cy + r * 0.82,
-        "text-anchor": "middle",
-        "font-family": "serif",
-        "font-size": String(Math.max(6, r * 0.2)),
-        fill: textColor
-      });
-      yearEl.textContent = "2024";
-      g.appendChild(yearEl);
-    }
-
-    function drawTails(g, cx, cy, r, coinKey, scale) {
-      const textColor = coinKey === "penny" ? "#6B3A1F" : "#555";
-
-      if (coinKey === "penny") {
-        // Lincoln Memorial simplified
-        const memW = r * 1.1;
-        const memH = r * 0.6;
-        const memX = cx - memW / 2;
-        const memY = cy - r * 0.05;
-
-        // Base
-        g.appendChild(svgEl("rect", {
-          x: memX, y: memY, width: memW, height: memH * 0.15,
-          fill: "#a0612b"
+        // Fallback: simple colored circle
+        parent.appendChild(svgEl("circle", {
+          cx: cx, cy: cy, r: r,
+          fill: coin.color, stroke: coin.rimColor, "stroke-width": "1.5"
         }));
-
-        // Columns
-        const numCols = 5;
-        const colW = memW * 0.06;
-        const colSpacing = memW / (numCols + 1);
-        for (let i = 1; i <= numCols; i++) {
-          g.appendChild(svgEl("rect", {
-            x: memX + i * colSpacing - colW / 2,
-            y: memY - memH * 0.6,
-            width: colW,
-            height: memH * 0.6,
-            fill: "#a0612b"
-          }));
-        }
-
-        // Roof (triangle)
-        const roofY = memY - memH * 0.6;
-        g.appendChild(svgEl("polygon", {
-          points: (memX + memW * 0.05) + "," + roofY + " " +
-                  cx + "," + (roofY - memH * 0.25) + " " +
-                  (memX + memW * 0.95) + "," + roofY,
-          fill: "#a0612b"
-        }));
-
-        // "ONE CENT" text
-        const centEl = svgEl("text", {
-          x: cx, y: cy + r * 0.6,
+        const txt = svgEl("text", {
+          x: cx, y: cy + r * 0.15,
           "text-anchor": "middle",
-          "font-family": "serif",
-          "font-size": String(Math.max(5, r * 0.22)),
-          "font-weight": "700",
-          fill: textColor
+          "font-family": "Fredoka, sans-serif",
+          "font-size": String(r * 0.5),
+          "font-weight": "600",
+          fill: "#555"
         });
-        centEl.textContent = "ONE CENT";
-        g.appendChild(centEl);
-
-        // "E PLURIBUS UNUM" at top
-        const epuEl = svgEl("text", {
-          x: cx, y: cy - r * 0.7,
-          "text-anchor": "middle",
-          "font-family": "serif",
-          "font-size": String(Math.max(4, r * 0.15)),
-          fill: textColor
-        });
-        epuEl.textContent = "E PLURIBUS UNUM";
-        g.appendChild(epuEl);
-
-      } else if (coinKey === "nickel") {
-        // Monticello simplified
-        const bldgW = r * 1.2;
-        const bldgH = r * 0.35;
-        const bldgX = cx - bldgW / 2;
-        const bldgY = cy - r * 0.1;
-
-        // Main building
-        g.appendChild(svgEl("rect", {
-          x: bldgX, y: bldgY, width: bldgW, height: bldgH,
-          fill: "#aaa"
-        }));
-
-        // Dome
-        g.appendChild(svgEl("ellipse", {
-          cx: cx, cy: bldgY,
-          rx: bldgW * 0.2, ry: bldgH * 0.6,
-          fill: "#aaa"
-        }));
-
-        // Columns on front
-        const numCols = 4;
-        const colW = bldgW * 0.04;
-        const startX = cx - bldgW * 0.22;
-        const colSpacing = bldgW * 0.15;
-        for (let i = 0; i < numCols; i++) {
-          g.appendChild(svgEl("rect", {
-            x: startX + i * colSpacing - colW / 2,
-            y: bldgY + bldgH * 0.1,
-            width: colW,
-            height: bldgH * 0.8,
-            fill: "#999"
-          }));
-        }
-
-        // Steps
-        g.appendChild(svgEl("rect", {
-          x: bldgX + bldgW * 0.1, y: bldgY + bldgH,
-          width: bldgW * 0.8, height: bldgH * 0.15,
-          fill: "#bbb"
-        }));
-
-        // "MONTICELLO" text
-        const mtEl = svgEl("text", {
-          x: cx, y: cy + r * 0.45,
-          "text-anchor": "middle",
-          "font-family": "serif",
-          "font-size": String(Math.max(5, r * 0.18)),
-          fill: textColor
-        });
-        mtEl.textContent = "MONTICELLO";
-        g.appendChild(mtEl);
-
-        // "FIVE CENTS"
-        const fcEl = svgEl("text", {
-          x: cx, y: cy + r * 0.7,
-          "text-anchor": "middle",
-          "font-family": "serif",
-          "font-size": String(Math.max(5, r * 0.2)),
-          "font-weight": "700",
-          fill: textColor
-        });
-        fcEl.textContent = "FIVE CENTS";
-        g.appendChild(fcEl);
-
-        // "E PLURIBUS UNUM" at top
-        const epuEl = svgEl("text", {
-          x: cx, y: cy - r * 0.72,
-          "text-anchor": "middle",
-          "font-family": "serif",
-          "font-size": String(Math.max(4, r * 0.14)),
-          fill: textColor
-        });
-        epuEl.textContent = "E PLURIBUS UNUM";
-        g.appendChild(epuEl);
-
-      } else if (coinKey === "dime") {
-        // Torch with olive and oak branches
-        // Torch
-        const torchX = cx;
-        const torchTop = cy - r * 0.45;
-        const torchBot = cy + r * 0.2;
-
-        g.appendChild(svgEl("rect", {
-          x: torchX - r * 0.04, y: torchTop + r * 0.15,
-          width: r * 0.08, height: torchBot - torchTop - r * 0.15,
-          fill: "#999", rx: String(1 * scale)
-        }));
-
-        // Flame
-        g.appendChild(svgEl("ellipse", {
-          cx: torchX, cy: torchTop + r * 0.08,
-          rx: r * 0.08, ry: r * 0.14,
-          fill: "#bbb"
-        }));
-
-        // Olive branch (left)
-        const branchPath1 = "M " + (cx - r * 0.06) + " " + (cy + r * 0.1) +
-          " Q " + (cx - r * 0.4) + " " + (cy - r * 0.1) + " " +
-          (cx - r * 0.5) + " " + (cy - r * 0.35);
-        g.appendChild(svgEl("path", {
-          d: branchPath1, fill: "none",
-          stroke: "#aaa", "stroke-width": String(1.2 * scale)
-        }));
-
-        // Oak branch (right)
-        const branchPath2 = "M " + (cx + r * 0.06) + " " + (cy + r * 0.1) +
-          " Q " + (cx + r * 0.4) + " " + (cy - r * 0.1) + " " +
-          (cx + r * 0.5) + " " + (cy - r * 0.35);
-        g.appendChild(svgEl("path", {
-          d: branchPath2, fill: "none",
-          stroke: "#aaa", "stroke-width": String(1.2 * scale)
-        }));
-
-        // "ONE DIME"
-        const odEl = svgEl("text", {
-          x: cx, y: cy + r * 0.55,
-          "text-anchor": "middle",
-          "font-family": "serif",
-          "font-size": String(Math.max(5, r * 0.24)),
-          "font-weight": "700",
-          fill: textColor
-        });
-        odEl.textContent = "ONE DIME";
-        g.appendChild(odEl);
-
-        // "E PLURIBUS UNUM" at top
-        const epuEl = svgEl("text", {
-          x: cx, y: cy - r * 0.68,
-          "text-anchor": "middle",
-          "font-family": "serif",
-          "font-size": String(Math.max(4, r * 0.18)),
-          fill: textColor
-        });
-        epuEl.textContent = "E PLURIBUS UNUM";
-        g.appendChild(epuEl);
-
-      } else if (coinKey === "quarter") {
-        // Eagle simplified
-        // Body
-        g.appendChild(svgEl("ellipse", {
-          cx: cx, cy: cy - r * 0.05,
-          rx: r * 0.22, ry: r * 0.28,
-          fill: "#aaa"
-        }));
-
-        // Head
-        g.appendChild(svgEl("circle", {
-          cx: cx, cy: cy - r * 0.35,
-          r: r * 0.1,
-          fill: "#aaa"
-        }));
-
-        // Left wing
-        const lwPath = "M " + cx + " " + (cy - r * 0.15) +
-          " Q " + (cx - r * 0.5) + " " + (cy - r * 0.5) + " " +
-          (cx - r * 0.6) + " " + (cy - r * 0.1);
-        g.appendChild(svgEl("path", {
-          d: lwPath, fill: "none",
-          stroke: "#aaa", "stroke-width": String(2.5 * scale),
-          "stroke-linecap": "round"
-        }));
-
-        // Right wing
-        const rwPath = "M " + cx + " " + (cy - r * 0.15) +
-          " Q " + (cx + r * 0.5) + " " + (cy - r * 0.5) + " " +
-          (cx + r * 0.6) + " " + (cy - r * 0.1);
-        g.appendChild(svgEl("path", {
-          d: rwPath, fill: "none",
-          stroke: "#aaa", "stroke-width": String(2.5 * scale),
-          "stroke-linecap": "round"
-        }));
-
-        // "QUARTER DOLLAR"
-        const qdEl = svgEl("text", {
-          x: cx, y: cy + r * 0.55,
-          "text-anchor": "middle",
-          "font-family": "serif",
-          "font-size": String(Math.max(5, r * 0.17)),
-          "font-weight": "700",
-          fill: textColor
-        });
-        qdEl.textContent = "QUARTER DOLLAR";
-        g.appendChild(qdEl);
-
-        // "UNITED STATES OF AMERICA" at top
-        const usaEl = svgEl("text", {
-          x: cx, y: cy - r * 0.7,
-          "text-anchor": "middle",
-          "font-family": "serif",
-          "font-size": String(Math.max(4, r * 0.13)),
-          fill: textColor
-        });
-        usaEl.textContent = "UNITED STATES OF AMERICA";
-        g.appendChild(usaEl);
+        txt.textContent = coin.label;
+        parent.appendChild(txt);
       }
     }
 
