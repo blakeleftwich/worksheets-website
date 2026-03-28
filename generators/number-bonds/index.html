@@ -1092,7 +1092,7 @@
 
       // Number bond diagram sizing -- scale to fit cells
       // Base diagram: ~120w x 100h, scale to fit available cell
-      const eqSpace = showEquation ? 50 : 0; // space reserved for equation below diagram
+      const eqSpace = showEquation ? 62 : 0; // space reserved for equation below diagram
       const diagramBaseW = 120, diagramBaseH = 100;
       let scale = Math.min((colW - 20) / diagramBaseW, (rowH - 30 - eqSpace) / diagramBaseH, 1.55);
       if (showEquation) scale *= 0.88; // slightly smaller diagram when equation is shown
@@ -1231,9 +1231,9 @@
 
         // Equation below diagram
         if (showEquation) {
-          const eqY = cellTop + rowH - eqSpace + 6; // baseline for equation text
-          const eqFontSize = Math.round(Math.min(16 * scale, 18));
-          const lineW = Math.round(Math.max(22, 20 * scale)); // underline width for blanks
+          const eqFontSize = Math.round(Math.min(20 * scale, 22));
+          const eqY = cellTop + rowH - eqSpace + eqFontSize + 4; // one character-height gap below diagram
+          const lineW = Math.round(Math.max(26, 24 * scale)); // underline width for blanks
           const lineStroke = 1.5;
           const gap = Math.round(Math.max(6, 6 * scale)); // gap between elements
 
