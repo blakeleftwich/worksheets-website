@@ -1104,8 +1104,9 @@
 
       // Font sizes — keep readable regardless of diagram scale
       const origScale = Math.min((colW - 20) / diagramBaseW, (rowH - 30) / diagramBaseH, 1.8);
-      const topFontSize = Math.round(18 * origScale);
-      const botFontSize = Math.round(16 * origScale);
+      const fontScale = showEquation ? origScale * 0.8 : origScale;
+      const topFontSize = Math.round(18 * fontScale);
+      const botFontSize = Math.round(16 * fontScale);
       const probNumSize = 10;
 
       for (let i = 0; i < count; i++) {
