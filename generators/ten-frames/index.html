@@ -987,6 +987,9 @@
           const num = problems[i];
           const isExample = (i === 0 && includeExample && !showAnswers);
 
+          // Problem box border
+          svg.appendChild(svgEl("rect", { x: cellLeft, y: cellTop, width: colW, height: rowH, rx: 8, ry: 8, fill: "none", stroke: "#9ca3af", "stroke-width": 1 }));
+
           // Problem number label (small, e.g., "1.")
           if (numbered !== false) {
             const pnX = cellLeft + 4;
@@ -1112,6 +1115,9 @@
         const cellTop = gridTop + row * rowH - rowShift + topRowNudge;
         const num = problems[i];
         const isExample = (i === 0 && includeExample && !showAnswers);
+
+        // Problem box border
+        svg.appendChild(svgEl("rect", { x: cellLeft, y: cellTop, width: colW, height: rowH, rx: 8, ry: 8, fill: "none", stroke: "#9ca3af", "stroke-width": 1 }));
 
         // Problem number
         if (numbered !== false) {

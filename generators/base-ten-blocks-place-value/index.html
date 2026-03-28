@@ -1132,25 +1132,22 @@
         }
       }
 
-      // In 2-col mode, draw divider lines between problems
+      // In 2-col mode, draw rounded rectangle boxes around each problem cell
       if (useTwoCols) {
-        const divColor = "#d0d5dd";
-        const divStroke = 0.75;
-        // Vertical divider between left and right columns
-        const divX = margin + layoutColW + colGap / 2;
-        svg.appendChild(svgEl("line", {
-          x1: divX, y1: gridTop - twoColShift + 4,
-          x2: divX, y2: gridTop - twoColShift + visualRows * ((availH + twoColShift) / visualRows) - 4,
-          stroke: divColor, "stroke-width": divStroke
-        }));
-        // Horizontal dividers between rows
-        for (let vr = 1; vr < visualRows; vr++) {
-          const lineY = (gridTop - twoColShift) + vr * ((availH + twoColShift) / visualRows);
-          svg.appendChild(svgEl("line", {
-            x1: margin + 4, y1: lineY,
-            x2: margin + availW - 4, y2: lineY,
-            stroke: divColor, "stroke-width": divStroke
-          }));
+        const rowH = (availH + twoColShift) / visualRows;
+        const inset = 2;
+        for (let vr = 0; vr < visualRows; vr++) {
+          for (let c = 0; c < 2; c++) {
+            if (vr * 2 + c >= problems.length) break;
+            const bx = margin + c * (layoutColW + colGap) + inset;
+            const by = (gridTop - twoColShift) + vr * rowH + inset;
+            const bw = layoutColW - inset * 2;
+            const bh = rowH - inset * 2;
+            svg.appendChild(svgEl("rect", {
+              x: bx, y: by, width: bw, height: bh,
+              rx: 8, ry: 8, fill: "none", stroke: "#9ca3af", "stroke-width": 1
+            }));
+          }
         }
       }
 

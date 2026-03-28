@@ -945,7 +945,7 @@
         // Circle around number
         const numCx = x + fontSize * 0.55;
         const numCy = cy - lineY_offset + 2;
-        svg.appendChild(svgEl("circle", { cx: numCx, cy: numCy, r: circleR, fill: "none", stroke: "#cbd5e0", "stroke-width": 1.5 }));
+        svg.appendChild(svgEl("circle", { cx: numCx, cy: numCy, r: circleR, fill: "none", stroke: "#cbd5e1", "stroke-width": 1.5 }));
 
         // The number digit(s)
         const digitEl = svgEl("text", { x: numCx, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
@@ -1009,7 +1009,7 @@
         const wordCy = cy - lineY_offset + 2;
         const wordCircleRx = Math.max(estWordW / 2 + 12, fontSize * 0.8);
         const wordCircleRy = fontSize * 0.72;
-        svg.appendChild(svgEl("ellipse", { cx: wordCx, cy: wordCy, rx: wordCircleRx, ry: wordCircleRy, fill: "none", stroke: "#cbd5e0", "stroke-width": 1.5 }));
+        svg.appendChild(svgEl("ellipse", { cx: wordCx, cy: wordCy, rx: wordCircleRx, ry: wordCircleRy, fill: "none", stroke: "#cbd5e1", "stroke-width": 1.5 }));
 
         // The word
         const wordEl = svgEl("text", { x: wordCx, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
@@ -1070,7 +1070,7 @@
         }
 
         // Circle around the digit
-        svg.appendChild(svgEl("circle", { cx: leftNumX, cy: circleCy, r: circleR, fill: "none", stroke: "#cbd5e0", "stroke-width": 1.5 }));
+        svg.appendChild(svgEl("circle", { cx: leftNumX, cy: circleCy, r: circleR, fill: "none", stroke: "#cbd5e1", "stroke-width": 1.5 }));
 
         // Left side: the digit (centered in circle)
         const digitEl = svgEl("text", { x: leftNumX, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
@@ -1081,7 +1081,7 @@
         const estWordW = wordLen * fontSize * 0.42;
         const wordCx = rightWordX + estWordW / 2;
         const wordCircleRx = Math.max(estWordW / 2 + 12, fontSize * 0.8);
-        svg.appendChild(svgEl("ellipse", { cx: wordCx, cy: circleCy, rx: wordCircleRx, ry: circleR, fill: "none", stroke: "#cbd5e0", "stroke-width": 1.5 }));
+        svg.appendChild(svgEl("ellipse", { cx: wordCx, cy: circleCy, rx: wordCircleRx, ry: circleR, fill: "none", stroke: "#cbd5e1", "stroke-width": 1.5 }));
 
         // Right side: the shuffled word (centered in ellipse)
         const wordEl = svgEl("text", { x: wordCx, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });

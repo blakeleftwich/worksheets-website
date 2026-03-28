@@ -909,6 +909,9 @@
         const cellTop = gridTop + row * rowH - rowCompress;
         const prob = problems[i];
 
+        // Problem box border
+        svg.appendChild(svgEl("rect", { x: cellLeft, y: cellTop, width: colW, height: rowH, rx: 8, ry: 8, fill: "none", stroke: "#9ca3af", "stroke-width": 1 }));
+
         // Problem number
         if (numbered !== false) {
           const pnX = cellLeft + 4;
