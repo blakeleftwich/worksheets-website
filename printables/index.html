@@ -509,6 +509,34 @@
     .modal-gen-link:hover { color: #92400e; background: #fffbeb; }
     .modal-gen-link svg { width: 14px; height: 14px; }
 
+    /* ===== Modal Mobile Styles ===== */
+    @media (max-width: 480px) {
+      .modal-overlay { padding: 24px 8px 16px; }
+      .modal-box {
+        height: calc(100vh - 40px);
+        max-height: none;
+        border-radius: 12px;
+      }
+      .modal-header {
+        padding: 6px 10px;
+        gap: 6px;
+      }
+      .modal-title { font-size: 13px; }
+      .modal-sub { display: none; }
+      .modal-header-right { gap: 6px; }
+      .modal-dl { padding: 5px 10px; font-size: 11px; }
+      .modal-print { padding: 5px 8px; font-size: 11px; }
+      .modal-close { width: 24px; height: 24px; font-size: 14px; }
+      .modal-preview { min-height: 0; }
+      .modal-thumbs {
+        padding: 5px 8px;
+        gap: 6px;
+        justify-content: flex-start;
+      }
+      .modal-thumbs canvas { height: 48px; }
+      .modal-gen-link { padding: 5px 12px; font-size: 11px; }
+    }
+
     /* ===== Animations ===== */
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(20px); }
@@ -1033,6 +1061,11 @@
 
       modalOverlay.classList.add('open');
       document.body.style.overflow = 'hidden';
+
+      // On mobile, nudge thumb strip so first thumbnail isn't clipped
+      if (window.innerWidth <= 480) {
+        setTimeout(function() { modalThumbs.scrollLeft = 4; }, 300);
+      }
 
       // Update URL to the detail page path (SEO + shareable links)
       history.pushState({ modal: true, folder: printable.folder }, '', printable.folder + '/');
