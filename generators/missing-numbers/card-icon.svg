@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
   <rect width="200" height="140" fill="#f7f8fc"/>
-  <g transform="translate(15,45)">
-    <rect x="0" y="0" width="40" height="36" rx="4" fill="none" stroke="#667eea" stroke-width="1.5"/><text x="20" y="24" text-anchor="middle" font-size="18" font-weight="500" fill="#1a202c" font-family="'Google Sans Flex', sans-serif">6</text>
-    <text x="48" y="24" text-anchor="middle" font-size="14" fill="#a0aec0" font-family="'Google Sans Flex', sans-serif">,</text>
-    <rect x="55" y="0" width="40" height="36" rx="4" fill="#f7fafc" stroke="#a0aec0" stroke-width="1.5" stroke-dasharray="4,3"/><text x="75" y="24" text-anchor="middle" font-size="16" fill="#a0aec0" font-family="'Google Sans Flex', sans-serif">?</text>
-    <text x="103" y="24" text-anchor="middle" font-size="14" fill="#a0aec0" font-family="'Google Sans Flex', sans-serif">,</text>
-    <rect x="110" y="0" width="40" height="36" rx="4" fill="none" stroke="#667eea" stroke-width="1.5"/><text x="130" y="24" text-anchor="middle" font-size="18" font-weight="500" fill="#1a202c" font-family="'Google Sans Flex', sans-serif">8</text>
+  <g transform="translate(10,45)">
+    <rect x="0" y="0" width="32" height="32" rx="0" fill="none" stroke="#1a202c" stroke-width="1.2"/><text x="16" y="22" text-anchor="middle" font-size="15" font-weight="500" fill="#1a202c" font-family="'Google Sans Flex', sans-serif">2</text>
+    <rect x="38" y="0" width="32" height="32" rx="0" fill="none" stroke="#1a202c" stroke-width="1.2"/><text x="54" y="22" text-anchor="middle" font-size="15" font-weight="500" fill="#1a202c" font-family="'Google Sans Flex', sans-serif">4</text>
+    <rect x="76" y="0" width="32" height="32" rx="0" fill="none" stroke="#1a202c" stroke-width="1.2"/>
+    <rect x="114" y="0" width="32" height="32" rx="0" fill="none" stroke="#1a202c" stroke-width="1.2"/><text x="130" y="22" text-anchor="middle" font-size="15" font-weight="500" fill="#1a202c" font-family="'Google Sans Flex', sans-serif">8</text>
+    <rect x="152" y="0" width="32" height="32" rx="0" fill="none" stroke="#1a202c" stroke-width="1.2"/>
   </g>
 </svg>

@@ -1,43 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
   <rect width="200" height="140" fill="#f7f8fc"/>
-  <!-- Equation: 5 + 3 = ___ -->
-  <text x="100" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="#1a202c" font-family="'Google Sans Flex', sans-serif">5 + 3 = <tspan fill="#1a202c">___</tspan></text>
-  <line x1="108" y1="35" x2="132" y2="35" stroke="#cbd5e1" stroke-width="1.5"/>
+  <!-- Equation: 1 + 3 = ___ -->
+  <text x="100" y="30" text-anchor="middle" font-size="20" font-weight="500" fill="#1a202c" font-family="'Google Sans Flex', sans-serif">1 + 3 =</text>
+  <line x1="130" y1="33" x2="158" y2="33" stroke="#cbd5e1" stroke-width="1.5"/>
   <!-- Number line -->
-  <line x1="14" y1="75" x2="186" y2="75" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="16" y1="75" x2="184" y2="75" stroke="#94a3b8" stroke-width="1.5"/>
   <!-- Left arrowhead -->
-  <polygon points="14,75 20,71 20,79" fill="#94a3b8"/>
+  <polygon points="16,75 22,71 22,79" fill="#94a3b8"/>
   <!-- Right arrowhead -->
-  <polygon points="186,75 180,71 180,79" fill="#94a3b8"/>
-  <!-- Ticks and labels 0-10 -->
-  <line x1="22" y1="71" x2="22" y2="79" stroke="#94a3b8" stroke-width="1"/>
-  <text x="22" y="91" text-anchor="middle" font-size="9" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">0</text>
-  <line x1="38" y1="71" x2="38" y2="79" stroke="#94a3b8" stroke-width="1"/>
-  <text x="38" y="91" text-anchor="middle" font-size="9" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">1</text>
-  <line x1="54" y1="71" x2="54" y2="79" stroke="#94a3b8" stroke-width="1"/>
-  <text x="54" y="91" text-anchor="middle" font-size="9" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">2</text>
-  <line x1="70" y1="71" x2="70" y2="79" stroke="#94a3b8" stroke-width="1"/>
-  <text x="70" y="91" text-anchor="middle" font-size="9" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">3</text>
-  <line x1="86" y1="71" x2="86" y2="79" stroke="#94a3b8" stroke-width="1"/>
-  <text x="86" y="91" text-anchor="middle" font-size="9" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">4</text>
-  <line x1="102" y1="71" x2="102" y2="79" stroke="#94a3b8" stroke-width="1"/>
-  <text x="102" y="91" text-anchor="middle" font-size="9" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">5</text>
-  <line x1="118" y1="71" x2="118" y2="79" stroke="#94a3b8" stroke-width="1"/>
-  <text x="118" y="91" text-anchor="middle" font-size="9" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">6</text>
-  <line x1="134" y1="71" x2="134" y2="79" stroke="#94a3b8" stroke-width="1"/>
-  <text x="134" y="91" text-anchor="middle" font-size="9" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">7</text>
+  <polygon points="184,75 178,71 178,79" fill="#94a3b8"/>
+  <!-- Ticks and labels 0-5 -->
+  <line x1="30" y1="71" x2="30" y2="79" stroke="#94a3b8" stroke-width="1"/>
+  <text x="30" y="93" text-anchor="middle" font-size="11" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">0</text>
+  <line x1="60" y1="71" x2="60" y2="79" stroke="#94a3b8" stroke-width="1"/>
+  <text x="60" y="93" text-anchor="middle" font-size="11" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">1</text>
+  <line x1="90" y1="71" x2="90" y2="79" stroke="#94a3b8" stroke-width="1"/>
+  <text x="90" y="93" text-anchor="middle" font-size="11" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">2</text>
+  <line x1="120" y1="71" x2="120" y2="79" stroke="#94a3b8" stroke-width="1"/>
+  <text x="120" y="93" text-anchor="middle" font-size="11" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">3</text>
   <line x1="150" y1="71" x2="150" y2="79" stroke="#94a3b8" stroke-width="1"/>
-  <text x="150" y="91" text-anchor="middle" font-size="9" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">8</text>
-  <line x1="166" y1="71" x2="166" y2="79" stroke="#94a3b8" stroke-width="1"/>
-  <text x="166" y="91" text-anchor="middle" font-size="9" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">9</text>
-  <line x1="182" y1="71" x2="182" y2="79" stroke="#94a3b8" stroke-width="1"/>
-  <text x="182" y="91" text-anchor="middle" font-size="9" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">10</text>
-  <!-- Open circle at 5 (start) -->
-  <circle cx="102" cy="75" r="3.5" fill="#fff" stroke="#1a202c" stroke-width="1.5"/>
-  <!-- Hop arcs from 5→6→7→8 -->
-  <path d="M102,75 Q110,60 118,75" fill="none" stroke="#1a202c" stroke-width="1.2"/>
-  <path d="M118,75 Q126,60 134,75" fill="none" stroke="#1a202c" stroke-width="1.2"/>
-  <path d="M134,75 Q142,60 150,75" fill="none" stroke="#1a202c" stroke-width="1.2"/>
-  <!-- Filled circle at 8 (end) -->
-  <circle cx="150" cy="75" r="3.5" fill="#1a202c"/>
+  <text x="150" y="93" text-anchor="middle" font-size="11" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">4</text>
+  <line x1="180" y1="71" x2="180" y2="79" stroke="#94a3b8" stroke-width="1"/>
+  <text x="180" y="93" text-anchor="middle" font-size="11" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">5</text>
+  <!-- Open circle at 1 (start) -->
+  <circle cx="60" cy="75" r="4" fill="#fff" stroke="#1a202c" stroke-width="1.5"/>
+  <!-- Hop arcs from 1→2→3→4 -->
+  <path d="M60,75 Q75,55 90,75" fill="none" stroke="#1a202c" stroke-width="1.2"/>
+  <path d="M90,75 Q105,55 120,75" fill="none" stroke="#1a202c" stroke-width="1.2"/>
+  <path d="M120,75 Q135,55 150,75" fill="none" stroke="#1a202c" stroke-width="1.2"/>
+  <!-- Filled circle at 4 (end) -->
+  <circle cx="150" cy="75" r="4" fill="#1a202c"/>
 </svg>

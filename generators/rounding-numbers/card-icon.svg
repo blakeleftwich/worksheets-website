@@ -6,16 +6,15 @@
   <line x1="25" y1="75" x2="175" y2="75" stroke="#718096" stroke-width="1.5"/>
   <!-- Left tick + label -->
   <line x1="25" y1="67" x2="25" y2="83" stroke="#718096" stroke-width="1.5"/>
-  <text x="25" y="98" text-anchor="middle" font-size="12" font-weight="500" fill="#4a5568" font-family="'Google Sans Flex', sans-serif">30</text>
+  <text x="25" y="98" text-anchor="middle" font-size="12" font-weight="600" fill="#4a5568" font-family="Fredoka, sans-serif">30</text>
   <!-- Midpoint tick (dashed) -->
   <line x1="100" y1="70" x2="100" y2="80" stroke="#718096" stroke-width="1" stroke-dasharray="2,2"/>
   <!-- Right tick + label -->
   <line x1="175" y1="67" x2="175" y2="83" stroke="#718096" stroke-width="1.5"/>
-  <text x="175" y="98" text-anchor="middle" font-size="12" font-weight="500" fill="#4a5568" font-family="'Google Sans Flex', sans-serif">40</text>
-  <!-- Dot at 37 position (~70% between 30 and 40) -->
-  <circle cx="130" cy="75" r="5" fill="#f59e0b" stroke="#4c51bf" stroke-width="1.5"/>
-  <text x="130" y="62" text-anchor="middle" font-size="12" font-weight="500" fill="#1a202c" font-family="'Google Sans Flex', sans-serif">37</text>
+  <text x="175" y="98" text-anchor="middle" font-size="12" font-weight="600" fill="#4a5568" font-family="Fredoka, sans-serif">40</text>
+  <!-- Dot at 37 position -->
+  <circle cx="130" cy="75" r="5" fill="#f59e0b" stroke="#4c51bf" stroke-width="1.2"/>
+  <text x="130" y="62" text-anchor="middle" font-size="12" font-weight="700" fill="#f59e0b" font-family="Fredoka, sans-serif">37</text>
   <!-- Answer line -->
-  <text x="72" y="122" text-anchor="middle" font-size="11" font-weight="500" fill="#1a202c" font-family="Fredoka, sans-serif">Answer:</text>
-  <line x1="100" y1="124" x2="145" y2="124" stroke="#2d3748" stroke-width="1.2"/>
+  <line x1="100" y1="124" x2="145" y2="124" stroke="#cbd5e1" stroke-width="1.5"/>
 </svg>
