@@ -1027,35 +1027,13 @@
         const cellLeft = margin + layoutCol * (layoutColW + colGap);
 
         // Compute content height first (needed for bottom-alignment in 2-col mode)
-        const cellAvailW = useTwoCols ? layoutColW : availW;
+        const boxPad = useTwoCols ? 16 : 0; // inner padding from box wall
+        const contentLeft = useTwoCols ? cellLeft + boxPad : cellLeft;
+        const cellAvailW = useTwoCols ? layoutColW - boxPad * 2 : availW;
         const cellBlocksAreaW = useTwoCols ? cellAvailW * 0.44 : cellAvailW * 0.55;
         const blocksW = cellBlocksAreaW;
         const blocksH = rowH - 12;
         const blocksTallestH = (useHundreds && hundreds > 0) ? Math.max(rodH, flatSize) : rodH;
-
-        // In 2-col mode, compute actual blocks width and center problem within box
-        let contentLeft, contentCenterOffset = 0, actualBlocksW = 0;
-        if (useTwoCols) {
-          // Estimate actual drawn blocks width
-          actualBlocksW = 4; // initial left padding in drawBlocksBW
-          if (useHundreds && hundreds > 0) {
-            actualBlocksW += hundreds * (flatSize + flatGap) - flatGap + (groupGap || rodGap);
-          }
-          if (tens > 0) {
-            actualBlocksW += tens * (rodW + rodGap) - rodGap + (groupGap || rodGap);
-          }
-          if (ones > 0) {
-            const maxPerCol = 5;
-            const onesCols = Math.ceil(ones / maxPerCol);
-            actualBlocksW += onesCols * (unitSize + unitGap + 2) - (unitGap + 2);
-          }
-          const gapBetween = 10; // gap between blocks and chart
-          const totalContentW = actualBlocksW + gapBetween + chartW;
-          contentCenterOffset = (layoutColW - totalContentW) / 2;
-          contentLeft = cellLeft + contentCenterOffset;
-        } else {
-          contentLeft = cellLeft;
-        }
 
         // In 2-col mode, vertically center content within the cell (biased slightly down)
         const contentTop = useTwoCols
@@ -1064,18 +1042,18 @@
 
         // Problem number — position relative to content
         if (numbered) {
-          const pnX = useTwoCols ? contentLeft - 12 : cellLeft + 4;
+          const pnX = useTwoCols ? cellLeft : cellLeft + 4;
           const pnY = useTwoCols ? contentTop - 2 : cellTop + 16;
           const probNumEl = svgEl("text", { x: pnX, y: pnY, "font-family": "Fredoka, sans-serif", "font-size": "10", "font-weight": "600", fill: "#a0aec0" });
           probNumEl.textContent = probNum + ".";
           svg.appendChild(probNumEl);
         }
 
-        // Draw blocks on the left side
+        // Draw blocks on the left side — align left edge with header text
         drawBlocksBW(svg, hundreds, tens, ones, contentLeft, contentTop, blocksW, blocksH, useHundreds, unitSize, rodW, rodH, rodGap, unitGap, flatSize, flatGap, strokeColor, strokeW, groupGap);
 
-        // Draw place value chart — positioned after blocks with gap
-        const chartX = useTwoCols ? (contentLeft + actualBlocksW + 10) : (cellLeft + cellAvailW - chartW);
+        // Draw place value chart — right-align within the content area (2-col: shift one block width closer to blocks)
+        const chartX = useTwoCols ? (cellLeft + layoutColW - boxPad - chartW - unitSize) : (cellLeft + cellAvailW - chartW);
         // Bottom-align chart with blocks
         const chartY = contentTop + blocksTallestH - chartTotalH;
         const numCols = useHundreds ? 3 : 2;
