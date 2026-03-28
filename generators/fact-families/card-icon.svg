@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
   <rect width="200" height="140" fill="#f7f8fc"/>
   <polygon points="100,15 50,105 150,105" fill="none" stroke="#667eea" stroke-width="2"/>
-  <text x="100" y="45" text-anchor="middle" font-size="20" font-weight="700" fill="#2d3748" font-family="Arial">9</text>
-  <text x="65" y="98" text-anchor="middle" font-size="18" font-weight="700" fill="#2d3748" font-family="Arial">4</text>
-  <text x="135" y="98" text-anchor="middle" font-size="18" font-weight="700" fill="#2d3748" font-family="Arial">5</text>
-  <text x="100" y="128" text-anchor="middle" font-size="10" fill="#718096" font-family="Arial">4+5=9  9−4=5</text>
+  <text x="100" y="45" text-anchor="middle" font-size="20" font-weight="700" fill="#2d3748" font-family="Fredoka, sans-serif">9</text>
+  <text x="65" y="98" text-anchor="middle" font-size="18" font-weight="700" fill="#2d3748" font-family="Fredoka, sans-serif">4</text>
+  <text x="135" y="98" text-anchor="middle" font-size="18" font-weight="700" fill="#2d3748" font-family="Fredoka, sans-serif">5</text>
+  <text x="100" y="128" text-anchor="middle" font-size="10" fill="#718096" font-family="Fredoka, sans-serif">4+5=9  9−4=5</text>
 </svg>

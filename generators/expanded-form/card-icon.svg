@@ -1,4 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
   <rect width="200" height="140" fill="#f7f8fc"/>
-  <text x="100" y="75" text-anchor="middle" font-size="20" font-weight="600" fill="#2d3748" font-family="Arial">347 = 300 + 40 + 7</text>
+  <text x="100" y="75" text-anchor="middle" font-size="20" font-weight="500" fill="#1a202c" font-family="'Google Sans Flex', sans-serif">347 = 300 + 40 + 7</text>
 </svg>

@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
   <rect width="200" height="140" fill="#f7f8fc"/>
-  <text x="65" y="65" text-anchor="middle" font-size="40" font-weight="700" fill="#667eea" font-family="Arial">7</text>
-  <text x="65" y="90" text-anchor="middle" font-size="13" font-weight="600" fill="#718096" font-family="Arial">ODD</text>
+  <text x="65" y="65" text-anchor="middle" font-size="40" font-weight="700" fill="#667eea" font-family="'Google Sans Flex', sans-serif">7</text>
+  <text x="65" y="90" text-anchor="middle" font-size="13" font-weight="600" fill="#718096" font-family="Fredoka, sans-serif">ODD</text>
   <line x1="100" y1="30" x2="100" y2="110" stroke="#e2e8f0" stroke-width="1"/>
-  <text x="135" y="65" text-anchor="middle" font-size="40" font-weight="700" fill="#764ba2" font-family="Arial">4</text>
-  <text x="135" y="90" text-anchor="middle" font-size="13" font-weight="600" fill="#718096" font-family="Arial">EVEN</text>
+  <text x="135" y="65" text-anchor="middle" font-size="40" font-weight="700" fill="#764ba2" font-family="'Google Sans Flex', sans-serif">4</text>
+  <text x="135" y="90" text-anchor="middle" font-size="13" font-weight="600" fill="#718096" font-family="Fredoka, sans-serif">EVEN</text>
 </svg>

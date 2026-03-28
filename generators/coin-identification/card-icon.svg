@@ -1,10 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
   <rect width="200" height="140" fill="#f7f8fc"/>
-  <circle cx="55" cy="55" r="25" fill="#f6e05e" opacity="0.4" stroke="#d69e2e" stroke-width="1.5"/>
-  <text x="55" y="60" text-anchor="middle" font-size="13" font-weight="700" fill="#975a16" font-family="Arial">25¢</text>
-  <circle cx="120" cy="55" r="20" fill="#e2e8f0" stroke="#a0aec0" stroke-width="1.5"/>
-  <text x="120" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#4a5568" font-family="Arial">10¢</text>
-  <circle cx="165" cy="55" r="15" fill="#fed7aa" stroke="#dd6b20" stroke-width="1.5"/>
-  <text x="165" y="60" text-anchor="middle" font-size="10" font-weight="700" fill="#9c4221" font-family="Arial">1¢</text>
-  <text x="100" y="110" text-anchor="middle" font-size="14" font-weight="600" fill="#a0aec0" font-family="Arial">Name each coin</text>
+  <!-- Quarter (largest) -->
+  <circle cx="48" cy="52" r="26" fill="#C8C8C8" stroke="#a0a0a0" stroke-width="1.5"/>
+  <text x="48" y="57" text-anchor="middle" font-size="11" font-weight="600" fill="#555" font-family="Fredoka, sans-serif">25¢</text>
+  <!-- Nickel -->
+  <circle cx="108" cy="52" r="22" fill="#C0C0C0" stroke="#909090" stroke-width="1.5"/>
+  <text x="108" y="57" text-anchor="middle" font-size="10" font-weight="600" fill="#555" font-family="Fredoka, sans-serif">5¢</text>
+  <!-- Penny -->
+  <circle cx="158" cy="48" r="19" fill="#b87333" stroke="#8b5a2b" stroke-width="1.5"/>
+  <text x="158" y="53" text-anchor="middle" font-size="9" font-weight="600" fill="#fff" font-family="Fredoka, sans-serif">1¢</text>
+  <!-- Dime (smallest) -->
+  <circle cx="158" cy="82" r="16" fill="#D3D3D3" stroke="#a8a8a8" stroke-width="1.5"/>
+  <text x="158" y="87" text-anchor="middle" font-size="8" font-weight="600" fill="#555" font-family="Fredoka, sans-serif">10¢</text>
+  <!-- Prompt -->
+  <text x="100" y="122" text-anchor="middle" font-size="11" font-weight="600" fill="#a0aec0" font-family="Fredoka, sans-serif">Name each coin</text>
 </svg>

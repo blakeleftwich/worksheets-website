@@ -1,7 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
   <rect width="200" height="140" fill="#f7f8fc"/>
-  <line x1="40" y1="20" x2="40" y2="110" stroke="#cbd5e0" stroke-width="1.5"/><line x1="40" y1="110" x2="175" y2="110" stroke="#cbd5e0" stroke-width="1.5"/>
-  <rect x="55" y="40" width="25" height="70" rx="3" fill="#667eea" opacity="0.5"/>
-  <rect x="90" y="60" width="25" height="50" rx="3" fill="#764ba2" opacity="0.5"/>
-  <rect x="125" y="25" width="25" height="85" rx="3" fill="#48bb78" opacity="0.5"/>
+  <!-- Axes -->
+  <line x1="40" y1="20" x2="40" y2="110" stroke="#1a202c" stroke-width="2"/>
+  <line x1="40" y1="110" x2="175" y2="110" stroke="#1a202c" stroke-width="2"/>
+  <!-- Grid lines -->
+  <line x1="40" y1="40" x2="175" y2="40" stroke="#e2e8f0" stroke-width="0.75"/>
+  <line x1="40" y1="60" x2="175" y2="60" stroke="#e2e8f0" stroke-width="0.75"/>
+  <line x1="40" y1="80" x2="175" y2="80" stroke="#e2e8f0" stroke-width="0.75"/>
+  <!-- Bars -->
+  <rect x="55" y="40" width="25" height="70" rx="2" fill="#4299E1"/>
+  <rect x="90" y="60" width="25" height="50" rx="2" fill="#F56565"/>
+  <rect x="125" y="25" width="25" height="85" rx="2" fill="#48BB78"/>
+  <!-- Labels -->
+  <text x="67" y="124" text-anchor="middle" font-size="8" font-weight="400" fill="#4a5568" font-family="Fredoka, sans-serif">Cats</text>
+  <text x="102" y="124" text-anchor="middle" font-size="8" font-weight="400" fill="#4a5568" font-family="Fredoka, sans-serif">Dogs</text>
+  <text x="137" y="124" text-anchor="middle" font-size="8" font-weight="400" fill="#4a5568" font-family="Fredoka, sans-serif">Fish</text>
 </svg>

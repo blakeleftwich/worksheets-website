@@ -29,10 +29,10 @@
   </g>
 
   <!-- Equation: 7 + ___ = 10, centered under the ten frame (frame center = 100) -->
-  <text x="37" y="118" font-family="'Google Sans Flex', Arial, sans-serif" font-size="28" font-weight="700" fill="#2d3748" text-anchor="middle">7</text>
-  <text x="62" y="118" font-family="'Google Sans Flex', Arial, sans-serif" font-size="28" font-weight="700" fill="#2d3748" text-anchor="middle">+</text>
+  <text x="37" y="118" font-family="'Google Sans Flex', sans-serif" font-size="28" font-weight="500" fill="#1a202c" text-anchor="middle">7</text>
+  <text x="62" y="118" font-family="'Google Sans Flex', sans-serif" font-size="28" font-weight="500" fill="#1a202c" text-anchor="middle">+</text>
   <!-- Answer blank line -->
   <line x1="78" y1="120" x2="118" y2="120" stroke="#cbd5e1" stroke-width="1.5"/>
-  <text x="138" y="118" font-family="'Google Sans Flex', Arial, sans-serif" font-size="28" font-weight="700" fill="#2d3748" text-anchor="middle">=</text>
-  <text x="162" y="118" font-family="'Google Sans Flex', Arial, sans-serif" font-size="28" font-weight="700" fill="#2d3748" text-anchor="middle">10</text>
+  <text x="138" y="118" font-family="'Google Sans Flex', sans-serif" font-size="28" font-weight="500" fill="#1a202c" text-anchor="middle">=</text>
+  <text x="162" y="118" font-family="'Google Sans Flex', sans-serif" font-size="28" font-weight="500" fill="#1a202c" text-anchor="middle">10</text>
 </svg>

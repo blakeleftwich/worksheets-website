@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
   <rect width="200" height="140" fill="#f7f8fc"/>
-  <text x="50" y="55" text-anchor="middle" font-size="36" font-weight="700" fill="#2d3748" font-family="Arial">12</text>
-  <text x="100" y="55" text-anchor="middle" font-size="28" font-weight="700" fill="#667eea" font-family="Arial">&gt;</text>
-  <text x="150" y="55" text-anchor="middle" font-size="36" font-weight="700" fill="#2d3748" font-family="Arial">8</text>
-  <text x="50" y="105" text-anchor="middle" font-size="36" font-weight="700" fill="#2d3748" font-family="Arial">5</text>
-  <text x="100" y="105" text-anchor="middle" font-size="28" font-weight="700" fill="#a0aec0" font-family="Arial">?</text>
-  <text x="150" y="105" text-anchor="middle" font-size="36" font-weight="700" fill="#2d3748" font-family="Arial">9</text>
+  <text x="50" y="55" text-anchor="middle" font-size="36" font-weight="500" fill="#1a202c" font-family="'Google Sans Flex', sans-serif">12</text>
+  <text x="100" y="55" text-anchor="middle" font-size="28" font-weight="500" fill="#667eea" font-family="'Google Sans Flex', sans-serif">&gt;</text>
+  <text x="150" y="55" text-anchor="middle" font-size="36" font-weight="500" fill="#1a202c" font-family="'Google Sans Flex', sans-serif">8</text>
+  <text x="50" y="105" text-anchor="middle" font-size="36" font-weight="500" fill="#1a202c" font-family="'Google Sans Flex', sans-serif">5</text>
+  <text x="100" y="105" text-anchor="middle" font-size="28" font-weight="500" fill="#a0aec0" font-family="'Google Sans Flex', sans-serif">?</text>
+  <text x="150" y="105" text-anchor="middle" font-size="36" font-weight="500" fill="#1a202c" font-family="'Google Sans Flex', sans-serif">9</text>
 </svg>
