@@ -867,16 +867,13 @@
       const rows = Math.ceil(count / cols);
       const colW = availW / cols;
       const rowH = availH / rows;
-      const boxGap = 8;
-      const boxW = (availW - boxGap) / cols;
-      const boxH = rowH - boxGap;
 
       const frameConfig = getFrameConfig(target);
 
       // Calculate cell size for ten frame to fit well in the available space
       // Frame needs to be LARGE and clear for young children
-      const maxFrameW = boxW - 40; // horizontal room
-      const maxFrameH = boxH * 0.55; // vertical room for frame (leave room for equation below)
+      const maxFrameW = colW - 40; // horizontal room
+      const maxFrameH = rowH * 0.55; // vertical room for frame (leave room for equation below)
 
       let cellSize;
       if (frameConfig.frames === 2) {
@@ -900,18 +897,25 @@
       const totalFrameW = frameConfig.frames === 2 ? singleFrameW * 2 + doubleGap : singleFrameW;
 
       // Equation font size - LARGE for young children
-      const eqFontSize = Math.min(28, Math.max(16, Math.floor(boxH * 0.18)));
+      const eqFontSize = Math.min(28, Math.max(16, Math.floor(rowH * 0.18)));
       const probNumSize = 11;
+
+      // Draw divider lines
+      // Vertical line down the middle
+      const dividerX = margin + colW;
+      svg.appendChild(svgEl("line", { x1: dividerX, y1: gridTop, x2: dividerX, y2: gridTop + rows * rowH, stroke: "#e2e8f0", "stroke-width": 1 }));
+      // Horizontal lines between rows
+      for (let r = 1; r < rows; r++) {
+        const ly = gridTop + r * rowH;
+        svg.appendChild(svgEl("line", { x1: margin, y1: ly, x2: margin + availW, y2: ly, stroke: "#e2e8f0", "stroke-width": 1 }));
+      }
 
       for (let i = 0; i < problems.length; i++) {
         const col = i % cols;
         const row = Math.floor(i / cols);
-        const cellLeft = margin + col * (boxW + boxGap);
-        const cellTop = gridTop + row * rowH + boxGap / 2;
+        const cellLeft = margin + col * colW;
+        const cellTop = gridTop + row * rowH;
         const prob = problems[i];
-
-        // Problem box border
-        svg.appendChild(svgEl("rect", { x: cellLeft, y: cellTop, width: boxW, height: boxH, rx: 8, ry: 8, fill: "none", stroke: "#9ca3af", "stroke-width": 1 }));
 
         // Problem number
         if (numbered !== false) {
@@ -922,14 +926,14 @@
         }
 
         // Center the frame horizontally in the cell
-        const contentCenterX = cellLeft + boxW / 2;
+        const contentCenterX = cellLeft + colW / 2;
         const frameStartX = contentCenterX - totalFrameW / 2;
 
         // Vertical layout: frame on top, equation below
         // Position frame in upper portion of cell, equation in lower portion
-        const gapBetween = Math.max(12, boxH * 0.06);
+        const gapBetween = Math.max(12, rowH * 0.06);
         const totalContentH = singleFrameH + gapBetween + eqFontSize;
-        const contentStartY = cellTop + (boxH - totalContentH) / 2;
+        const contentStartY = cellTop + (rowH - totalContentH) / 2;
         const frameY = contentStartY;
 
         // Draw the ten frame(s)
