@@ -1027,7 +1027,7 @@
         const cellLeft = margin + layoutCol * (layoutColW + colGap);
 
         // Compute content height first (needed for bottom-alignment in 2-col mode)
-        const boxPad = useTwoCols ? 16 : 0; // inner padding from box wall
+        const boxPad = useTwoCols ? 28 : 0; // inner padding from box wall
         const contentLeft = useTwoCols ? cellLeft + boxPad : cellLeft;
         const cellAvailW = useTwoCols ? layoutColW - boxPad * 2 : availW;
         const cellBlocksAreaW = useTwoCols ? cellAvailW * 0.44 : cellAvailW * 0.55;
