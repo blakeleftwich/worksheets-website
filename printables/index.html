@@ -511,11 +511,16 @@
 
     /* ===== Modal Mobile Styles ===== */
     @media (max-width: 480px) {
-      .modal-overlay { padding: 24px 8px 16px; }
+      .modal-overlay {
+        padding: 20px 6px 12px;
+        align-items: flex-start;
+        overflow: hidden;
+      }
       .modal-box {
-        height: calc(100vh - 40px);
-        max-height: none;
+        height: calc(100vh - 32px);
+        max-height: calc(100vh - 32px);
         border-radius: 12px;
+        flex-shrink: 0;
       }
       .modal-header {
         padding: 6px 10px;
@@ -527,14 +532,24 @@
       .modal-dl { padding: 5px 10px; font-size: 11px; }
       .modal-print { padding: 5px 8px; font-size: 11px; }
       .modal-close { width: 24px; height: 24px; font-size: 14px; }
-      .modal-preview { min-height: 0; }
+      .modal-preview {
+        flex: 1 1 0;
+        min-height: 0;
+        overflow: hidden;
+      }
+      .modal-preview canvas {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
       .modal-thumbs {
         padding: 5px 8px;
         gap: 6px;
         justify-content: flex-start;
+        flex-shrink: 0;
       }
       .modal-thumbs canvas { height: 48px; }
-      .modal-gen-link { padding: 5px 12px; font-size: 11px; }
+      .modal-gen-link { padding: 5px 12px; font-size: 11px; flex-shrink: 0; }
     }
 
     /* ===== Animations ===== */
