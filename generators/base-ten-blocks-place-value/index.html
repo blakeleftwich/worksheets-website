@@ -970,7 +970,7 @@
         const groupGap = Math.round(us * gapMult);
         const itemGap = Math.max(1, Math.round(us * itemGapMult));
         // In 2-col mode, use a narrower chart to fit within the column
-        const baseChartW = useTwoCols ? Math.min(140, layoutColW * 0.55) : 180 - us;
+        const baseChartW = useTwoCols ? Math.min(120, layoutColW * 0.48) : 180 - us;
         return {
           unitSize: us, rodW: us, rodH: us * 10,
           rodGap: itemGap,
@@ -1025,6 +1025,17 @@
         const cellTop = useTwoCols ? (gridTop - twoColShift) + layoutRow * rowH : rowTops[r];
         const cellLeft = margin + layoutCol * (layoutColW + colGap);
 
+        // In 2-col mode, draw a light rounded box around each problem
+        if (useTwoCols) {
+          const boxPad = 4;
+          svg.appendChild(svgEl("rect", {
+            x: cellLeft + boxPad, y: cellTop + boxPad,
+            width: layoutColW - boxPad * 2, height: rowH - boxPad * 2 - 2,
+            rx: 8, ry: 8,
+            fill: "#f8fafc", stroke: "#e2e8f0", "stroke-width": 0.75
+          }));
+        }
+
         // Problem number
         if (numbered) {
           const probNumEl = svgEl("text", { x: cellLeft + 4, y: cellTop + 16, "font-family": "Fredoka, sans-serif", "font-size": "10", "font-weight": "600", fill: "#a0aec0" });
@@ -1036,14 +1047,14 @@
         const contentLeft = cellLeft + 20;
         const contentTop = cellTop + 10;
         const cellAvailW = useTwoCols ? layoutColW : availW;
-        const cellBlocksAreaW = cellAvailW * 0.55;
+        const cellBlocksAreaW = useTwoCols ? cellAvailW * 0.48 : cellAvailW * 0.55;
         const blocksW = cellBlocksAreaW - 24;
         const blocksH = rowH - 12;
 
         drawBlocksBW(svg, hundreds, tens, ones, contentLeft, contentTop, blocksW, blocksH, useHundreds, unitSize, rodW, rodH, rodGap, unitGap, flatSize, flatGap, strokeColor, strokeW, groupGap);
 
-        // Draw place value chart — in 2-col mode, place right after blocks; in 1-col, right-align
-        const chartX = useTwoCols ? (contentLeft + blocksW + 8 - 24) : (cellLeft + cellAvailW - chartW);
+        // Draw place value chart — in 2-col mode, place right after blocks with gap; in 1-col, right-align
+        const chartX = useTwoCols ? (contentLeft + blocksW + 4) : (cellLeft + cellAvailW - chartW);
         const blocksTallestH = (useHundreds && hundreds > 0) ? Math.max(rodH, flatSize) : rodH;
         // Bottom-align chart with blocks
         const chartY = contentTop + blocksTallestH - chartTotalH;
