@@ -141,7 +141,9 @@
     .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 32px; }
     @media (max-width: 600px) { .skills-grid { grid-template-columns: 1fr; } }
     @media (max-width: 480px) {
-      .detail-container { gap: 16px; padding: 12px 12px 24px; }
+      .detail-container { gap: 16px; padding: 12px 12px 24px; overflow-x: hidden; }
+      .preview-col, .info-col { min-width: 0; max-width: 100%; }
+      .thumb-strip { overflow-x: auto; max-width: 100%; }
       .big-preview { min-height: 240px; padding: 12px; }
       .big-preview canvas { max-height: 420px; }
       .thumb-strip { padding: 8px 8px; justify-content: flex-start; }
