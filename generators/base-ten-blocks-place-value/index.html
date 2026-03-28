@@ -1028,7 +1028,7 @@
 
         // Compute content height first (needed for bottom-alignment in 2-col mode)
         const boxPad = useTwoCols ? 16 : 0; // inner padding from box wall
-        const contentLeft = useTwoCols ? cellLeft + boxPad : cellLeft;
+        const contentLeft = useTwoCols ? cellLeft + boxPad + 3 : cellLeft;
         const cellAvailW = useTwoCols ? layoutColW - boxPad * 2 : availW;
         const cellBlocksAreaW = useTwoCols ? cellAvailW * 0.44 : cellAvailW * 0.55;
         const blocksW = cellBlocksAreaW;
@@ -1053,7 +1053,7 @@
         drawBlocksBW(svg, hundreds, tens, ones, contentLeft, contentTop, blocksW, blocksH, useHundreds, unitSize, rodW, rodH, rodGap, unitGap, flatSize, flatGap, strokeColor, strokeW, groupGap);
 
         // Draw place value chart — right-align within the content area (2-col: shift one block width closer to blocks)
-        const chartX = useTwoCols ? (cellLeft + layoutColW - boxPad - chartW - unitSize) : (cellLeft + cellAvailW - chartW);
+        const chartX = useTwoCols ? (cellLeft + layoutColW - boxPad - chartW - unitSize + 3) : (cellLeft + cellAvailW - chartW);
         // Bottom-align chart with blocks
         const chartY = contentTop + blocksTallestH - chartTotalH;
         const numCols = useHundreds ? 3 : 2;
