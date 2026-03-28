@@ -1,0 +1,8 @@
+{
+  "title": "Greater Than Less Than to 20",
+  "description": "Compare two numbers and write the correct symbol: greater than, less than, or equal to. Numbers within 0-20.",
+  "grades": "1st — 2nd",
+  "category": "Numbers & Counting",
+  "worksheetCount": 6,
+  "relatedGenerator": "greater-than-less-than"
+}
