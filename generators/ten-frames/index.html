@@ -979,6 +979,17 @@
         const numFontSize = Math.min(38, Math.max(24, Math.floor(rowH * 0.45)));
         const probNumSize = 10;
 
+        // Draw divider lines
+        const dividerPad1 = 6;
+        if (cols === 2) {
+          const dx = margin + colW;
+          svg.appendChild(svgEl("line", { x1: dx, y1: gridTop + dividerPad1, x2: dx, y2: gridTop + rows * rowH - dividerPad1, stroke: "#e2e8f0", "stroke-width": 1 }));
+        }
+        for (let r = 1; r < rows; r++) {
+          const ly = gridTop + r * rowH;
+          svg.appendChild(svgEl("line", { x1: margin, y1: ly, x2: margin + availW, y2: ly, stroke: "#e2e8f0", "stroke-width": 1 }));
+        }
+
         for (let i = 0; i < problems.length; i++) {
           const col = i % cols;
           const row = Math.floor(i / cols);
@@ -986,9 +997,6 @@
           const cellTop = gridTop + row * rowH;
           const num = problems[i];
           const isExample = (i === 0 && includeExample && !showAnswers);
-
-          // Problem box border
-          svg.appendChild(svgEl("rect", { x: cellLeft, y: cellTop, width: colW, height: rowH, rx: 8, ry: 8, fill: "none", stroke: "#9ca3af", "stroke-width": 1 }));
 
           // Problem number label (small, e.g., "1.")
           if (numbered !== false) {
@@ -1106,6 +1114,19 @@
       const boxW = Math.max(36, cellSize * 1.2);
       const boxH = boxW;
 
+      // Draw divider lines
+      const dividerPad2 = 6;
+      // Vertical lines between columns
+      for (let c = 1; c < cols; c++) {
+        const dx = margin + c * colW;
+        svg.appendChild(svgEl("line", { x1: dx, y1: gridTop + dividerPad2 - rowShift, x2: dx, y2: gridTop + rows * rowH - dividerPad2 - rowShift, stroke: "#e2e8f0", "stroke-width": 1 }));
+      }
+      // Horizontal lines between rows
+      for (let r = 1; r < rows; r++) {
+        const ly = gridTop + r * rowH - rowShift;
+        svg.appendChild(svgEl("line", { x1: margin, y1: ly, x2: margin + availW, y2: ly, stroke: "#e2e8f0", "stroke-width": 1 }));
+      }
+
       for (let i = 0; i < problems.length; i++) {
         const col = i % cols;
         const row = Math.floor(i / cols);
@@ -1115,9 +1136,6 @@
         const cellTop = gridTop + row * rowH - rowShift + topRowNudge;
         const num = problems[i];
         const isExample = (i === 0 && includeExample && !showAnswers);
-
-        // Problem box border
-        svg.appendChild(svgEl("rect", { x: cellLeft, y: cellTop, width: colW, height: rowH, rx: 8, ry: 8, fill: "none", stroke: "#9ca3af", "stroke-width": 1 }));
 
         // Problem number
         if (numbered !== false) {

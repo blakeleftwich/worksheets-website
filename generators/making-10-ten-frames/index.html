@@ -901,9 +901,10 @@
       const probNumSize = 11;
 
       // Draw divider lines
-      // Vertical line down the middle
+      // Vertical line down the middle (inset from header/footer)
       const dividerX = margin + colW;
-      svg.appendChild(svgEl("line", { x1: dividerX, y1: gridTop, x2: dividerX, y2: gridTop + rows * rowH, stroke: "#e2e8f0", "stroke-width": 1 }));
+      const dividerPad = 6;
+      svg.appendChild(svgEl("line", { x1: dividerX, y1: gridTop + dividerPad, x2: dividerX, y2: gridTop + rows * rowH - dividerPad, stroke: "#e2e8f0", "stroke-width": 1 }));
       // Horizontal lines between rows
       for (let r = 1; r < rows; r++) {
         const ly = gridTop + r * rowH;
