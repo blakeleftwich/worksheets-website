@@ -1034,10 +1034,9 @@
         const blocksH = rowH - 12;
         const blocksTallestH = (useHundreds && hundreds > 0) ? Math.max(rodH, flatSize) : rodH;
 
-        // In 2-col mode, bottom-align content within the cell with a small pad
-        const bottomPad = 8;
+        // In 2-col mode, vertically center content within the cell (biased slightly down)
         const contentTop = useTwoCols
-          ? cellTop + rowH - blocksTallestH - bottomPad
+          ? cellTop + (rowH - blocksTallestH) * 0.55
           : cellTop + 10;
 
         // Problem number — position relative to content
