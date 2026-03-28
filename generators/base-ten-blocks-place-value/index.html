@@ -1004,6 +1004,8 @@
         cumY += rowHeights[r];
       }
 
+      const twoColShift = 6; // move top row up, adjust gap (used in loop and dividers)
+
       // Render each row (single or two-column layout)
       for (let r = 0; r < numRows; r++) {
         const num = sheetRows[r];
@@ -1019,42 +1021,31 @@
         // In 2-col mode, compute grid position
         const layoutCol = useTwoCols ? (r % 2) : 0;
         const layoutRow = useTwoCols ? Math.floor(r / 2) : r;
-        const twoColShift = 6; // move top row up, adjust gap
         const rowH = useTwoCols ? (availH + twoColShift) / visualRows : rowHeights[r];
 
         const cellTop = useTwoCols ? (gridTop - twoColShift) + layoutRow * rowH : rowTops[r];
         const cellLeft = margin + layoutCol * (layoutColW + colGap);
 
-        // In 2-col mode, draw a light rounded box around each problem
-        if (useTwoCols) {
-          const boxPad = 4;
-          svg.appendChild(svgEl("rect", {
-            x: cellLeft + boxPad, y: cellTop + boxPad,
-            width: layoutColW - boxPad * 2, height: rowH - boxPad * 2 - 2,
-            rx: 8, ry: 8,
-            fill: "#f8fafc", stroke: "#e2e8f0", "stroke-width": 0.75
-          }));
-        }
-
         // Problem number
         if (numbered) {
-          const probNumEl = svgEl("text", { x: cellLeft + 4, y: cellTop + 16, "font-family": "Fredoka, sans-serif", "font-size": "10", "font-weight": "600", fill: "#a0aec0" });
+          const pnX = useTwoCols ? cellLeft : cellLeft + 4;
+          const probNumEl = svgEl("text", { x: pnX, y: cellTop + 16, "font-family": "Fredoka, sans-serif", "font-size": "10", "font-weight": "600", fill: "#a0aec0" });
           probNumEl.textContent = probNum + ".";
           svg.appendChild(probNumEl);
         }
 
-        // Draw blocks on the left side
-        const contentLeft = cellLeft + 20;
+        // Draw blocks on the left side — align left edge with header text
+        const contentLeft = useTwoCols ? cellLeft + 4 : cellLeft;
         const contentTop = cellTop + 10;
         const cellAvailW = useTwoCols ? layoutColW : availW;
-        const cellBlocksAreaW = useTwoCols ? cellAvailW * 0.48 : cellAvailW * 0.55;
-        const blocksW = cellBlocksAreaW - 24;
+        const cellBlocksAreaW = useTwoCols ? cellAvailW * 0.44 : cellAvailW * 0.55;
+        const blocksW = cellBlocksAreaW;
         const blocksH = rowH - 12;
 
         drawBlocksBW(svg, hundreds, tens, ones, contentLeft, contentTop, blocksW, blocksH, useHundreds, unitSize, rodW, rodH, rodGap, unitGap, flatSize, flatGap, strokeColor, strokeW, groupGap);
 
         // Draw place value chart — in 2-col mode, place right after blocks with gap; in 1-col, right-align
-        const chartX = useTwoCols ? (contentLeft + blocksW + 4) : (cellLeft + cellAvailW - chartW);
+        const chartX = useTwoCols ? (contentLeft + blocksW + 14) : (cellLeft + cellAvailW - chartW);
         const blocksTallestH = (useHundreds && hundreds > 0) ? Math.max(rodH, flatSize) : rodH;
         // Bottom-align chart with blocks
         const chartY = contentTop + blocksTallestH - chartTotalH;
@@ -1132,6 +1123,28 @@
             oAns.textContent = String(ones);
             svg.appendChild(oAns);
           }
+        }
+      }
+
+      // In 2-col mode, draw divider lines between problems
+      if (useTwoCols) {
+        const divColor = "#d0d5dd";
+        const divStroke = 0.75;
+        // Vertical divider between left and right columns
+        const divX = margin + layoutColW + colGap / 2;
+        svg.appendChild(svgEl("line", {
+          x1: divX, y1: gridTop - twoColShift + 4,
+          x2: divX, y2: gridTop - twoColShift + visualRows * ((availH + twoColShift) / visualRows) - 4,
+          stroke: divColor, "stroke-width": divStroke
+        }));
+        // Horizontal dividers between rows
+        for (let vr = 1; vr < visualRows; vr++) {
+          const lineY = (gridTop - twoColShift) + vr * ((availH + twoColShift) / visualRows);
+          svg.appendChild(svgEl("line", {
+            x1: margin + 4, y1: lineY,
+            x2: margin + availW - 4, y2: lineY,
+            stroke: divColor, "stroke-width": divStroke
+          }));
         }
       }
 
