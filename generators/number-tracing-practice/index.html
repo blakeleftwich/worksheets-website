@@ -1196,10 +1196,12 @@
           for (var i = 0; i < count; i += rpp) {
             var chunk = allNumbers.slice(i, i + rpp);
             if (chunk.length < rpp) {
-              // Pad last page by cycling from start of this chunk
-              var page = [];
-              for (var r = 0; r < rpp; r++) {
-                page.push(chunk[r % chunk.length]);
+              // Pad last page by cycling from start of ALL selected numbers
+              var page = chunk.slice();
+              var fillIdx = 0;
+              while (page.length < rpp) {
+                page.push(allNumbers[fillIdx % count]);
+                fillIdx++;
               }
               basePages.push(page);
             } else {
