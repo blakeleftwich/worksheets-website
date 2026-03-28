@@ -1092,9 +1092,10 @@
 
       // Number bond diagram sizing -- scale to fit cells
       // Base diagram: ~120w x 100h, scale to fit available cell
-      const eqSpace = showEquation ? 36 : 0; // space reserved for equation below diagram
+      const eqSpace = showEquation ? 50 : 0; // space reserved for equation below diagram
       const diagramBaseW = 120, diagramBaseH = 100;
-      const scale = Math.min((colW - 20) / diagramBaseW, (rowH - 30 - eqSpace) / diagramBaseH, 1.55);
+      let scale = Math.min((colW - 20) / diagramBaseW, (rowH - 30 - eqSpace) / diagramBaseH, 1.55);
+      if (showEquation) scale *= 0.88; // slightly smaller diagram when equation is shown
 
       const topR = 20 * scale;    // top circle radius (whole)
       const botR = 17.5 * scale;  // bottom circle radius (parts)
