@@ -11,6 +11,7 @@
 
   <!-- Printable detail pages -->
   <url><loc>https://animalmath.com/printables/addition-fact-drills-to-5/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/addition-fact-drills-to-10/</loc><priority>0.8</priority></url>
   <url><loc>https://animalmath.com/printables/addition-to-5/</loc><priority>0.8</priority></url>
   <url><loc>https://animalmath.com/printables/count-and-circle-to-5/</loc><priority>0.8</priority></url>
   <url><loc>https://animalmath.com/printables/count-and-circle-to-10/</loc><priority>0.8</priority></url>
@@ -23,6 +24,8 @@
   <url><loc>https://animalmath.com/printables/hundreds-chart-reference/</loc><priority>0.8</priority></url>
   <url><loc>https://animalmath.com/printables/missing-numbers-to-5/</loc><priority>0.8</priority></url>
   <url><loc>https://animalmath.com/printables/number-bonds-to-5/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/subtraction-fact-drills-to-5/</loc><priority>0.8</priority></url>
+  <url><loc>https://animalmath.com/printables/subtraction-fact-drills-to-10/</loc><priority>0.8</priority></url>
 
   <!-- Generator pages (excluding hidden: comparing-numbers, fact-families, subtraction-with-pictures) -->
   <url><loc>https://animalmath.com/generators/2d-shapes/</loc><priority>0.7</priority></url>
