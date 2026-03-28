@@ -1068,7 +1068,7 @@
         const gridW = cellSize * cols;
         const gridH = cellSize * rows;
         const gridX = margin + (availW - gridW) / 2;
-        const gridY = topGridY + (availH - gridH) / 2;
+        const gridY = topGridY + (availH - gridH) * (totalNumbers <= 50 ? 0.35 : 0.5);
 
         const maxDigits = String(gridData.within).length;
         const fontSize = Math.min(cellSize * 0.5, cellSize * 0.75 / Math.max(1, maxDigits * 0.55));
