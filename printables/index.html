@@ -512,22 +512,20 @@
     /* ===== Modal Mobile Styles ===== */
     @media (max-width: 480px) {
       .modal-overlay {
-        padding: 16px 4px 8px;
+        padding: 28px 4px;
         align-items: flex-start;
         overflow: hidden;
       }
       .modal-box {
-        height: calc(100dvh - 24px);
-        height: calc(100vh - 24px);
-        max-height: calc(100dvh - 24px);
-        max-height: calc(100vh - 24px);
+        height: calc(100vh - 56px);
+        max-height: calc(100vh - 56px);
         border-radius: 12px;
         flex-shrink: 0;
       }
       @supports (height: 100dvh) {
         .modal-box {
-          height: calc(100dvh - 24px);
-          max-height: calc(100dvh - 24px);
+          height: calc(100dvh - 56px);
+          max-height: calc(100dvh - 56px);
         }
       }
       .modal-header {
@@ -553,13 +551,13 @@
         display: block;
       }
       .modal-thumbs {
-        padding: 4px 8px;
-        gap: 5px;
+        padding: 5px 8px;
+        gap: 6px;
         justify-content: flex-start;
         flex-shrink: 0;
       }
-      .modal-thumbs canvas { height: 40px; }
-      .modal-gen-link { padding: 4px 12px; font-size: 11px; flex-shrink: 0; }
+      .modal-thumbs canvas { height: 54px; }
+      .modal-gen-link { padding: 5px 12px; font-size: 11px; flex-shrink: 0; }
     }
 
     /* ===== Animations ===== */
