@@ -795,7 +795,7 @@
       });
       await Promise.all(promises);
     }
-    preloadCoinImages();
+    const coinImagesReady = preloadCoinImages();
 
     // ===== Draw coin SVG (real images) =====
     function drawCoin(parent, cx, cy, coinKey, side, scale) {
@@ -1292,7 +1292,7 @@
         const p = document.createElement("div"); p.className = "worksheet-page";
         const v = renderWorksheetSVG(currentState.sheets[0], {
           showHeader: opts.showHeader, title: opts.title, subtitle: opts.subtitle,
-          branded: opts.branded, showAnswers: false, includeExample: opts.includeExample
+          branded: opts.branded, showAnswers: false, numbered: opts.numbered, includeExample: opts.includeExample
         });
         p.appendChild(v); sheetWrap.appendChild(p);
       }
@@ -1510,8 +1510,8 @@
       resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150);
     });
 
-    // Init
-    renderWithNewRandomization();
+    // Init — wait for coin images to load before first render
+    coinImagesReady.then(() => renderWithNewRandomization());
   
     // Expose answer key capture for favorites pack system
     window._amCaptureAnswerKeys = function() {
