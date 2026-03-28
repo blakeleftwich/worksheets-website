@@ -1026,6 +1026,15 @@
 
       function buildModal(pdfDoc) {
         var bigCanvas = document.createElement('canvas');
+        // Pre-size canvas to letter aspect ratio to prevent layout flash
+        var previewRect = modalPreview.getBoundingClientRect();
+        var preH = previewRect.height || 500;
+        var preW = previewRect.width || 380;
+        var letterRatio = 792 / 612;
+        var fitW = Math.min(preW, preH / letterRatio);
+        var fitH = fitW * letterRatio;
+        bigCanvas.width = fitW;
+        bigCanvas.height = fitH;
         modalPreview.appendChild(bigCanvas);
 
         for (var p = 1; p <= wsCount; p++) {
@@ -1035,6 +1044,9 @@
               modalThumbs.querySelectorAll('canvas').forEach(function(c) { c.classList.remove('active'); });
               thumb.classList.add('active');
               var bigC = document.createElement('canvas');
+              // Pre-size to match current canvas so no layout flash
+              var cur = modalPreview.querySelector('canvas');
+              if (cur) { bigC.width = cur.width; bigC.height = cur.height; }
               renderPdfPage(pdfDoc, pageNum, bigC, 740).then(function() {
                 modalPreview.innerHTML = '';
                 modalPreview.appendChild(bigC);
