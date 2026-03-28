@@ -1138,7 +1138,7 @@
         const inset = 2;
         for (let vr = 0; vr < visualRows; vr++) {
           for (let c = 0; c < 2; c++) {
-            if (vr * 2 + c >= problems.length) break;
+            if (vr * 2 + c >= numRows) break;
             const bx = margin + c * (layoutColW + colGap) + inset;
             const by = (gridTop - twoColShift) + vr * rowH + inset;
             const bw = layoutColW - inset * 2;
