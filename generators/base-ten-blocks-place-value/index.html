@@ -973,7 +973,7 @@
         const baseChartW = useTwoCols ? Math.min(120, layoutColW * 0.48) : 180 - us;
         return {
           unitSize: us, rodW: us, rodH: us * 10,
-          rodGap: itemGap,
+          rodGap: useTwoCols ? Math.max(1, Math.round(itemGap * 0.4)) : itemGap,
           unitGap: itemGap,
           flatSize: us * 10, flatGap: itemGap,
           groupGap: groupGap,
