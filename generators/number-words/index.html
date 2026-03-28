@@ -536,10 +536,13 @@
       <div class="control-group">
         <label for="rangeSelect">Number Range</label>
         <select id="rangeSelect">
-          <option value="10" selected>1 &ndash; 10</option>
-          <option value="20">1 &ndash; 20</option>
-          <option value="50">1 &ndash; 50</option>
-          <option value="100">1 &ndash; 100</option>
+          <option value="1_10" selected>1 &ndash; 10</option>
+          <option value="10_20">10 &ndash; 20</option>
+          <option value="1_20">1 &ndash; 20</option>
+          <option value="25_50">25 &ndash; 50</option>
+          <option value="1_50">1 &ndash; 50</option>
+          <option value="50_100">50 &ndash; 100</option>
+          <option value="1_100">1 &ndash; 100</option>
         </select>
       </div>
       <div class="checkbox-row" style="margin-bottom:12px;">
@@ -577,11 +580,9 @@
           <div class="control-group" style="margin-bottom:12px;">
         <label for="problemsPerSheet">Problems per Sheet</label>
         <select id="problemsPerSheet">
-          <option value="5">5</option>
-          <option value="8">8</option>
-          <option value="10" selected>10</option>
-          <option value="12">12</option>
-          <option value="15">15</option>
+          <option value="8" selected>8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
         </select>
       </div>
 
@@ -717,9 +718,9 @@
     let currentState = { sheets: [] };
 
     // ===== Problem generation =====
-    function generateNumbers(count, maxRange) {
+    function generateNumbers(count, minRange, maxRange) {
       const available = [];
-      for (let i = 1; i <= maxRange; i++) available.push(i);
+      for (let i = minRange; i <= maxRange; i++) available.push(i);
       // Shuffle and pick
       for (let i = available.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -738,8 +739,8 @@
       return selected;
     }
 
-    function generateSheet(count, maxRange, mode) {
-      const numbers = generateNumbers(count, maxRange);
+    function generateSheet(count, minRange, maxRange, mode) {
+      const numbers = generateNumbers(count, minRange, maxRange);
       if (mode === "match") {
         // For match mode, create a shuffled right-side order
         const shuffled = [...numbers];
@@ -785,9 +786,13 @@
       const showHeader = getHeaderMode();
       const title = getTitle();
       const subtitle = getSubtitle();
+      const rangeParts = elRange.value.split("_");
+      const minRange = parseInt(rangeParts[0], 10);
+      const maxRange = parseInt(rangeParts[1], 10);
       return {
         mode: elMode.value,
-        maxRange: parseInt(elRange.value, 10),
+        minRange: minRange,
+        maxRange: maxRange,
         problemsPerSheet: parseInt(elProblems.value, 10),
         numWorksheets: parseInt(elNumSheets.value, 10),
         showHeader,
@@ -913,17 +918,18 @@
 
     // ===== Write the Word Mode =====
     function renderWriteWordMode(svg, sheetData, topGridY, availH, availW, margin, pageW, count, showAnswers, numbered, includeExample) {
-      const rowH = Math.min(availH / count, 60);
+      const padTop = 12, padBot = 8;
+      const usableH = availH - padTop - padBot;
+      const rowH = usableH / count;
       const probNumSize = 10;
-
-      // Scale font based on number of problems
-      const fontSize = count <= 8 ? 28 : count <= 10 ? 24 : count <= 12 ? 22 : 20;
+      const fontSize = 30;
       const lineY_offset = fontSize * 0.35;
+      const circleR = fontSize * 0.72;
 
       for (let i = 0; i < count; i++) {
         const num = sheetData.numbers[i];
         const word = numberWords[num];
-        const cellTop = topGridY + i * rowH;
+        const cellTop = topGridY + padTop + i * rowH;
         const cy = cellTop + rowH / 2 + lineY_offset;
         const isExample = (i === 0 && includeExample && !showAnswers);
 
@@ -936,12 +942,17 @@
         }
         x += count >= 10 ? probNumSize * 2.0 : probNumSize * 1.6;
 
+        // Circle around number
+        const numCx = x + fontSize * 0.55;
+        const numCy = cy - lineY_offset + 2;
+        svg.appendChild(svgEl("circle", { cx: numCx, cy: numCy, r: circleR, fill: "none", stroke: "#cbd5e0", "stroke-width": 1.5 }));
+
         // The number digit(s)
-        const digitEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        const digitEl = svgEl("text", { x: numCx, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
         digitEl.textContent = String(num); svg.appendChild(digitEl);
 
         // Blank line for writing the word
-        const lineX1 = margin + 120;
+        const lineX1 = margin + 130;
         const lineX2 = pageW - margin;
         const lineYPos = cellTop + rowH / 2 + lineY_offset + 4;
         svg.appendChild(svgEl("line", { x1: lineX1, y1: lineYPos, x2: lineX2, y2: lineYPos, stroke: isExample ? "#22c55e" : "#cbd5e0", "stroke-width": 1.5 }));
@@ -956,10 +967,10 @@
 
         // Answer
         if (isExample) {
-          const ansEl = svgEl("text", { x: lineX1 + 8, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.75), "font-weight": "500", fill: "#16a34a" });
+          const ansEl = svgEl("text", { x: lineX1 + 8, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.72), "font-weight": "500", fill: "#16a34a" });
           ansEl.textContent = word; svg.appendChild(ansEl);
         } else if (showAnswers) {
-          const ansEl = svgEl("text", { x: lineX1 + 8, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.75), "font-weight": "500", fill: "#3182ce" });
+          const ansEl = svgEl("text", { x: lineX1 + 8, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.72), "font-weight": "500", fill: "#3182ce" });
           ansEl.textContent = word; svg.appendChild(ansEl);
         }
       }
@@ -967,16 +978,17 @@
 
     // ===== Write the Number Mode =====
     function renderWriteNumberMode(svg, sheetData, topGridY, availH, availW, margin, pageW, count, showAnswers, numbered, includeExample) {
-      const rowH = Math.min(availH / count, 60);
+      const padTop = 12, padBot = 8;
+      const usableH = availH - padTop - padBot;
+      const rowH = usableH / count;
       const probNumSize = 10;
-
-      const fontSize = count <= 8 ? 26 : count <= 10 ? 22 : count <= 12 ? 20 : 18;
+      const fontSize = 26;
       const lineY_offset = fontSize * 0.35;
 
       for (let i = 0; i < count; i++) {
         const num = sheetData.numbers[i];
         const word = numberWords[num];
-        const cellTop = topGridY + i * rowH;
+        const cellTop = topGridY + padTop + i * rowH;
         const cy = cellTop + rowH / 2 + lineY_offset;
         const isExample = (i === 0 && includeExample && !showAnswers);
 
@@ -989,20 +1001,29 @@
         }
         x += count >= 10 ? probNumSize * 2.0 : probNumSize * 1.6;
 
+        // Circle around the word
+        // Estimate word width: ~fontSize * 0.5 per char, centered
+        const wordLen = word.length;
+        const estWordW = wordLen * fontSize * 0.42;
+        const wordCx = x + estWordW / 2;
+        const wordCy = cy - lineY_offset + 2;
+        const wordCircleRx = Math.max(estWordW / 2 + 12, fontSize * 0.8);
+        const wordCircleRy = fontSize * 0.72;
+        svg.appendChild(svgEl("ellipse", { cx: wordCx, cy: wordCy, rx: wordCircleRx, ry: wordCircleRy, fill: "none", stroke: "#cbd5e0", "stroke-width": 1.5 }));
+
         // The word
-        const wordEl = svgEl("text", { x: x, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        const wordEl = svgEl("text", { x: wordCx, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
         wordEl.textContent = word; svg.appendChild(wordEl);
 
-        // Box for writing the number
-        const boxW = fontSize * 3;
-        const boxH = fontSize * 1.6;
-        const boxX = pageW - margin - boxW;
-        const boxY = cellTop + rowH / 2 - boxH / 2 + 4;
-        svg.appendChild(svgEl("rect", { x: boxX, y: boxY, width: boxW, height: boxH, rx: 4, ry: 4, fill: isExample ? "#f0fdf4" : "none", stroke: isExample ? "#22c55e" : "#2d3748", "stroke-width": "1.5" }));
+        // Line for writing the number (replacing box)
+        const lineX1 = pageW - margin - 120;
+        const lineX2 = pageW - margin;
+        const lineYPos = cellTop + rowH / 2 + lineY_offset + 4;
+        svg.appendChild(svgEl("line", { x1: lineX1, y1: lineYPos, x2: lineX2, y2: lineYPos, stroke: isExample ? "#22c55e" : "#cbd5e0", "stroke-width": 1.5 }));
 
         // Example badge
         if (isExample) {
-          const badgeX = boxX + boxW - 44, badgeY = boxY - 15;
+          const badgeX = lineX2 - 44, badgeY = cy - fontSize * 0.7 - 13;
           svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
           const bt = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
           bt.textContent = "Example"; svg.appendChild(bt);
@@ -1010,10 +1031,10 @@
 
         // Answer
         if (isExample) {
-          const ansEl = svgEl("text", { x: boxX + boxW / 2, y: cy + 2, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#16a34a" });
+          const ansEl = svgEl("text", { x: (lineX1 + lineX2) / 2, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#16a34a" });
           ansEl.textContent = String(num); svg.appendChild(ansEl);
         } else if (showAnswers) {
-          const ansEl = svgEl("text", { x: boxX + boxW / 2, y: cy + 2, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
+          const ansEl = svgEl("text", { x: (lineX1 + lineX2) / 2, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize * 0.9), "font-weight": "500", fill: "#3182ce" });
           ansEl.textContent = String(num); svg.appendChild(ansEl);
         }
       }
@@ -1021,27 +1042,26 @@
 
     // ===== Match Mode =====
     function renderMatchMode(svg, sheetData, topGridY, availH, availW, margin, pageW, count, showAnswers, numbered, includeExample) {
-      const rowH = Math.min(availH / count, 60);
+      const padTop = 12, padBot = 8;
+      const usableH = availH - padTop - padBot;
+      const rowH = usableH / count;
       const probNumSize = 10;
-
-      const fontSize = count <= 8 ? 24 : count <= 10 ? 20 : count <= 12 ? 18 : 16;
+      const fontSize = 26;
       const lineY_offset = fontSize * 0.35;
+      const circleR = fontSize * 0.72;
 
-      const leftColX = margin + 40;
-      const rightColX = pageW - margin - 140;
-      const dotLeftX = leftColX + 80;
-      const dotRightX = rightColX - 16;
-
-      const adjustedTopY = topGridY;
-      const adjustedAvailH = availH;
-      const adjRowH = Math.min(adjustedAvailH / count, 60);
+      const leftNumX = margin + 60;
+      const rightWordX = pageW - margin - 100;
+      const lineLeftX = leftNumX + circleR + 10;
+      const lineRightX = rightWordX - 60;
 
       for (let i = 0; i < count; i++) {
         const num = sheetData.numbers[i];
         const shuffledNum = sheetData.shuffledWords[i];
         const word = numberWords[shuffledNum];
-        const cellTop = adjustedTopY + i * adjRowH;
-        const cy = cellTop + adjRowH / 2 + lineY_offset;
+        const cellTop = topGridY + padTop + i * rowH;
+        const cy = cellTop + rowH / 2 + lineY_offset;
+        const circleCy = cy - lineY_offset + 2;
 
         // Problem number
         if (numbered !== false) {
@@ -1049,36 +1069,44 @@
           numLbl.textContent = (i + 1) + "."; svg.appendChild(numLbl);
         }
 
-        // Left side: the digit
-        const digitEl = svgEl("text", { x: leftColX, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        // Circle around the digit
+        svg.appendChild(svgEl("circle", { cx: leftNumX, cy: circleCy, r: circleR, fill: "none", stroke: "#cbd5e0", "stroke-width": 1.5 }));
+
+        // Left side: the digit (centered in circle)
+        const digitEl = svgEl("text", { x: leftNumX, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
         digitEl.textContent = String(num); svg.appendChild(digitEl);
 
-        // Left dot
-        svg.appendChild(svgEl("circle", { cx: dotLeftX, cy: cy - lineY_offset + 2, r: 3.5, fill: "#2d3748" }));
+        // Circle/ellipse around the word
+        const wordLen = word.length;
+        const estWordW = wordLen * fontSize * 0.42;
+        const wordCx = rightWordX + estWordW / 2;
+        const wordCircleRx = Math.max(estWordW / 2 + 12, fontSize * 0.8);
+        svg.appendChild(svgEl("ellipse", { cx: wordCx, cy: circleCy, rx: wordCircleRx, ry: circleR, fill: "none", stroke: "#cbd5e0", "stroke-width": 1.5 }));
 
-        // Right side: the shuffled word
-        const wordEl = svgEl("text", { x: rightColX, y: cy, "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
+        // Right side: the shuffled word (centered in ellipse)
+        const wordEl = svgEl("text", { x: wordCx, y: cy, "text-anchor": "middle", "font-family": "'Google Sans Flex', sans-serif", "font-size": String(fontSize), "font-weight": "500", fill: "#1a202c" });
         wordEl.textContent = word; svg.appendChild(wordEl);
-
-        // Right dot
-        svg.appendChild(svgEl("circle", { cx: dotRightX, cy: cy - lineY_offset + 2, r: 3.5, fill: "#2d3748" }));
       }
 
       // Draw answer lines if showing answers or example
       if (showAnswers || includeExample) {
         const lineColor = showAnswers ? "#3182ce" : "#16a34a";
-        const startIdx = showAnswers ? 0 : 0;
         const endIdx = showAnswers ? count : 1;
-        for (let i = startIdx; i < endIdx; i++) {
+        for (let i = 0; i < endIdx; i++) {
           const num = sheetData.numbers[i];
-          const leftCy = adjustedTopY + i * adjRowH + adjRowH / 2 + 2;
+          const leftCy = topGridY + padTop + i * rowH + rowH / 2 + 2;
           const rightIdx = sheetData.shuffledWords.indexOf(num);
-          const rightCy = adjustedTopY + rightIdx * adjRowH + adjRowH / 2 + 2;
-          svg.appendChild(svgEl("line", { x1: dotLeftX + 6, y1: leftCy, x2: dotRightX - 6, y2: rightCy, stroke: lineColor, "stroke-width": 1.5, "stroke-dasharray": "4,3" }));
+          const rightCy = topGridY + padTop + rightIdx * rowH + rowH / 2 + 2;
+          const rightWord = numberWords[sheetData.shuffledWords[rightIdx]];
+          const rWordLen = rightWord.length;
+          const rEstW = rWordLen * fontSize * 0.42;
+          const rWordCx = rightWordX + rEstW / 2;
+          const rRx = Math.max(rEstW / 2 + 12, fontSize * 0.8);
+          svg.appendChild(svgEl("line", { x1: leftNumX + circleR + 4, y1: leftCy, x2: rWordCx - rRx - 4, y2: rightCy, stroke: lineColor, "stroke-width": 1.5, "stroke-dasharray": "4,3" }));
         }
         // Example badge for match mode
         if (!showAnswers && includeExample) {
-          const badgeX = pageW - margin - 44, badgeY = adjustedTopY + 0 * adjRowH + adjRowH / 2 - 20;
+          const badgeX = pageW - margin - 44, badgeY = topGridY + padTop + 0 * rowH + rowH / 2 - 20;
           svg.appendChild(svgEl("rect", { x: badgeX, y: badgeY, width: 42, height: 13, rx: 3, ry: 3, fill: "#dcfce7", stroke: "#22c55e", "stroke-width": "0.75" }));
           const bt = svgEl("text", { x: badgeX + 21, y: badgeY + 9.5, "text-anchor": "middle", "font-family": "Fredoka, sans-serif", "font-size": "8", "font-weight": "600", fill: "#16a34a" });
           bt.textContent = "Example"; svg.appendChild(bt);
@@ -1091,7 +1119,7 @@
       const opts = gatherOptions();
       currentState.sheets = [];
       for (let s = 0; s < opts.numWorksheets; s++) {
-        currentState.sheets.push(generateSheet(opts.problemsPerSheet, opts.maxRange, opts.mode));
+        currentState.sheets.push(generateSheet(opts.problemsPerSheet, opts.minRange, opts.maxRange, opts.mode));
       }
       renderWorksheet();
     }
@@ -1099,7 +1127,7 @@
     function renderWithoutRandomization() {
       const opts = gatherOptions();
       while (currentState.sheets.length < opts.numWorksheets) {
-        currentState.sheets.push(generateSheet(opts.problemsPerSheet, opts.maxRange, opts.mode));
+        currentState.sheets.push(generateSheet(opts.problemsPerSheet, opts.minRange, opts.maxRange, opts.mode));
       }
       if (currentState.sheets.length > opts.numWorksheets) currentState.sheets.length = opts.numWorksheets;
       renderWorksheet();
