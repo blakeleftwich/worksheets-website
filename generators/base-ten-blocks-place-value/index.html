@@ -1135,16 +1135,18 @@
       // In 2-col mode, draw rounded rectangle boxes around each problem cell
       if (useTwoCols) {
         const rowH = (availH + twoColShift) / visualRows;
-        const inset = 2;
+        const gap = 8; // uniform gap between boxes (horizontal and vertical)
+        const boxW = (availW - gap) / 2;  // wider: only one gap between two columns
+        const boxH = rowH - gap;          // slightly shorter to leave equal gap
+        const totalGridW = boxW * 2 + gap;
+        const gridLeft = margin + (availW - totalGridW) / 2;
         for (let vr = 0; vr < visualRows; vr++) {
           for (let c = 0; c < 2; c++) {
             if (vr * 2 + c >= numRows) break;
-            const bx = margin + c * (layoutColW + colGap) + inset;
-            const by = (gridTop - twoColShift) + vr * rowH + inset;
-            const bw = layoutColW - inset * 2;
-            const bh = rowH - inset * 2;
+            const bx = gridLeft + c * (boxW + gap);
+            const by = (gridTop - twoColShift) + vr * rowH + gap / 2;
             svg.appendChild(svgEl("rect", {
-              x: bx, y: by, width: bw, height: bh,
+              x: bx, y: by, width: boxW, height: boxH,
               rx: 8, ry: 8, fill: "none", stroke: "#9ca3af", "stroke-width": 1
             }));
           }
