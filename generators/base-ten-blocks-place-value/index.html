@@ -1026,27 +1026,34 @@
         const cellTop = useTwoCols ? (gridTop - twoColShift) + layoutRow * rowH : rowTops[r];
         const cellLeft = margin + layoutCol * (layoutColW + colGap);
 
-        // Problem number
+        // Compute content height first (needed for bottom-alignment in 2-col mode)
+        const contentLeft = useTwoCols ? cellLeft + 4 : cellLeft;
+        const cellAvailW = useTwoCols ? layoutColW : availW;
+        const cellBlocksAreaW = useTwoCols ? cellAvailW * 0.44 : cellAvailW * 0.55;
+        const blocksW = cellBlocksAreaW;
+        const blocksH = rowH - 12;
+        const blocksTallestH = (useHundreds && hundreds > 0) ? Math.max(rodH, flatSize) : rodH;
+
+        // In 2-col mode, bottom-align content within the cell with a small pad
+        const bottomPad = 8;
+        const contentTop = useTwoCols
+          ? cellTop + rowH - blocksTallestH - bottomPad
+          : cellTop + 10;
+
+        // Problem number — position relative to content
         if (numbered) {
           const pnX = useTwoCols ? cellLeft : cellLeft + 4;
-          const probNumEl = svgEl("text", { x: pnX, y: cellTop + 16, "font-family": "Fredoka, sans-serif", "font-size": "10", "font-weight": "600", fill: "#a0aec0" });
+          const pnY = useTwoCols ? contentTop - 2 : cellTop + 16;
+          const probNumEl = svgEl("text", { x: pnX, y: pnY, "font-family": "Fredoka, sans-serif", "font-size": "10", "font-weight": "600", fill: "#a0aec0" });
           probNumEl.textContent = probNum + ".";
           svg.appendChild(probNumEl);
         }
 
         // Draw blocks on the left side — align left edge with header text
-        const contentLeft = useTwoCols ? cellLeft + 4 : cellLeft;
-        const contentTop = cellTop + 10;
-        const cellAvailW = useTwoCols ? layoutColW : availW;
-        const cellBlocksAreaW = useTwoCols ? cellAvailW * 0.44 : cellAvailW * 0.55;
-        const blocksW = cellBlocksAreaW;
-        const blocksH = rowH - 12;
-
         drawBlocksBW(svg, hundreds, tens, ones, contentLeft, contentTop, blocksW, blocksH, useHundreds, unitSize, rodW, rodH, rodGap, unitGap, flatSize, flatGap, strokeColor, strokeW, groupGap);
 
         // Draw place value chart — in 2-col mode, place right after blocks with gap; in 1-col, right-align
         const chartX = useTwoCols ? (contentLeft + blocksW + 14) : (cellLeft + cellAvailW - chartW);
-        const blocksTallestH = (useHundreds && hundreds > 0) ? Math.max(rodH, flatSize) : rodH;
         // Bottom-align chart with blocks
         const chartY = contentTop + blocksTallestH - chartTotalH;
         const numCols = useHundreds ? 3 : 2;
