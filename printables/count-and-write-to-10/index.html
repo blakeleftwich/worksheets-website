@@ -142,14 +142,17 @@
     .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 32px; }
     @media (max-width: 600px) { .skills-grid { grid-template-columns: 1fr; } }
     @media (max-width: 480px) {
-      .detail-container { gap: 20px; padding: 0 12px; }
-      .big-preview { min-height: 280px; }
+      .detail-container { gap: 16px; padding: 12px 12px 24px; }
+      .big-preview { min-height: 240px; padding: 12px; }
+      .big-preview canvas { max-height: 420px; }
+      .thumb-strip { padding: 8px 8px; justify-content: flex-start; }
       .edu-section { padding: 20px 16px; }
-      .breadcrumb { font-size: 12px; padding: 16px 16px 0; }
-      .info-col h1 { font-size: 24px; }
+      .breadcrumb { font-size: 12px; padding: 12px 16px 0; }
+      .info-col h1 { font-size: 22px; }
       .info-badges { gap: 6px; }
-      .btn-download { padding: 14px 20px; font-size: 16px; }
+      .btn-download { padding: 12px 20px; font-size: 15px; }
       .btn-print { padding: 10px 20px; font-size: 14px; }
+      .gen-callout { font-size: 12px; padding: 10px 12px; }
       .related-grid { grid-template-columns: 1fr; }
     }
 
@@ -346,6 +349,13 @@
       }
       showBigPage(pdfDoc, 1);
     });
+
+    
+    // On mobile, nudge thumb strip so first thumbnail isn't clipped
+    if (window.innerWidth <= 480) {
+      var strip = document.getElementById('thumbStrip');
+      if (strip) { setTimeout(function() { strip.scrollLeft = 4; }, 200); }
+    }
 
     document.getElementById('printBtn').addEventListener('click', function() {
       var iframe = document.createElement('iframe');
