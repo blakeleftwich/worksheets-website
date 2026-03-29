@@ -580,6 +580,19 @@
       </div>
 
       <div class="control-group">
+        <label>Bills to Include</label>
+        <div class="coin-chips">
+          <label class="coin-chip"><input type="checkbox" id="billOne" /><span>$1</span></label>
+          <label class="coin-chip"><input type="checkbox" id="billTwo" /><span>$2</span></label>
+          <label class="coin-chip"><input type="checkbox" id="billFive" /><span>$5</span></label>
+          <label class="coin-chip"><input type="checkbox" id="billTen" /><span>$10</span></label>
+          <label class="coin-chip"><input type="checkbox" id="billTwenty" /><span>$20</span></label>
+          <label class="coin-chip"><input type="checkbox" id="billFifty" /><span>$50</span></label>
+          <label class="coin-chip"><input type="checkbox" id="billHundred" /><span>$100</span></label>
+        </div>
+      </div>
+
+      <div class="control-group">
         <label for="problemType">Problem Type</label>
         <select id="problemType">
           <option value="name" selected>Name the Coin</option>
@@ -721,6 +734,13 @@
     const elCoinNickel = document.getElementById("coinNickel");
     const elCoinDime = document.getElementById("coinDime");
     const elCoinQuarter = document.getElementById("coinQuarter");
+    const elBillOne = document.getElementById("billOne");
+    const elBillTwo = document.getElementById("billTwo");
+    const elBillFive = document.getElementById("billFive");
+    const elBillTen = document.getElementById("billTen");
+    const elBillTwenty = document.getElementById("billTwenty");
+    const elBillFifty = document.getElementById("billFifty");
+    const elBillHundred = document.getElementById("billHundred");
     const elProblemType = document.getElementById("problemType");
     const elProblems = document.getElementById("problemsPerSheet");
     const elCoinSide = document.getElementById("coinSide");
@@ -758,6 +778,10 @@
       if (elCustomTitleEnabled.checked) {
         return elShowTitle.checked ? elHeaderText.value : "";
       }
+      const hasBills = getSelectedBills().length > 0;
+      const hasCoins = getSelectedCoins().length > 0;
+      if (hasBills && hasCoins) return "Money Identification";
+      if (hasBills) return "Bill Identification";
       return "Coin Identification";
     }
 
@@ -765,6 +789,10 @@
       if (elCustomTitleEnabled.checked) {
         return elShowSubtitle.checked ? elSubtitleText.value : "";
       }
+      const hasBills = getSelectedBills().length > 0;
+      const hasCoins = getSelectedCoins().length > 0;
+      if (hasBills && hasCoins) return "Identify each coin or bill and write its value.";
+      if (hasBills) return "Identify each bill and write its value.";
       return "Identify each coin and write its value.";
     }
 
@@ -776,12 +804,25 @@
       quarter: { name: "Quarter", value: "25\u00A2", cents: 25, color: "#C8C8C8", rimColor: "#888",    radius: 38, label: "25\u00A2", img: "../shared/images/quarter.png" }
     };
 
-    // ===== Preload coin images as base64 data URIs =====
+    // ===== Bill data =====
+    const BILLS = {
+      one:     { name: "$1 Bill",   value: "$1",   cents: 100,   w: 56, h: 26, img: "../shared/images/dollar.png" },
+      two:     { name: "$2 Bill",   value: "$2",   cents: 200,   w: 56, h: 26, img: "../shared/images/two-bill.png" },
+      five:    { name: "$5 Bill",   value: "$5",   cents: 500,   w: 56, h: 26, img: "../shared/images/five-bill.png" },
+      ten:     { name: "$10 Bill",  value: "$10",  cents: 1000,  w: 56, h: 26, img: "../shared/images/ten-bill.png" },
+      twenty:  { name: "$20 Bill",  value: "$20",  cents: 2000,  w: 56, h: 26, img: "../shared/images/twenty-bill.png" },
+      fifty:   { name: "$50 Bill",  value: "$50",  cents: 5000,  w: 56, h: 26, img: "../shared/images/fifty-bill.png" },
+      hundred: { name: "$100 Bill", value: "$100", cents: 10000, w: 56, h: 26, img: "../shared/images/hundred-bill.png" }
+    };
+
+    // ===== Preload money images as base64 data URIs =====
     const COIN_IMAGE_DATA = {};
     async function preloadCoinImages() {
-      const promises = Object.entries(COINS).map(async ([key, coin]) => {
+      const allDefs = { ...COINS, ...BILLS };
+      const promises = Object.entries(allDefs).map(async ([key, def]) => {
+        if (!def.img) return;
         try {
-          const resp = await fetch(coin.img);
+          const resp = await fetch(def.img);
           const blob = await resp.blob();
           const dataUrl = await new Promise(resolve => {
             const reader = new FileReader();
@@ -790,7 +831,7 @@
           });
           COIN_IMAGE_DATA[key] = dataUrl;
         } catch (e) {
-          console.warn("Failed to load coin image:", key, e);
+          console.warn("Failed to load money image:", key, e);
         }
       });
       await Promise.all(promises);
@@ -840,10 +881,42 @@
       }
     }
 
+    // ===== Draw bill SVG (real images) =====
+    function drawBill(parent, cx, cy, billKey, scale) {
+      scale = scale || 1;
+      const bill = BILLS[billKey];
+      const w = bill.w * scale;
+      const h = bill.h * scale;
+      const dataUrl = COIN_IMAGE_DATA[billKey];
+      if (dataUrl) {
+        const img = svgEl("image", {
+          x: cx - w / 2, y: cy - h / 2,
+          width: w, height: h,
+          href: dataUrl,
+          preserveAspectRatio: "xMidYMid meet"
+        });
+        parent.appendChild(img);
+      } else {
+        // Fallback: green rectangle
+        parent.appendChild(svgEl("rect", {
+          x: cx - w / 2, y: cy - h / 2, width: w, height: h,
+          rx: 2, ry: 2, fill: "#b8d8b8", stroke: "#2d6a2d", "stroke-width": "1"
+        }));
+        const txt = svgEl("text", {
+          x: cx, y: cy + 4,
+          "text-anchor": "middle",
+          "font-family": "Fredoka, sans-serif",
+          "font-size": String(10 * scale), "font-weight": "600", fill: "#1a4a1a"
+        });
+        txt.textContent = bill.value;
+        parent.appendChild(txt);
+      }
+    }
+
     // ===== State =====
     let currentState = { sheets: [] };
 
-    // ===== Get selected coins =====
+    // ===== Get selected coins and bills =====
     function getSelectedCoins() {
       const coins = [];
       if (elCoinPenny.checked) coins.push("penny");
@@ -853,49 +926,83 @@
       return coins;
     }
 
-    function handleCoinChange(el) {
-      const coins = getSelectedCoins();
-      if (coins.length < 2) { el.checked = true; return; }
+    function getSelectedBills() {
+      const bills = [];
+      if (elBillOne.checked) bills.push("one");
+      if (elBillTwo.checked) bills.push("two");
+      if (elBillFive.checked) bills.push("five");
+      if (elBillTen.checked) bills.push("ten");
+      if (elBillTwenty.checked) bills.push("twenty");
+      if (elBillFifty.checked) bills.push("fifty");
+      if (elBillHundred.checked) bills.push("hundred");
+      return bills;
+    }
+
+    function getSelectedMoneyItems() {
+      return [...getSelectedCoins(), ...getSelectedBills()];
+    }
+
+    function handleMoneyChange(el) {
+      const all = getSelectedMoneyItems();
+      if (all.length < 2) { el.checked = true; return; }
       renderWithNewRandomization();
     }
 
-    elCoinPenny.addEventListener("change", () => handleCoinChange(elCoinPenny));
-    elCoinNickel.addEventListener("change", () => handleCoinChange(elCoinNickel));
-    elCoinDime.addEventListener("change", () => handleCoinChange(elCoinDime));
-    elCoinQuarter.addEventListener("change", () => handleCoinChange(elCoinQuarter));
+    elCoinPenny.addEventListener("change", () => handleMoneyChange(elCoinPenny));
+    elCoinNickel.addEventListener("change", () => handleMoneyChange(elCoinNickel));
+    elCoinDime.addEventListener("change", () => handleMoneyChange(elCoinDime));
+    elCoinQuarter.addEventListener("change", () => handleMoneyChange(elCoinQuarter));
+    elBillOne.addEventListener("change", () => handleMoneyChange(elBillOne));
+    elBillTwo.addEventListener("change", () => handleMoneyChange(elBillTwo));
+    elBillFive.addEventListener("change", () => handleMoneyChange(elBillFive));
+    elBillTen.addEventListener("change", () => handleMoneyChange(elBillTen));
+    elBillTwenty.addEventListener("change", () => handleMoneyChange(elBillTwenty));
+    elBillFifty.addEventListener("change", () => handleMoneyChange(elBillFifty));
+    elBillHundred.addEventListener("change", () => handleMoneyChange(elBillHundred));
+
+    // ===== Lookup helpers for coins and bills =====
+    function getMoneyDef(key) {
+      return COINS[key] || BILLS[key];
+    }
+    function isBill(key) {
+      return !!BILLS[key];
+    }
 
     // ===== Problem generation =====
     function generateProblems(count, opts) {
-      const { coins, problemType, coinSide } = opts;
+      const { coins, bills, problemType, coinSide } = opts;
+      const allItems = [...coins, ...bills];
       const problems = [];
       const types = problemType === "mixed" ? ["name", "value", "match"] : [problemType];
 
-      for (let i = 0; i < count; i++) {
-        const coinKey = coins[Math.floor(Math.random() * coins.length)];
-        const type = types[Math.floor(Math.random() * types.length)];
-        const side = coinSide === "mixed" ? (Math.random() < 0.5 ? "heads" : "tails") : coinSide;
+      // Build a combined lookup for all selectable money items
+      const allMoneyDefs = {};
+      Object.keys(COINS).forEach(k => { allMoneyDefs[k] = COINS[k]; });
+      Object.keys(BILLS).forEach(k => { allMoneyDefs[k] = BILLS[k]; });
 
-        let problem = { coinKey, type, side };
+      for (let i = 0; i < count; i++) {
+        const itemKey = allItems[Math.floor(Math.random() * allItems.length)];
+        const type = types[Math.floor(Math.random() * types.length)];
+        const side = isBill(itemKey) ? "front" : (coinSide === "mixed" ? (Math.random() < 0.5 ? "heads" : "tails") : coinSide);
+
+        let problem = { coinKey: itemKey, type, side, isBill: isBill(itemKey) };
 
         if (type === "match") {
-          // Build a shuffled list of coin values for matching
-          // We use 4 choices from the available coins
+          const def = getMoneyDef(itemKey);
+          const correctValue = def.value;
           const choices = [];
-          const correctValue = COINS[coinKey].value;
           choices.push({ value: correctValue, correct: true });
 
-          // Add wrong answers from other coins
-          const otherCoins = Object.keys(COINS).filter(k => COINS[k].value !== correctValue);
-          // Shuffle other coins
-          for (let j = otherCoins.length - 1; j > 0; j--) {
+          // Add wrong answers from all money types
+          const others = Object.keys(allMoneyDefs).filter(k => allMoneyDefs[k].value !== correctValue);
+          for (let j = others.length - 1; j > 0; j--) {
             const swap = Math.floor(Math.random() * (j + 1));
-            [otherCoins[j], otherCoins[swap]] = [otherCoins[swap], otherCoins[j]];
+            [others[j], others[swap]] = [others[swap], others[j]];
           }
-          for (let j = 0; j < Math.min(3, otherCoins.length); j++) {
-            choices.push({ value: COINS[otherCoins[j]].value, correct: false });
+          for (let j = 0; j < Math.min(3, others.length); j++) {
+            choices.push({ value: allMoneyDefs[others[j]].value, correct: false });
           }
 
-          // Shuffle choices
           for (let j = choices.length - 1; j > 0; j--) {
             const swap = Math.floor(Math.random() * (j + 1));
             [choices[j], choices[swap]] = [choices[swap], choices[j]];
@@ -912,11 +1019,13 @@
     // ===== Gather options =====
     function gatherOptions() {
       const coins = getSelectedCoins();
+      const bills = getSelectedBills();
       const showHeader = getHeaderMode();
       const title = getTitle();
       const subtitle = getSubtitle();
       return {
         coins: coins,
+        bills: bills,
         problemType: elProblemType.value,
         problemsPerSheet: parseInt(elProblems.value, 10),
         coinSide: elCoinSide.value,
@@ -1051,7 +1160,7 @@
         const cellLeft = margin + col * colW;
         const cellTop = topGridY + row * rowH;
         const problem = problems[i];
-        const coin = COINS[problem.coinKey];
+        const coin = getMoneyDef(problem.coinKey);
         const isExample = (i === 0 && includeExample && !showAnswers);
 
         // Problem number
@@ -1066,10 +1175,14 @@
           svg.appendChild(probNumEl);
         }
 
-        // Draw coin in left portion of cell
+        // Draw coin or bill in left portion of cell
         const coinCx = cellLeft + colW * 0.22;
         const coinCy = cellTop + rowH * 0.45;
-        drawCoin(svg, coinCx, coinCy, problem.coinKey, problem.side, coinScale);
+        if (problem.isBill) {
+          drawBill(svg, coinCx, coinCy, problem.coinKey, coinScale);
+        } else {
+          drawCoin(svg, coinCx, coinCy, problem.coinKey, problem.side, coinScale);
+        }
 
         // Right side: question and answer area
         const rightX = cellLeft + colW * 0.45;

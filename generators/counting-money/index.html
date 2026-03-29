@@ -532,7 +532,11 @@
           <option value="pennies-nickels">Pennies &amp; Nickels</option>
           <option value="pennies-nickels-dimes" selected>Pennies, Nickels &amp; Dimes</option>
           <option value="all-coins">All Coins (incl. Quarters)</option>
-          <option value="coins-bills">Coins &amp; Bills</option>
+          <option value="coins-bills-small">Coins &amp; Bills ($1, $5)</option>
+          <option value="coins-bills-medium">Coins &amp; Bills ($1–$20)</option>
+          <option value="coins-bills-all">Coins &amp; All Bills ($1–$100)</option>
+          <option value="bills-only-small">Bills Only ($1–$5)</option>
+          <option value="bills-only-all">All Bills ($1–$100)</option>
         </select>
       </div>
 
@@ -543,6 +547,11 @@
           <option value="50" selected>50&cent;</option>
           <option value="100">$1.00</option>
           <option value="500">$5.00</option>
+          <option value="1000">$10.00</option>
+          <option value="2000">$20.00</option>
+          <option value="5000">$50.00</option>
+          <option value="10000">$100.00</option>
+          <option value="20000">$200.00</option>
         </select>
       </div>
 <div class="control-group">
@@ -734,8 +743,13 @@
     };
 
     const BILL_DEFS = {
-      one:  { value: 100, label: "$1", w: 42, h: 20, fill: "#b8d8b8", stroke: "#2d6a2d", textFill: "#1a4a1a", img: "../shared/images/dollar.png" },
-      five: { value: 500, label: "$5", w: 42, h: 20, fill: "#a0cca0", stroke: "#1a5a1a", textFill: "#0e3a0e", img: "../shared/images/five-bill.png" }
+      one:     { value: 100,   label: "$1",   w: 42, h: 20, fill: "#b8d8b8", stroke: "#2d6a2d", textFill: "#1a4a1a", img: "../shared/images/dollar.png" },
+      two:     { value: 200,   label: "$2",   w: 42, h: 20, fill: "#b8d8b8", stroke: "#2d6a2d", textFill: "#1a4a1a", img: "../shared/images/two-bill.png" },
+      five:    { value: 500,   label: "$5",   w: 42, h: 20, fill: "#a0cca0", stroke: "#1a5a1a", textFill: "#0e3a0e", img: "../shared/images/five-bill.png" },
+      ten:     { value: 1000,  label: "$10",  w: 42, h: 20, fill: "#c4b896", stroke: "#8a7a3a", textFill: "#5a4a1a", img: "../shared/images/ten-bill.png" },
+      twenty:  { value: 2000,  label: "$20",  w: 42, h: 20, fill: "#b8c8b8", stroke: "#2d5a2d", textFill: "#1a3a1a", img: "../shared/images/twenty-bill.png" },
+      fifty:   { value: 5000,  label: "$50",  w: 42, h: 20, fill: "#c8b8a8", stroke: "#6a4a2a", textFill: "#3a2a0a", img: "../shared/images/fifty-bill.png" },
+      hundred: { value: 10000, label: "$100", w: 42, h: 20, fill: "#a8c8c8", stroke: "#2a5a5a", textFill: "#0a3a3a", img: "../shared/images/hundred-bill.png" }
     };
 
     // ===== Preload money images as base64 data URIs =====
@@ -773,9 +787,19 @@
         coins.push("penny", "nickel", "dime");
       } else if (coinType === "all-coins") {
         coins.push("penny", "nickel", "dime", "quarter");
-      } else if (coinType === "coins-bills") {
+      } else if (coinType === "coins-bills-small") {
         coins.push("penny", "nickel", "dime", "quarter");
         bills.push("one", "five");
+      } else if (coinType === "coins-bills-medium") {
+        coins.push("penny", "nickel", "dime", "quarter");
+        bills.push("one", "two", "five", "ten", "twenty");
+      } else if (coinType === "coins-bills-all") {
+        coins.push("penny", "nickel", "dime", "quarter");
+        bills.push("one", "two", "five", "ten", "twenty", "fifty", "hundred");
+      } else if (coinType === "bills-only-small") {
+        bills.push("one", "two", "five");
+      } else if (coinType === "bills-only-all") {
+        bills.push("one", "two", "five", "ten", "twenty", "fifty", "hundred");
       }
       return { coins, bills };
     }
@@ -788,29 +812,38 @@
       let attempts = 0;
 
       // Generate a target value between a reasonable minimum and maxTotal
-      const minValue = coins.includes("penny") ? 1 : (coins.includes("nickel") ? 5 : 10);
-      const target = minValue + Math.floor(Math.random() * (maxCents - minValue + 1));
+      let minValue, step;
+      if (coins.length === 0) {
+        // Bills only — find smallest bill value
+        const smallestBill = bills.reduce((min, b) => Math.min(min, BILL_DEFS[b].value), Infinity);
+        minValue = smallestBill;
+        step = smallestBill;
+      } else {
+        minValue = coins.includes("penny") ? 1 : (coins.includes("nickel") ? 5 : 10);
+        step = 1;
+      }
+      const target = minValue + Math.floor(Math.random() * Math.floor((maxCents - minValue) / step + 1)) * step;
 
       // Build the collection of coins/bills that sum to target
       const collection = [];
       remaining = target;
 
-      // Add bills first if available
+      // Add bills first if available (largest to smallest)
       if (bills.length > 0) {
-        // Possibly add a $5 bill
-        if (bills.includes("five") && remaining >= 500 && Math.random() < 0.3) {
-          collection.push({ type: "bill", denom: "five" });
-          remaining -= 500;
-        }
-        // Possibly add $1 bills
-        if (bills.includes("one")) {
-          const maxOnes = Math.min(Math.floor(remaining / 100), 4);
-          if (maxOnes > 0) {
-            const numOnes = Math.random() < 0.5 ? 0 : (1 + Math.floor(Math.random() * maxOnes));
-            for (let i = 0; i < numOnes; i++) {
-              collection.push({ type: "bill", denom: "one" });
-              remaining -= 100;
-            }
+        const billOrder = ["hundred", "fifty", "twenty", "ten", "five", "two", "one"];
+        for (const bName of billOrder) {
+          if (!bills.includes(bName)) continue;
+          const billVal = BILL_DEFS[bName].value;
+          if (remaining < billVal) continue;
+          const maxCount = Math.min(Math.floor(remaining / billVal), 3);
+          if (maxCount <= 0) continue;
+          // Randomly use 0 to maxCount of this bill (bias toward using at least one for larger bills)
+          const count = bName === billOrder[billOrder.length - 1]
+            ? Math.floor(Math.random() * (maxCount + 1))
+            : (Math.random() < 0.4 ? 0 : (1 + Math.floor(Math.random() * maxCount)));
+          for (let i = 0; i < count; i++) {
+            collection.push({ type: "bill", denom: bName });
+            remaining -= billVal;
           }
         }
       }
@@ -842,8 +875,8 @@
         }
       }
 
-      // If remaining > 0 and we only have pennies left, add pennies
-      if (remaining > 0) {
+      // If remaining > 0 and coins available, add pennies to make exact change
+      if (remaining > 0 && coins.length > 0) {
         for (let i = 0; i < remaining; i++) {
           collection.push({ type: "coin", denom: "penny" });
         }
