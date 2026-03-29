@@ -759,7 +759,7 @@
       });
       await Promise.all(promises);
     }
-    preloadMoneyImages();
+    const moneyImagesReady = preloadMoneyImages();
 
     // ===== Get available denominations =====
     function getAvailableDenoms(coinType) {
@@ -1491,8 +1491,8 @@
     let resizeTimeout;
     window.addEventListener("resize", () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { if (currentState.sheets.length > 1) renderWorksheet(); }, 150); });
 
-    // Init
-    renderWithNewRandomization();
+    // Init — wait for money images to load before first render
+    moneyImagesReady.then(() => renderWithNewRandomization());
   
     // Expose answer key capture for favorites pack system
     window._amCaptureAnswerKeys = function() {
